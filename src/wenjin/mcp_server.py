@@ -5,6 +5,7 @@ MCP-Session-Id；启动时显式禁止stateless HTTP。
 """
 
 import argparse
+import json
 import os
 import time
 from collections.abc import AsyncIterator
@@ -16,11 +17,16 @@ from fastmcp import Context, FastMCP
 from fastmcp.server.dependencies import get_http_headers
 from mcp.types import LATEST_PROTOCOL_VERSION
 from starlette.middleware import Middleware
+from starlette.requests import Request
+from starlette.responses import FileResponse, JSONResponse, Response
 
+from wenjin.access import AccessDenied, AccessRegistry
 from wenjin.audit import SearchAudit
 from wenjin.auth import BearerAuthMiddleware
+from wenjin.catalog import corpus_catalog
 from wenjin.index_registry import IndexRegistryStore, resolve_project_path, validate_target
 from wenjin.retrieval.service import RetrievalService, SearchConfig, load_source_urls
+from wenjin.serving import DOWNLOAD_PREFIX, SourceLibrary, SourceNotFound, attach_download_paths
 
 ROOT = Path(__file__).resolve().parents[2]
 EXPECTED_PROTOCOL_VERSION = "2025-11-25"
@@ -76,17 +82,42 @@ def create_default_service(*, use_reranker: bool = True) -> RetrievalService:
         raise
 
 
+def active_corpus_id(root: Path | None = None) -> str | None:
+    """active索引对应哪个语料；从manifest路径的目录名取，和语料目录命名一致。"""
+    registry_path = (root or ROOT) / "data/indexes/index-registry.json"
+    if not registry_path.is_file():
+        return None
+    try:
+        data = json.loads(registry_path.read_text(encoding="utf-8-sig"))
+        manifest = Path(data["active"]["manifest_path"])
+    except (KeyError, json.JSONDecodeError, OSError):
+        return None
+    return manifest.parent.name
+
+
 def build_mcp_server(
-    service: RetrievalService | None = None, *, audit: SearchAudit | None = None
+    service: RetrievalService | None = None,
+    *,
+    audit: SearchAudit | None = None,
+    access: AccessRegistry | None = None,
+    raw_root: Path | None = None,
+    project_root: Path | None = None,
 ) -> FastMCP:
-    """创建只有一个只读检索工具的MCP服务；测试可注入轻量service。"""
+    """创建只读的MCP服务（检索、语料目录、原文取件）。
+
+    根目录、审计和访问策略都可注入：测试用临时目录，部署用项目目录，模块里不写死。
+    """
     if LATEST_PROTOCOL_VERSION != EXPECTED_PROTOCOL_VERSION:
         raise RuntimeError(
             f"MCP SDK协议版本为{LATEST_PROTOCOL_VERSION}，项目要求{EXPECTED_PROTOCOL_VERSION}"
         )
 
+    root = project_root or ROOT
     # 不依赖HTTP访问日志：进程内和网络MCP调用走同一审计入口。
-    audit = audit or SearchAudit.from_environment(ROOT)
+    audit = audit or SearchAudit.from_environment(root)
+    # 访问策略默认从部署目录加载；没有策略文件的语料一律拒绝。
+    access = access if access is not None else AccessRegistry.from_directory(root / "configs/access")
+    source_library = SourceLibrary(raw_root or (root / "raw_data"))
 
     if service is None:
 
@@ -143,6 +174,30 @@ def build_mcp_server(
         client_id = get_http_headers(include={"x-wenjin-authenticated-client"}).get(
             "x-wenjin-authenticated-client"
         )
+        # 检索路径同样过访问策略：只锁下载是没用的，能拿到chunk正文就等于看到了内容。
+        # 被拒绝时返回结构化的forbidden结果而不是抛异常：服务端开了错误屏蔽，
+        # 抛异常会让客户端只看到"调用失败"，分不清是被拒还是服务坏了。
+        corpus_id = active_corpus_id(root)
+        try:
+            if corpus_id:
+                access.require(corpus_id, client_id)
+        except AccessDenied as exc:
+            audit.record(
+                query=query, version=version, top_k=top_k,
+                context_char_budget=context_char_budget, session_id=session_id,
+                client_id=client_id,
+                elapsed_seconds=time.perf_counter() - started, error=exc,
+            )
+            return {
+                "query": query,
+                "error": "forbidden",
+                "detail": str(exc),
+                "corpus_id": corpus_id,
+                "evidence": [],
+                "evidence_status": "not_retrieved",
+                "answer_status": "not_generated",
+                "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
+            }
         try:
             result = runtime.search(
                 query,
@@ -166,9 +221,74 @@ def build_mcp_server(
             client_id=client_id,
             elapsed_seconds=time.perf_counter() - started, result=result,
         )
+        # 补上取件路径，让调用方能直接下载到原文；只拼接，鉴权在端点里做。
+        if corpus_id:
+            result["evidence"] = attach_download_paths(result["evidence"], corpus_id)
         result["request_id"] = request_id
         result["mcp_protocol"] = EXPECTED_PROTOCOL_VERSION
         return result
+
+    @mcp.tool(
+        name="list_corpora",
+        description=(
+            "List the corpora available in the knowledge base: library, version, license, "
+            "file counts and whether an index exists. Only corpora this client may read are "
+            "returned. Use this before searching to learn what is indexed."
+        ),
+        run_in_thread=True,
+    )
+    def list_corpora(
+        include_files: bool = False,
+        ctx: Context | None = None,
+    ) -> dict:
+        """返回调用方有权查看的语料清单；无权限的语料不会出现，也不暴露其存在。"""
+        client_id = get_http_headers(include={"x-wenjin-authenticated-client"}).get(
+            "x-wenjin-authenticated-client"
+        )
+        entries = [
+            entry.to_dict(include_files=include_files)
+            for entry in corpus_catalog(root)
+            if access.check(entry.corpus_id, client_id)
+        ]
+        return {
+            "corpora": entries,
+            "count": len(entries),
+            "note": (
+                "Only corpora this client is allowed to read are listed. "
+                "Retrieval scores are ranking signals, not answer confidence."
+            ),
+            "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
+        }
+
+    @mcp.custom_route(f"{DOWNLOAD_PREFIX}/{{corpus_id}}/{{file_path:path}}", methods=["GET"])
+    async def download_source(request: Request) -> Response:
+        """按语料内相对路径返回原文文件；Bearer由中间件校验，这里只管授权和路径安全。"""
+        client_id = request.headers.get("x-wenjin-authenticated-client")
+        corpus_id = request.path_params["corpus_id"]
+        file_path = request.path_params["file_path"]
+        try:
+            access.require(corpus_id, client_id)
+        except AccessDenied as exc:
+            # 按项目约定：明确返回403，而不是伪装成404。
+            return JSONResponse({"error": "forbidden", "detail": str(exc)}, status_code=403)
+        entry = next(
+            (item for item in corpus_catalog(root) if item.corpus_id == corpus_id), None
+        )
+        if entry is None or not entry.raw_data_subdir:
+            return JSONResponse({"error": "not_found", "detail": "语料不存在"}, status_code=404)
+        try:
+            served = source_library.resolve_in_corpus(entry.raw_data_subdir, file_path)
+        except SourceNotFound as exc:
+            return JSONResponse({"error": "not_found", "detail": str(exc)}, status_code=404)
+        disposition = "inline" if served.inline else "attachment"
+        return FileResponse(
+            served.path,
+            media_type=served.media_type,
+            headers={
+                "Content-Disposition": f'{disposition}; filename="{served.path.name}"',
+                "X-Content-Type-Options": "nosniff",
+            },
+        )
 
     return mcp
 

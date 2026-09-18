@@ -22,6 +22,7 @@ from wenjin.indexing.dense import dense_query_vector
 from wenjin.retrieval.fusion import rrf_fuse
 from wenjin.retrieval.rerank import candidate_document, rank_candidates
 from wenjin.retrieval.service import evidence_record, load_source_urls, select_context
+from wenjin.serving import download_path_for
 
 
 def normalize_library(name: str) -> str:
@@ -45,6 +46,11 @@ class RoutedIndex:
     @property
     def version(self) -> str:
         return self.target.version
+
+    @property
+    def corpus_identity(self) -> str:
+        """语料身份取自IndexTarget，而不是在这里重新推导目录名。"""
+        return self.target.corpus_identity()
 
 
 @dataclass(frozen=True)
@@ -312,6 +318,10 @@ class MultiCorpusRouter:
             record = evidence_record(result, index.source_urls, rank=rank)
             record["library"] = result["library"]
             record["index_target_id"] = index.target.target_id
+            # 取件路径只做拼接；真正下载时由端点按访问策略鉴权。
+            record["download_path"] = download_path_for(
+                index.corpus_identity, result["source_path"]
+            )
             evidence.append(record)
         return {
             "query": retrieval["query"],

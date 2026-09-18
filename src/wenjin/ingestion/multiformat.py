@@ -106,10 +106,32 @@ def parser_for_path(path: Path) -> str:
     }.get(suffix, "text-line-v1")
 
 
-def parse_file(path: Path, source_path: str) -> list[ParsedUnit]:
+def parse_file(
+    path: Path,
+    source_path: str,
+    *,
+    parser: str | None = None,
+    mineru_url: str | None = None,
+    mineru_timeout: float = 900.0,
+) -> list[ParsedUnit]:
+    """按manifest记录的parser解析；未指定时按后缀推断。
+
+    `parser="mineru-ocr-page-v1"` 表示这是扫描件，必须走OCR：光有文本层判定不够，
+    因为重建索引时也要复现同一份解析结果。
+    """
+    if parser == "mineru-ocr-page-v1":
+        # 延迟导入：ocr模块要复用本模块的ParsedUnit，模块级导入会形成循环。
+        from wenjin.ingestion.ocr import MINERU_DEFAULT_URL, ocr_pdf_pages
+
+        return ocr_pdf_pages(
+            path,
+            source_path,
+            base_url=mineru_url or MINERU_DEFAULT_URL,
+            timeout=mineru_timeout,
+        )
     if path.suffix.lower() == ".pdf":
         return parse_pdf_pages(path, source_path)
-    return [parse_line_mapped(path, source_path, parser_for_path(path))]
+    return [parse_line_mapped(path, source_path, parser or parser_for_path(path))]
 
 
 def load_retrieval_documents(manifest_path: Path, raw_data_root: Path) -> list[dict]:
@@ -135,7 +157,7 @@ def load_retrieval_documents(manifest_path: Path, raw_data_root: Path) -> list[d
         ):
             raise ValueError(f"双Hash不匹配：{entry['path']}")
         source_path = f"raw_data/{manifest['raw_data_subdir']}/{entry['path']}"
-        units = parse_file(path, source_path)
+        units = parse_file(path, source_path, parser=entry.get("parser"))
         expected_parser = entry.get("parser")
         if expected_parser and any(unit.parser != expected_parser for unit in units):
             raise ValueError(f"解析器与manifest不一致：{entry['path']}")
@@ -147,6 +169,8 @@ def load_retrieval_documents(manifest_path: Path, raw_data_root: Path) -> list[d
                 "text": unit.text,
                 "page_number": unit.page_number,
                 "parser": unit.parser,
+                # warnings必须传下去：不传的话扫描件会以0 chunk静默消失，没人知道。
+                "warnings": unit.warnings,
                 "raw_sha256": hashed.raw_sha256,
                 "canonical_sha256": hashed.canonical_sha256,
                 "normalization": hashed.normalization,

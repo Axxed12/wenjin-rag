@@ -151,6 +151,57 @@ uv run python evaluation/run_multicorpus_eval.py
 `blocks-split` 的片段不重叠且连续，保留原始行号/物理页码，单行被硬切时多个片段共享同一
 行号但 chunk ID 唯一。两种策略下 validation 的 64 个证据区间都由 chunk 联合完整覆盖。
 
+## 添加自己的文档
+
+```powershell
+uv run python scripts/add_corpus.py --library mylib --version 1.0 --source ./我的文档 `
+    --license MIT --source-url https://example.org/docs --visibility internal
+```
+
+一条命令完成：扫目录 → 认格式 → 算双 Hash → 生成 manifest → 归档原文 → 检查切片 →
+建候选索引 → 打印切换命令（**不自动切换**）。
+
+- `--visibility internal` 写入 `corpora-private/`（Git 忽略），`public` 写入 `corpora/`。
+- 压缩包等容器格式只归档、不参与检索，原因如实写进 manifest。
+- 标为可检索却切不出任何内容的文件会让整次入库**失败并指出文件名**，不会静默丢弃。
+
+**扫描件**：检测到 PDF 页没有文本层时，先确认本机有没有 MinerU 服务，在线才问一次
+「是否启用 OCR」；MinerU 不在则明确告知并把扫描件转为只归档。非交互环境用
+`--ocr always` / `--ocr never` / `--yes`。
+
+```powershell
+# 只想先看看会怎么处理，不写盘
+uv run python scripts/add_corpus.py --library mylib --version 1.0 --source ./docs --dry-run
+```
+
+## 原文取件与访问控制
+
+检索返回的每条证据都带 `download_path`；MCP 同端口提供原文件下载，**内网用户能直接查看
+原文档本体**（PDF/HTML 浏览器内联打开），而不是只看抽出来的文本：
+
+```
+GET /files/{corpus_id}/{raw_data相对路径}    # 复用同一个 Bearer 鉴权
+```
+
+访问策略默认**拒绝**：没有策略文件的语料，检索、列表、下载全部不放行。
+
+```powershell
+uv run python scripts/manage_access.py --sync              # 为已有语料生成初始策略
+uv run python scripts/manage_access.py --list
+uv run python scripts/manage_access.py --grant mylib-1.0 --client agent-a
+```
+
+- 公开语料策略为 `["*"]`（显式声明公开，未配置 Bearer 的部署也可读）；
+- 内部语料**初始拒绝所有人**，必须显式 `--grant` 才能被读取；
+- 被拒绝时返回 `403`，不伪装成 404。
+
+MCP 另有 `list_corpora` 工具返回知识结构（库、版本、许可、文件数、是否已建索引），
+**按调用方权限过滤**——没有权限的语料不会出现在列表里。
+
+> **边界**：本项目只**执行**访问策略，不**产生**策略。系统能识别的是"哪个客户端"
+> （Bearer 密钥映射的 client_id），不是"哪个人"。内网部署应把 `configs/access/` 换成
+> 从内网 IAM 读取的实现，代码接口（`AccessPolicy.allows`）不变。
+
 ## 索引维护
 
 不在 active 索引上原地修改：
@@ -182,15 +233,21 @@ uv run python scripts/demo_modify_delete.py
 ```text
 src/wenjin/                  正式源代码
   content_hashing.py         双 Hash、规范化 profile 与语料内容指纹
-  ingestion/                 多格式解析、切片
+  paths.py                   路径安全原语（防目录逃逸与符号链接）
+  access.py                  语料访问策略（默认拒绝）
+  serving.py                 原文取件定位（不含 HTTP）
+  catalog.py                 语料目录与索引状态
+  ingestion/                 多格式解析、切片、入库、MinerU OCR
   indexing/                  Qdrant、BM25 与候选构建
   retrieval/                 Query 处理、RRF、Reranker、Service、跨库 Router
-  mcp_server.py              状态化 MCP 与 search_docs
+  mcp_server.py              状态化 MCP：search_docs / list_corpora / /files 取件
   index_registry.py          active 索引校验、切换与回退
 tests/                       自动化测试
 evaluation/                  validation 对照、冻结集评测、RAGAS 独立环境
 scripts/                     导入、建库、查询、索引管理与实验 CLI
 corpora/<corpus-id>/         可提交的 manifest、来源与许可元数据
+corpora-private/<corpus-id>/ 非公开语料（Git 忽略）
+configs/access/              访问策略（Git 忽略，属于部署配置）
 raw_data/<library>/<version> 语料原文（不提交 Git）
 configs/indexes/             索引目标与候选路由清单
 artifacts/                   实验输出与验收证据（大文件与第三方副本除外）
@@ -198,8 +255,10 @@ artifacts/                   实验输出与验收证据（大文件与第三方
 
 ## 尚未完成
 
-- 多语料路由接入 MCP（需先审查鉴权与跨库证据口径）；
-- 新语料的自动化获取脚本；
+- 多语料路由接入 MCP（`search_docs` 目前仍只服务 OSG active）；
+- 新语料的自动化获取脚本（`fetch_corpus.py` 只支持 OSG 风格 manifest）；
+- 扫描件 OCR 的表格/版式质量提升（正文相似度 0.98，表格页仅 0.69~0.78）；
+- 访问策略对接内网 IAM（当前为静态 ACL，且不提供身份认证）；
 - 跨机器联调、企业 CA、多用户权限、并发压测；
 - 离线镜像在目标内网的导入与验收；
 - 父子片段、文档级路由、内网原文查看器；

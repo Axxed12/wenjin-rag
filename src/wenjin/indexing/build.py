@@ -72,6 +72,7 @@ def build_candidate_index(
     profiles = {chunk.normalization for chunk in chunks}
     return IndexTarget(
         target_id=target_id,
+        corpus_id=manifest.get("corpus_id"),
         library=manifest.get("library", "osg"),
         version=manifest["version"],
         strategy=strategy,

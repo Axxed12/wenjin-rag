@@ -28,6 +28,12 @@ class IndexTarget:
     embedding_model: str
     canonical_corpus_sha256: str | None = None
     normalization_profile: str | None = None
+    # 语料身份显式记录，避免多个模块各自从manifest路径推导目录名这一隐式约定。
+    # 旧配置没有这个字段，回退到"manifest所在目录名"以保持兼容。
+    corpus_id: str | None = None
+
+    def corpus_identity(self) -> str:
+        return self.corpus_id or Path(self.manifest_path).parent.name
 
     @classmethod
     def from_dict(cls, data: dict) -> "IndexTarget":

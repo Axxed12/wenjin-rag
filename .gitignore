@@ -21,6 +21,10 @@ artifacts/runs/parse-lab-001/*.png
 models/
 # 原始语料由manifest和导入脚本恢复，不进入Git。
 raw_data/
+# 非公开语料：manifest里含内部文件名和目录结构，同样不能进公开仓库。
+corpora-private/
+# 访问策略是部署配置：client_id与部署环境绑定，内部语料的corpus_id也会泄露内部命名。
+configs/access/
 # 本轮验收候选包含原始资料副本；仅提交正式manifest和精简验收证据。
 artifacts/corpus-acceptance-001/candidate/
 # 第三方原文副本不进公开仓库：OGC规范页/XSD和PROJ文档只在本机保留，
