@@ -8,7 +8,9 @@ from collections.abc import Awaitable, Callable
 from datetime import datetime, timezone
 
 ASGIApp = Callable[[dict, Callable[..., Awaitable[dict]], Callable[..., Awaitable[None]]], Awaitable[None]]
-TRUSTED_CLIENT_HEADER = b"x-wenjin-authenticated-client"
+# ASGI scope里的header名和bytes，MCP依赖接口要的是str；两个都给出来避免类型混用。
+TRUSTED_CLIENT_HEADER_NAME = "x-wenjin-authenticated-client"
+TRUSTED_CLIENT_HEADER = TRUSTED_CLIENT_HEADER_NAME.encode("ascii")
 
 
 class BearerAuthMiddleware:

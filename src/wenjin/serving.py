@@ -14,8 +14,14 @@ RAW_PREFIX = "raw_data/"
 DOWNLOAD_PREFIX = "/files"
 
 # 这些类型让浏览器直接打开而不是下载；其余按附件处理更安全。
-INLINE_TYPES = {"application/pdf", "text/plain", "text/html", "text/markdown", "text/xml",
-                "application/xml", "image/png", "image/jpeg", "image/gif"}
+INLINE_TYPES = {"application/pdf", "text/plain", "text/markdown",
+                "image/png", "image/jpeg", "image/gif"}
+# HTML可以内联展示（用户就是要在浏览器里看原文档），但**必须**带CSP sandbox：
+# 语料是第三方内容，还支持用户自己上传，内联渲染等于让它们的脚本跑在服务端源上。
+# sandbox不带allow-scripts → 不执行脚本；不带allow-same-origin → 拿不到本站凭据。
+SANDBOXED_INLINE_TYPES = {"text/html", "application/xhtml+xml"}
+SANDBOX_CSP = "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data:"
+# XML可能带XSLT，各浏览器行为不一致，按附件处理而不是内联。
 
 
 class SourceNotFound(FileNotFoundError):
@@ -27,6 +33,25 @@ class ServedSource:
     path: Path
     media_type: str
     inline: bool
+    sandboxed: bool = False
+
+    def content_disposition(self) -> str:
+        return "inline" if self.inline else "attachment"
+
+    def response_headers(self) -> dict[str, str]:
+        """取件响应头；sandbox标记决定要不要加CSP。
+
+        这里只产出数据，不碰HTTP框架：端点拿到后直接透传。
+        """
+        headers = {
+            "Content-Disposition": (
+                f'{self.content_disposition()}; filename="{self.path.name}"'
+            ),
+            "X-Content-Type-Options": "nosniff",
+        }
+        if self.sandboxed:
+            headers["Content-Security-Policy"] = SANDBOX_CSP
+        return headers
 
 
 def strip_raw_prefix(source_path: str) -> str:
@@ -69,7 +94,12 @@ class SourceLibrary:
         if not path.is_file():
             raise SourceNotFound(f"语料里没有这个文件：{source_path}")
         media_type = guess_media_type(path)
-        return ServedSource(path, media_type, media_type in INLINE_TYPES)
+        return ServedSource(
+            path,
+            media_type,
+            inline=media_type in INLINE_TYPES or media_type in SANDBOXED_INLINE_TYPES,
+            sandboxed=media_type in SANDBOXED_INLINE_TYPES,
+        )
 
     def resolve_in_corpus(self, raw_data_subdir: str, file_path: str) -> ServedSource:
         """在指定语料自己的目录范围内取件。

@@ -42,15 +42,21 @@ def make_project(tmp_path, *, clients: tuple[str, ...]) -> tuple:
     return corpus_id, access
 
 
-def client_for(tmp_path, access: AccessRegistry, *, with_auth: bool = True) -> httpx.AsyncClient:
+def plain_app(tmp_path, access: AccessRegistry, *, bearer_enabled: bool):
+    """构造ASGI应用；bearer_enabled要和服务端实际是否装中间件一致。"""
     server = build_mcp_server(
         FakeService(),
         audit=SearchAudit(tmp_path / "audit.jsonl"),
         access=access,
         raw_root=tmp_path / "raw_data",
         project_root=tmp_path,
+        bearer_enabled=bearer_enabled,
     )
-    app = server.http_app(path="/mcp")
+    return server.http_app(path="/mcp")
+
+
+def client_for(tmp_path, access: AccessRegistry, *, with_auth: bool = True) -> httpx.AsyncClient:
+    app = plain_app(tmp_path, access, bearer_enabled=True)
     app = BearerAuthMiddleware(app, api_key=API_KEY, client_id=CLIENT_ID)
     headers = {"Authorization": f"Bearer {API_KEY}"} if with_auth else {}
     return httpx.AsyncClient(
@@ -135,6 +141,43 @@ def test_endpoint_rejects_reading_another_corpus(tmp_path):
     asyncio.run(scenario())
 
 
+def test_html_is_inline_but_sandboxed(tmp_path):
+    """语料是第三方内容还支持用户上传，内联HTML必须带CSP sandbox，否则脚本跑在服务端源上。"""
+    corpus_id, access = make_project(tmp_path, clients=(CLIENT_ID,))
+    (tmp_path / "raw_data" / "demo" / "1.0" / "page.html").write_text(
+        "<html><body><script>steal()</script>hi</body></html>", encoding="utf-8"
+    )
+
+    async def scenario():
+        async with client_for(tmp_path, access) as client:
+            response = await client.get("/files/demo-1.0/demo/1.0/page.html")
+            assert response.status_code == 200
+            assert response.headers["content-disposition"].startswith("inline")
+            csp = response.headers.get("content-security-policy", "")
+            assert "sandbox" in csp
+            assert "allow-scripts" not in csp and "allow-same-origin" not in csp
+            assert response.headers["x-content-type-options"] == "nosniff"
+
+    asyncio.run(scenario())
+
+
+def test_xml_is_served_as_attachment(tmp_path):
+    """XML可能带XSLT且各浏览器行为不一致，按附件返回而不是内联。"""
+    corpus_id, access = make_project(tmp_path, clients=(CLIENT_ID,))
+    (tmp_path / "raw_data" / "demo" / "1.0" / "schema.xsd").write_text(
+        "<?xml version='1.0'?><schema/>", encoding="utf-8"
+    )
+
+    async def scenario():
+        async with client_for(tmp_path, access) as client:
+            response = await client.get("/files/demo-1.0/demo/1.0/schema.xsd")
+            assert response.status_code == 200
+            assert response.headers["content-disposition"].startswith("attachment")
+            assert "content-security-policy" not in response.headers
+
+    asyncio.run(scenario())
+
+
 def test_endpoint_returns_404_for_missing_file(tmp_path):
     corpus_id, access = make_project(tmp_path, clients=(CLIENT_ID,))
 
@@ -143,5 +186,49 @@ def test_endpoint_returns_404_for_missing_file(tmp_path):
             response = await client.get(f"/files/{corpus_id}/demo/1.0/nope.md")
             assert response.status_code == 404
             assert response.json()["error"] == "not_found"
+
+    asyncio.run(scenario())
+
+
+def test_forged_client_header_is_ignored_without_bearer_middleware(tmp_path):
+    """HIGH：没装Bearer中间件时，客户端自带的身份头完全可控，绝不能采信。
+
+    不修的话，任何人发一个 x-wenjin-authenticated-client: <已知client_id> 就能读内部语料。
+    """
+    corpus_id, access = make_project(tmp_path, clients=(CLIENT_ID,))
+    app = plain_app(tmp_path, access, bearer_enabled=False)  # 故意不装Bearer中间件
+
+    async def scenario():
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app),
+            base_url="http://testserver",
+            headers={"x-wenjin-authenticated-client": CLIENT_ID},
+        ) as client:
+            response = await client.get(FILE_URL)
+            assert response.status_code == 403
+            assert response.json()["error"] == "forbidden"
+
+    asyncio.run(scenario())
+
+
+def test_forged_client_header_cannot_override_middleware_identity(tmp_path):
+    """装了中间件时，伪造的同名头会被剥掉，身份仍以中间件注入的为准。"""
+
+    corpus_id, access = make_project(tmp_path, clients=("admin",))
+    app = plain_app(tmp_path, access, bearer_enabled=True)
+    app = BearerAuthMiddleware(app, api_key=API_KEY, client_id=CLIENT_ID)
+
+    async def scenario():
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app),
+            base_url="http://testserver",
+            headers={
+                "Authorization": f"Bearer {API_KEY}",
+                # 中间件注入的是CLIENT_ID，这个伪造值必须被剥掉，否则就等于自称admin。
+                "x-wenjin-authenticated-client": "admin",
+            },
+        ) as client:
+            response = await client.get(FILE_URL)
+            assert response.status_code == 403
 
     asyncio.run(scenario())

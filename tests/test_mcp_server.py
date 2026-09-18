@@ -65,6 +65,26 @@ def test_search_tool_denies_client_without_policy(tmp_path):
     asyncio.run(scenario())
 
 
+def test_search_fails_closed_when_corpus_cannot_be_determined(tmp_path):
+    """注册表读不出来时不能"跳过检查继续检索"——那等于把默认拒绝变成默认放行。"""
+    async def scenario():
+        # project_root 下没有 data/indexes/index-registry.json
+        server = build_mcp_server(
+            FakeService(),
+            audit=SearchAudit(tmp_path / "audit.jsonl"),
+            access=open_access(),
+            project_root=tmp_path,
+        )
+        async with Client(server) as client:
+            result = await client.call_tool("search_docs", {"query": "Node mask"})
+            data = result.structured_content
+            assert data["error"] == "forbidden"
+            assert data["evidence"] == []
+            assert "确定目标语料" in data["detail"]
+
+    asyncio.run(scenario())
+
+
 def test_list_corpora_hides_corpora_without_permission(tmp_path):
     async def scenario():
         server = build_mcp_server(
