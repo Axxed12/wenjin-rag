@@ -1,0 +1,74 @@
+{
+  "status": "PASS",
+  "active": "osg-3.6.5-blocks-dualhash-003",
+  "candidate_count": 5,
+  "total_chunks": 1496,
+  "rows": [
+    {
+      "target": "gdal-3.13.1-blocks-candidate-001",
+      "library": "gdal",
+      "version": "3.13.1",
+      "chunks": 306,
+      "bm25_rows": 306,
+      "bm25_page_rows": 0,
+      "qdrant_page_points": 0,
+      "logical_document_rows": 306,
+      "triple_hash_rows": 306,
+      "qdrant_points": 306,
+      "status": "green"
+    },
+    {
+      "target": "ogc-3dtiles-1.1-blocks-candidate-001",
+      "library": "ogc-3dtiles",
+      "version": "1.1",
+      "chunks": 888,
+      "bm25_rows": 888,
+      "bm25_page_rows": 611,
+      "qdrant_page_points": 611,
+      "logical_document_rows": 888,
+      "triple_hash_rows": 888,
+      "qdrant_points": 888,
+      "status": "green"
+    },
+    {
+      "target": "ogc-wms-1.3.0-blocks-candidate-001",
+      "library": "ogc-wms",
+      "version": "1.3.0",
+      "chunks": 202,
+      "bm25_rows": 202,
+      "bm25_page_rows": 194,
+      "qdrant_page_points": 194,
+      "logical_document_rows": 202,
+      "triple_hash_rows": 202,
+      "qdrant_points": 202,
+      "status": "green"
+    },
+    {
+      "target": "osgearth-3.8-blocks-candidate-001",
+      "library": "osgearth",
+      "version": "3.8",
+      "chunks": 42,
+      "bm25_rows": 42,
+      "bm25_page_rows": 0,
+      "qdrant_page_points": 0,
+      "logical_document_rows": 42,
+      "triple_hash_rows": 42,
+      "qdrant_points": 42,
+      "status": "green"
+    },
+    {
+      "target": "proj-9.8.1-blocks-candidate-001",
+      "library": "proj",
+      "version": "9.8.1",
+      "chunks": 58,
+      "bm25_rows": 58,
+      "bm25_page_rows": 0,
+      "qdrant_page_points": 0,
+      "logical_document_rows": 58,
+      "triple_hash_rows": 58,
+      "qdrant_points": 58,
+      "status": "green"
+    }
+  ],
+  "source": "live Qdrant exact count and local BM25"
+}

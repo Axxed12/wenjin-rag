@@ -1,0 +1,260 @@
+{
+  "schema_version": 3,
+  "corpus_id": "proj-9.8.1",
+  "library": "proj",
+  "version": "9.8.1",
+  "commit": "f08fa86c478c4bbbf003b1ec751dd84aa6eca486",
+  "raw_data_subdir": "proj/9.8.1",
+  "retrieved_on": "2026-09-17",
+  "release_date": "2026-04-10",
+  "cutoff": "2026-07-15",
+  "license": "MIT (X/MIT-style)",
+  "source_url": "https://proj.org/",
+  "files": [
+    {
+      "path": "COPYING",
+      "bytes": 1784,
+      "raw_sha256": "6a8f30793e877d32e3f88b972f0970a051a3b5a26cd057d3993cb51e21c43319",
+      "canonical_sha256": "6a8f30793e877d32e3f88b972f0970a051a3b5a26cd057d3993cb51e21c43319",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/OSGeo/PROJ/9.8.1/COPYING",
+      "retrieval_eligible": false,
+      "indexable": false,
+      "parser_status": "preservation_only",
+      "logical_document_id": "proj-9.8.1:COPYING",
+      "provenance": {
+        "staging_path": "raw/proj/COPYING"
+      }
+    },
+    {
+      "path": "README.md",
+      "bytes": 3664,
+      "raw_sha256": "8386634c3c1a881cbc043ad4983c710ea97aa67ad5ef2a88b715f1db212a5f17",
+      "canonical_sha256": "8386634c3c1a881cbc043ad4983c710ea97aa67ad5ef2a88b715f1db212a5f17",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/PROJ/releases/download/9.8.1/proj-9.8.1.tar.gz",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "proj-9.8.1:README.md",
+      "provenance": {
+        "source_archive": "raw_data/proj/9.8.1/archives/proj-9.8.1.tar.gz",
+        "archive_member": "proj-9.8.1/README.md",
+        "archive_raw_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+        "archive_member_raw_verified": true
+      },
+      "parser": "text-line-v1"
+    },
+    {
+      "path": "archives/proj-9.8.1.tar.gz",
+      "bytes": 5981846,
+      "raw_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+      "canonical_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+      "normalization": "binary-identity-v1",
+      "encoding": null,
+      "source_url": "https://github.com/OSGeo/PROJ/releases/download/9.8.1/proj-9.8.1.tar.gz",
+      "retrieval_eligible": false,
+      "indexable": false,
+      "parser_status": "preservation_only",
+      "logical_document_id": "proj-9.8.1:archives/proj-9.8.1.tar.gz",
+      "provenance": {
+        "staging_path": "raw/proj/proj-9.8.1.tar.gz"
+      }
+    },
+    {
+      "path": "docs/source/about_core.rst",
+      "bytes": 1153,
+      "raw_sha256": "59ea4a07a5f806d5f23fe30324e24e7005baa7c29bec0abfbd4e2655d449126a",
+      "canonical_sha256": "59ea4a07a5f806d5f23fe30324e24e7005baa7c29bec0abfbd4e2655d449126a",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/OSGeo/PROJ/f08fa86c478c4bbbf003b1ec751dd84aa6eca486/docs/source/about_core.rst",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "proj-9.8.1:docs/source/about_core.rst",
+      "provenance": {
+        "commit": "f08fa86c478c4bbbf003b1ec751dd84aa6eca486",
+        "retrieved_on": "2026-09-17"
+      },
+      "parser": "rst-line-v1"
+    },
+    {
+      "path": "man/man1/cct.1",
+      "bytes": 9215,
+      "raw_sha256": "6c65e18b63804e150859bfea736453c79e990bb75f147e44da4c5a277d5c36b3",
+      "canonical_sha256": "6c65e18b63804e150859bfea736453c79e990bb75f147e44da4c5a277d5c36b3",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/PROJ/releases/download/9.8.1/proj-9.8.1.tar.gz",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "proj-9.8.1:man/man1/cct.1",
+      "provenance": {
+        "source_archive": "raw_data/proj/9.8.1/archives/proj-9.8.1.tar.gz",
+        "archive_member": "proj-9.8.1/man/man1/cct.1",
+        "archive_raw_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+        "archive_member_raw_verified": true
+      },
+      "parser": "man-roff-line-v1"
+    },
+    {
+      "path": "man/man1/cs2cs.1",
+      "bytes": 15868,
+      "raw_sha256": "69e936292161f2695faac65ce8da6c0dc8cf023b1ef61106a65ffc5f5e77bf43",
+      "canonical_sha256": "69e936292161f2695faac65ce8da6c0dc8cf023b1ef61106a65ffc5f5e77bf43",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/PROJ/releases/download/9.8.1/proj-9.8.1.tar.gz",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "proj-9.8.1:man/man1/cs2cs.1",
+      "provenance": {
+        "source_archive": "raw_data/proj/9.8.1/archives/proj-9.8.1.tar.gz",
+        "archive_member": "proj-9.8.1/man/man1/cs2cs.1",
+        "archive_raw_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+        "archive_member_raw_verified": true
+      },
+      "parser": "man-roff-line-v1"
+    },
+    {
+      "path": "man/man1/geod.1",
+      "bytes": 8032,
+      "raw_sha256": "47569c6255eff6b657166131fc228d8d91bb53e4599acca68558041f926af96d",
+      "canonical_sha256": "47569c6255eff6b657166131fc228d8d91bb53e4599acca68558041f926af96d",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/PROJ/releases/download/9.8.1/proj-9.8.1.tar.gz",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "proj-9.8.1:man/man1/geod.1",
+      "provenance": {
+        "source_archive": "raw_data/proj/9.8.1/archives/proj-9.8.1.tar.gz",
+        "archive_member": "proj-9.8.1/man/man1/geod.1",
+        "archive_raw_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+        "archive_member_raw_verified": true
+      },
+      "parser": "man-roff-line-v1"
+    },
+    {
+      "path": "man/man1/gie.1",
+      "bytes": 14894,
+      "raw_sha256": "2ae1b01b5c865a4c41d4766b02799540131e5c74722b351643ad11da4156e681",
+      "canonical_sha256": "2ae1b01b5c865a4c41d4766b02799540131e5c74722b351643ad11da4156e681",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/PROJ/releases/download/9.8.1/proj-9.8.1.tar.gz",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "proj-9.8.1:man/man1/gie.1",
+      "provenance": {
+        "source_archive": "raw_data/proj/9.8.1/archives/proj-9.8.1.tar.gz",
+        "archive_member": "proj-9.8.1/man/man1/gie.1",
+        "archive_raw_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+        "archive_member_raw_verified": true
+      },
+      "parser": "man-roff-line-v1"
+    },
+    {
+      "path": "man/man1/proj.1",
+      "bytes": 9852,
+      "raw_sha256": "b0bf9078e0d4557c676695646750633d0ed9a207d47a0bb3bf1bc8eb3a2f4df0",
+      "canonical_sha256": "b0bf9078e0d4557c676695646750633d0ed9a207d47a0bb3bf1bc8eb3a2f4df0",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/PROJ/releases/download/9.8.1/proj-9.8.1.tar.gz",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "proj-9.8.1:man/man1/proj.1",
+      "provenance": {
+        "source_archive": "raw_data/proj/9.8.1/archives/proj-9.8.1.tar.gz",
+        "archive_member": "proj-9.8.1/man/man1/proj.1",
+        "archive_raw_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+        "archive_member_raw_verified": true
+      },
+      "parser": "man-roff-line-v1"
+    },
+    {
+      "path": "man/man1/projinfo.1",
+      "bytes": 28732,
+      "raw_sha256": "3158b7f03908b46a25cef3d11cb367aa0c412acfa400898cb25c74f956442d43",
+      "canonical_sha256": "3158b7f03908b46a25cef3d11cb367aa0c412acfa400898cb25c74f956442d43",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/PROJ/releases/download/9.8.1/proj-9.8.1.tar.gz",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "proj-9.8.1:man/man1/projinfo.1",
+      "provenance": {
+        "source_archive": "raw_data/proj/9.8.1/archives/proj-9.8.1.tar.gz",
+        "archive_member": "proj-9.8.1/man/man1/projinfo.1",
+        "archive_raw_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+        "archive_member_raw_verified": true
+      },
+      "parser": "man-roff-line-v1"
+    },
+    {
+      "path": "man/man1/projsync.1",
+      "bytes": 6300,
+      "raw_sha256": "af9acb8d5b474eb0ac0778e7e6bf30ba002930df00040bbb5ef9bb21b02e947b",
+      "canonical_sha256": "af9acb8d5b474eb0ac0778e7e6bf30ba002930df00040bbb5ef9bb21b02e947b",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/PROJ/releases/download/9.8.1/proj-9.8.1.tar.gz",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "proj-9.8.1:man/man1/projsync.1",
+      "provenance": {
+        "source_archive": "raw_data/proj/9.8.1/archives/proj-9.8.1.tar.gz",
+        "archive_member": "proj-9.8.1/man/man1/projsync.1",
+        "archive_raw_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+        "archive_member_raw_verified": true
+      },
+      "parser": "man-roff-line-v1"
+    },
+    {
+      "path": "proj-9.8-docs-index.html",
+      "bytes": 8546,
+      "raw_sha256": "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300",
+      "canonical_sha256": "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://proj.org/en/9.8/index.html",
+      "retrieval_eligible": false,
+      "indexable": false,
+      "parser_status": "preservation_only",
+      "logical_document_id": "proj-9.8.1:proj-9.8-docs-index.html",
+      "provenance": {
+        "staging_path": "raw/proj/proj-9.8-docs-index.html"
+      },
+      "exclusion_reason": "Mutable 9.8 branch snapshot; replace with fixed-commit RST.",
+      "source_last_modified": "2026-09-04T12:49:05Z",
+      "cutoff_eligibility": "excluded_unpinned_snapshot"
+    }
+  ],
+  "scope": "Exact retrieval_eligible file allowlist; archives are preservation only.",
+  "index_state": "not_built; no active-index change",
+  "canonical_corpus_sha256": "9b499560d2e920958cfa4866c281940875162b28dedaa0260e7ae6a872e263ca",
+  "retrieval_content_sha256": "60358c76e502244b687cdf359d0800f26f705e42dea4864c29450fb96d6449e3",
+  "retrieval_scope_files": [
+    "README.md",
+    "docs/source/about_core.rst",
+    "man/man1/cct.1",
+    "man/man1/cs2cs.1",
+    "man/man1/geod.1",
+    "man/man1/gie.1",
+    "man/man1/proj.1",
+    "man/man1/projinfo.1",
+    "man/man1/projsync.1"
+  ],
+  "exclusion_policy": "All unlisted archive members and preservation_only files excluded."
+}

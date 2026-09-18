@@ -1,0 +1,786 @@
+{
+  "status": "PASS",
+  "dataset": "<project-root>\\evaluation\\datasets\\rag-validation-001.jsonl",
+  "questions": 50,
+  "evidence_spans": 64,
+  "files": 18,
+  "parser_counts": {
+    "text-line-v1": 14,
+    "pymupdf-page-v1": 1,
+    "xml-line-v1": 1,
+    "rst-line-v1": 1,
+    "man-roff-line-v1": 1
+  },
+  "file_reports": {
+    "raw_data/osgearth/3.8/docs/source/earthfile.md": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 120,
+      "text_chars": 4519,
+      "warnings": []
+    },
+    "raw_data/osgearth/3.8/docs/source/TileLayer.md": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 19,
+      "text_chars": 1568,
+      "warnings": []
+    },
+    "raw_data/osgearth/3.8/docs/source/visiblelayer.md": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 16,
+      "text_chars": 1139,
+      "warnings": []
+    },
+    "raw_data/osgearth/3.8/docs/source/layer.md": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 16,
+      "text_chars": 1214,
+      "warnings": []
+    },
+    "raw_data/osgearth/3.8/docs/source/layers.md": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 60,
+      "text_chars": 4290,
+      "warnings": []
+    },
+    "raw_data/osgearth/3.8/docs/source/composite.md": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 38,
+      "text_chars": 1262,
+      "warnings": []
+    },
+    "raw_data/osgearth/3.8/docs/source/elevation.md": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 13,
+      "text_chars": 725,
+      "warnings": []
+    },
+    "raw_data/osgearth/3.8/docs/source/xyz.md": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 37,
+      "text_chars": 1874,
+      "warnings": []
+    },
+    "raw_data/osgearth/3.8/docs/source/gdal.md": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 72,
+      "text_chars": 2805,
+      "warnings": []
+    },
+    "raw_data/osgearth/3.8/docs/source/wms.md": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 33,
+      "text_chars": 2648,
+      "warnings": []
+    },
+    "raw_data/ogc-wms/1.3.0/06-042.pdf": {
+      "parser": "pymupdf-page-v1",
+      "units": 85,
+      "source_lines": null,
+      "text_chars": 221246,
+      "warnings": []
+    },
+    "raw_data/osgearth/3.8/src/osgEarth/Map": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 360,
+      "text_chars": 13454,
+      "warnings": []
+    },
+    "raw_data/osgearth/3.8/src/osgEarth/MapNode": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 280,
+      "text_chars": 9222,
+      "warnings": []
+    },
+    "raw_data/osgearth/3.8/LICENSE.txt": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 186,
+      "text_chars": 8452,
+      "warnings": []
+    },
+    "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd": {
+      "parser": "xml-line-v1",
+      "units": 1,
+      "source_lines": 618,
+      "text_chars": 16370,
+      "warnings": []
+    },
+    "raw_data/proj/9.8.1/docs/source/about_core.rst": {
+      "parser": "rst-line-v1",
+      "units": 1,
+      "source_lines": 18,
+      "text_chars": 1154,
+      "warnings": []
+    },
+    "raw_data/proj/9.8.1/README.md": {
+      "parser": "text-line-v1",
+      "units": 1,
+      "source_lines": 77,
+      "text_chars": 3664,
+      "warnings": []
+    },
+    "raw_data/proj/9.8.1/man/man1/projsync.1": {
+      "parser": "man-roff-line-v1",
+      "units": 1,
+      "source_lines": 223,
+      "text_chars": 5140,
+      "warnings": []
+    }
+  },
+  "checks": [
+    {
+      "id": "rag-validation-001",
+      "path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+      "page": null,
+      "start_line": 3,
+      "end_line": 5,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-002",
+      "path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+      "page": null,
+      "start_line": 3,
+      "end_line": 3,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-002",
+      "path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+      "page": null,
+      "start_line": 50,
+      "end_line": 50,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-003",
+      "path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+      "page": null,
+      "start_line": 90,
+      "end_line": 90,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-003",
+      "path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+      "page": null,
+      "start_line": 111,
+      "end_line": 111,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-004",
+      "path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+      "page": null,
+      "start_line": 113,
+      "end_line": 113,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-004",
+      "path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+      "page": null,
+      "start_line": 92,
+      "end_line": 94,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-004",
+      "path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+      "page": null,
+      "start_line": 115,
+      "end_line": 115,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-005",
+      "path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+      "page": null,
+      "start_line": 82,
+      "end_line": 82,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-006",
+      "path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+      "page": null,
+      "start_line": 19,
+      "end_line": 19,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-007",
+      "path": "raw_data/osgearth/3.8/docs/source/TileLayer.md",
+      "page": null,
+      "start_line": 17,
+      "end_line": 17,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-008",
+      "path": "raw_data/osgearth/3.8/docs/source/TileLayer.md",
+      "page": null,
+      "start_line": 9,
+      "end_line": 9,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-009",
+      "path": "raw_data/osgearth/3.8/docs/source/TileLayer.md",
+      "page": null,
+      "start_line": 14,
+      "end_line": 16,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-010",
+      "path": "raw_data/osgearth/3.8/docs/source/visiblelayer.md",
+      "page": null,
+      "start_line": 12,
+      "end_line": 12,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-011",
+      "path": "raw_data/osgearth/3.8/docs/source/visiblelayer.md",
+      "page": null,
+      "start_line": 11,
+      "end_line": 14,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-012",
+      "path": "raw_data/osgearth/3.8/docs/source/layer.md",
+      "page": null,
+      "start_line": 10,
+      "end_line": 10,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-012",
+      "path": "raw_data/osgearth/3.8/docs/source/layer.md",
+      "page": null,
+      "start_line": 16,
+      "end_line": 16,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-013",
+      "path": "raw_data/osgearth/3.8/docs/source/layers.md",
+      "page": null,
+      "start_line": 26,
+      "end_line": 27,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-014",
+      "path": "raw_data/osgearth/3.8/docs/source/layers.md",
+      "page": null,
+      "start_line": 44,
+      "end_line": 44,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-015",
+      "path": "raw_data/osgearth/3.8/docs/source/layers.md",
+      "page": null,
+      "start_line": 9,
+      "end_line": 19,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-016",
+      "path": "raw_data/osgearth/3.8/docs/source/composite.md",
+      "page": null,
+      "start_line": 38,
+      "end_line": 38,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-017",
+      "path": "raw_data/osgearth/3.8/docs/source/elevation.md",
+      "page": null,
+      "start_line": 11,
+      "end_line": 11,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-018",
+      "path": "raw_data/osgearth/3.8/docs/source/xyz.md",
+      "page": null,
+      "start_line": 5,
+      "end_line": 5,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-018",
+      "path": "raw_data/osgearth/3.8/docs/source/xyz.md",
+      "page": null,
+      "start_line": 18,
+      "end_line": 18,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-019",
+      "path": "raw_data/osgearth/3.8/docs/source/gdal.md",
+      "page": null,
+      "start_line": 35,
+      "end_line": 35,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-019",
+      "path": "raw_data/osgearth/3.8/docs/source/gdal.md",
+      "page": null,
+      "start_line": 29,
+      "end_line": 32,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-020",
+      "path": "raw_data/osgearth/3.8/docs/source/gdal.md",
+      "page": null,
+      "start_line": 44,
+      "end_line": 44,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-021",
+      "path": "raw_data/osgearth/3.8/docs/source/wms.md",
+      "page": null,
+      "start_line": 21,
+      "end_line": 21,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-021",
+      "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "page": 1,
+      "start_line": null,
+      "end_line": null,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-022",
+      "path": "raw_data/osgearth/3.8/docs/source/wms.md",
+      "page": null,
+      "start_line": 17,
+      "end_line": 17,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-023",
+      "path": "raw_data/osgearth/3.8/src/osgEarth/Map",
+      "page": null,
+      "start_line": 74,
+      "end_line": 77,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-023",
+      "path": "raw_data/osgearth/3.8/src/osgEarth/Map",
+      "page": null,
+      "start_line": 56,
+      "end_line": 57,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-024",
+      "path": "raw_data/osgearth/3.8/src/osgEarth/Map",
+      "page": null,
+      "start_line": 71,
+      "end_line": 72,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-025",
+      "path": "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+      "page": null,
+      "start_line": 50,
+      "end_line": 50,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-026",
+      "path": "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+      "page": null,
+      "start_line": 34,
+      "end_line": 38,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-026",
+      "path": "raw_data/osgearth/3.8/src/osgEarth/Map",
+      "page": null,
+      "start_line": 22,
+      "end_line": 27,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-027",
+      "path": "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+      "page": null,
+      "start_line": 63,
+      "end_line": 69,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-028",
+      "path": "raw_data/osgearth/3.8/src/osgEarth/Map",
+      "page": null,
+      "start_line": 1,
+      "end_line": 4,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-028",
+      "path": "raw_data/osgearth/3.8/LICENSE.txt",
+      "page": null,
+      "start_line": 3,
+      "end_line": 15,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-028",
+      "path": "raw_data/osgearth/3.8/LICENSE.txt",
+      "page": null,
+      "start_line": 22,
+      "end_line": 23,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-029",
+      "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "page": 33,
+      "start_line": null,
+      "end_line": null,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-030",
+      "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "page": 33,
+      "start_line": null,
+      "end_line": null,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-031",
+      "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "page": 21,
+      "start_line": null,
+      "end_line": null,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-032",
+      "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "page": 5,
+      "start_line": null,
+      "end_line": null,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-033",
+      "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "page": 33,
+      "start_line": null,
+      "end_line": null,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-034",
+      "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "page": 16,
+      "start_line": null,
+      "end_line": null,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-035",
+      "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "page": 16,
+      "start_line": null,
+      "end_line": null,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-036",
+      "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "page": 16,
+      "start_line": null,
+      "end_line": null,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-037",
+      "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "page": 1,
+      "start_line": null,
+      "end_line": null,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-037",
+      "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "page": 4,
+      "start_line": null,
+      "end_line": null,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-038",
+      "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "page": 5,
+      "start_line": null,
+      "end_line": null,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-039",
+      "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "page": 5,
+      "start_line": null,
+      "end_line": null,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-040",
+      "path": "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+      "page": null,
+      "start_line": 14,
+      "end_line": 29,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-041",
+      "path": "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+      "page": null,
+      "start_line": 187,
+      "end_line": 204,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-042",
+      "path": "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+      "page": null,
+      "start_line": 208,
+      "end_line": 226,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-043",
+      "path": "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+      "page": null,
+      "start_line": 361,
+      "end_line": 393,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-044",
+      "path": "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+      "page": null,
+      "start_line": 33,
+      "end_line": 46,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-044",
+      "path": "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+      "page": null,
+      "start_line": 110,
+      "end_line": 116,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-045",
+      "path": "raw_data/proj/9.8.1/docs/source/about_core.rst",
+      "page": null,
+      "start_line": 1,
+      "end_line": 4,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-046",
+      "path": "raw_data/proj/9.8.1/docs/source/about_core.rst",
+      "page": null,
+      "start_line": 13,
+      "end_line": 18,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-047",
+      "path": "raw_data/proj/9.8.1/README.md",
+      "page": null,
+      "start_line": 25,
+      "end_line": 33,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-048",
+      "path": "raw_data/proj/9.8.1/README.md",
+      "page": null,
+      "start_line": 62,
+      "end_line": 72,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-049",
+      "path": "raw_data/proj/9.8.1/README.md",
+      "page": null,
+      "start_line": 46,
+      "end_line": 56,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    },
+    {
+      "id": "rag-validation-050",
+      "path": "raw_data/proj/9.8.1/man/man1/projsync.1",
+      "page": null,
+      "start_line": 34,
+      "end_line": 181,
+      "locator_valid": true,
+      "text_present": true,
+      "required_atoms_missing": []
+    }
+  ],
+  "failures": [],
+  "boundary": "验证定位和显式关键原子；不等于全部答案语义或检索效果通过。"
+}

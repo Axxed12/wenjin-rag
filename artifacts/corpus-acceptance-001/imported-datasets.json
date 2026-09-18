@@ -1,0 +1,603 @@
+{
+  "status": "PASS",
+  "questions": 90,
+  "answer_atoms": 86,
+  "errors": [],
+  "atom_checks": [
+    {
+      "id": "rag-validation-001",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-002",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-003",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-004",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-005",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-006",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-007",
+      "atoms": [
+        "tile_size"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-008",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-009",
+      "atoms": [
+        "max_valid_value",
+        "min_valid_value",
+        "no_data_value"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-010",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-011",
+      "atoms": [
+        "attenuation_range",
+        "max_range",
+        "min_range"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-012",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-013",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-014",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-015",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-016",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-017",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-018",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-019",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-020",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-021",
+      "atoms": [
+        "1.0.0",
+        "1.3.0",
+        "OGC 06-042",
+        "wms_version"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-022",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-023",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-024",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-025",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-026",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-027",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-028",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-029",
+      "atoms": [
+        "1.3.0",
+        "layer_list",
+        "output_format",
+        "output_height",
+        "output_width",
+        "style_list"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-030",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-031",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-032",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-033",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-034",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-035",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-036",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-037",
+      "atoms": [
+        "1.3.0",
+        "2006-03-15",
+        "OGC 00-028",
+        "OGC 04-024",
+        "OGC 06-042"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-038",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-039",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-040",
+      "atoms": [
+        "1.3.0",
+        "WMS_Capabilities"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-041",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-042",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-043",
+      "atoms": [
+        "EX_GeographicBoundingBox"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-044",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-045",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-046",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-047",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-048",
+      "atoms": [
+        "PROJ_LIB"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-049",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-validation-050",
+      "atoms": [
+        "east_long",
+        "north_lat",
+        "south_lat",
+        "west_long"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-001",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-002",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-003",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-004",
+      "atoms": [
+        "GDAL_CACHEMAX",
+        "GDAL_NUM_THREADS",
+        "NUM_THREADS"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-005",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-006",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-007",
+      "atoms": [
+        "13.931",
+        "34.886",
+        "46.23",
+        "74.12",
+        "natural_earth_vector"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-008",
+      "atoms": [
+        "3.6"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-009",
+      "atoms": [
+        "0.2",
+        "0.4",
+        "0.6",
+        "3.11"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-010",
+      "atoms": [
+        "3.9",
+        "average_magphase"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-011",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-012",
+      "atoms": [
+        "attribute_name"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-013",
+      "atoms": [
+        "0.0",
+        "0.5",
+        "height_in_pixels",
+        "width_in_pixels"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-014",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-015",
+      "atoms": [
+        "3.9",
+        "FALSE",
+        "GDAL_CACHEMAX",
+        "NO",
+        "OFF",
+        "ON",
+        "TRUE",
+        "gdal_translate"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-016",
+      "atoms": [
+        "3.11",
+        "BAD_OPTION",
+        "CPL_DEBUG"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-017",
+      "atoms": [
+        "CPL_ABS",
+        "CPL_MAX",
+        "CPL_MIN",
+        "M_PI",
+        "USE_MATH_DEFINES",
+        "cpl_port"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-018",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-019",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-020",
+      "atoms": [
+        "2.0"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-021",
+      "atoms": [
+        "1.1"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-022",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-023",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-024",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-025",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-026",
+      "atoms": [
+        "WGS 84",
+        "ellipsoid"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-027",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-028",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-029",
+      "atoms": [
+        "1.25"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-030",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-031",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-032",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-033",
+      "atoms": [
+        "each city",
+        "global tileset"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-034",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-035",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-036",
+      "atoms": [],
+      "missing": []
+    },
+    {
+      "id": "rag-test-037",
+      "atoms": [
+        "0.1.2",
+        "1.2.3"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-038",
+      "atoms": [
+        "1.1.0",
+        "2022-07-26",
+        "2022-08-17",
+        "2022-10-07",
+        "2023-01-09"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-039",
+      "atoms": [
+        "7.2.5",
+        "EXT_meshopt_compression",
+        "KHR_draco_mesh_compression",
+        "KHR_mesh_quantization",
+        "KHR_texture_basisu"
+      ],
+      "missing": []
+    },
+    {
+      "id": "rag-test-040",
+      "atoms": [],
+      "missing": []
+    }
+  ],
+  "limits": "Atom hits are necessary, not sufficient for semantic entailment.",
+  "mutations": [
+    {
+      "id": "rag-validation-021",
+      "mutation": {
+        "page": 3
+      },
+      "detected": true
+    },
+    {
+      "id": "rag-test-015",
+      "mutation": {
+        "end_line": 215
+      },
+      "detected": true
+    },
+    {
+      "id": "rag-test-038",
+      "mutation": {
+        "end_line": 9804
+      },
+      "detected": true
+    },
+    {
+      "id": "rag-test-039",
+      "mutation": {
+        "end_line": 2425
+      },
+      "detected": true
+    }
+  ]
+}

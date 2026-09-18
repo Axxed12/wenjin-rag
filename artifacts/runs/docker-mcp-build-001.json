@@ -1,0 +1,24 @@
+{
+  "run_id": "docker-mcp-build-001",
+  "verified_at_utc": "2026-09-17T08:35:42Z",
+  "image": "wenjin-rag-mcp:0.1.0",
+  "image_id": "sha256:6c2f7abc32f4359042f4ffa388e592d64d11143fc98c8ccaf80258b31abdfa7d",
+  "image_size_bytes": 15035704744,
+  "models_bundled": false,
+  "gpu_available": true,
+  "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+  "fastmcp": "3.4.4",
+  "mcp_protocol": "2025-11-25",
+  "compose_port": 8767,
+  "qdrant_healthy": true,
+  "mcp_healthy": true,
+  "readonly_rootfs": true,
+  "audit_request_id_matched": true,
+  "client_result": "artifacts/runs/mcp-docker-smoke-001.json",
+  "fixed_during_build": [
+    "match Docker uv default index to the source recorded in uv.lock",
+    "add /app/.venv/bin to PATH",
+    "route LLAMA_INDEX_CACHE_DIR to /tmp/llama_index for readonly rootfs"
+  ],
+  "scope": "local Windows Docker Desktop smoke; not cross-machine or production acceptance"
+}

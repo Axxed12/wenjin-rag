@@ -1,0 +1,386 @@
+{
+  "raw/osgearth/osgearth-3.8.tar.gz": {
+    "path": "raw_data/osgearth/3.8/archives/osgearth-3.8.tar.gz",
+    "raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+    "canonical_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+    "normalization": "binary-identity-v1",
+    "encoding": null,
+    "corpus_id": "osgearth-3.8"
+  },
+  "raw/osgearth/LICENSE.txt": {
+    "path": "raw_data/osgearth/3.8/LICENSE.txt",
+    "raw_sha256": "3324061c295fd17769cd4f045f3d0965fb5c61492edf85e2c943e18077254191",
+    "canonical_sha256": "3324061c295fd17769cd4f045f3d0965fb5c61492edf85e2c943e18077254191",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "raw/osgearth/README.md": {
+    "path": "raw_data/osgearth/3.8/README.md",
+    "raw_sha256": "33b938a00b1ae7e8caf14fbe18030787743ea97f61995e99a5f0b3cf627ae827",
+    "canonical_sha256": "33b938a00b1ae7e8caf14fbe18030787743ea97f61995e99a5f0b3cf627ae827",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "raw/gdal/gdal-3.13.1.tar.gz": {
+    "path": "raw_data/gdal/3.13.1/archives/gdal-3.13.1.tar.gz",
+    "raw_sha256": "e04e9813bd215b56753d5554330c53be25f3df2d7ed7e6413a19e6b66751c675",
+    "canonical_sha256": "e04e9813bd215b56753d5554330c53be25f3df2d7ed7e6413a19e6b66751c675",
+    "normalization": "binary-identity-v1",
+    "encoding": null,
+    "corpus_id": "gdal-3.13.1"
+  },
+  "raw/gdal/gdal3131doc.zip": {
+    "path": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+    "raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+    "canonical_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+    "normalization": "binary-identity-v1",
+    "encoding": null,
+    "corpus_id": "gdal-3.13.1"
+  },
+  "raw/gdal/LICENSE.TXT": {
+    "path": "raw_data/gdal/3.13.1/LICENSE.TXT",
+    "raw_sha256": "1dae3468e81d00da56e2936f74d33b8b3ad09d726437f19ce209a5dabea41f77",
+    "canonical_sha256": "1dae3468e81d00da56e2936f74d33b8b3ad09d726437f19ce209a5dabea41f77",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "raw/proj/proj-9.8.1.tar.gz": {
+    "path": "raw_data/proj/9.8.1/archives/proj-9.8.1.tar.gz",
+    "raw_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+    "canonical_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+    "normalization": "binary-identity-v1",
+    "encoding": null,
+    "corpus_id": "proj-9.8.1"
+  },
+  "raw/proj/COPYING": {
+    "path": "raw_data/proj/9.8.1/COPYING",
+    "raw_sha256": "6a8f30793e877d32e3f88b972f0970a051a3b5a26cd057d3993cb51e21c43319",
+    "canonical_sha256": "6a8f30793e877d32e3f88b972f0970a051a3b5a26cd057d3993cb51e21c43319",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "proj-9.8.1"
+  },
+  "raw/proj/proj-9.8-docs-index.html": {
+    "path": "raw_data/proj/9.8.1/proj-9.8-docs-index.html",
+    "raw_sha256": "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300",
+    "canonical_sha256": "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "proj-9.8.1"
+  },
+  "raw/ogc/22-025r4.html": {
+    "path": "raw_data/ogc-3dtiles/1.1/22-025r4.html",
+    "raw_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+    "canonical_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "ogc-3dtiles-1.1"
+  },
+  "raw/ogc/22-025r4.pdf": {
+    "path": "raw_data/ogc-3dtiles/1.1/22-025r4.pdf",
+    "raw_sha256": "1d349ef636291a9869035f1779dd8278ddcd19df0fd36fe50a9735a4ea5a66a8",
+    "canonical_sha256": "1d349ef636291a9869035f1779dd8278ddcd19df0fd36fe50a9735a4ea5a66a8",
+    "normalization": "binary-identity-v1",
+    "encoding": null,
+    "corpus_id": "ogc-3dtiles-1.1"
+  },
+  "raw/ogc/06-042.pdf": {
+    "path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+    "raw_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116",
+    "canonical_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116",
+    "normalization": "binary-identity-v1",
+    "encoding": null,
+    "corpus_id": "ogc-wms-1.3.0"
+  },
+  "raw/ogc/capabilities_1_3_0.xsd": {
+    "path": "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+    "raw_sha256": "bb2db70912176e3c50aa6476d9c13e45d1cb56e6e83c8b285dca793e3c74bdf7",
+    "canonical_sha256": "bb2db70912176e3c50aa6476d9c13e45d1cb56e6e83c8b285dca793e3c74bdf7",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "ogc-wms-1.3.0"
+  },
+  "extracted/osgearth/docs/source/earthfile.md": {
+    "path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+    "raw_sha256": "47c2f9fab703dfa9599e4b7ccc0c1e9dff8db40d1328c3aabf9cfb0cde8af6b2",
+    "canonical_sha256": "47c2f9fab703dfa9599e4b7ccc0c1e9dff8db40d1328c3aabf9cfb0cde8af6b2",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "extracted/osgearth/docs/source/TileLayer.md": {
+    "path": "raw_data/osgearth/3.8/docs/source/TileLayer.md",
+    "raw_sha256": "ddecf187f90bf303558bf5fa36d95815391dd4c7762a49a8f1605e29b838c48c",
+    "canonical_sha256": "ddecf187f90bf303558bf5fa36d95815391dd4c7762a49a8f1605e29b838c48c",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "extracted/osgearth/docs/source/visiblelayer.md": {
+    "path": "raw_data/osgearth/3.8/docs/source/visiblelayer.md",
+    "raw_sha256": "10b1bfd1f52aa55bc16a4082d00e998ac121c7d9d1e569309fe35fbda57d43e3",
+    "canonical_sha256": "10b1bfd1f52aa55bc16a4082d00e998ac121c7d9d1e569309fe35fbda57d43e3",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "extracted/osgearth/docs/source/layer.md": {
+    "path": "raw_data/osgearth/3.8/docs/source/layer.md",
+    "raw_sha256": "227d990c0661e995bb516d79147e5bdbb1e17e7e1b9ab3ecd9028cbf0f43c0e9",
+    "canonical_sha256": "227d990c0661e995bb516d79147e5bdbb1e17e7e1b9ab3ecd9028cbf0f43c0e9",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "extracted/osgearth/docs/source/layers.md": {
+    "path": "raw_data/osgearth/3.8/docs/source/layers.md",
+    "raw_sha256": "3efb626268576c30bc31861a95eaa7699e205461f95744a507afc830da396fc8",
+    "canonical_sha256": "3efb626268576c30bc31861a95eaa7699e205461f95744a507afc830da396fc8",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "extracted/osgearth/docs/source/composite.md": {
+    "path": "raw_data/osgearth/3.8/docs/source/composite.md",
+    "raw_sha256": "b0a86f8e78fd4c028fbe93c87c9fe705d5001e03b8da05f6f11f050203f85e42",
+    "canonical_sha256": "b0a86f8e78fd4c028fbe93c87c9fe705d5001e03b8da05f6f11f050203f85e42",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "extracted/osgearth/docs/source/elevation.md": {
+    "path": "raw_data/osgearth/3.8/docs/source/elevation.md",
+    "raw_sha256": "6d57730dc6f7772a0f3aad955e3e6bc4f6cae6a7e9c7938fae789a0a4d56aa84",
+    "canonical_sha256": "6d57730dc6f7772a0f3aad955e3e6bc4f6cae6a7e9c7938fae789a0a4d56aa84",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "extracted/osgearth/docs/source/xyz.md": {
+    "path": "raw_data/osgearth/3.8/docs/source/xyz.md",
+    "raw_sha256": "c457cf43acd02a57a3ad271ccb624f603b73de8923effeb0842d53a20817d258",
+    "canonical_sha256": "c457cf43acd02a57a3ad271ccb624f603b73de8923effeb0842d53a20817d258",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "extracted/osgearth/docs/source/gdal.md": {
+    "path": "raw_data/osgearth/3.8/docs/source/gdal.md",
+    "raw_sha256": "42351dee5511ac4789ddcd3a3be7724dfb13dd5742663b4c14907a33b13b8967",
+    "canonical_sha256": "42351dee5511ac4789ddcd3a3be7724dfb13dd5742663b4c14907a33b13b8967",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "extracted/osgearth/docs/source/wms.md": {
+    "path": "raw_data/osgearth/3.8/docs/source/wms.md",
+    "raw_sha256": "1bb01fd1ef7225ab5b0fc9f135f3fd1148ead6734ce6d013da467a95c086e407",
+    "canonical_sha256": "1bb01fd1ef7225ab5b0fc9f135f3fd1148ead6734ce6d013da467a95c086e407",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "extracted/osgearth/src/osgEarth/Map": {
+    "path": "raw_data/osgearth/3.8/src/osgEarth/Map",
+    "raw_sha256": "7f3d1c021edac412e9a50497d39887ce6868b47a242efbeb8a3d774c324914b9",
+    "canonical_sha256": "7f3d1c021edac412e9a50497d39887ce6868b47a242efbeb8a3d774c324914b9",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "extracted/osgearth/src/osgEarth/MapNode": {
+    "path": "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+    "raw_sha256": "453f6178bdb61a0d84eb32ffa95cdb20e488fe6c9969aae53b5cac0db0285f38",
+    "canonical_sha256": "453f6178bdb61a0d84eb32ffa95cdb20e488fe6c9969aae53b5cac0db0285f38",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "osgearth-3.8"
+  },
+  "extracted/proj/README.md": {
+    "path": "raw_data/proj/9.8.1/README.md",
+    "raw_sha256": "8386634c3c1a881cbc043ad4983c710ea97aa67ad5ef2a88b715f1db212a5f17",
+    "canonical_sha256": "8386634c3c1a881cbc043ad4983c710ea97aa67ad5ef2a88b715f1db212a5f17",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "proj-9.8.1"
+  },
+  "extracted/gdal/gdaldoc/programs/gdal_translate.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/programs/gdal_translate.html",
+    "raw_sha256": "2544124564cc6ea8c632eb9b616e3ac2089d3028e1c0c83eaaba5d1767ca1008",
+    "canonical_sha256": "2544124564cc6ea8c632eb9b616e3ac2089d3028e1c0c83eaaba5d1767ca1008",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/gdal/gdaldoc/programs/gdalwarp.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/programs/gdalwarp.html",
+    "raw_sha256": "8cba808af6bfd98a26e6a36a191e2a9d7999b1a830c83631e17833a672bf3cfe",
+    "canonical_sha256": "8cba808af6bfd98a26e6a36a191e2a9d7999b1a830c83631e17833a672bf3cfe",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/gdal/gdaldoc/programs/ogr2ogr.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/programs/ogr2ogr.html",
+    "raw_sha256": "17364903ea8f089b79a3a7d8e8b09ce7c1460643d416cef4bbfd68c99161ae49",
+    "canonical_sha256": "17364903ea8f089b79a3a7d8e8b09ce7c1460643d416cef4bbfd68c99161ae49",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/gdal/gdaldoc/programs/gdalinfo.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/programs/gdalinfo.html",
+    "raw_sha256": "4b2cc90625a4557ec4cad3c7470045835f9ab829a14ad4b9c02ffb5fd191e98a",
+    "canonical_sha256": "4b2cc90625a4557ec4cad3c7470045835f9ab829a14ad4b9c02ffb5fd191e98a",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/gdal/gdaldoc/programs/gdalbuildvrt.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/programs/gdalbuildvrt.html",
+    "raw_sha256": "7ee9fd28f9fa354a2f720a34c0f592b3b1c943551a45a67fcdaa0ba82a3cd6a0",
+    "canonical_sha256": "7ee9fd28f9fa354a2f720a34c0f592b3b1c943551a45a67fcdaa0ba82a3cd6a0",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/gdal/gdaldoc/programs/gdaladdo.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/programs/gdaladdo.html",
+    "raw_sha256": "4572c9e1403178c56e76da66108d6b56dc6823883a50397bcc65c49d05288071",
+    "canonical_sha256": "4572c9e1403178c56e76da66108d6b56dc6823883a50397bcc65c49d05288071",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/gdal/gdaldoc/programs/gdaldem.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/programs/gdaldem.html",
+    "raw_sha256": "bb3420843cf3ab96e3ea81ba48672afdb3d82efdff83bde90fb0113b32e864e0",
+    "canonical_sha256": "bb3420843cf3ab96e3ea81ba48672afdb3d82efdff83bde90fb0113b32e864e0",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/gdal/gdaldoc/programs/gdal_rasterize.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/programs/gdal_rasterize.html",
+    "raw_sha256": "7a358f1ee9f3268efee663cf0bef37ef297aabf6bf31969b8b847d802a98eca2",
+    "canonical_sha256": "7a358f1ee9f3268efee663cf0bef37ef297aabf6bf31969b8b847d802a98eca2",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/gdal/gdaldoc/user/raster_data_model.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/user/raster_data_model.html",
+    "raw_sha256": "97570decda6596aee9e53dd18443ade1420e6247078c63e1cd395828e9ef98af",
+    "canonical_sha256": "97570decda6596aee9e53dd18443ade1420e6247078c63e1cd395828e9ef98af",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/gdal/gdaldoc/user/virtual_file_systems.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/user/virtual_file_systems.html",
+    "raw_sha256": "26005dd15edf2779974b75940fdf427d4f9dc20de11314126a11d411c8ced6d5",
+    "canonical_sha256": "26005dd15edf2779974b75940fdf427d4f9dc20de11314126a11d411c8ced6d5",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/gdal/gdaldoc/user/configoptions.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/user/configoptions.html",
+    "raw_sha256": "94f500afe82d602aa27404fa3632c78486f56fa6869b6c14cda07bb29a227fbd",
+    "canonical_sha256": "94f500afe82d602aa27404fa3632c78486f56fa6869b6c14cda07bb29a227fbd",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/gdal/gdaldoc/user/migration_guide.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/user/migration_guide.html",
+    "raw_sha256": "00d46ef4da9536721d91cc452f1edbea6f5c3a08e3dd2cc2dd70925172eceb79",
+    "canonical_sha256": "00d46ef4da9536721d91cc452f1edbea6f5c3a08e3dd2cc2dd70925172eceb79",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/gdal/gdaldoc/user/multithreading.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/user/multithreading.html",
+    "raw_sha256": "03554180400e1e0a2cd624017ce5fdb912a0f61d22ac3b92856feafaa767ffe8",
+    "canonical_sha256": "03554180400e1e0a2cd624017ce5fdb912a0f61d22ac3b92856feafaa767ffe8",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/gdal/gdaldoc/drivers/raster/gtiff.html": {
+    "path": "raw_data/gdal/3.13.1/gdaldoc/drivers/raster/gtiff.html",
+    "raw_sha256": "19814ee4a3412d8624e3cce92b546e0b6b7aa1c2ae75def0259a86e33317ec47",
+    "canonical_sha256": "19814ee4a3412d8624e3cce92b546e0b6b7aa1c2ae75def0259a86e33317ec47",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "gdal-3.13.1"
+  },
+  "extracted/proj/man/man1/gie.1": {
+    "path": "raw_data/proj/9.8.1/man/man1/gie.1",
+    "raw_sha256": "2ae1b01b5c865a4c41d4766b02799540131e5c74722b351643ad11da4156e681",
+    "canonical_sha256": "2ae1b01b5c865a4c41d4766b02799540131e5c74722b351643ad11da4156e681",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "proj-9.8.1"
+  },
+  "extracted/proj/man/man1/projinfo.1": {
+    "path": "raw_data/proj/9.8.1/man/man1/projinfo.1",
+    "raw_sha256": "3158b7f03908b46a25cef3d11cb367aa0c412acfa400898cb25c74f956442d43",
+    "canonical_sha256": "3158b7f03908b46a25cef3d11cb367aa0c412acfa400898cb25c74f956442d43",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "proj-9.8.1"
+  },
+  "extracted/proj/man/man1/geod.1": {
+    "path": "raw_data/proj/9.8.1/man/man1/geod.1",
+    "raw_sha256": "47569c6255eff6b657166131fc228d8d91bb53e4599acca68558041f926af96d",
+    "canonical_sha256": "47569c6255eff6b657166131fc228d8d91bb53e4599acca68558041f926af96d",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "proj-9.8.1"
+  },
+  "extracted/proj/man/man1/projsync.1": {
+    "path": "raw_data/proj/9.8.1/man/man1/projsync.1",
+    "raw_sha256": "af9acb8d5b474eb0ac0778e7e6bf30ba002930df00040bbb5ef9bb21b02e947b",
+    "canonical_sha256": "af9acb8d5b474eb0ac0778e7e6bf30ba002930df00040bbb5ef9bb21b02e947b",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "proj-9.8.1"
+  },
+  "extracted/proj/man/man1/cs2cs.1": {
+    "path": "raw_data/proj/9.8.1/man/man1/cs2cs.1",
+    "raw_sha256": "69e936292161f2695faac65ce8da6c0dc8cf023b1ef61106a65ffc5f5e77bf43",
+    "canonical_sha256": "69e936292161f2695faac65ce8da6c0dc8cf023b1ef61106a65ffc5f5e77bf43",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "proj-9.8.1"
+  },
+  "extracted/proj/man/man1/cct.1": {
+    "path": "raw_data/proj/9.8.1/man/man1/cct.1",
+    "raw_sha256": "6c65e18b63804e150859bfea736453c79e990bb75f147e44da4c5a277d5c36b3",
+    "canonical_sha256": "6c65e18b63804e150859bfea736453c79e990bb75f147e44da4c5a277d5c36b3",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "proj-9.8.1"
+  },
+  "extracted/proj/man/man1/proj.1": {
+    "path": "raw_data/proj/9.8.1/man/man1/proj.1",
+    "raw_sha256": "b0bf9078e0d4557c676695646750633d0ed9a207d47a0bb3bf1bc8eb3a2f4df0",
+    "canonical_sha256": "b0bf9078e0d4557c676695646750633d0ed9a207d47a0bb3bf1bc8eb3a2f4df0",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "proj-9.8.1"
+  },
+  "pinned/proj/docs/source/about_core.rst": {
+    "path": "raw_data/proj/9.8.1/docs/source/about_core.rst",
+    "raw_sha256": "59ea4a07a5f806d5f23fe30324e24e7005baa7c29bec0abfbd4e2655d449126a",
+    "canonical_sha256": "59ea4a07a5f806d5f23fe30324e24e7005baa7c29bec0abfbd4e2655d449126a",
+    "normalization": "text-newline-lf-v1",
+    "encoding": "utf-8",
+    "corpus_id": "proj-9.8.1"
+  }
+}

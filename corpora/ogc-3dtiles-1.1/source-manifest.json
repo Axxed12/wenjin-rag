@@ -1,0 +1,58 @@
+{
+  "schema_version": 3,
+  "corpus_id": "ogc-3dtiles-1.1",
+  "library": "ogc-3dtiles",
+  "version": "1.1",
+  "commit": null,
+  "raw_data_subdir": "ogc-3dtiles/1.1",
+  "retrieved_on": "2026-09-17",
+  "release_date": "2023-01-12",
+  "cutoff": "2026-07-15",
+  "license": "OGC Document Notice / OGC License (https://www.ogc.org/license)",
+  "source_url": "https://www.ogc.org/standards/3dtiles/",
+  "files": [
+    {
+      "path": "22-025r4.html",
+      "bytes": 52897656,
+      "raw_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "canonical_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://docs.ogc.org/cs/22-025r4/22-025r4.html",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "ogc:22-025r4",
+      "provenance": {
+        "staging_path": "raw/ogc/22-025r4.html"
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "22-025r4.pdf",
+      "bytes": 51092867,
+      "raw_sha256": "1d349ef636291a9869035f1779dd8278ddcd19df0fd36fe50a9735a4ea5a66a8",
+      "canonical_sha256": "1d349ef636291a9869035f1779dd8278ddcd19df0fd36fe50a9735a4ea5a66a8",
+      "normalization": "binary-identity-v1",
+      "encoding": null,
+      "source_url": "https://docs.ogc.org/cs/22-025r4/22-025r4.pdf",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "ogc:22-025r4",
+      "provenance": {
+        "staging_path": "raw/ogc/22-025r4.pdf"
+      },
+      "parser": "pymupdf-page-v1"
+    }
+  ],
+  "scope": "Exact retrieval_eligible file allowlist; archives are preservation only.",
+  "index_state": "not_built; no active-index change",
+  "canonical_corpus_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "retrieval_content_sha256": "518fc35241954310a52dd948677fb3228dbd309a54679027f61bf8794b65f4a2",
+  "retrieval_scope_files": [
+    "22-025r4.html",
+    "22-025r4.pdf"
+  ],
+  "exclusion_policy": "All unlisted archive members and preservation_only files excluded."
+}

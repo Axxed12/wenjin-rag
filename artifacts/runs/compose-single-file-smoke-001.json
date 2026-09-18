@@ -1,0 +1,16 @@
+{
+  "run_id": "compose-single-file-smoke-001",
+  "verified_at_utc": "2026-09-17T03:58:54Z",
+  "compose_files": ["compose.yaml"],
+  "services": ["qdrant", "mcp"],
+  "mcp_port": 8767,
+  "qdrant_healthy": true,
+  "mcp_healthy": true,
+  "session_established": true,
+  "search_docs_called": true,
+  "top1_chunk_id": "3.6.5:include/osgViewer/Viewer:blocks:0002",
+  "request_id": "427aeab328ab4a50ac9a83bba28b37d4",
+  "audit_request_id_matched": true,
+  "test_container_removed": true,
+  "scope": "local Windows Docker Desktop single-file Compose smoke"
+}

@@ -1,0 +1,13 @@
+# 本项目按字节校验语料和清单的SHA256（raw_sha256 / canonical_sha256 / manifest_sha256），
+# 任何换行转换都会让哈希失配、索引校验失败。历史上CRLF/LF差异已导致过313→307 chunk的事故。
+# 因此统一以LF入库、以LF检出，不依赖各机器的core.autocrlf设置。
+* text=auto eol=lf
+
+# 二进制资产不做任何转换或行尾处理。
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.sqlite binary

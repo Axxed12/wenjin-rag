@@ -1,0 +1,179 @@
+{
+  "route_id": "multicorpus-candidates-001",
+  "route_path": "configs/indexes/multicorpus-candidates-001.json",
+  "status": "PASS",
+  "total_chunks": 1496,
+  "targets": [
+    {
+      "target_id": "osgearth-3.8-blocks-candidate-001",
+      "library": "osgearth",
+      "version": "3.8",
+      "strategy": "blocks",
+      "dense_collection": "osgearth_3_8_dense_blocks_candidate_001",
+      "bm25_path": "data/indexes/osgearth_3_8_bm25_blocks_candidate_001.sqlite",
+      "chunk_count": 42,
+      "vector_dimension": 1024,
+      "collection_status": "green",
+      "bm25_metadata_rows": 42,
+      "qdrant_metadata_points": 42,
+      "page_number_chunks": {
+        "bm25": 0,
+        "qdrant": 0
+      },
+      "logical_document_id_chunks": {
+        "bm25": 42,
+        "qdrant": 42
+      },
+      "checks": {
+        "bm25_ids_unique": true,
+        "qdrant_ids_unique": true,
+        "chunk_id_sets_equal": true,
+        "payload_field_mismatches": 0,
+        "text_hash_mismatches": 0,
+        "page_number_matches": true,
+        "logical_document_id_matches": true,
+        "dual_hash_complete": true
+      },
+      "mismatched_fields": [],
+      "text_hash_mismatch_examples": [],
+      "status": "PASS"
+    },
+    {
+      "target_id": "gdal-3.13.1-blocks-candidate-001",
+      "library": "gdal",
+      "version": "3.13.1",
+      "strategy": "blocks",
+      "dense_collection": "gdal_3_13_1_dense_blocks_candidate_001",
+      "bm25_path": "data/indexes/gdal_3_13_1_bm25_blocks_candidate_001.sqlite",
+      "chunk_count": 306,
+      "vector_dimension": 1024,
+      "collection_status": "green",
+      "bm25_metadata_rows": 306,
+      "qdrant_metadata_points": 306,
+      "page_number_chunks": {
+        "bm25": 0,
+        "qdrant": 0
+      },
+      "logical_document_id_chunks": {
+        "bm25": 306,
+        "qdrant": 306
+      },
+      "checks": {
+        "bm25_ids_unique": true,
+        "qdrant_ids_unique": true,
+        "chunk_id_sets_equal": true,
+        "payload_field_mismatches": 0,
+        "text_hash_mismatches": 0,
+        "page_number_matches": true,
+        "logical_document_id_matches": true,
+        "dual_hash_complete": true
+      },
+      "mismatched_fields": [],
+      "text_hash_mismatch_examples": [],
+      "status": "PASS"
+    },
+    {
+      "target_id": "proj-9.8.1-blocks-candidate-001",
+      "library": "proj",
+      "version": "9.8.1",
+      "strategy": "blocks",
+      "dense_collection": "proj_9_8_1_dense_blocks_candidate_001",
+      "bm25_path": "data/indexes/proj_9_8_1_bm25_blocks_candidate_001.sqlite",
+      "chunk_count": 58,
+      "vector_dimension": 1024,
+      "collection_status": "green",
+      "bm25_metadata_rows": 58,
+      "qdrant_metadata_points": 58,
+      "page_number_chunks": {
+        "bm25": 0,
+        "qdrant": 0
+      },
+      "logical_document_id_chunks": {
+        "bm25": 58,
+        "qdrant": 58
+      },
+      "checks": {
+        "bm25_ids_unique": true,
+        "qdrant_ids_unique": true,
+        "chunk_id_sets_equal": true,
+        "payload_field_mismatches": 0,
+        "text_hash_mismatches": 0,
+        "page_number_matches": true,
+        "logical_document_id_matches": true,
+        "dual_hash_complete": true
+      },
+      "mismatched_fields": [],
+      "text_hash_mismatch_examples": [],
+      "status": "PASS"
+    },
+    {
+      "target_id": "ogc-3dtiles-1.1-blocks-candidate-001",
+      "library": "ogc-3dtiles",
+      "version": "1.1",
+      "strategy": "blocks",
+      "dense_collection": "ogc_3dtiles_1_1_dense_blocks_candidate_001",
+      "bm25_path": "data/indexes/ogc_3dtiles_1_1_bm25_blocks_candidate_001.sqlite",
+      "chunk_count": 888,
+      "vector_dimension": 1024,
+      "collection_status": "green",
+      "bm25_metadata_rows": 888,
+      "qdrant_metadata_points": 888,
+      "page_number_chunks": {
+        "bm25": 611,
+        "qdrant": 611
+      },
+      "logical_document_id_chunks": {
+        "bm25": 888,
+        "qdrant": 888
+      },
+      "checks": {
+        "bm25_ids_unique": true,
+        "qdrant_ids_unique": true,
+        "chunk_id_sets_equal": true,
+        "payload_field_mismatches": 0,
+        "text_hash_mismatches": 0,
+        "page_number_matches": true,
+        "logical_document_id_matches": true,
+        "dual_hash_complete": true
+      },
+      "mismatched_fields": [],
+      "text_hash_mismatch_examples": [],
+      "status": "PASS"
+    },
+    {
+      "target_id": "ogc-wms-1.3.0-blocks-candidate-001",
+      "library": "ogc-wms",
+      "version": "1.3.0",
+      "strategy": "blocks",
+      "dense_collection": "ogc_wms_1_3_0_dense_blocks_candidate_001",
+      "bm25_path": "data/indexes/ogc_wms_1_3_0_bm25_blocks_candidate_001.sqlite",
+      "chunk_count": 202,
+      "vector_dimension": 1024,
+      "collection_status": "green",
+      "bm25_metadata_rows": 202,
+      "qdrant_metadata_points": 202,
+      "page_number_chunks": {
+        "bm25": 194,
+        "qdrant": 194
+      },
+      "logical_document_id_chunks": {
+        "bm25": 202,
+        "qdrant": 202
+      },
+      "checks": {
+        "bm25_ids_unique": true,
+        "qdrant_ids_unique": true,
+        "chunk_id_sets_equal": true,
+        "payload_field_mismatches": 0,
+        "text_hash_mismatches": 0,
+        "page_number_matches": true,
+        "logical_document_id_matches": true,
+        "dual_hash_complete": true
+      },
+      "mismatched_fields": [],
+      "text_hash_mismatch_examples": [],
+      "status": "PASS"
+    }
+  ],
+  "boundary": "只核验索引资产一致性；未做检索效果评测，不代表检索质量通过。"
+}

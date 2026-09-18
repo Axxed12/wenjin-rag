@@ -1,0 +1,324 @@
+{
+  "schema_version": 3,
+  "corpus_id": "osgearth-3.8",
+  "library": "osgearth",
+  "version": "3.8",
+  "commit": "85d84d3e464a8400a43a77b61fc6f7d9115eb189",
+  "raw_data_subdir": "osgearth/3.8",
+  "retrieved_on": "2026-09-17",
+  "release_date": "2026-03-04",
+  "cutoff": "2026-07-15",
+  "license": "LGPL-3.0 (含 osgEarth 附加例外)",
+  "source_url": "https://github.com/pelicanmapping/osgearth",
+  "files": [
+    {
+      "path": "LICENSE.txt",
+      "bytes": 8452,
+      "raw_sha256": "3324061c295fd17769cd4f045f3d0965fb5c61492edf85e2c943e18077254191",
+      "canonical_sha256": "3324061c295fd17769cd4f045f3d0965fb5c61492edf85e2c943e18077254191",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/osgearth-3.8/LICENSE.txt",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "osgearth-3.8:LICENSE.txt",
+      "provenance": {
+        "staging_path": "raw/osgearth/LICENSE.txt"
+      },
+      "parser": "text-line-v1"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3603,
+      "raw_sha256": "33b938a00b1ae7e8caf14fbe18030787743ea97f61995e99a5f0b3cf627ae827",
+      "canonical_sha256": "33b938a00b1ae7e8caf14fbe18030787743ea97f61995e99a5f0b3cf627ae827",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/osgearth-3.8/README.md",
+      "retrieval_eligible": false,
+      "indexable": false,
+      "parser_status": "preservation_only",
+      "logical_document_id": "osgearth-3.8:README.md",
+      "provenance": {
+        "staging_path": "raw/osgearth/README.md"
+      }
+    },
+    {
+      "path": "archives/osgearth-3.8.tar.gz",
+      "bytes": 128452862,
+      "raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+      "canonical_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+      "normalization": "binary-identity-v1",
+      "encoding": null,
+      "source_url": "https://github.com/pelicanmapping/osgearth/archive/refs/tags/osgearth-3.8.tar.gz",
+      "retrieval_eligible": false,
+      "indexable": false,
+      "parser_status": "preservation_only",
+      "logical_document_id": "osgearth-3.8:archives/osgearth-3.8.tar.gz",
+      "provenance": {
+        "staging_path": "raw/osgearth/osgearth-3.8.tar.gz"
+      }
+    },
+    {
+      "path": "docs/source/TileLayer.md",
+      "bytes": 1568,
+      "raw_sha256": "ddecf187f90bf303558bf5fa36d95815391dd4c7762a49a8f1605e29b838c48c",
+      "canonical_sha256": "ddecf187f90bf303558bf5fa36d95815391dd4c7762a49a8f1605e29b838c48c",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/TileLayer.md",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "osgearth-3.8:docs/source/TileLayer.md",
+      "provenance": {
+        "source_archive": "raw_data/osgearth/3.8/archives/osgearth-3.8.tar.gz",
+        "archive_member": "osgearth-osgearth-3.8/docs/source/TileLayer.md",
+        "archive_raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "archive_member_raw_verified": true
+      },
+      "parser": "text-line-v1"
+    },
+    {
+      "path": "docs/source/composite.md",
+      "bytes": 1262,
+      "raw_sha256": "b0a86f8e78fd4c028fbe93c87c9fe705d5001e03b8da05f6f11f050203f85e42",
+      "canonical_sha256": "b0a86f8e78fd4c028fbe93c87c9fe705d5001e03b8da05f6f11f050203f85e42",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/composite.md",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "osgearth-3.8:docs/source/composite.md",
+      "provenance": {
+        "source_archive": "raw_data/osgearth/3.8/archives/osgearth-3.8.tar.gz",
+        "archive_member": "osgearth-osgearth-3.8/docs/source/composite.md",
+        "archive_raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "archive_member_raw_verified": true
+      },
+      "parser": "text-line-v1"
+    },
+    {
+      "path": "docs/source/earthfile.md",
+      "bytes": 4519,
+      "raw_sha256": "47c2f9fab703dfa9599e4b7ccc0c1e9dff8db40d1328c3aabf9cfb0cde8af6b2",
+      "canonical_sha256": "47c2f9fab703dfa9599e4b7ccc0c1e9dff8db40d1328c3aabf9cfb0cde8af6b2",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/earthfile.md",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "osgearth-3.8:docs/source/earthfile.md",
+      "provenance": {
+        "source_archive": "raw_data/osgearth/3.8/archives/osgearth-3.8.tar.gz",
+        "archive_member": "osgearth-osgearth-3.8/docs/source/earthfile.md",
+        "archive_raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "archive_member_raw_verified": true
+      },
+      "parser": "text-line-v1"
+    },
+    {
+      "path": "docs/source/elevation.md",
+      "bytes": 725,
+      "raw_sha256": "6d57730dc6f7772a0f3aad955e3e6bc4f6cae6a7e9c7938fae789a0a4d56aa84",
+      "canonical_sha256": "6d57730dc6f7772a0f3aad955e3e6bc4f6cae6a7e9c7938fae789a0a4d56aa84",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/elevation.md",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "osgearth-3.8:docs/source/elevation.md",
+      "provenance": {
+        "source_archive": "raw_data/osgearth/3.8/archives/osgearth-3.8.tar.gz",
+        "archive_member": "osgearth-osgearth-3.8/docs/source/elevation.md",
+        "archive_raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "archive_member_raw_verified": true
+      },
+      "parser": "text-line-v1"
+    },
+    {
+      "path": "docs/source/gdal.md",
+      "bytes": 2805,
+      "raw_sha256": "42351dee5511ac4789ddcd3a3be7724dfb13dd5742663b4c14907a33b13b8967",
+      "canonical_sha256": "42351dee5511ac4789ddcd3a3be7724dfb13dd5742663b4c14907a33b13b8967",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/gdal.md",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "osgearth-3.8:docs/source/gdal.md",
+      "provenance": {
+        "source_archive": "raw_data/osgearth/3.8/archives/osgearth-3.8.tar.gz",
+        "archive_member": "osgearth-osgearth-3.8/docs/source/gdal.md",
+        "archive_raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "archive_member_raw_verified": true
+      },
+      "parser": "text-line-v1"
+    },
+    {
+      "path": "docs/source/layer.md",
+      "bytes": 1213,
+      "raw_sha256": "227d990c0661e995bb516d79147e5bdbb1e17e7e1b9ab3ecd9028cbf0f43c0e9",
+      "canonical_sha256": "227d990c0661e995bb516d79147e5bdbb1e17e7e1b9ab3ecd9028cbf0f43c0e9",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/layer.md",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "osgearth-3.8:docs/source/layer.md",
+      "provenance": {
+        "source_archive": "raw_data/osgearth/3.8/archives/osgearth-3.8.tar.gz",
+        "archive_member": "osgearth-osgearth-3.8/docs/source/layer.md",
+        "archive_raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "archive_member_raw_verified": true
+      },
+      "parser": "text-line-v1"
+    },
+    {
+      "path": "docs/source/layers.md",
+      "bytes": 4289,
+      "raw_sha256": "3efb626268576c30bc31861a95eaa7699e205461f95744a507afc830da396fc8",
+      "canonical_sha256": "3efb626268576c30bc31861a95eaa7699e205461f95744a507afc830da396fc8",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/layers.md",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "osgearth-3.8:docs/source/layers.md",
+      "provenance": {
+        "source_archive": "raw_data/osgearth/3.8/archives/osgearth-3.8.tar.gz",
+        "archive_member": "osgearth-osgearth-3.8/docs/source/layers.md",
+        "archive_raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "archive_member_raw_verified": true
+      },
+      "parser": "text-line-v1"
+    },
+    {
+      "path": "docs/source/visiblelayer.md",
+      "bytes": 1138,
+      "raw_sha256": "10b1bfd1f52aa55bc16a4082d00e998ac121c7d9d1e569309fe35fbda57d43e3",
+      "canonical_sha256": "10b1bfd1f52aa55bc16a4082d00e998ac121c7d9d1e569309fe35fbda57d43e3",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/visiblelayer.md",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "osgearth-3.8:docs/source/visiblelayer.md",
+      "provenance": {
+        "source_archive": "raw_data/osgearth/3.8/archives/osgearth-3.8.tar.gz",
+        "archive_member": "osgearth-osgearth-3.8/docs/source/visiblelayer.md",
+        "archive_raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "archive_member_raw_verified": true
+      },
+      "parser": "text-line-v1"
+    },
+    {
+      "path": "docs/source/wms.md",
+      "bytes": 2648,
+      "raw_sha256": "1bb01fd1ef7225ab5b0fc9f135f3fd1148ead6734ce6d013da467a95c086e407",
+      "canonical_sha256": "1bb01fd1ef7225ab5b0fc9f135f3fd1148ead6734ce6d013da467a95c086e407",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/wms.md",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "osgearth-3.8:docs/source/wms.md",
+      "provenance": {
+        "source_archive": "raw_data/osgearth/3.8/archives/osgearth-3.8.tar.gz",
+        "archive_member": "osgearth-osgearth-3.8/docs/source/wms.md",
+        "archive_raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "archive_member_raw_verified": true
+      },
+      "parser": "text-line-v1"
+    },
+    {
+      "path": "docs/source/xyz.md",
+      "bytes": 1874,
+      "raw_sha256": "c457cf43acd02a57a3ad271ccb624f603b73de8923effeb0842d53a20817d258",
+      "canonical_sha256": "c457cf43acd02a57a3ad271ccb624f603b73de8923effeb0842d53a20817d258",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/xyz.md",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "osgearth-3.8:docs/source/xyz.md",
+      "provenance": {
+        "source_archive": "raw_data/osgearth/3.8/archives/osgearth-3.8.tar.gz",
+        "archive_member": "osgearth-osgearth-3.8/docs/source/xyz.md",
+        "archive_raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "archive_member_raw_verified": true
+      },
+      "parser": "text-line-v1"
+    },
+    {
+      "path": "src/osgEarth/Map",
+      "bytes": 13454,
+      "raw_sha256": "7f3d1c021edac412e9a50497d39887ce6868b47a242efbeb8a3d774c324914b9",
+      "canonical_sha256": "7f3d1c021edac412e9a50497d39887ce6868b47a242efbeb8a3d774c324914b9",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/src/osgEarth/Map",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "osgearth-3.8:src/osgEarth/Map",
+      "provenance": {
+        "source_archive": "raw_data/osgearth/3.8/archives/osgearth-3.8.tar.gz",
+        "archive_member": "osgearth-osgearth-3.8/src/osgEarth/Map",
+        "archive_raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "archive_member_raw_verified": true
+      },
+      "parser": "text-line-v1"
+    },
+    {
+      "path": "src/osgEarth/MapNode",
+      "bytes": 9222,
+      "raw_sha256": "453f6178bdb61a0d84eb32ffa95cdb20e488fe6c9969aae53b5cac0db0285f38",
+      "canonical_sha256": "453f6178bdb61a0d84eb32ffa95cdb20e488fe6c9969aae53b5cac0db0285f38",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/src/osgEarth/MapNode",
+      "retrieval_eligible": true,
+      "indexable": true,
+      "parser_status": "validation_evidence_passed",
+      "logical_document_id": "osgearth-3.8:src/osgEarth/MapNode",
+      "provenance": {
+        "source_archive": "raw_data/osgearth/3.8/archives/osgearth-3.8.tar.gz",
+        "archive_member": "osgearth-osgearth-3.8/src/osgEarth/MapNode",
+        "archive_raw_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "archive_member_raw_verified": true
+      },
+      "parser": "text-line-v1"
+    }
+  ],
+  "scope": "Exact retrieval_eligible file allowlist; archives are preservation only.",
+  "index_state": "not_built; no active-index change",
+  "canonical_corpus_sha256": "d4b7b96bec382c9f43c9cdd04f78afc6c4afaced06cf6893302677637ec4dce5",
+  "retrieval_content_sha256": "d4b7b96bec382c9f43c9cdd04f78afc6c4afaced06cf6893302677637ec4dce5",
+  "retrieval_scope_files": [
+    "LICENSE.txt",
+    "docs/source/TileLayer.md",
+    "docs/source/composite.md",
+    "docs/source/earthfile.md",
+    "docs/source/elevation.md",
+    "docs/source/gdal.md",
+    "docs/source/layer.md",
+    "docs/source/layers.md",
+    "docs/source/visiblelayer.md",
+    "docs/source/wms.md",
+    "docs/source/xyz.md",
+    "src/osgEarth/Map",
+    "src/osgEarth/MapNode"
+  ],
+  "exclusion_policy": "All unlisted archive members and preservation_only files excluded."
+}

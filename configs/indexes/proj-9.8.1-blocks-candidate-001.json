@@ -1,0 +1,15 @@
+{
+  "target_id": "proj-9.8.1-blocks-candidate-001",
+  "library": "proj",
+  "version": "9.8.1",
+  "strategy": "blocks",
+  "dense_collection": "proj_9_8_1_dense_blocks_candidate_001",
+  "bm25_path": "data/indexes/proj_9_8_1_bm25_blocks_candidate_001.sqlite",
+  "manifest_path": "corpora/proj-9.8.1/source-manifest.json",
+  "manifest_sha256": "496761c2516e0582c5d1ff66054202c5b33df62e4c8eb1ed054fc63ff6a2dcf1",
+  "chunk_count": 58,
+  "vector_dimension": 1024,
+  "embedding_model": "Qwen3-Embedding-0.6B",
+  "canonical_corpus_sha256": "60358c76e502244b687cdf359d0800f26f705e42dea4864c29450fb96d6449e3",
+  "normalization_profile": "text-newline-lf-v1"
+}

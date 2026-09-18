@@ -1,0 +1,316 @@
+{
+  "status": "PASS",
+  "applied": true,
+  "manifests_written": 6,
+  "reason": "manifest_sha256是对文件原始字节的SHA256；manifest在Windows上为CRLF，而git按LF入库，导致跨平台检出后哈希失配",
+  "manifests": [
+    {
+      "path": "corpora/gdal-3.13.1/source-manifest.json",
+      "old_sha256": "9cc8693c3cb144aa549103d95b9080e202345d12aa80648443859c4a4fb53bd0",
+      "new_sha256": "2d5f7b27624b7dee5f9449b3641949a761795737777ea6c19d0fa21ea800f22b",
+      "old_bytes": 17272,
+      "new_bytes": 16908,
+      "crlf_removed": 728,
+      "already_lf": false,
+      "parsed_json_equal": true,
+      "content_fingerprint_before": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "content_fingerprint_after": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "corpora/ogc-3dtiles-1.1/source-manifest.json",
+      "old_sha256": "6c1ee1f4784de96fa82a9019dda5a270ef1cfd7b8f5344a1d1fafcba88652fc3",
+      "new_sha256": "fc4cc883fab579a9497dff0db7bd782670275205c1f7c2ad3845c2dd2c034db2",
+      "old_bytes": 2276,
+      "new_bytes": 2218,
+      "crlf_removed": 116,
+      "already_lf": false,
+      "parsed_json_equal": true,
+      "content_fingerprint_before": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "content_fingerprint_after": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "corpora/ogc-wms-1.3.0/source-manifest.json",
+      "old_sha256": "8ed78c2a6fec319656b028c09efdfa69af4c30d4bd6a102c1a4981232b5bdd26",
+      "new_sha256": "48a00914b7e26bc451863f5dcb3b854b184f7560f900425a1015ae5c527ff69f",
+      "old_bytes": 2518,
+      "new_bytes": 2457,
+      "crlf_removed": 122,
+      "already_lf": false,
+      "parsed_json_equal": true,
+      "content_fingerprint_before": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "content_fingerprint_after": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "corpora/osg-3.6.5/source-manifest.json",
+      "old_sha256": "349bbdcb8acaa237dca7e83241a6d622b7dab9d47ffcfc67fa69c89b110a33ea",
+      "new_sha256": "83c44088dca78b7ec67653cfc58991b52dcbdfd6978b2dd19d1e8e0f468efc60",
+      "old_bytes": 15730,
+      "new_bytes": 15413,
+      "crlf_removed": 634,
+      "already_lf": false,
+      "parsed_json_equal": true,
+      "content_fingerprint_before": "1f47831f288461c28f99c71b50804447a5028d908d170b324704953242bfcc02",
+      "content_fingerprint_after": "1f47831f288461c28f99c71b50804447a5028d908d170b324704953242bfcc02"
+    },
+    {
+      "path": "corpora/osgearth-3.8/source-manifest.json",
+      "old_sha256": "d6905dde98abafa3b0074a1e2e550338f6c8ab3f60c6f3f2ff8e2778812a37a9",
+      "new_sha256": "0ba4b5db557d0e2f4b80f582df66a9af9249211f5e1b933a87efb4801eeb1d8c",
+      "old_bytes": 15739,
+      "new_bytes": 15415,
+      "crlf_removed": 648,
+      "already_lf": false,
+      "parsed_json_equal": true,
+      "content_fingerprint_before": "d4b7b96bec382c9f43c9cdd04f78afc6c4afaced06cf6893302677637ec4dce5",
+      "content_fingerprint_after": "d4b7b96bec382c9f43c9cdd04f78afc6c4afaced06cf6893302677637ec4dce5"
+    },
+    {
+      "path": "corpora/proj-9.8.1/source-manifest.json",
+      "old_sha256": "464f2bc5d569dff4d005657d61c00cd1822760e570bce72b7776af1cb3c56d33",
+      "new_sha256": "496761c2516e0582c5d1ff66054202c5b33df62e4c8eb1ed054fc63ff6a2dcf1",
+      "old_bytes": 11662,
+      "new_bytes": 11402,
+      "crlf_removed": 520,
+      "already_lf": false,
+      "parsed_json_equal": true,
+      "content_fingerprint_before": "9b499560d2e920958cfa4866c281940875162b28dedaa0260e7ae6a872e263ca",
+      "content_fingerprint_after": "9b499560d2e920958cfa4866c281940875162b28dedaa0260e7ae6a872e263ca"
+    }
+  ],
+  "references": [
+    {
+      "path": "configs/indexes/gdal-3.13.1-blocks-candidate-001.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    },
+    {
+      "path": "configs/indexes/gdal-3.13.1-blocks-split-candidate-002.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    },
+    {
+      "path": "configs/indexes/multicorpus-candidates-001.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    },
+    {
+      "path": "configs/indexes/multicorpus-candidates-002.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    },
+    {
+      "path": "configs/indexes/ogc-3dtiles-1.1-blocks-candidate-001.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    },
+    {
+      "path": "configs/indexes/ogc-3dtiles-1.1-blocks-split-candidate-002.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    },
+    {
+      "path": "configs/indexes/ogc-wms-1.3.0-blocks-candidate-001.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    },
+    {
+      "path": "configs/indexes/ogc-wms-1.3.0-blocks-split-candidate-002.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    },
+    {
+      "path": "configs/indexes/osg-3.6.5-blocks-dualhash.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    },
+    {
+      "path": "configs/indexes/osgearth-3.8-blocks-candidate-001.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    },
+    {
+      "path": "configs/indexes/osgearth-3.8-blocks-split-candidate-002.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    },
+    {
+      "path": "configs/indexes/proj-9.8.1-blocks-candidate-001.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    },
+    {
+      "path": "configs/indexes/proj-9.8.1-blocks-split-candidate-002.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    },
+    {
+      "path": "data/indexes/index-registry.json",
+      "replacements": {},
+      "line_endings_delta": 0,
+      "changed": false
+    }
+  ],
+  "verification": [
+    {
+      "config": "configs/indexes/gdal-3.13.1-blocks-candidate-001.json",
+      "target_id": "gdal-3.13.1-blocks-candidate-001",
+      "recorded": "2d5f7b27624b7dee5f9449b3641949a761795737777ea6c19d0fa21ea800f22b",
+      "actual": "2d5f7b27624b7dee5f9449b3641949a761795737777ea6c19d0fa21ea800f22b",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/gdal-3.13.1-blocks-split-candidate-002.json",
+      "target_id": "gdal-3.13.1-blocks-split-candidate-002",
+      "recorded": "2d5f7b27624b7dee5f9449b3641949a761795737777ea6c19d0fa21ea800f22b",
+      "actual": "2d5f7b27624b7dee5f9449b3641949a761795737777ea6c19d0fa21ea800f22b",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/multicorpus-candidates-001.json",
+      "target_id": "osgearth-3.8-blocks-candidate-001",
+      "recorded": "0ba4b5db557d0e2f4b80f582df66a9af9249211f5e1b933a87efb4801eeb1d8c",
+      "actual": "0ba4b5db557d0e2f4b80f582df66a9af9249211f5e1b933a87efb4801eeb1d8c",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/multicorpus-candidates-001.json",
+      "target_id": "gdal-3.13.1-blocks-candidate-001",
+      "recorded": "2d5f7b27624b7dee5f9449b3641949a761795737777ea6c19d0fa21ea800f22b",
+      "actual": "2d5f7b27624b7dee5f9449b3641949a761795737777ea6c19d0fa21ea800f22b",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/multicorpus-candidates-001.json",
+      "target_id": "proj-9.8.1-blocks-candidate-001",
+      "recorded": "496761c2516e0582c5d1ff66054202c5b33df62e4c8eb1ed054fc63ff6a2dcf1",
+      "actual": "496761c2516e0582c5d1ff66054202c5b33df62e4c8eb1ed054fc63ff6a2dcf1",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/multicorpus-candidates-001.json",
+      "target_id": "ogc-3dtiles-1.1-blocks-candidate-001",
+      "recorded": "fc4cc883fab579a9497dff0db7bd782670275205c1f7c2ad3845c2dd2c034db2",
+      "actual": "fc4cc883fab579a9497dff0db7bd782670275205c1f7c2ad3845c2dd2c034db2",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/multicorpus-candidates-001.json",
+      "target_id": "ogc-wms-1.3.0-blocks-candidate-001",
+      "recorded": "48a00914b7e26bc451863f5dcb3b854b184f7560f900425a1015ae5c527ff69f",
+      "actual": "48a00914b7e26bc451863f5dcb3b854b184f7560f900425a1015ae5c527ff69f",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/multicorpus-candidates-002.json",
+      "target_id": "osgearth-3.8-blocks-split-candidate-002",
+      "recorded": "0ba4b5db557d0e2f4b80f582df66a9af9249211f5e1b933a87efb4801eeb1d8c",
+      "actual": "0ba4b5db557d0e2f4b80f582df66a9af9249211f5e1b933a87efb4801eeb1d8c",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/multicorpus-candidates-002.json",
+      "target_id": "gdal-3.13.1-blocks-split-candidate-002",
+      "recorded": "2d5f7b27624b7dee5f9449b3641949a761795737777ea6c19d0fa21ea800f22b",
+      "actual": "2d5f7b27624b7dee5f9449b3641949a761795737777ea6c19d0fa21ea800f22b",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/multicorpus-candidates-002.json",
+      "target_id": "proj-9.8.1-blocks-split-candidate-002",
+      "recorded": "496761c2516e0582c5d1ff66054202c5b33df62e4c8eb1ed054fc63ff6a2dcf1",
+      "actual": "496761c2516e0582c5d1ff66054202c5b33df62e4c8eb1ed054fc63ff6a2dcf1",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/multicorpus-candidates-002.json",
+      "target_id": "ogc-3dtiles-1.1-blocks-split-candidate-002",
+      "recorded": "fc4cc883fab579a9497dff0db7bd782670275205c1f7c2ad3845c2dd2c034db2",
+      "actual": "fc4cc883fab579a9497dff0db7bd782670275205c1f7c2ad3845c2dd2c034db2",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/multicorpus-candidates-002.json",
+      "target_id": "ogc-wms-1.3.0-blocks-split-candidate-002",
+      "recorded": "48a00914b7e26bc451863f5dcb3b854b184f7560f900425a1015ae5c527ff69f",
+      "actual": "48a00914b7e26bc451863f5dcb3b854b184f7560f900425a1015ae5c527ff69f",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/ogc-3dtiles-1.1-blocks-candidate-001.json",
+      "target_id": "ogc-3dtiles-1.1-blocks-candidate-001",
+      "recorded": "fc4cc883fab579a9497dff0db7bd782670275205c1f7c2ad3845c2dd2c034db2",
+      "actual": "fc4cc883fab579a9497dff0db7bd782670275205c1f7c2ad3845c2dd2c034db2",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/ogc-3dtiles-1.1-blocks-split-candidate-002.json",
+      "target_id": "ogc-3dtiles-1.1-blocks-split-candidate-002",
+      "recorded": "fc4cc883fab579a9497dff0db7bd782670275205c1f7c2ad3845c2dd2c034db2",
+      "actual": "fc4cc883fab579a9497dff0db7bd782670275205c1f7c2ad3845c2dd2c034db2",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/ogc-wms-1.3.0-blocks-candidate-001.json",
+      "target_id": "ogc-wms-1.3.0-blocks-candidate-001",
+      "recorded": "48a00914b7e26bc451863f5dcb3b854b184f7560f900425a1015ae5c527ff69f",
+      "actual": "48a00914b7e26bc451863f5dcb3b854b184f7560f900425a1015ae5c527ff69f",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/ogc-wms-1.3.0-blocks-split-candidate-002.json",
+      "target_id": "ogc-wms-1.3.0-blocks-split-candidate-002",
+      "recorded": "48a00914b7e26bc451863f5dcb3b854b184f7560f900425a1015ae5c527ff69f",
+      "actual": "48a00914b7e26bc451863f5dcb3b854b184f7560f900425a1015ae5c527ff69f",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/osg-3.6.5-blocks-dualhash.json",
+      "target_id": "osg-3.6.5-blocks-dualhash-003",
+      "recorded": "83c44088dca78b7ec67653cfc58991b52dcbdfd6978b2dd19d1e8e0f468efc60",
+      "actual": "83c44088dca78b7ec67653cfc58991b52dcbdfd6978b2dd19d1e8e0f468efc60",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/osgearth-3.8-blocks-candidate-001.json",
+      "target_id": "osgearth-3.8-blocks-candidate-001",
+      "recorded": "0ba4b5db557d0e2f4b80f582df66a9af9249211f5e1b933a87efb4801eeb1d8c",
+      "actual": "0ba4b5db557d0e2f4b80f582df66a9af9249211f5e1b933a87efb4801eeb1d8c",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/osgearth-3.8-blocks-split-candidate-002.json",
+      "target_id": "osgearth-3.8-blocks-split-candidate-002",
+      "recorded": "0ba4b5db557d0e2f4b80f582df66a9af9249211f5e1b933a87efb4801eeb1d8c",
+      "actual": "0ba4b5db557d0e2f4b80f582df66a9af9249211f5e1b933a87efb4801eeb1d8c",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/proj-9.8.1-blocks-candidate-001.json",
+      "target_id": "proj-9.8.1-blocks-candidate-001",
+      "recorded": "496761c2516e0582c5d1ff66054202c5b33df62e4c8eb1ed054fc63ff6a2dcf1",
+      "actual": "496761c2516e0582c5d1ff66054202c5b33df62e4c8eb1ed054fc63ff6a2dcf1",
+      "matches": true
+    },
+    {
+      "config": "configs/indexes/proj-9.8.1-blocks-split-candidate-002.json",
+      "target_id": "proj-9.8.1-blocks-split-candidate-002",
+      "recorded": "496761c2516e0582c5d1ff66054202c5b33df62e4c8eb1ed054fc63ff6a2dcf1",
+      "actual": "496761c2516e0582c5d1ff66054202c5b33df62e4c8eb1ed054fc63ff6a2dcf1",
+      "matches": true
+    }
+  ],
+  "boundary": "只改换行，不改任何JSON取值；索引、向量和BM25行数均未改动。"
+}

@@ -1,0 +1,26 @@
+{
+  "pytest": {
+    "passed": 82,
+    "warnings": 1,
+    "seconds": 10.28,
+    "command": "uv run pytest -q"
+  },
+  "ruff": {
+    "status": "PASS",
+    "command": "uv run ruff check ingest.py scripts src evaluation tests"
+  },
+  "dependencies": {
+    "status": "PASS",
+    "packages": 153
+  },
+  "active": {
+    "target_id": "osg-3.6.5-blocks-dualhash-003",
+    "bm25_rows": 307,
+    "qdrant_points": 307,
+    "bm25_metadata_rows": 307,
+    "qdrant_metadata_points": 307,
+    "collection_status": "green",
+    "valid": true
+  },
+  "docker_build_executed": false
+}

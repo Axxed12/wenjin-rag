@@ -1,0 +1,68 @@
+{
+  "scope_id": "rag-multicorpus-scope-001",
+  "scope_type": "exact_file_allowlist",
+  "corpora": {
+    "osgearth-3.8": [
+      "LICENSE.txt",
+      "docs/source/TileLayer.md",
+      "docs/source/composite.md",
+      "docs/source/earthfile.md",
+      "docs/source/elevation.md",
+      "docs/source/gdal.md",
+      "docs/source/layer.md",
+      "docs/source/layers.md",
+      "docs/source/visiblelayer.md",
+      "docs/source/wms.md",
+      "docs/source/xyz.md",
+      "src/osgEarth/Map",
+      "src/osgEarth/MapNode"
+    ],
+    "gdal-3.13.1": [
+      "gdaldoc/drivers/raster/gtiff.html",
+      "gdaldoc/programs/gdal_rasterize.html",
+      "gdaldoc/programs/gdal_translate.html",
+      "gdaldoc/programs/gdaladdo.html",
+      "gdaldoc/programs/gdalbuildvrt.html",
+      "gdaldoc/programs/gdaldem.html",
+      "gdaldoc/programs/gdalinfo.html",
+      "gdaldoc/programs/gdalwarp.html",
+      "gdaldoc/programs/ogr2ogr.html",
+      "gdaldoc/user/configoptions.html",
+      "gdaldoc/user/migration_guide.html",
+      "gdaldoc/user/multithreading.html",
+      "gdaldoc/user/raster_data_model.html",
+      "gdaldoc/user/virtual_file_systems.html"
+    ],
+    "proj-9.8.1": [
+      "README.md",
+      "docs/source/about_core.rst",
+      "man/man1/cct.1",
+      "man/man1/cs2cs.1",
+      "man/man1/geod.1",
+      "man/man1/gie.1",
+      "man/man1/proj.1",
+      "man/man1/projinfo.1",
+      "man/man1/projsync.1"
+    ],
+    "ogc-3dtiles-1.1": [
+      "22-025r4.html",
+      "22-025r4.pdf"
+    ],
+    "ogc-wms-1.3.0": [
+      "06-042.pdf",
+      "capabilities_1_3_0.xsd"
+    ]
+  },
+  "validation_libraries": [
+    "osgearth",
+    "proj",
+    "ogc-wms"
+  ],
+  "test_libraries": [
+    "gdal",
+    "ogc-3dtiles"
+  ],
+  "proj_man_included": true,
+  "archives_recursively_indexed": false,
+  "review_note": "Agent reviewed; no human review claimed; test never used for tuning."
+}

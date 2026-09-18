@@ -1,0 +1,704 @@
+{
+  "osg-dev-002": {
+    "query": "OSG 3.6.5 中，Geode 没有 addChild，调用它一定是编造 API——这个说法对吗？",
+    "gold": [
+      {
+        "span": {
+          "path": "include/osg/Geode",
+          "start_line": 28,
+          "end_line": 28
+        },
+        "corpus": {
+          "fully_coverable": true,
+          "overlapping_chunks": [
+            {
+              "chunk_id": "3.6.5:include/osg/Geode:blocks:0000",
+              "source_path": "include/osg/Geode",
+              "start_line": 1,
+              "end_line": 41
+            }
+          ]
+        }
+      },
+      {
+        "span": {
+          "path": "include/osg/Group",
+          "start_line": 44,
+          "end_line": 53
+        },
+        "corpus": {
+          "fully_coverable": true,
+          "overlapping_chunks": [
+            {
+              "chunk_id": "3.6.5:include/osg/Group:blocks:0000",
+              "source_path": "include/osg/Group",
+              "start_line": 1,
+              "end_line": 44
+            },
+            {
+              "chunk_id": "3.6.5:include/osg/Group:blocks:0001",
+              "source_path": "include/osg/Group",
+              "start_line": 45,
+              "end_line": 73
+            }
+          ]
+        }
+      },
+      {
+        "span": {
+          "path": "src/osg/Geode.cpp",
+          "start_line": 38,
+          "end_line": 41
+        },
+        "corpus": {
+          "fully_coverable": true,
+          "overlapping_chunks": [
+            {
+              "chunk_id": "3.6.5:src/osg/Geode.cpp:blocks:0000",
+              "source_path": "src/osg/Geode.cpp",
+              "start_line": 1,
+              "end_line": 62
+            }
+          ]
+        }
+      }
+    ],
+    "bm25_terms": [
+      "OSG",
+      "Geode",
+      "addChild",
+      "API"
+    ],
+    "dense_top20": [
+      {
+        "rank": 1,
+        "chunk_id": "3.6.5:src/osg/Geode.cpp:blocks:0000",
+        "source_path": "src/osg/Geode.cpp",
+        "lines": [
+          1,
+          62
+        ],
+        "score": 0.6681
+      },
+      {
+        "rank": 2,
+        "chunk_id": "3.6.5:include/osg/Geode:blocks:0000",
+        "source_path": "include/osg/Geode",
+        "lines": [
+          1,
+          41
+        ],
+        "score": 0.64814
+      },
+      {
+        "rank": 3,
+        "chunk_id": "3.6.5:examples/osgtext/osgtext.cpp:blocks:0014",
+        "source_path": "examples/osgtext/osgtext.cpp",
+        "lines": [
+          558,
+          609
+        ],
+        "score": 0.62511
+      },
+      {
+        "rank": 4,
+        "chunk_id": "3.6.5:include/osg/Geode:blocks:0005",
+        "source_path": "include/osg/Geode",
+        "lines": [
+          149,
+          157
+        ],
+        "score": 0.58799
+      },
+      {
+        "rank": 5,
+        "chunk_id": "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001",
+        "source_path": "examples/osgshape/osgshape.cpp",
+        "lines": [
+          41,
+          71
+        ],
+        "score": 0.58601
+      },
+      {
+        "rank": 6,
+        "chunk_id": "3.6.5:include/osg/Image:blocks:0018",
+        "source_path": "include/osg/Image",
+        "lines": [
+          564,
+          605
+        ],
+        "score": 0.56035
+      },
+      {
+        "rank": 7,
+        "chunk_id": "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013",
+        "source_path": "examples/osgtext/osgtext.cpp",
+        "lines": [
+          511,
+          557
+        ],
+        "score": 0.54622
+      },
+      {
+        "rank": 8,
+        "chunk_id": "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0017",
+        "source_path": "examples/osggeometry/osggeometry.cpp",
+        "lines": [
+          571,
+          616
+        ],
+        "score": 0.54557
+      },
+      {
+        "rank": 9,
+        "chunk_id": "3.6.5:examples/osgtext/osgtext.cpp:blocks:0001",
+        "source_path": "examples/osgtext/osgtext.cpp",
+        "lines": [
+          46,
+          88
+        ],
+        "score": 0.53697
+      },
+      {
+        "rank": 10,
+        "chunk_id": "3.6.5:examples/osgshape/osgshape.cpp:blocks:0002",
+        "source_path": "examples/osgshape/osgshape.cpp",
+        "lines": [
+          72,
+          111
+        ],
+        "score": 0.53449
+      },
+      {
+        "rank": 11,
+        "chunk_id": "3.6.5:examples/osgshape/osgshape.cpp:blocks:0000",
+        "source_path": "examples/osgshape/osgshape.cpp",
+        "lines": [
+          1,
+          39
+        ],
+        "score": 0.53388
+      },
+      {
+        "rank": 12,
+        "chunk_id": "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0000",
+        "source_path": "examples/osggeometry/osggeometry.cpp",
+        "lines": [
+          1,
+          40
+        ],
+        "score": 0.52868
+      },
+      {
+        "rank": 13,
+        "chunk_id": "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012",
+        "source_path": "examples/osgtext/osgtext.cpp",
+        "lines": [
+          460,
+          510
+        ],
+        "score": 0.52422
+      },
+      {
+        "rank": 14,
+        "chunk_id": "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0009",
+        "source_path": "examples/osggeometry/osggeometry.cpp",
+        "lines": [
+          272,
+          311
+        ],
+        "score": 0.52164
+      },
+      {
+        "rank": 15,
+        "chunk_id": "3.6.5:include/osg/Geode:blocks:0001",
+        "source_path": "include/osg/Geode",
+        "lines": [
+          42,
+          63
+        ],
+        "score": 0.51096
+      },
+      {
+        "rank": 16,
+        "chunk_id": "3.6.5:examples/osgshape/osgshape.cpp:blocks:0003",
+        "source_path": "examples/osgshape/osgshape.cpp",
+        "lines": [
+          112,
+          152
+        ],
+        "score": 0.51071
+      },
+      {
+        "rank": 17,
+        "chunk_id": "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0008",
+        "source_path": "examples/osggeometry/osggeometry.cpp",
+        "lines": [
+          237,
+          270
+        ],
+        "score": 0.5079
+      },
+      {
+        "rank": 18,
+        "chunk_id": "3.6.5:include/osg/Geode:blocks:0004",
+        "source_path": "include/osg/Geode",
+        "lines": [
+          107,
+          148
+        ],
+        "score": 0.50768
+      },
+      {
+        "rank": 19,
+        "chunk_id": "3.6.5:include/osg/Billboard:blocks:0000",
+        "source_path": "include/osg/Billboard",
+        "lines": [
+          1,
+          47
+        ],
+        "score": 0.49805
+      },
+      {
+        "rank": 20,
+        "chunk_id": "3.6.5:include/osg/Geometry:blocks:0000",
+        "source_path": "include/osg/Geometry",
+        "lines": [
+          1,
+          47
+        ],
+        "score": 0.49342
+      }
+    ],
+    "bm25_top20": [
+      {
+        "rank": 1,
+        "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0017",
+        "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+        "lines": [
+          698,
+          750
+        ],
+        "score": 7.30211
+      },
+      {
+        "rank": 2,
+        "chunk_id": "3.6.5:examples/osgtext/osgtext.cpp:blocks:0018",
+        "source_path": "examples/osgtext/osgtext.cpp",
+        "lines": [
+          739,
+          784
+        ],
+        "score": 7.22577
+      },
+      {
+        "rank": 3,
+        "chunk_id": "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020",
+        "source_path": "examples/osggeometry/osggeometry.cpp",
+        "lines": [
+          707,
+          734
+        ],
+        "score": 6.98321
+      },
+      {
+        "rank": 4,
+        "chunk_id": "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004",
+        "source_path": "examples/osgbillboard/osgbillboard.cpp",
+        "lines": [
+          156,
+          189
+        ],
+        "score": 6.7095
+      },
+      {
+        "rank": 5,
+        "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0004",
+        "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+        "lines": [
+          165,
+          208
+        ],
+        "score": 6.62645
+      },
+      {
+        "rank": 6,
+        "chunk_id": "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013",
+        "source_path": "examples/osgtext/osgtext.cpp",
+        "lines": [
+          511,
+          557
+        ],
+        "score": 5.97744
+      },
+      {
+        "rank": 7,
+        "chunk_id": "3.6.5:examples/osgtext/osgtext.cpp:blocks:0007",
+        "source_path": "examples/osgtext/osgtext.cpp",
+        "lines": [
+          247,
+          298
+        ],
+        "score": 5.81529
+      },
+      {
+        "rank": 8,
+        "chunk_id": "3.6.5:src/osg/Geode.cpp:blocks:0000",
+        "source_path": "src/osg/Geode.cpp",
+        "lines": [
+          1,
+          62
+        ],
+        "score": 5.5257
+      },
+      {
+        "rank": 9,
+        "chunk_id": "3.6.5:include/osg/Drawable:blocks:0007",
+        "source_path": "include/osg/Drawable",
+        "lines": [
+          224,
+          253
+        ],
+        "score": 5.44906
+      },
+      {
+        "rank": 10,
+        "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0008",
+        "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+        "lines": [
+          346,
+          388
+        ],
+        "score": 5.33266
+      },
+      {
+        "rank": 11,
+        "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0011",
+        "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+        "lines": [
+          484,
+          519
+        ],
+        "score": 5.26423
+      },
+      {
+        "rank": 12,
+        "chunk_id": "3.6.5:examples/osgtext/osgtext.cpp:blocks:0001",
+        "source_path": "examples/osgtext/osgtext.cpp",
+        "lines": [
+          46,
+          88
+        ],
+        "score": 5.24865
+      },
+      {
+        "rank": 13,
+        "chunk_id": "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012",
+        "source_path": "examples/osgtext/osgtext.cpp",
+        "lines": [
+          460,
+          510
+        ],
+        "score": 4.98183
+      },
+      {
+        "rank": 14,
+        "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0007",
+        "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+        "lines": [
+          305,
+          345
+        ],
+        "score": 4.91638
+      },
+      {
+        "rank": 15,
+        "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0016",
+        "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+        "lines": [
+          655,
+          697
+        ],
+        "score": 4.89348
+      },
+      {
+        "rank": 16,
+        "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0010",
+        "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+        "lines": [
+          444,
+          482
+        ],
+        "score": 4.81167
+      },
+      {
+        "rank": 17,
+        "chunk_id": "3.6.5:include/osg/Group:blocks:0001",
+        "source_path": "include/osg/Group",
+        "lines": [
+          45,
+          73
+        ],
+        "score": 3.93344
+      },
+      {
+        "rank": 18,
+        "chunk_id": "3.6.5:examples/osgtext/osgtext.cpp:blocks:0017",
+        "source_path": "examples/osgtext/osgtext.cpp",
+        "lines": [
+          699,
+          738
+        ],
+        "score": 3.69082
+      },
+      {
+        "rank": 19,
+        "chunk_id": "3.6.5:examples/osgtext/osgtext.cpp:blocks:0016",
+        "source_path": "examples/osgtext/osgtext.cpp",
+        "lines": [
+          656,
+          698
+        ],
+        "score": 3.63166
+      },
+      {
+        "rank": 20,
+        "chunk_id": "3.6.5:include/osg/Geode:blocks:0000",
+        "source_path": "include/osg/Geode",
+        "lines": [
+          1,
+          41
+        ],
+        "score": 2.96485
+      }
+    ]
+  },
+  "osg-dev-008": {
+    "query": "找一个将图片加载为二维纹理并绑定到纹理单元 0 的官方源码片段。",
+    "gold": [
+      {
+        "span": {
+          "path": "examples/osgtexture2D/osgtexture2D.cpp",
+          "start_line": 170,
+          "end_line": 176
+        },
+        "corpus": {
+          "fully_coverable": true,
+          "overlapping_chunks": [
+            {
+              "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0004",
+              "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+              "start_line": 165,
+              "end_line": 208
+            }
+          ]
+        }
+      }
+    ],
+    "bm25_terms": [],
+    "dense_top20": [
+      {
+        "rank": 1,
+        "chunk_id": "3.6.5:include/osg/Texture2D:blocks:0002",
+        "source_path": "include/osg/Texture2D",
+        "lines": [
+          81,
+          116
+        ],
+        "score": 0.66248
+      },
+      {
+        "rank": 2,
+        "chunk_id": "3.6.5:include/osg/Texture2D:blocks:0004",
+        "source_path": "include/osg/Texture2D",
+        "lines": [
+          143,
+          188
+        ],
+        "score": 0.64363
+      },
+      {
+        "rank": 3,
+        "chunk_id": "3.6.5:include/osg/Texture2D:blocks:0003",
+        "source_path": "include/osg/Texture2D",
+        "lines": [
+          117,
+          142
+        ],
+        "score": 0.6395
+      },
+      {
+        "rank": 4,
+        "chunk_id": "3.6.5:include/osg/Image:blocks:0007",
+        "source_path": "include/osg/Image",
+        "lines": [
+          242,
+          262
+        ],
+        "score": 0.58034
+      },
+      {
+        "rank": 5,
+        "chunk_id": "3.6.5:include/osg/Image:blocks:0015",
+        "source_path": "include/osg/Image",
+        "lines": [
+          473,
+          506
+        ],
+        "score": 0.58015
+      },
+      {
+        "rank": 6,
+        "chunk_id": "3.6.5:include/osg/Texture2D:blocks:0000",
+        "source_path": "include/osg/Texture2D",
+        "lines": [
+          1,
+          46
+        ],
+        "score": 0.57891
+      },
+      {
+        "rank": 7,
+        "chunk_id": "3.6.5:include/osg/Image:blocks:0013",
+        "source_path": "include/osg/Image",
+        "lines": [
+          416,
+          447
+        ],
+        "score": 0.564
+      },
+      {
+        "rank": 8,
+        "chunk_id": "3.6.5:include/osg/Image:blocks:0012",
+        "source_path": "include/osg/Image",
+        "lines": [
+          374,
+          415
+        ],
+        "score": 0.55996
+      },
+      {
+        "rank": 9,
+        "chunk_id": "3.6.5:include/osg/Texture2D:blocks:0001",
+        "source_path": "include/osg/Texture2D",
+        "lines": [
+          47,
+          80
+        ],
+        "score": 0.5567
+      },
+      {
+        "rank": 10,
+        "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0002",
+        "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+        "lines": [
+          72,
+          120
+        ],
+        "score": 0.55415
+      },
+      {
+        "rank": 11,
+        "chunk_id": "3.6.5:include/osg/Image:blocks:0018",
+        "source_path": "include/osg/Image",
+        "lines": [
+          564,
+          605
+        ],
+        "score": 0.54772
+      },
+      {
+        "rank": 12,
+        "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0015",
+        "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+        "lines": [
+          609,
+          654
+        ],
+        "score": 0.5469
+      },
+      {
+        "rank": 13,
+        "chunk_id": "3.6.5:include/osg/Image:blocks:0014",
+        "source_path": "include/osg/Image",
+        "lines": [
+          448,
+          472
+        ],
+        "score": 0.54064
+      },
+      {
+        "rank": 14,
+        "chunk_id": "3.6.5:include/osg/Geometry:blocks:0002",
+        "source_path": "include/osg/Geometry",
+        "lines": [
+          79,
+          105
+        ],
+        "score": 0.54005
+      },
+      {
+        "rank": 15,
+        "chunk_id": "3.6.5:include/osg/Geometry:blocks:0009",
+        "source_path": "include/osg/Geometry",
+        "lines": [
+          297,
+          312
+        ],
+        "score": 0.53639
+      },
+      {
+        "rank": 16,
+        "chunk_id": "3.6.5:include/osg/StateSet:blocks:0009",
+        "source_path": "include/osg/StateSet",
+        "lines": [
+          261,
+          284
+        ],
+        "score": 0.5351
+      },
+      {
+        "rank": 17,
+        "chunk_id": "3.6.5:include/osg/StateSet:blocks:0007",
+        "source_path": "include/osg/StateSet",
+        "lines": [
+          215,
+          239
+        ],
+        "score": 0.53181
+      },
+      {
+        "rank": 18,
+        "chunk_id": "3.6.5:include/osg/StateSet:blocks:0010",
+        "source_path": "include/osg/StateSet",
+        "lines": [
+          285,
+          311
+        ],
+        "score": 0.52665
+      },
+      {
+        "rank": 19,
+        "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0000",
+        "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+        "lines": [
+          1,
+          43
+        ],
+        "score": 0.52502
+      },
+      {
+        "rank": 20,
+        "chunk_id": "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0018",
+        "source_path": "examples/osggeometry/osggeometry.cpp",
+        "lines": [
+          617,
+          665
+        ],
+        "score": 0.52401
+      }
+    ],
+    "bm25_top20": []
+  }
+}

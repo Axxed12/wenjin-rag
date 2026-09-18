@@ -1,0 +1,247 @@
+[
+  {
+    "id": "osg-dev-001",
+    "query": "OSG 3.6.5 中，向 Geode 添加 Drawable 的接口是什么？返回值是什么？",
+    "answer_rubric": "addDrawable(Drawable*) 返回 bool；还有 ref_ptr 模板重载。",
+    "gold": [
+      {
+        "path": "include/osg/Geode",
+        "start_line": 42,
+        "end_line": 52
+      }
+    ],
+    "top5": [
+      {
+        "rank": 1,
+        "score": 0.736116,
+        "chunk_id": "3.6.5:src/osg/Geode.cpp:blocks:0000",
+        "source": "src/osg/Geode.cpp:1-62",
+        "text": "/* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2006 Robert Osfield\r\n *\r\n * This library is open source and may be redistributed and/or modified under\r\n * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or\r\n * (at your option) any later version.  The full license is in LICENSE file\r\n * included with this distribution, and on the openscenegraph.org website.\r\n *\r\n * This library is distributed in the hope that it will be useful,\r\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\r\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\r\n * OpenSceneGraph Public License for more details.\r\n*/\r\n#include <osg/Geode>\r\n#include <osg/Geometry>\r\n#include <osg/Notify>\r\n\r\n#include <stdio.h>\r\n#include <math.h>\r\n\r\n#define square(x)   ((x)*(x))\r\n\r\nusing namespace osg;\r\n\r\nGeode::Geode()\r\n{\r\n}\r\n\r\nGeode::Geode(const Geode& geode,const CopyOp& copyop):\r\n    Group(geode,copyop)\r\n{\r\n}\r\n\r\nGeode::~Geode()\r\n{\r\n}\r\n\r\nbool Geode::addDrawable( Drawable* drawable )\r\n{\r\n    return addChild(drawable);\r\n}\r\n\r\n\r\nbool Geode::removeDrawable( Drawable* drawable )\r\n{\r\n    return removeDrawables(getDrawableIndex(drawable),1);\r\n}\r\n\r\nbool Geode::removeDrawables(unsigned int pos,unsigned int numDrawablesToRemove)\r\n{\r\n    return removeChildren(pos, numDrawablesToRemove);\r\n}\r\n\r\nbool Geode::replaceDrawable( Drawable* origDrawable, Drawable* newDrawable )\r\n{\r\n    return replaceChild(origDrawable, newDrawable);\r\n}\r\n\r\nbool Geode::setDrawable( unsigned  int i, Drawable* newDrawable )\r\n{\r\n    return setChild(i, newDrawable);\r\n}\r\n\r\n"
+      },
+      {
+        "rank": 2,
+        "score": 0.63341,
+        "chunk_id": "3.6.5:include/osg/Geometry:blocks:0006",
+        "source": "include/osg/Geometry:193-224",
+        "text": "        /** Accept an Drawable::AttributeFunctor and call its methods to tell it about the internal attributes that this Drawable has. */\r\n        virtual void accept(Drawable::AttributeFunctor& af);\r\n\r\n        /** Return true, osg::Geometry does support accept(Drawable::ConstAttributeFunctor&). */\r\n        virtual bool supports(const Drawable::ConstAttributeFunctor&) const { return true; }\r\n\r\n        /** Accept a Drawable::ConstAttributeFunctor and call its methods to tell it about the internal attributes that this Drawable has. */\r\n        virtual void accept(Drawable::ConstAttributeFunctor& af) const;\r\n\r\n        /** Return true, osg::Geometry does support accept(PrimitiveFunctor&). */\r\n        virtual bool supports(const PrimitiveFunctor&) const { return true; }\r\n\r\n        /** Accept a PrimitiveFunctor and call its methods to tell it about the internal primitives that this Drawable has. */\r\n        virtual void accept(PrimitiveFunctor& pf) const;\r\n\r\n        /** Return true, osg::Geometry does support accept(PrimitiveIndexFunctor&). */\r\n        virtual bool supports(const PrimitiveIndexFunctor&) const { return true; }\r\n\r\n        /** Accept a PrimitiveFunctor and call its methods to tell it about the internal primitives that this Drawable has. */\r\n        virtual void accept(PrimitiveIndexFunctor& pf) const;\r\n\r\n\r\n    protected:\r\n\r\n        Geometry& operator = (const Geometry&) { return *this;}\r\n\r\n        virtual ~Geometry();\r\n\r\n\r\n        void addVertexBufferObjectIfRequired(osg::Array* array);\r\n        void addElementBufferObjectIfRequired(osg::PrimitiveSet* primitiveSet);\r\n\r\n"
+      },
+      {
+        "rank": 3,
+        "score": 0.500732,
+        "chunk_id": "3.6.5:include/osg/Billboard:blocks:0002",
+        "source": "include/osg/Billboard:77-114",
+        "text": "        /** Add a Drawable with a default position of Vec3(0,0,0).\r\n          * Call the base-class Geode::addDrawble() to add the given Drawable\r\n          * gset as a child. If Geode::addDrawable() returns true, add the\r\n          * default position to the pivot point position list and return true.\r\n          * Otherwise, return false. */\r\n        virtual bool addDrawable( Drawable *gset );\r\n\r\n        /** Add a Drawable with a specified position.\r\n          * Call the base-class Geode::addDrawble() to add the given Drawable\r\n          * gset as a child. If Geode::addDrawable() returns true, add the\r\n          * given position pos to the pivot point position list and return true.\r\n          * Otherwise, return false. */\r\n        virtual bool addDrawable(Drawable *gset,const Vec3& pos);\r\n\r\n        /** Remove a Drawable and its associated position.\r\n          * If gset is a child, remove it, decrement its reference count,\r\n          * remove its pivot point position. and return true.\r\n          * Otherwise, return false. */\r\n        virtual bool removeDrawable( Drawable *gset );\r\n\r\n\r\n        bool computeMatrix(Matrix& modelview, const Vec3& eye_local, const Vec3& pos_local) const;\r\n\r\n        virtual BoundingSphere computeBound() const;\r\n\r\n    protected:\r\n\r\n        virtual ~Billboard();\r\n\r\n        enum AxisAligned\r\n        {\r\n            AXIAL_ROT_X_AXIS=AXIAL_ROT+1,\r\n            AXIAL_ROT_Y_AXIS,\r\n            AXIAL_ROT_Z_AXIS,\r\n            POINT_ROT_WORLD_Z_AXIS,\r\n            CACHE_DIRTY\r\n        };\r\n\r\n"
+      },
+      {
+        "rank": 4,
+        "score": 0.233357,
+        "chunk_id": "3.6.5:include/osg/Geode:blocks:0004",
+        "source": "include/osg/Geode:107-148",
+        "text": "        /** Return \\c true if a given \\c Drawable is contained within \\c Geode.*/\r\n        inline bool containsDrawable(const Drawable* drawable) const\r\n        {\r\n            for (NodeList::const_iterator itr=_children.begin();\r\n                 itr!=_children.end();\r\n                 ++itr)\r\n            {\r\n                if (itr->get() == drawable) return true;\r\n            }\r\n            return false;\r\n        }\r\n\r\n        template<class T> bool containsDrawable(const ref_ptr<T>& drawable) const { return containsDrawable(drawable.get()); }\r\n\r\n        /** Get the index number of \\c drawable.\r\n          * @return A value between 0 and <tt>getNumDrawables()-1</tt> if\r\n          *         \\c drawable is found; if not found, then\r\n          *         <tt>getNumDrawables()</tt> is returned.\r\n        */\r\n        inline unsigned int getDrawableIndex( const Drawable* drawable ) const\r\n        {\r\n            return getChildIndex(drawable);\r\n        }\r\n\r\n        template<class T> unsigned int getDrawableIndex( const ref_ptr<T>& drawable ) const { return getDrawableIndex(drawable.get()); }\r\n\r\n        /** Compile OpenGL Display List for each drawable.*/\r\n        void compileDrawables(RenderInfo& renderInfo);\r\n\r\n        /** Return the Geode's bounding box, which is the union of all the\r\n          * bounding boxes of the geode's drawables.*/\r\n        inline const BoundingBox& getBoundingBox() const\r\n        {\r\n            if(!_boundingSphereComputed) getBound();\r\n            return _bbox;\r\n        }\r\n\r\n        virtual BoundingSphere computeBound() const;\r\n\r\n\r\n    protected:\r\n\r\n"
+      },
+      {
+        "rank": 5,
+        "score": 0.188697,
+        "chunk_id": "3.6.5:include/osg/Image:blocks:0018",
+        "source": "include/osg/Image:564-605",
+        "text": "        int _s, _t, _r;\r\n        int _rowLength;\r\n        GLint _internalTextureFormat;\r\n        GLenum _pixelFormat;\r\n        GLenum _dataType;\r\n        unsigned int _packing;\r\n        float _pixelAspectRatio;\r\n\r\n        AllocationMode _allocationMode;\r\n        unsigned char* _data;\r\n\r\n        void deallocateData();\r\n\r\n        void setData(unsigned char* data,AllocationMode allocationMode);\r\n\r\n        MipmapDataType _mipmapData;\r\n\r\n        DimensionsChangedCallbackVector _dimensionsChangedCallbacks;\r\n};\r\n\r\nclass Geode;\r\n\r\n/** Convenience function to be used by image loaders to generate a valid geode\r\n  * to return for readNode().\r\n  * Use the image's s and t values to scale the dimensions of the image.\r\n*/\r\nextern OSG_EXPORT Geode* createGeodeForImage(Image* image);\r\n\r\ntemplate<class T> Geode* createGeodeForImage(const ref_ptr<T>& image) { return createGeodeForImage(image.get()); }\r\n\r\n\r\n/** Convenience function to be used by image loaders to generate a valid geode\r\n  * to return for readNode().\r\n  * Use the specified s and t values to scale the dimensions of the image.\r\n*/\r\nextern OSG_EXPORT Geode* createGeodeForImage(Image* image, float s, float t);\r\n\r\ntemplate<class T> Geode* createGeodeForImage(const ref_ptr<T>& image, float s, float t) { return createGeodeForImage(image.get(), s, t); }\r\n\r\n}\r\n\r\n#endif                                            // __SG_IMAGE_H\r\n"
+      }
+    ]
+  },
+  {
+    "id": "osg-dev-004",
+    "query": "osgDB::readNodeFile 读取失败返回什么？文件由哪个插件读取？",
+    "answer_rubric": "失败返回 NULL；Registry 根据扩展名选择 ReaderWriter 插件。不能由 NULL 单独推断唯一失败原因。",
+    "gold": [
+      {
+        "path": "include/osgDB/ReadFile",
+        "start_line": 308,
+        "end_line": 325
+      }
+    ],
+    "top5": [
+      {
+        "rank": 1,
+        "score": 0.593609,
+        "chunk_id": "3.6.5:include/osgDB/ReadFile:blocks:0007",
+        "source": "include/osgDB/ReadFile:195-210",
+        "text": "/** Read an osg::Shader from file and set to specified shader type, if a shader isn't loaded fallback to specific shader source.\r\n  * Use the Options object to control cache operations and file search paths in osgDB::Registry.\r\n  * The osgDB::Registry is used to load the appropriate ReaderWriter plugin\r\n  * for the filename extension, and this plugin then handles the request\r\n  * to read the specified file.*/\r\nextern OSGDB_EXPORT osg::ref_ptr<osg::Shader> readRefShaderFileWithFallback(osg::Shader::Type type, const std::string& filename, const Options* options, const char* fallback);\r\n\r\n/** Read an osg::Shader from file and set to specified shader type, if a shader isn't loaded fallback to specific shader source.\r\n  * The osgDB::Registry is used to load the appropriate ReaderWriter plugin\r\n  * for the filename extension, and this plugin then handles the request\r\n  * to read the specified file.*/\r\ninline osg::ref_ptr<osg::Shader> readRefShaderFileWithFallback(osg::Shader::Type type, const std::string& filename, const char* fallback)\r\n{\r\n    return osgDB::readRefShaderFileWithFallback(type, filename, Registry::instance()->getOptions(), fallback);\r\n}\r\n\r\n"
+      },
+      {
+        "rank": 2,
+        "score": 0.403567,
+        "chunk_id": "3.6.5:include/osgDB/ReadFile:blocks:0005",
+        "source": "include/osgDB/ReadFile:150-169",
+        "text": "/** Read an osg::Shader from file.\r\n  * Return an assigned osg::ref_ptr on success,\r\n  * return an osg::ref_ptr with a NULL pointer assigned to it on failure.\r\n  * Use the Options object to control cache operations and file search paths in osgDB::Registry.\r\n  * The osgDB::Registry is used to load the appropriate ReaderWriter plugin\r\n  * for the filename extension, and this plugin then handles the request\r\n  * to read the specified file.*/\r\nextern OSGDB_EXPORT osg::ref_ptr<osg::Shader> readRefShaderFile(const std::string& filename,const Options* options);\r\n\r\n/** Read an osg::Shader from file.\r\n  * Return an assigned osg::ref_ptr on success,\r\n  * return an osg::ref_ptr with a NULL pointer assigned to it on failure.\r\n  * The osgDB::Registry is used to load the appropriate ReaderWriter plugin\r\n  * for the filename extension, and this plugin then handles the request\r\n  * to read the specified file.*/\r\ninline osg::ref_ptr<osg::Shader> readRefShaderFile(const std::string& filename)\r\n{\r\n    return readRefShaderFile(filename, Registry::instance()->getOptions());\r\n}\r\n\r\n"
+      },
+      {
+        "rank": 3,
+        "score": 0.358465,
+        "chunk_id": "3.6.5:include/osgDB/ReadFile:blocks:0000",
+        "source": "include/osgDB/ReadFile:1-37",
+        "text": "/* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2006 Robert Osfield\r\n *\r\n * This library is open source and may be redistributed and/or modified under\r\n * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or\r\n * (at your option) any later version.  The full license is in LICENSE file\r\n * included with this distribution, and on the openscenegraph.org website.\r\n *\r\n * This library is distributed in the hope that it will be useful,\r\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\r\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\r\n * OpenSceneGraph Public License for more details.\r\n*/\r\n\r\n#ifndef OSGDB_READFILE\r\n#define OSGDB_READFILE 1\r\n\r\n#include <string>\r\n\r\n#include <osg/Node>\r\n#include <osg/Image>\r\n#include <osg/ArgumentParser>\r\n\r\n#include <osgDB/Export>\r\n#include <osgDB/Registry>\r\n\r\nnamespace osgDB {\r\n\r\n\r\n/** Read an osg::Object from file.\r\n  * Return an assigned osg::ref_ptr on success,\r\n  * return an osg::ref_ptr with a NULL pointer assigned to it on failure.\r\n  * Use the Options object to control cache operations and file search paths in osgDB::Registry.\r\n  * The osgDB::Registry is used to load the appropriate ReaderWriter plugin\r\n  * for the filename extension, and this plugin then handles the request\r\n  * to read the specified file.*/\r\nextern OSGDB_EXPORT osg::ref_ptr<osg::Object> readRefObjectFile(const std::string& filename,const Options* options);\r\n\r\n"
+      },
+      {
+        "rank": 4,
+        "score": 0.249813,
+        "chunk_id": "3.6.5:include/osgDB/ReadFile:blocks:0003",
+        "source": "include/osgDB/ReadFile:93-123",
+        "text": "/** Read an osg::HeightField from file.\r\n  * Return an assigned osg::ref_ptr on success,\r\n  * return an osg::ref_ptr with a NULL pointer assigned to it on failure.\r\n  * The osgDB::Registry is used to load the appropriate ReaderWriter plugin\r\n  * for the filename extension, and this plugin then handles the request\r\n  * to read the specified file.*/\r\ninline osg::ref_ptr<osg::HeightField> readRefHeightFieldFile(const std::string& filename)\r\n{\r\n    return readRefHeightFieldFile(filename,Registry::instance()->getOptions());\r\n}\r\n\r\n/** Read an osg::Node from file.\r\n  * Return an assigned osg::ref_ptr on success,\r\n  * return an osg::ref_ptr with a NULL pointer assigned to it on failure.\r\n  * Use the Options object to control cache operations and file search paths in osgDB::Registry.\r\n  * The osgDB::Registry is used to load the appropriate ReaderWriter plugin\r\n  * for the filename extension, and this plugin then handles the request\r\n  * to read the specified file.*/\r\nextern OSGDB_EXPORT osg::ref_ptr<osg::Node> readRefNodeFile(const std::string& filename,const Options* options);\r\n\r\n/** Read an osg::Node from file.\r\n  * Return an assigned osg::ref_ptr on success,\r\n  * return an osg::ref_ptr with a NULL pointer assigned to it on failure.\r\n  * The osgDB::Registry is used to load the appropriate ReaderWriter plugin\r\n  * for the filename extension, and this plugin then handles the request\r\n  * to read the specified file.*/\r\ninline osg::ref_ptr<osg::Node> readRefNodeFile(const std::string& filename)\r\n{\r\n    return readRefNodeFile(filename,Registry::instance()->getOptions());\r\n}\r\n\r\n"
+      },
+      {
+        "rank": 5,
+        "score": 0.233008,
+        "chunk_id": "3.6.5:include/osgDB/ReadFile:blocks:0012",
+        "source": "include/osgDB/ReadFile:335-363",
+        "text": "/** Read an osg::Node subgraph from files, creating a osg::Group to contain the nodes if more\r\n  * than one subgraph has been loaded.*/\r\ninline osg::Node* readNodeFiles(std::vector<std::string>& fileList)\r\n{\r\n    return readNodeFiles(fileList,Registry::instance()->getOptions());\r\n}\r\n\r\n\r\n/** Read an osg::Node subgraph from files, creating a osg::Group to contain the nodes if more\r\n  * than one subgraph has been loaded.\r\n  * Use the Options object to control cache operations and file search paths in osgDB::Registry.*/\r\nextern OSGDB_EXPORT osg::Node* readNodeFiles(osg::ArgumentParser& parser,const Options* options);\r\n\r\n/** Read an osg::Node subgraph from files, creating a osg::Group to contain the nodes if more\r\n  * than one subgraph has been loaded.*/\r\ninline osg::Node* readNodeFiles(osg::ArgumentParser& parser)\r\n{\r\n    return readNodeFiles(parser,Registry::instance()->getOptions());\r\n}\r\n\r\n/** Read an osg::Shader from file.\r\n  * Return valid osg::Shader on success,\r\n  * return NULL on failure.\r\n  * Use the Options object to control cache operations and file search paths in osgDB::Registry.\r\n  * The osgDB::Registry is used to load the appropriate ReaderWriter plugin\r\n  * for the filename extension, and this plugin then handles the request\r\n  * to read the specified file.*/\r\nextern OSGDB_EXPORT osg::Shader*  readShaderFile(const std::string& filename,const Options* options);\r\n\r\n"
+      }
+    ]
+  },
+  {
+    "id": "osg-dev-007",
+    "query": "变换默认相对父节点，还是绝对坐标系？在哪里选择？",
+    "answer_rubric": "默认 RELATIVE_RF；setReferenceFrame 选择参考系。",
+    "gold": [
+      {
+        "path": "include/osg/Transform",
+        "start_line": 97,
+        "end_line": 122
+      }
+    ],
+    "top5": [
+      {
+        "rank": 1,
+        "score": 0.836688,
+        "chunk_id": "3.6.5:include/osg/Billboard:blocks:0002",
+        "source": "include/osg/Billboard:77-114",
+        "text": "        /** Add a Drawable with a default position of Vec3(0,0,0).\r\n          * Call the base-class Geode::addDrawble() to add the given Drawable\r\n          * gset as a child. If Geode::addDrawable() returns true, add the\r\n          * default position to the pivot point position list and return true.\r\n          * Otherwise, return false. */\r\n        virtual bool addDrawable( Drawable *gset );\r\n\r\n        /** Add a Drawable with a specified position.\r\n          * Call the base-class Geode::addDrawble() to add the given Drawable\r\n          * gset as a child. If Geode::addDrawable() returns true, add the\r\n          * given position pos to the pivot point position list and return true.\r\n          * Otherwise, return false. */\r\n        virtual bool addDrawable(Drawable *gset,const Vec3& pos);\r\n\r\n        /** Remove a Drawable and its associated position.\r\n          * If gset is a child, remove it, decrement its reference count,\r\n          * remove its pivot point position. and return true.\r\n          * Otherwise, return false. */\r\n        virtual bool removeDrawable( Drawable *gset );\r\n\r\n\r\n        bool computeMatrix(Matrix& modelview, const Vec3& eye_local, const Vec3& pos_local) const;\r\n\r\n        virtual BoundingSphere computeBound() const;\r\n\r\n    protected:\r\n\r\n        virtual ~Billboard();\r\n\r\n        enum AxisAligned\r\n        {\r\n            AXIAL_ROT_X_AXIS=AXIAL_ROT+1,\r\n            AXIAL_ROT_Y_AXIS,\r\n            AXIAL_ROT_Z_AXIS,\r\n            POINT_ROT_WORLD_Z_AXIS,\r\n            CACHE_DIRTY\r\n        };\r\n\r\n"
+      },
+      {
+        "rank": 2,
+        "score": 0.338952,
+        "chunk_id": "3.6.5:include/osg/Transform:blocks:0004",
+        "source": "include/osg/Transform:104-125",
+        "text": "        /** Set the transform's ReferenceFrame, either to be relative to its\r\n          * parent reference frame, or relative to an absolute coordinate\r\n          * frame. RELATIVE_RF is the default.\r\n          * Note: Setting the ReferenceFrame to be ABSOLUTE_RF will\r\n          * also set the CullingActive flag on the transform, and hence all\r\n          * of its parents, to false, thereby disabling culling of it and\r\n          * all its parents.  This is necessary to prevent inappropriate\r\n          * culling, but may impact cull times if the absolute transform is\r\n          * deep in the scene graph.  It is therefore recommended to only use\r\n          * absolute Transforms at the top of the scene, for such things as\r\n          * heads up displays.\r\n          * ABSOLUTE_RF_INHERIT_VIEWPOINT is the same as ABSOLUTE_RF except it\r\n          * adds the ability to use the parents view points position in world coordinates\r\n          * as its local viewpoint in the new coordinates frame.  This is useful for\r\n          * Render to texture Cameras that wish to use the main views LOD range computation\r\n          * (which uses the viewpoint rather than the eye point) rather than use the local\r\n          * eye point defined by the this Transforms' absolute view matrix.\r\n        */\r\n        void setReferenceFrame(ReferenceFrame rf);\r\n\r\n        ReferenceFrame getReferenceFrame() const { return _referenceFrame; }\r\n\r\n"
+      },
+      {
+        "rank": 3,
+        "score": 0.183594,
+        "chunk_id": "3.6.5:include/osg/Transform:blocks:0005",
+        "source": "include/osg/Transform:126-170",
+        "text": "        virtual bool computeLocalToWorldMatrix(Matrix& matrix,NodeVisitor*) const\r\n        {\r\n            if (_referenceFrame==RELATIVE_RF)\r\n            {\r\n                return false;\r\n            }\r\n            else // absolute\r\n            {\r\n                matrix.makeIdentity();\r\n                return true;\r\n            }\r\n        }\r\n\r\n        virtual bool computeWorldToLocalMatrix(Matrix& matrix,NodeVisitor*) const\r\n        {\r\n            if (_referenceFrame==RELATIVE_RF)\r\n            {\r\n                return false;\r\n            }\r\n            else // absolute\r\n            {\r\n                matrix.makeIdentity();\r\n                return true;\r\n            }\r\n        }\r\n\r\n        /** Overrides Group's computeBound.\r\n          * There is no need to override in subclasses from osg::Transform\r\n          * since this computeBound() uses the underlying matrix (calling\r\n          * computeMatrix if required).\r\n        */\r\n        virtual BoundingSphere computeBound() const;\r\n\r\n    protected :\r\n\r\n        virtual ~Transform();\r\n\r\n\r\n        ReferenceFrame                      _referenceFrame;\r\n\r\n};\r\n\r\n}\r\n\r\n#endif\r\n"
+      },
+      {
+        "rank": 4,
+        "score": 0.139294,
+        "chunk_id": "3.6.5:include/osg/Transform:blocks:0001",
+        "source": "include/osg/Transform:42-53",
+        "text": "/** Compute the matrix which transforms objects in local coords to eye coords,\r\n  * by accumulating the Transform local to world matrices along the specified node path\r\n  * and multiplying by the supplied initial camera modelview.\r\n*/\r\nextern OSG_EXPORT Matrix computeLocalToEye(const Matrix& modelview, const NodePath& nodePath, bool ignoreCameras = true);\r\n\r\n/** Compute the matrix which transforms objects in eye coords to local coords,\r\n  * by accumulating the Transform world to local matrices along the specified node path\r\n  * and multiplying by the inverse of the supplied initial camera modelview.\r\n*/\r\nextern OSG_EXPORT Matrix computeEyeToLocal(const Matrix& modelview, const NodePath& nodePath, bool ignoreCameras = true);\r\n\r\n"
+      },
+      {
+        "rank": 5,
+        "score": 0.137417,
+        "chunk_id": "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0001",
+        "source": "examples/osggeometry/osggeometry.cpp:42-68",
+        "text": "// This demo illustrates how to create the various different types of geometry that\r\n// the osg::Geometry class can represent.  This demo uses the OpenGL red book diagram of different\r\n// OpenGL Primitives as a template for all the equivalent OpenSceneGraph Primitives.  The OpenSceneGraph\r\n// wraps OpenGL very thinly and therefore uses all the same enum and naming conventions. The coordinate data is also\r\n// wrapped around OpenGL's vertex arrays and draw arrays/elements calls.  Familiarity with\r\n// OpenGL will help you understand the osg::Geometry class which encapsulate all this, or if you\r\n// haven't learned OpenGL yet, learning osg::Geometry will help you understand how OpenGL\r\n// works!\r\n\r\n// The osg::Geometry class \"is a\" subclass of osg::Drawable base class, so is an object that provides\r\n// a draw method for drawing objects in the scene.  osg::Geometry contains all the vertex, normal\r\n// color and texture coordinate arrays required to specify the coordinates of your objects, and the\r\n// primitives join these coordinates together as the points, lines or surfaces that you will see\r\n// rendered on your screen.\r\n//\r\n// This demo is split into two functions, the createScene() function which creates the scene graph\r\n// with the various primitives in it, and the main() which sets up a basic viewer window and\r\n// adds to the it the scene generated by createScene().\r\n\r\n\r\nstruct NormalPrint\r\n{\r\n    void operator() (const osg::Vec3& v1, bool) const\r\n    {\r\n        std::cout << \"\\rpoint(\"<<v1<<\")\"<<std::endl;\r\n    }\r\n\r\n"
+      }
+    ]
+  },
+  {
+    "id": "osg-dev-009",
+    "query": "Billboard 的旋转轴设置在哪种模式下有效？",
+    "answer_rubric": "setAxis 只在 AXIAL_ROT 模式下使用。",
+    "gold": [
+      {
+        "path": "include/osg/Billboard",
+        "start_line": 43,
+        "end_line": 50
+      }
+    ],
+    "top5": [
+      {
+        "rank": 1,
+        "score": 0.717804,
+        "chunk_id": "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+        "source": "examples/osgbillboard/osgbillboard.cpp:133-155",
+        "text": "    // add the drawable into a single geode to be shared...\r\n    osg::Billboard* center = new osg::Billboard();\r\n    center->setMode(osg::Billboard::POINT_ROT_EYE);\r\n    center->addDrawable(\r\n        createSquare(osg::Vec3(-0.5f,0.0f,-0.5f),osg::Vec3(1.0f,0.0f,0.0f),osg::Vec3(0.0f,0.0f,1.0f),osgDB::readRefImageFile(\"Images/reflect.rgb\")),\r\n        osg::Vec3(0.0f,0.0f,0.0f));\r\n\r\n    osg::Billboard* x_arrow = new osg::Billboard();\r\n    x_arrow->setMode(osg::Billboard::AXIAL_ROT);\r\n    x_arrow->setAxis(osg::Vec3(1.0f,0.0f,0.0f));\r\n    x_arrow->setNormal(osg::Vec3(0.0f,-1.0f,0.0f));\r\n    x_arrow->addDrawable(\r\n       createSquare(osg::Vec3(-0.5f,0.0f,-0.5f),osg::Vec3(1.0f,0.0f,0.0f),osg::Vec3(0.0f,0.0f,1.0f),osgDB::readRefImageFile(\"Cubemap_axis/posx.png\")),\r\n       osg::Vec3(5.0f,0.0f,0.0f));\r\n\r\n    osg::Billboard* y_arrow = new osg::Billboard();\r\n    y_arrow->setMode(osg::Billboard::AXIAL_ROT);\r\n    y_arrow->setAxis(osg::Vec3(0.0f,1.0f,0.0f));\r\n    y_arrow->setNormal(osg::Vec3(1.0f,0.0f,0.0f));\r\n    y_arrow->addDrawable(\r\n        createSquare(osg::Vec3(0.0f,-0.5f,-0.5f),osg::Vec3(0.0f,1.0f,0.0f),osg::Vec3(0.0f,0.0f,1.0f),osgDB::readRefImageFile(\"Cubemap_axis/posy.png\")),\r\n        osg::Vec3(0.0f,5.0f,0.0f));\r\n\r\n"
+      },
+      {
+        "rank": 2,
+        "score": 0.637539,
+        "chunk_id": "3.6.5:include/osg/Transform:blocks:0004",
+        "source": "include/osg/Transform:104-125",
+        "text": "        /** Set the transform's ReferenceFrame, either to be relative to its\r\n          * parent reference frame, or relative to an absolute coordinate\r\n          * frame. RELATIVE_RF is the default.\r\n          * Note: Setting the ReferenceFrame to be ABSOLUTE_RF will\r\n          * also set the CullingActive flag on the transform, and hence all\r\n          * of its parents, to false, thereby disabling culling of it and\r\n          * all its parents.  This is necessary to prevent inappropriate\r\n          * culling, but may impact cull times if the absolute transform is\r\n          * deep in the scene graph.  It is therefore recommended to only use\r\n          * absolute Transforms at the top of the scene, for such things as\r\n          * heads up displays.\r\n          * ABSOLUTE_RF_INHERIT_VIEWPOINT is the same as ABSOLUTE_RF except it\r\n          * adds the ability to use the parents view points position in world coordinates\r\n          * as its local viewpoint in the new coordinates frame.  This is useful for\r\n          * Render to texture Cameras that wish to use the main views LOD range computation\r\n          * (which uses the viewpoint rather than the eye point) rather than use the local\r\n          * eye point defined by the this Transforms' absolute view matrix.\r\n        */\r\n        void setReferenceFrame(ReferenceFrame rf);\r\n\r\n        ReferenceFrame getReferenceFrame() const { return _referenceFrame; }\r\n\r\n"
+      },
+      {
+        "rank": 3,
+        "score": 0.631594,
+        "chunk_id": "3.6.5:include/osg/Billboard:blocks:0002",
+        "source": "include/osg/Billboard:77-114",
+        "text": "        /** Add a Drawable with a default position of Vec3(0,0,0).\r\n          * Call the base-class Geode::addDrawble() to add the given Drawable\r\n          * gset as a child. If Geode::addDrawable() returns true, add the\r\n          * default position to the pivot point position list and return true.\r\n          * Otherwise, return false. */\r\n        virtual bool addDrawable( Drawable *gset );\r\n\r\n        /** Add a Drawable with a specified position.\r\n          * Call the base-class Geode::addDrawble() to add the given Drawable\r\n          * gset as a child. If Geode::addDrawable() returns true, add the\r\n          * given position pos to the pivot point position list and return true.\r\n          * Otherwise, return false. */\r\n        virtual bool addDrawable(Drawable *gset,const Vec3& pos);\r\n\r\n        /** Remove a Drawable and its associated position.\r\n          * If gset is a child, remove it, decrement its reference count,\r\n          * remove its pivot point position. and return true.\r\n          * Otherwise, return false. */\r\n        virtual bool removeDrawable( Drawable *gset );\r\n\r\n\r\n        bool computeMatrix(Matrix& modelview, const Vec3& eye_local, const Vec3& pos_local) const;\r\n\r\n        virtual BoundingSphere computeBound() const;\r\n\r\n    protected:\r\n\r\n        virtual ~Billboard();\r\n\r\n        enum AxisAligned\r\n        {\r\n            AXIAL_ROT_X_AXIS=AXIAL_ROT+1,\r\n            AXIAL_ROT_Y_AXIS,\r\n            AXIAL_ROT_Z_AXIS,\r\n            POINT_ROT_WORLD_Z_AXIS,\r\n            CACHE_DIRTY\r\n        };\r\n\r\n"
+      },
+      {
+        "rank": 4,
+        "score": 0.276056,
+        "chunk_id": "3.6.5:include/osg/Billboard:blocks:0003",
+        "source": "include/osg/Billboard:116-132",
+        "text": "        Mode                                _mode;\r\n        Vec3                                _axis;\r\n        Vec3                                _normal;\r\n        Matrix                              _rotateNormalToZAxis;\r\n        PositionList                        _positionList;\r\n\r\n        // used internally as cache of which what _axis is aligned to help\r\n        // decide which method of rotation to use.\r\n        int                                 _cachedMode;\r\n        Vec3                                _side;\r\n        void updateCache();\r\n\r\n};\r\n\r\n}\r\n\r\n#endif\r\n"
+      },
+      {
+        "rank": 5,
+        "score": 0.192539,
+        "chunk_id": "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000",
+        "source": "examples/osgbillboard/osgbillboard.cpp:1-43",
+        "text": "/* OpenSceneGraph example, osgbillboard.\r\n*\r\n*  Permission is hereby granted, free of charge, to any person obtaining a copy\r\n*  of this software and associated documentation files (the \"Software\"), to deal\r\n*  in the Software without restriction, including without limitation the rights\r\n*  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\r\n*  copies of the Software, and to permit persons to whom the Software is\r\n*  furnished to do so, subject to the following conditions:\r\n*\r\n*  THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\r\n*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\r\n*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\r\n*  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\r\n*  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\n*  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\r\n*  THE SOFTWARE.\r\n*/\r\n\r\n#include <osg/Node>\r\n#include <osg/Geometry>\r\n#include <osg/Notify>\r\n#include <osg/MatrixTransform>\r\n#include <osg/Texture2D>\r\n#include <osg/Billboard>\r\n#include <osg/LineWidth>\r\n\r\n#include <osgGA/TrackballManipulator>\r\n#include <osgGA/FlightManipulator>\r\n#include <osgGA/DriveManipulator>\r\n\r\n#include <osgDB/Registry>\r\n#include <osgDB/ReadFile>\r\n\r\n#include <osgViewer/Viewer>\r\n\r\n//\r\n// A simple demo demonstrating different texturing modes,\r\n// including using of texture extensions.\r\n//\r\n\r\n\r\ntypedef std::vector< osg::ref_ptr<osg::Image> > ImageList;\r\n\r\n"
+      }
+    ]
+  },
+  {
+    "id": "osg-dev-010",
+    "query": "OSG 的 ref_ptr 构造和析构时怎样处理引用计数？",
+    "answer_rubric": "非空指针构造或复制时调用 ref()，析构时调用 unref()；不能概括为每次析构必然删除对象。",
+    "gold": [
+      {
+        "path": "include/osg/ref_ptr",
+        "start_line": 37,
+        "end_line": 41
+      }
+    ],
+    "top5": [
+      {
+        "rank": 1,
+        "score": 0.565779,
+        "chunk_id": "3.6.5:include/osg/Referenced:blocks:0000",
+        "source": "include/osg/Referenced:1-55",
+        "text": "/* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2006 Robert Osfield\r\n *\r\n * This library is open source and may be redistributed and/or modified under\r\n * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or\r\n * (at your option) any later version.  The full license is in LICENSE file\r\n * included with this distribution, and on the openscenegraph.org website.\r\n *\r\n * This library is distributed in the hope that it will be useful,\r\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\r\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\r\n * OpenSceneGraph Public License for more details.\r\n*/\r\n\r\n#ifndef OSG_REFERENCED\r\n#define OSG_REFERENCED 1\r\n\r\n#include <osg/Export>\r\n\r\n#include <OpenThreads/ScopedLock>\r\n#include <OpenThreads/Mutex>\r\n#include <OpenThreads/Atomic>\r\n\r\n#if !defined(_OPENTHREADS_ATOMIC_USE_MUTEX)\r\n# define _OSG_REFERENCED_USE_ATOMIC_OPERATIONS\r\n#endif\r\n\r\nnamespace osg {\r\n\r\n// forward declare, declared after Referenced below.\r\nclass DeleteHandler;\r\nclass Observer;\r\nclass ObserverSet;\r\nclass State;\r\n\r\n/** template class to help enforce static initialization order. */\r\ntemplate <typename T, T M()>\r\nstruct depends_on\r\n{\r\n    depends_on() { M(); }\r\n};\r\n\r\n/** Base class for providing reference counted objects.*/\r\nclass OSG_EXPORT Referenced\r\n{\r\n\r\n    public:\r\n\r\n\r\n        Referenced();\r\n\r\n        /** Deprecated, Referenced is now always uses thread safe ref/unref, use default Referenced() constructor instead */\r\n        explicit Referenced(bool threadSafeRefUnref);\r\n\r\n        Referenced(const Referenced&);\r\n\r\n"
+      },
+      {
+        "rank": 2,
+        "score": 0.40592,
+        "chunk_id": "3.6.5:include/osg/ref_ptr:blocks:0001",
+        "source": "include/osg/ref_ptr:49-82",
+        "text": "        template<class Other> ref_ptr& operator = (const ref_ptr<Other>& rp)\r\n        {\r\n            assign(rp);\r\n            return *this;\r\n        }\r\n\r\n        inline ref_ptr& operator = (T* ptr)\r\n        {\r\n            if (_ptr==ptr) return *this;\r\n            T* tmp_ptr = _ptr;\r\n            _ptr = ptr;\r\n            if (_ptr) _ptr->ref();\r\n            // unref second to prevent any deletion of any object which might\r\n            // be referenced by the other object. i.e rp is child of the\r\n            // original _ptr.\r\n            if (tmp_ptr) tmp_ptr->unref();\r\n            return *this;\r\n        }\r\n\r\n#ifdef OSG_USE_REF_PTR_IMPLICIT_OUTPUT_CONVERSION\r\n        // implicit output conversion\r\n        operator T*() const { return _ptr; }\r\n#else\r\n        // comparison operators for ref_ptr.\r\n        bool operator == (const ref_ptr& rp) const { return (_ptr==rp._ptr); }\r\n        bool operator == (const T* ptr) const { return (_ptr==ptr); }\r\n        friend bool operator == (const T* ptr, const ref_ptr& rp) { return (ptr==rp._ptr); }\r\n\r\n        bool operator != (const ref_ptr& rp) const { return (_ptr!=rp._ptr); }\r\n        bool operator != (const T* ptr) const { return (_ptr!=ptr); }\r\n        friend bool operator != (const T* ptr, const ref_ptr& rp) { return (ptr!=rp._ptr); }\r\n\r\n        bool operator < (const ref_ptr& rp) const { return (_ptr<rp._ptr); }\r\n\r\n"
+      },
+      {
+        "rank": 3,
+        "score": 0.340704,
+        "chunk_id": "3.6.5:include/osg/Referenced:blocks:0004",
+        "source": "include/osg/Referenced:161-213",
+        "text": "inline int Referenced::ref() const\r\n{\r\n#if defined(_OSG_REFERENCED_USE_ATOMIC_OPERATIONS)\r\n    return ++_refCount;\r\n#else\r\n    if (_refMutex)\r\n    {\r\n        OpenThreads::ScopedLock<OpenThreads::Mutex> lock(*_refMutex);\r\n        return ++_refCount;\r\n    }\r\n    else\r\n    {\r\n        return ++_refCount;\r\n    }\r\n#endif\r\n}\r\n\r\ninline int Referenced::unref() const\r\n{\r\n    int newRef;\r\n#if defined(_OSG_REFERENCED_USE_ATOMIC_OPERATIONS)\r\n    newRef = --_refCount;\r\n    bool needDelete = (newRef == 0);\r\n#else\r\n    bool needDelete = false;\r\n    if (_refMutex)\r\n    {\r\n        OpenThreads::ScopedLock<OpenThreads::Mutex> lock(*_refMutex);\r\n        newRef = --_refCount;\r\n        needDelete = newRef==0;\r\n    }\r\n    else\r\n    {\r\n        newRef = --_refCount;\r\n        needDelete = newRef==0;\r\n    }\r\n#endif\r\n\r\n    if (needDelete)\r\n    {\r\n        signalObserversAndDelete(true,true);\r\n    }\r\n    return newRef;\r\n}\r\n\r\n// intrusive_ptr_add_ref and intrusive_ptr_release allow\r\n// use of osg Referenced classes with boost::intrusive_ptr\r\ninline void intrusive_ptr_add_ref(Referenced* p) { p->ref(); }\r\ninline void intrusive_ptr_release(Referenced* p) { p->unref(); }\r\n\r\n}\r\n\r\n#endif\r\n"
+      },
+      {
+        "rank": 4,
+        "score": 0.314893,
+        "chunk_id": "3.6.5:include/osg/ref_ptr:blocks:0004",
+        "source": "include/osg/ref_ptr:156-167",
+        "text": "template<class T, class Y> inline\r\nref_ptr<T> static_pointer_cast(const ref_ptr<Y>& rp) { return static_cast<T*>(rp.get()); }\r\n\r\ntemplate<class T, class Y> inline\r\nref_ptr<T> dynamic_pointer_cast(const ref_ptr<Y>& rp) { return dynamic_cast<T*>(rp.get()); }\r\n\r\ntemplate<class T, class Y> inline\r\nref_ptr<T> const_pointer_cast(const ref_ptr<Y>& rp) { return const_cast<T*>(rp.get()); }\r\n\r\n}\r\n\r\n#endif\r\n"
+      },
+      {
+        "rank": 5,
+        "score": 0.255344,
+        "chunk_id": "3.6.5:include/osg/StateAttribute:blocks:0011",
+        "source": "include/osg/StateAttribute:382-404",
+        "text": "        /** Helper class that make is easy to handle changes in a member value.*/\r\n        struct ReassignToParents\r\n        {\r\n            /** Constructor caches and then removes attribute for all of it's parents.*/\r\n            ReassignToParents(osg::StateAttribute* att);\r\n\r\n            /** Destructor then reassigns the attribute to all of the parents.*/\r\n            ~ReassignToParents();\r\n\r\n            ref_ptr<StateAttribute> attribute;\r\n            ParentList              parents;\r\n        };\r\n\r\n\r\n        ref_ptr<ShaderComponent>          _shaderComponent;\r\n\r\n        ref_ptr<StateAttributeCallback>   _updateCallback;\r\n        ref_ptr<StateAttributeCallback>   _eventCallback;\r\n};\r\n\r\n\r\n}\r\n#endif\r\n"
+      }
+    ]
+  }
+]

@@ -1,0 +1,113 @@
+{
+  "run_id": "content-update-switch-rollback-001",
+  "original": {
+    "target_id": "osg-3.6.5-blocks-001",
+    "library": "osg",
+    "version": "3.6.5",
+    "strategy": "blocks",
+    "dense_collection": "osg_3_6_5_dense_blocks",
+    "bm25_path": "data/indexes/osg_3_6_5_bm25_blocks.sqlite",
+    "manifest_path": "osg-starter/source-manifest.json",
+    "manifest_sha256": "4fbfbec79d500f037915ce35c3fcb3ec8854fc9f43eb6587359a30662b89102c",
+    "chunk_count": 313,
+    "vector_dimension": 1024,
+    "embedding_model": "Qwen3-Embedding-0.6B"
+  },
+  "candidate": {
+    "target_id": "osg-update-demo-56503e8b",
+    "library": "osg",
+    "version": "3.6.5-update-demo-001",
+    "strategy": "blocks",
+    "dense_collection": "osg_3_6_5_update_demo_56503e8b",
+    "bm25_path": "data/indexes/osg_update_demo_56503e8b.sqlite",
+    "manifest_path": "data/packages/osg-update-demo-56503e8b/manifest.json",
+    "manifest_sha256": "502cb4bd7486c19dac54d5dff31ff88c5d1da96a1553efb599edd6e47161f418",
+    "chunk_count": 314,
+    "vector_dimension": 1024,
+    "embedding_model": "Qwen3-Embedding-0.6B"
+  },
+  "validation": {
+    "target_id": "osg-update-demo-56503e8b",
+    "manifest_sha256": "502cb4bd7486c19dac54d5dff31ff88c5d1da96a1553efb599edd6e47161f418",
+    "bm25_rows": 314,
+    "qdrant_points": 314,
+    "vector_dimension": 1024,
+    "collection_status": "green",
+    "valid": true
+  },
+  "switch_revision": 6,
+  "new_document": {
+    "query": "WENJIN_UPDATE_SENTINEL_20260916 的 refreshIndex 返回什么？",
+    "sources": [
+      "docs/wenjin-update-demo.md",
+      "include/osg/Array",
+      "include/osg/Group"
+    ],
+    "sentinel_found": true
+  },
+  "regressions": [
+    {
+      "query": "Viewer 的 run() 做什么？",
+      "expected_source": "include/osgViewer/Viewer",
+      "sources": [
+        "include/osgViewer/Viewer",
+        "examples/osgtext/osgtext.cpp",
+        "applications/osgviewer/osgviewer.cpp",
+        "examples/osggeometry/osggeometry.cpp",
+        "examples/osgtexture2D/osgtexture2D.cpp"
+      ],
+      "passed": true
+    },
+    {
+      "query": "NodeMask 如何控制遍历？",
+      "expected_source": "include/osg/Node",
+      "sources": [
+        "include/osg/Node",
+        "include/osg/Node",
+        "include/osg/Node",
+        "include/osg/Node",
+        "include/osg/StateSet"
+      ],
+      "passed": true
+    },
+    {
+      "query": "Geode 添加 Drawable 的接口？",
+      "expected_source": "include/osg/Geode",
+      "sources": [
+        "include/osg/Geode",
+        "src/osg/Geode.cpp",
+        "include/osg/Billboard",
+        "include/osg/Geode",
+        "include/osg/Drawable"
+      ],
+      "passed": true
+    },
+    {
+      "query": "readNodeFile 失败返回什么？",
+      "expected_source": "include/osgDB/ReadFile",
+      "sources": [
+        "include/osgDB/ReadFile",
+        "include/osgDB/ReadFile",
+        "include/osgDB/ReadFile",
+        "include/osgDB/ReadFile",
+        "include/osgDB/ReadFile"
+      ],
+      "passed": true
+    }
+  ],
+  "rollback_revision": 7,
+  "active_after_rollback": "osg-3.6.5-blocks-001",
+  "after_rollback": {
+    "sources": [
+      "include/osg/StateSet",
+      "include/osg/StateSet",
+      "include/osgText/Text",
+      "include/osgText/Text",
+      "include/osgText/Text"
+    ],
+    "new_document_absent": true
+  },
+  "status": "PASS",
+  "seconds": 26.421,
+  "candidate_assets_cleaned": true
+}

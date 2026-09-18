@@ -1,0 +1,317 @@
+{
+  "schema_version": 3,
+  "corpus_id": "osg-3.6.5",
+  "library": "osg",
+  "version": "3.6.5",
+  "tag": "OpenSceneGraph-3.6.5",
+  "commit": "a827840baf0786d72e11ac16d5338a4ee25779db",
+  "retrieved_on": "2026-09-06",
+  "repository": "https://github.com/openscenegraph/OpenSceneGraph",
+  "raw_data_subdir": "osg/3.6.5",
+  "scope": "selected upstream files for retrieval; not a buildable SDK",
+  "compiled": false,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 8357,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/README.md",
+      "raw_sha256": "6d7e480bf1564ca1426514905c57c33aa2b907e6999bd66d4e4c96cb5ec64e67",
+      "canonical_sha256": "6d7e480bf1564ca1426514905c57c33aa2b907e6999bd66d4e4c96cb5ec64e67",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "LICENSE.txt",
+      "bytes": 29956,
+      "indexable": false,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/LICENSE.txt",
+      "raw_sha256": "71a26c322ba253aea9c6d6982291ea86ddf3bf317bfe3eca0fdf49a9ebc8eb56",
+      "canonical_sha256": "71a26c322ba253aea9c6d6982291ea86ddf3bf317bfe3eca0fdf49a9ebc8eb56",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/Node",
+      "bytes": 24307,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/Node",
+      "raw_sha256": "14d13677ceaf868b9bd51e754829435733f2c952011d0fd56f0f82e0f21a294c",
+      "canonical_sha256": "14d13677ceaf868b9bd51e754829435733f2c952011d0fd56f0f82e0f21a294c",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/Group",
+      "bytes": 7306,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/Group",
+      "raw_sha256": "d7725ca8533829253610c4baecb43a4af7f7135b71d4cfcee49344bd7c3f3159",
+      "canonical_sha256": "d7725ca8533829253610c4baecb43a4af7f7135b71d4cfcee49344bd7c3f3159",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/Geode",
+      "bytes": 6502,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/Geode",
+      "raw_sha256": "6a71ecb8586b7a9f9f74c9d9f448293c429657bd7e5be3a3ac995aee1a068552",
+      "canonical_sha256": "6a71ecb8586b7a9f9f74c9d9f448293c429657bd7e5be3a3ac995aee1a068552",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/Drawable",
+      "bytes": 32199,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/Drawable",
+      "raw_sha256": "4150302442ad5b76f2aa30adb8431ce7f7a44e32a54a795ce1852dddf268e5dd",
+      "canonical_sha256": "4150302442ad5b76f2aa30adb8431ce7f7a44e32a54a795ce1852dddf268e5dd",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/Geometry",
+      "bytes": 14080,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/Geometry",
+      "raw_sha256": "c9ce10d9b677403aea4aaccefb0115808fdf922373cf988f748f57fa8d2af796",
+      "canonical_sha256": "c9ce10d9b677403aea4aaccefb0115808fdf922373cf988f748f57fa8d2af796",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/Array",
+      "bytes": 26924,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/Array",
+      "raw_sha256": "dc9d48489db3b712b2f6449d939088ec6d9962260344775685bbad98514aaba5",
+      "canonical_sha256": "dc9d48489db3b712b2f6449d939088ec6d9962260344775685bbad98514aaba5",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/PrimitiveSet",
+      "bytes": 25383,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/PrimitiveSet",
+      "raw_sha256": "945e11b0c899a7a2435ac0846b1748e169ca3373fd25c209a76a9e09996f6414",
+      "canonical_sha256": "945e11b0c899a7a2435ac0846b1748e169ca3373fd25c209a76a9e09996f6414",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/StateSet",
+      "bytes": 29362,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/StateSet",
+      "raw_sha256": "2c676fa7360b8e4dac4ffc44530dc74699fa3474acf298eafcc63ce5d9dc0d41",
+      "canonical_sha256": "2c676fa7360b8e4dac4ffc44530dc74699fa3474acf298eafcc63ce5d9dc0d41",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/StateAttribute",
+      "bytes": 15507,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/StateAttribute",
+      "raw_sha256": "847d6340dd796fc044ddd0d148ccaf4b346a88e0b51f0f21c773e128964ec3c8",
+      "canonical_sha256": "847d6340dd796fc044ddd0d148ccaf4b346a88e0b51f0f21c773e128964ec3c8",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/Texture2D",
+      "bytes": 7183,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/Texture2D",
+      "raw_sha256": "aad49cae0acc8e02759969f78dfdf4a60aaa23a2f0c9f501c4e48115e54717bd",
+      "canonical_sha256": "aad49cae0acc8e02759969f78dfdf4a60aaa23a2f0c9f501c4e48115e54717bd",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/Image",
+      "bytes": 25925,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/Image",
+      "raw_sha256": "d659f9c35fb543e2e5341b64eac02aaa3599633a5cd4e74b1cfd8e6b2bbe9f02",
+      "canonical_sha256": "d659f9c35fb543e2e5341b64eac02aaa3599633a5cd4e74b1cfd8e6b2bbe9f02",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/Transform",
+      "bytes": 6750,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/Transform",
+      "raw_sha256": "7879f9dd6c35a879bca68da711a631859fc306bcd0f7f3d955b276da4734bafd",
+      "canonical_sha256": "7879f9dd6c35a879bca68da711a631859fc306bcd0f7f3d955b276da4734bafd",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/MatrixTransform",
+      "bytes": 2676,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/MatrixTransform",
+      "raw_sha256": "7ebd75361776b37911d8623fe8d5127a709ba0a580c34989910cffd78bba65e7",
+      "canonical_sha256": "7ebd75361776b37911d8623fe8d5127a709ba0a580c34989910cffd78bba65e7",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/Billboard",
+      "bytes": 4883,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/Billboard",
+      "raw_sha256": "e42c98937991486edf826a85aceffd5905af27e94985e583c18429cf28360f43",
+      "canonical_sha256": "e42c98937991486edf826a85aceffd5905af27e94985e583c18429cf28360f43",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/ref_ptr",
+      "bytes": 6020,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/ref_ptr",
+      "raw_sha256": "e4e3e3148492ff530312838e35903d3fc7fc82b9b326cdae6f1cf3f8e85afe38",
+      "canonical_sha256": "e4e3e3148492ff530312838e35903d3fc7fc82b9b326cdae6f1cf3f8e85afe38",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osg/Referenced",
+      "bytes": 6872,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osg/Referenced",
+      "raw_sha256": "e06e740421d04087e54be5be8828124a204d2f15a61faf8f089d982ea1364628",
+      "canonical_sha256": "e06e740421d04087e54be5be8828124a204d2f15a61faf8f089d982ea1364628",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osgDB/ReadFile",
+      "bytes": 21108,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osgDB/ReadFile",
+      "raw_sha256": "9e6e141042ecb650fd7febbb8829e7e0f74f9d3385dab6d63fb582d549ef81a7",
+      "canonical_sha256": "9e6e141042ecb650fd7febbb8829e7e0f74f9d3385dab6d63fb582d549ef81a7",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osgViewer/Viewer",
+      "bytes": 4909,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osgViewer/Viewer",
+      "raw_sha256": "3699da453bdbf51cfb22fc6a6cb2d914a9f61634fcef035381d718c3e0a612e4",
+      "canonical_sha256": "3699da453bdbf51cfb22fc6a6cb2d914a9f61634fcef035381d718c3e0a612e4",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osgText/Text",
+      "bytes": 12466,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osgText/Text",
+      "raw_sha256": "ccf11214627e6e8349eee802e5fcff60d761360cb645f4b385010e1f6b6d6449",
+      "canonical_sha256": "ccf11214627e6e8349eee802e5fcff60d761360cb645f4b385010e1f6b6d6449",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "include/osgText/TextBase",
+      "bytes": 13611,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osgText/TextBase",
+      "raw_sha256": "4edca31887c73b99f39ec2b0f3fdd002d08c192692eba3b5e316e859ff5c053f",
+      "canonical_sha256": "4edca31887c73b99f39ec2b0f3fdd002d08c192692eba3b5e316e859ff5c053f",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "src/osg/Geode.cpp",
+      "bytes": 2416,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/src/osg/Geode.cpp",
+      "raw_sha256": "e03808d2985b37a04652bbe42a282e3e2c751505422272807c9c8527d73277af",
+      "canonical_sha256": "e03808d2985b37a04652bbe42a282e3e2c751505422272807c9c8527d73277af",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "src/osg/Group.cpp",
+      "bytes": 13089,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/src/osg/Group.cpp",
+      "raw_sha256": "e7a2fa5f3f8350d0d6d364925535f8f9842469c0f8fb4caa10e81dccd53ff7f5",
+      "canonical_sha256": "e7a2fa5f3f8350d0d6d364925535f8f9842469c0f8fb4caa10e81dccd53ff7f5",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "examples/osggeometry/osggeometry.cpp",
+      "bytes": 28918,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/examples/osggeometry/osggeometry.cpp",
+      "raw_sha256": "5574489286dff75b7bc4f83557de75b6fcf5c47fbeb961066575bcb231519d04",
+      "canonical_sha256": "5574489286dff75b7bc4f83557de75b6fcf5c47fbeb961066575bcb231519d04",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "examples/osgtexture2D/osgtexture2D.cpp",
+      "bytes": 25959,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/examples/osgtexture2D/osgtexture2D.cpp",
+      "raw_sha256": "a82ebe7510fb00f634eb01bc58eaaeb23410b059bd265c1dde89d7a548dea9cf",
+      "canonical_sha256": "a82ebe7510fb00f634eb01bc58eaaeb23410b059bd265c1dde89d7a548dea9cf",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "examples/osgbillboard/osgbillboard.cpp",
+      "bytes": 6423,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/examples/osgbillboard/osgbillboard.cpp",
+      "raw_sha256": "411bc4841ab5383d6a9cab4b049ac4123fd0d54c25cf36dda557ab2885e707d5",
+      "canonical_sha256": "411bc4841ab5383d6a9cab4b049ac4123fd0d54c25cf36dda557ab2885e707d5",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "examples/osgtext/osgtext.cpp",
+      "bytes": 27423,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/examples/osgtext/osgtext.cpp",
+      "raw_sha256": "fd314e9ddbd1d6eb08b47abea8b2218cdb0164f1be4694ff91eb65cd66d77018",
+      "canonical_sha256": "fd314e9ddbd1d6eb08b47abea8b2218cdb0164f1be4694ff91eb65cd66d77018",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "examples/osgshape/osgshape.cpp",
+      "bytes": 4970,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/examples/osgshape/osgshape.cpp",
+      "raw_sha256": "9f26532888fb050ce45b3d03300a7707402f1bd6e507e03185fd3a01962bfcd5",
+      "canonical_sha256": "9f26532888fb050ce45b3d03300a7707402f1bd6e507e03185fd3a01962bfcd5",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    },
+    {
+      "path": "applications/osgviewer/osgviewer.cpp",
+      "bytes": 7309,
+      "indexable": true,
+      "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/applications/osgviewer/osgviewer.cpp",
+      "raw_sha256": "27a785695eb80ed12c1f8ff6c2453abdec863ab521122ffa9187afae892fbe07",
+      "canonical_sha256": "27a785695eb80ed12c1f8ff6c2453abdec863ab521122ffa9187afae892fbe07",
+      "encoding": "utf-8",
+      "normalization": "text-newline-lf-v1"
+    }
+  ],
+  "default_normalization": "text-newline-lf-v1",
+  "canonical_corpus_sha256": "1f47831f288461c28f99c71b50804447a5028d908d170b324704953242bfcc02"
+}

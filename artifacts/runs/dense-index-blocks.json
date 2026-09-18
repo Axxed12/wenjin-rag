@@ -1,0 +1,10 @@
+{
+  "collection": "osg_3_6_5_dense_blocks",
+  "strategy": "blocks",
+  "source_version": "3.6.5",
+  "chunk_count": 313,
+  "vector_dimension": 1024,
+  "seconds": 18.769,
+  "model_path": "E:\\Models\\Qwen3-Embedding-0.6B",
+  "note": "Dense index build only; no retrieval quality claim."
+}

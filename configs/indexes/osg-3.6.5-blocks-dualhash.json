@@ -1,0 +1,15 @@
+{
+  "target_id": "osg-3.6.5-blocks-dualhash-003",
+  "library": "osg",
+  "version": "3.6.5",
+  "strategy": "blocks",
+  "dense_collection": "osg_3_6_5_dense_blocks_dualhash",
+  "bm25_path": "data/indexes/osg_3_6_5_bm25_blocks_dualhash.sqlite",
+  "manifest_path": "corpora/osg-3.6.5/source-manifest.json",
+  "manifest_sha256": "83c44088dca78b7ec67653cfc58991b52dcbdfd6978b2dd19d1e8e0f468efc60",
+  "chunk_count": 307,
+  "vector_dimension": 1024,
+  "embedding_model": "Qwen3-Embedding-0.6B",
+  "canonical_corpus_sha256": "1f47831f288461c28f99c71b50804447a5028d908d170b324704953242bfcc02",
+  "normalization_profile": "text-newline-lf-v1"
+}

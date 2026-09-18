@@ -1,0 +1,19 @@
+{
+  "run_id": "corpus-layout-docker-smoke-001",
+  "verified_at_utc": "2026-09-17T08:35:42Z",
+  "image_id": "sha256:6c2f7abc32f4359042f4ffa388e592d64d11143fc98c8ccaf80258b31abdfa7d",
+  "mcp_port": 8771,
+  "tls": true,
+  "missing_bearer_status": 401,
+  "wrong_bearer_status": 401,
+  "session_established": true,
+  "index_target_id": "osg-3.6.5-blocks-lf-002",
+  "collection": "osg_3_6_5_dense_blocks",
+  "top1_chunk_id": "3.6.5:include/osgViewer/Viewer:blocks:0002",
+  "request_id": "5ff7b7f5261044d99dc62dfefca171f2",
+  "audit_request_id_matched": true,
+  "auth_denied_events_observed": 2,
+  "corpora_mount_read_only": true,
+  "raw_data_mount_read_only": true,
+  "test_container_removed": true
+}

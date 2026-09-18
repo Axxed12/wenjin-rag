@@ -1,0 +1,105 @@
+{
+  "run_id": "content-modify-delete-001",
+  "original_target_id": "osg-3.6.5-blocks-001",
+  "cases": [
+    {
+      "mode": "modify",
+      "original_target_id": "osg-3.6.5-blocks-001",
+      "candidate": {
+        "target_id": "osg-modify-demo-2aa4f8c3",
+        "library": "osg",
+        "version": "3.6.5-modify-demo-001",
+        "strategy": "blocks",
+        "dense_collection": "osg_3_6_5_modify_demo_2aa4f8c3",
+        "bm25_path": "data/indexes/osg_modify_demo_2aa4f8c3.sqlite",
+        "manifest_path": "data/packages/osg-modify-demo-2aa4f8c3/manifest.json",
+        "manifest_sha256": "b800594efcee0a26c3c1d37ba154ad58b8f351fe9ae14fb02376d47c03719bf1",
+        "chunk_count": 313,
+        "vector_dimension": 1024,
+        "embedding_model": "Qwen3-Embedding-0.6B"
+      },
+      "validation": {
+        "target_id": "osg-modify-demo-2aa4f8c3",
+        "manifest_sha256": "b800594efcee0a26c3c1d37ba154ad58b8f351fe9ae14fb02376d47c03719bf1",
+        "bm25_rows": 313,
+        "qdrant_points": 313,
+        "vector_dimension": 1024,
+        "collection_status": "green",
+        "valid": true
+      },
+      "source_counts_before_switch": {
+        "qdrant": 7,
+        "bm25": 7
+      },
+      "original_source_counts": {
+        "qdrant": 7,
+        "bm25": 7
+      },
+      "switch_revision": 8,
+      "modified_query": {
+        "sources": [
+          "README.md",
+          "include/osgText/Text",
+          "include/osg/Billboard",
+          "include/osg/StateSet",
+          "include/osg/StateAttribute"
+        ],
+        "sentinel_found": true
+      },
+      "old_query_regression": true,
+      "rollback_revision": 9,
+      "active_after_rollback": "osg-3.6.5-blocks-001",
+      "source_counts_after_rollback": {
+        "qdrant": 7,
+        "bm25": 7
+      },
+      "status": "PASS",
+      "seconds": 19.782,
+      "candidate_assets_cleaned": true
+    },
+    {
+      "mode": "delete",
+      "original_target_id": "osg-3.6.5-blocks-001",
+      "candidate": {
+        "target_id": "osg-delete-demo-9cd6415e",
+        "library": "osg",
+        "version": "3.6.5-delete-demo-001",
+        "strategy": "blocks",
+        "dense_collection": "osg_3_6_5_delete_demo_9cd6415e",
+        "bm25_path": "data/indexes/osg_delete_demo_9cd6415e.sqlite",
+        "manifest_path": "data/packages/osg-delete-demo-9cd6415e/manifest.json",
+        "manifest_sha256": "2c0d035b2f8913c97dedaaa651c846da4e4e86cbcc17656c6752dafb86a8584b",
+        "chunk_count": 309,
+        "vector_dimension": 1024,
+        "embedding_model": "Qwen3-Embedding-0.6B"
+      },
+      "validation": {
+        "target_id": "osg-delete-demo-9cd6415e",
+        "manifest_sha256": "2c0d035b2f8913c97dedaaa651c846da4e4e86cbcc17656c6752dafb86a8584b",
+        "bm25_rows": 309,
+        "qdrant_points": 309,
+        "vector_dimension": 1024,
+        "collection_status": "green",
+        "valid": true
+      },
+      "source_counts_before_switch": {
+        "qdrant": 0,
+        "bm25": 0
+      },
+      "switch_revision": 10,
+      "deleted_source_not_in_manifest": true,
+      "old_query_regression": true,
+      "rollback_revision": 11,
+      "active_after_rollback": "osg-3.6.5-blocks-001",
+      "source_counts_after_rollback": {
+        "qdrant": 4,
+        "bm25": 4
+      },
+      "status": "PASS",
+      "seconds": 30.656,
+      "candidate_assets_cleaned": true
+    }
+  ],
+  "active_after_all_cases": "osg-3.6.5-blocks-001",
+  "status": "PASS"
+}

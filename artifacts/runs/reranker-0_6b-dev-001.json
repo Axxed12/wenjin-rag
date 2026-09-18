@@ -1,0 +1,2822 @@
+{
+  "run_id": "reranker-0_6b-dev-001",
+  "dataset": "osg-starter/dev-seed.jsonl",
+  "dataset_role": "development diagnostics; source-selected and not held out",
+  "strategy": "blocks",
+  "candidate_k": 20,
+  "top_k": 5,
+  "reranker": {
+    "model": "Qwen3-Reranker-0.6B",
+    "max_length": 1024,
+    "batch_size": 8,
+    "model_load_seconds": 0.873,
+    "rerank_seconds": 9.003,
+    "peak_cuda_memory_bytes": 4544833024
+  },
+  "rewrite_source": {
+    "path": "artifacts/runs/query-rewrite-eval-api-dev-10-001.json",
+    "sha256": "313b52c846a1b26a06390a183540783fc5ecfa24acb562faa3504b23fa17d662",
+    "note": "saved English rewrites reused; no external API call in this run"
+  },
+  "retrieval_seconds": 2.375,
+  "summary": {
+    "baseline_raw": {
+      "at_5": {
+        "questions": 10,
+        "mean_span_recall": 0.7666666666666667,
+        "mean_single_chunk_span_rate": 0.5666666666666667,
+        "all_spans_hit_rate": 0.7,
+        "any_span_hit_rate": 0.8,
+        "first_evidence_touch_mrr": 0.7333333333333333
+      },
+      "at_20": {
+        "questions": 10,
+        "mean_span_recall": 0.8666666666666666,
+        "mean_single_chunk_span_rate": 0.5666666666666667,
+        "all_spans_hit_rate": 0.8,
+        "any_span_hit_rate": 0.9,
+        "first_evidence_touch_mrr": 0.7333333333333333
+      }
+    },
+    "baseline_reranked": {
+      "at_5": {
+        "questions": 10,
+        "mean_span_recall": 0.33333333333333337,
+        "mean_single_chunk_span_rate": 0.23333333333333334,
+        "all_spans_hit_rate": 0.3,
+        "any_span_hit_rate": 0.4,
+        "first_evidence_touch_mrr": 0.21666666666666665
+      },
+      "at_20": {
+        "questions": 10,
+        "mean_span_recall": 0.8666666666666666,
+        "mean_single_chunk_span_rate": 0.5666666666666667,
+        "all_spans_hit_rate": 0.8,
+        "any_span_hit_rate": 0.9,
+        "first_evidence_touch_mrr": 0.24316359079516975
+      }
+    },
+    "translation_raw": {
+      "at_5": {
+        "questions": 10,
+        "mean_span_recall": 0.8666666666666666,
+        "mean_single_chunk_span_rate": 0.5666666666666667,
+        "all_spans_hit_rate": 0.8,
+        "any_span_hit_rate": 0.9,
+        "first_evidence_touch_mrr": 0.6166666666666667
+      },
+      "at_20": {
+        "questions": 10,
+        "mean_span_recall": 0.9,
+        "mean_single_chunk_span_rate": 0.6,
+        "all_spans_hit_rate": 0.9,
+        "any_span_hit_rate": 0.9,
+        "first_evidence_touch_mrr": 0.6166666666666667
+      }
+    },
+    "translation_reranked": {
+      "at_5": {
+        "questions": 10,
+        "mean_span_recall": 0.36666666666666664,
+        "mean_single_chunk_span_rate": 0.26666666666666666,
+        "all_spans_hit_rate": 0.3,
+        "any_span_hit_rate": 0.4,
+        "first_evidence_touch_mrr": 0.30833333333333335
+      },
+      "at_20": {
+        "questions": 10,
+        "mean_span_recall": 0.9,
+        "mean_single_chunk_span_rate": 0.6,
+        "all_spans_hit_rate": 0.9,
+        "any_span_hit_rate": 0.9,
+        "first_evidence_touch_mrr": 0.3346172248803828
+      }
+    },
+    "expanded_raw": {
+      "at_5": {
+        "questions": 10,
+        "mean_span_recall": 1.0,
+        "mean_single_chunk_span_rate": 0.7,
+        "all_spans_hit_rate": 1.0,
+        "any_span_hit_rate": 1.0,
+        "first_evidence_touch_mrr": 0.8666666666666666
+      },
+      "at_20": {
+        "questions": 10,
+        "mean_span_recall": 1.0,
+        "mean_single_chunk_span_rate": 0.7,
+        "all_spans_hit_rate": 1.0,
+        "any_span_hit_rate": 1.0,
+        "first_evidence_touch_mrr": 0.8666666666666666
+      }
+    },
+    "expanded_reranked": {
+      "at_5": {
+        "questions": 10,
+        "mean_span_recall": 0.36666666666666664,
+        "mean_single_chunk_span_rate": 0.26666666666666666,
+        "all_spans_hit_rate": 0.3,
+        "any_span_hit_rate": 0.4,
+        "first_evidence_touch_mrr": 0.29166666666666663
+      },
+      "at_20": {
+        "questions": 10,
+        "mean_span_recall": 1.0,
+        "mean_single_chunk_span_rate": 0.7,
+        "all_spans_hit_rate": 1.0,
+        "any_span_hit_rate": 1.0,
+        "first_evidence_touch_mrr": 0.3306635907951697
+      }
+    },
+    "combined_raw": {
+      "at_5": {
+        "questions": 10,
+        "mean_span_recall": 0.8666666666666666,
+        "mean_single_chunk_span_rate": 0.5666666666666667,
+        "all_spans_hit_rate": 0.8,
+        "any_span_hit_rate": 0.9,
+        "first_evidence_touch_mrr": 0.8
+      },
+      "at_20": {
+        "questions": 10,
+        "mean_span_recall": 1.0,
+        "mean_single_chunk_span_rate": 0.7,
+        "all_spans_hit_rate": 1.0,
+        "any_span_hit_rate": 1.0,
+        "first_evidence_touch_mrr": 0.805
+      }
+    },
+    "combined_reranked": {
+      "at_5": {
+        "questions": 10,
+        "mean_span_recall": 0.4666666666666667,
+        "mean_single_chunk_span_rate": 0.36666666666666664,
+        "all_spans_hit_rate": 0.4,
+        "any_span_hit_rate": 0.5,
+        "first_evidence_touch_mrr": 0.2783333333333333
+      },
+      "at_20": {
+        "questions": 10,
+        "mean_span_recall": 1.0,
+        "mean_single_chunk_span_rate": 0.7,
+        "all_spans_hit_rate": 1.0,
+        "any_span_hit_rate": 1.0,
+        "first_evidence_touch_mrr": 0.3048302574618364
+      }
+    }
+  },
+  "details": [
+    {
+      "id": "osg-dev-001",
+      "query": "OSG 3.6.5 中，向 Geode 添加 Drawable 的接口是什么？返回值是什么？",
+      "english_query": "OpenSceneGraph 3.6.5 C++ interface to add Drawable to Geode and its return value",
+      "evidence": [
+        {
+          "path": "include/osg/Geode",
+          "start_line": 42,
+          "end_line": 52
+        }
+      ],
+      "unique_candidates_scored": 28,
+      "rerank_seconds": 0.757,
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 20,
+            "reciprocal_rank": 0.05
+          }
+        },
+        "translation_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        },
+        "translation_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 19,
+            "reciprocal_rank": 0.05263157894736842
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 20,
+            "reciprocal_rank": 0.05
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 20,
+            "reciprocal_rank": 0.05
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0001",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0002"
+        ],
+        "baseline_reranked": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:include/osg/Image:blocks:0018",
+          "3.6.5:include/osg/Drawable:blocks:0012"
+        ],
+        "translation_raw": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0001",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:include/osg/Billboard:blocks:0002"
+        ],
+        "translation_reranked": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geometry:blocks:0006",
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:include/osg/Image:blocks:0018"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/Geode:blocks:0001",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0002",
+          "3.6.5:include/osg/Geode:blocks:0003"
+        ],
+        "expanded_reranked": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geometry:blocks:0006",
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osg/Drawable:blocks:0009",
+          "3.6.5:include/osg/Drawable:blocks:0022"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/Geode:blocks:0001",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0002"
+        ],
+        "combined_reranked": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geometry:blocks:0006",
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:include/osg/Image:blocks:0018"
+        ]
+      },
+      "reranked_top_scores": {
+        "baseline_reranked": [
+          0.736116,
+          0.500732,
+          0.233357,
+          0.188697,
+          0.175538
+        ],
+        "translation_reranked": [
+          0.736116,
+          0.63341,
+          0.500732,
+          0.233357,
+          0.188697
+        ],
+        "expanded_reranked": [
+          0.736116,
+          0.63341,
+          0.500732,
+          0.368406,
+          0.299105
+        ],
+        "combined_reranked": [
+          0.736116,
+          0.63341,
+          0.500732,
+          0.233357,
+          0.188697
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-002",
+      "query": "OSG 3.6.5 中，Geode 没有 addChild，调用它一定是编造 API——这个说法对吗？",
+      "english_query": "verify if osg::Geode in OpenSceneGraph 3.6.5 has the addChild method",
+      "evidence": [
+        {
+          "path": "include/osg/Geode",
+          "start_line": 28,
+          "end_line": 28
+        },
+        {
+          "path": "include/osg/Group",
+          "start_line": 45,
+          "end_line": 53
+        },
+        {
+          "path": "src/osg/Geode.cpp",
+          "start_line": 38,
+          "end_line": 41
+        }
+      ],
+      "unique_candidates_scored": 26,
+      "rerank_seconds": 0.636,
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.3333333333333333,
+            "single_chunk_span_rate": 0.3333333333333333,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        },
+        "translation_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "translation_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012"
+        ],
+        "baseline_reranked": [
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0007",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0000",
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0018",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0017"
+        ],
+        "translation_raw": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0018"
+        ],
+        "translation_reranked": [
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0007",
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0000",
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0018"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Drawable:blocks:0007",
+          "3.6.5:include/osg/Geode:blocks:0005"
+        ],
+        "expanded_reranked": [
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0018",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0017",
+          "3.6.5:include/osg/Geode:blocks:0005"
+        ],
+        "combined_raw": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0001"
+        ],
+        "combined_reranked": [
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0007",
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0000",
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0018"
+        ]
+      },
+      "reranked_top_scores": {
+        "baseline_reranked": [
+          0.92912,
+          0.447943,
+          0.431584,
+          0.4206,
+          0.410165
+        ],
+        "translation_reranked": [
+          0.92912,
+          0.448185,
+          0.447943,
+          0.431584,
+          0.4206
+        ],
+        "expanded_reranked": [
+          0.448185,
+          0.431584,
+          0.4206,
+          0.410165,
+          0.314051
+        ],
+        "combined_reranked": [
+          0.92912,
+          0.448185,
+          0.447943,
+          0.431584,
+          0.4206
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-003",
+      "query": "我希望一个场景节点管理多个子节点，应该查哪个类及其添加接口？",
+      "english_query": "OpenSceneGraph 3.6.5 C++ class for scene node managing multiple children and its add interface",
+      "evidence": [
+        {
+          "path": "include/osg/Group",
+          "start_line": 25,
+          "end_line": 53
+        }
+      ],
+      "unique_candidates_scored": 35,
+      "rerank_seconds": 0.775,
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "translation_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        },
+        "translation_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osg/Group:blocks:0003",
+          "3.6.5:include/osg/Node:blocks:0001",
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0017"
+        ],
+        "baseline_reranked": [
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:include/osg/Group:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0017",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0009"
+        ],
+        "translation_raw": [
+          "3.6.5:include/osg/Group:blocks:0003",
+          "3.6.5:include/osg/Node:blocks:0001",
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:include/osg/Group:blocks:0000"
+        ],
+        "translation_reranked": [
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:include/osg/Group:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0017",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:src/osg/Group.cpp:blocks:0000"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:include/osg/Group:blocks:0000",
+          "3.6.5:include/osg/Group:blocks:0002",
+          "3.6.5:include/osg/Group:blocks:0003",
+          "3.6.5:src/osg/Group.cpp:blocks:0001"
+        ],
+        "expanded_reranked": [
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:include/osg/Group:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0016",
+          "3.6.5:src/osg/Group.cpp:blocks:0000"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/Group:blocks:0003",
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:include/osg/Group:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:include/osg/Group:blocks:0004"
+        ],
+        "combined_reranked": [
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:include/osg/Group:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0017",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:src/osg/Group.cpp:blocks:0000"
+        ]
+      },
+      "reranked_top_scores": {
+        "baseline_reranked": [
+          0.61878,
+          0.467818,
+          0.380759,
+          0.295433,
+          0.08196
+        ],
+        "translation_reranked": [
+          0.61878,
+          0.467818,
+          0.380759,
+          0.295433,
+          0.154312
+        ],
+        "expanded_reranked": [
+          0.61878,
+          0.467818,
+          0.295433,
+          0.176885,
+          0.154312
+        ],
+        "combined_reranked": [
+          0.61878,
+          0.467818,
+          0.380759,
+          0.295433,
+          0.154312
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-004",
+      "query": "osgDB::readNodeFile 读取失败返回什么？文件由哪个插件读取？",
+      "english_query": "osgDB::readNodeFile return value on failure and plugin selection mechanism in OpenSceneGraph 3.6.5",
+      "evidence": [
+        {
+          "path": "include/osgDB/ReadFile",
+          "start_line": 308,
+          "end_line": 325
+        }
+      ],
+      "unique_candidates_scored": 21,
+      "rerank_seconds": 0.456,
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 19,
+            "reciprocal_rank": 0.05263157894736842
+          }
+        },
+        "translation_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "translation_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 19,
+            "reciprocal_rank": 0.05263157894736842
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 19,
+            "reciprocal_rank": 0.05263157894736842
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 19,
+            "reciprocal_rank": 0.05263157894736842
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osgDB/ReadFile:blocks:0011",
+          "3.6.5:include/osgDB/ReadFile:blocks:0000",
+          "3.6.5:include/osgDB/ReadFile:blocks:0008",
+          "3.6.5:include/osgDB/ReadFile:blocks:0012",
+          "3.6.5:include/osgDB/ReadFile:blocks:0003"
+        ],
+        "baseline_reranked": [
+          "3.6.5:include/osgDB/ReadFile:blocks:0007",
+          "3.6.5:include/osgDB/ReadFile:blocks:0005",
+          "3.6.5:include/osgDB/ReadFile:blocks:0000",
+          "3.6.5:include/osgDB/ReadFile:blocks:0003",
+          "3.6.5:include/osgDB/ReadFile:blocks:0012"
+        ],
+        "translation_raw": [
+          "3.6.5:include/osgDB/ReadFile:blocks:0011",
+          "3.6.5:include/osgDB/ReadFile:blocks:0000",
+          "3.6.5:include/osgDB/ReadFile:blocks:0008",
+          "3.6.5:include/osgDB/ReadFile:blocks:0003",
+          "3.6.5:include/osgDB/ReadFile:blocks:0012"
+        ],
+        "translation_reranked": [
+          "3.6.5:include/osgDB/ReadFile:blocks:0007",
+          "3.6.5:include/osgDB/ReadFile:blocks:0005",
+          "3.6.5:include/osgDB/ReadFile:blocks:0000",
+          "3.6.5:include/osgDB/ReadFile:blocks:0003",
+          "3.6.5:include/osgDB/ReadFile:blocks:0012"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osgDB/ReadFile:blocks:0011",
+          "3.6.5:include/osgDB/ReadFile:blocks:0000",
+          "3.6.5:include/osgDB/ReadFile:blocks:0008",
+          "3.6.5:include/osgDB/ReadFile:blocks:0012",
+          "3.6.5:include/osgDB/ReadFile:blocks:0015"
+        ],
+        "expanded_reranked": [
+          "3.6.5:include/osgDB/ReadFile:blocks:0007",
+          "3.6.5:include/osgDB/ReadFile:blocks:0005",
+          "3.6.5:include/osgDB/ReadFile:blocks:0000",
+          "3.6.5:include/osgDB/ReadFile:blocks:0003",
+          "3.6.5:include/osgDB/ReadFile:blocks:0012"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osgDB/ReadFile:blocks:0011",
+          "3.6.5:include/osgDB/ReadFile:blocks:0000",
+          "3.6.5:include/osgDB/ReadFile:blocks:0008",
+          "3.6.5:include/osgDB/ReadFile:blocks:0012",
+          "3.6.5:include/osgDB/ReadFile:blocks:0003"
+        ],
+        "combined_reranked": [
+          "3.6.5:include/osgDB/ReadFile:blocks:0007",
+          "3.6.5:include/osgDB/ReadFile:blocks:0005",
+          "3.6.5:include/osgDB/ReadFile:blocks:0000",
+          "3.6.5:include/osgDB/ReadFile:blocks:0003",
+          "3.6.5:include/osgDB/ReadFile:blocks:0012"
+        ]
+      },
+      "reranked_top_scores": {
+        "baseline_reranked": [
+          0.593609,
+          0.403567,
+          0.358465,
+          0.249813,
+          0.233008
+        ],
+        "translation_reranked": [
+          0.593609,
+          0.403567,
+          0.358465,
+          0.249813,
+          0.233008
+        ],
+        "expanded_reranked": [
+          0.593609,
+          0.403567,
+          0.358465,
+          0.249813,
+          0.233008
+        ],
+        "combined_reranked": [
+          0.593609,
+          0.403567,
+          0.358465,
+          0.249813,
+          0.233008
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-005",
+      "query": "透明物体对应的渲染箱按什么顺序绘制？用哪个 StateSet 提示选择它？",
+      "english_query": "OpenSceneGraph 3.6.5 transparent object rendering bin draw order and StateSet hint",
+      "evidence": [
+        {
+          "path": "include/osg/StateSet",
+          "start_line": 373,
+          "end_line": 391
+        }
+      ],
+      "unique_candidates_scored": 31,
+      "rerank_seconds": 0.918,
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          }
+        },
+        "translation_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "translation_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/StateSet:blocks:0017",
+          "3.6.5:include/osg/StateSet:blocks:0018",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001",
+          "3.6.5:include/osg/StateSet:blocks:0001"
+        ],
+        "baseline_reranked": [
+          "3.6.5:include/osg/StateSet:blocks:0002",
+          "3.6.5:include/osg/Drawable:blocks:0008",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001",
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/Drawable:blocks:0018"
+        ],
+        "translation_raw": [
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/StateSet:blocks:0015",
+          "3.6.5:include/osg/Drawable:blocks:0018",
+          "3.6.5:include/osg/Drawable:blocks:0007",
+          "3.6.5:include/osg/StateSet:blocks:0017"
+        ],
+        "translation_reranked": [
+          "3.6.5:include/osg/StateSet:blocks:0002",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001",
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/Drawable:blocks:0018",
+          "3.6.5:include/osg/Geometry:blocks:0004"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/StateSet:blocks:0018",
+          "3.6.5:include/osg/StateSet:blocks:0017",
+          "3.6.5:include/osg/StateSet:blocks:0001",
+          "3.6.5:include/osg/StateSet:blocks:0002"
+        ],
+        "expanded_reranked": [
+          "3.6.5:include/osg/StateSet:blocks:0002",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001",
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/Drawable:blocks:0018",
+          "3.6.5:include/osg/StateSet:blocks:0009"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/StateSet:blocks:0017",
+          "3.6.5:include/osg/StateSet:blocks:0018",
+          "3.6.5:include/osg/StateSet:blocks:0001",
+          "3.6.5:include/osg/Drawable:blocks:0018"
+        ],
+        "combined_reranked": [
+          "3.6.5:include/osg/StateSet:blocks:0002",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001",
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/Drawable:blocks:0018",
+          "3.6.5:include/osg/StateSet:blocks:0009"
+        ]
+      },
+      "reranked_top_scores": {
+        "baseline_reranked": [
+          0.904819,
+          0.268174,
+          0.23793,
+          0.177811,
+          0.173288
+        ],
+        "translation_reranked": [
+          0.904819,
+          0.23793,
+          0.177811,
+          0.173288,
+          0.168857
+        ],
+        "expanded_reranked": [
+          0.904819,
+          0.23793,
+          0.177811,
+          0.173288,
+          0.171755
+        ],
+        "combined_reranked": [
+          0.904819,
+          0.23793,
+          0.177811,
+          0.173288,
+          0.171755
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-006",
+      "query": "MatrixTransform 设置新矩阵时会更新哪些状态？",
+      "english_query": "MatrixTransform setMatrix state updates in OpenSceneGraph 3.6.5",
+      "evidence": [
+        {
+          "path": "include/osg/MatrixTransform",
+          "start_line": 43,
+          "end_line": 44
+        }
+      ],
+      "unique_candidates_scored": 22,
+      "rerank_seconds": 0.44,
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          }
+        },
+        "translation_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "translation_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osg/MatrixTransform:blocks:0000",
+          "3.6.5:include/osg/MatrixTransform:blocks:0001",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0002",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020"
+        ],
+        "baseline_reranked": [
+          "3.6.5:include/osg/StateSet:blocks:0000",
+          "3.6.5:include/osg/MatrixTransform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/MatrixTransform:blocks:0001",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ],
+        "translation_raw": [
+          "3.6.5:include/osg/MatrixTransform:blocks:0000",
+          "3.6.5:include/osg/MatrixTransform:blocks:0001",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0002"
+        ],
+        "translation_reranked": [
+          "3.6.5:include/osg/StateSet:blocks:0000",
+          "3.6.5:include/osg/MatrixTransform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/MatrixTransform:blocks:0001",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/MatrixTransform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/MatrixTransform:blocks:0001",
+          "3.6.5:include/osg/Transform:blocks:0002",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020"
+        ],
+        "expanded_reranked": [
+          "3.6.5:include/osg/StateSet:blocks:0000",
+          "3.6.5:include/osg/MatrixTransform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/MatrixTransform:blocks:0001",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/MatrixTransform:blocks:0000",
+          "3.6.5:include/osg/MatrixTransform:blocks:0001",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0002",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020"
+        ],
+        "combined_reranked": [
+          "3.6.5:include/osg/StateSet:blocks:0000",
+          "3.6.5:include/osg/MatrixTransform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/MatrixTransform:blocks:0001",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ]
+      },
+      "reranked_top_scores": {
+        "baseline_reranked": [
+          0.917303,
+          0.668015,
+          0.255762,
+          0.216012,
+          0.195517
+        ],
+        "translation_reranked": [
+          0.917303,
+          0.668015,
+          0.255762,
+          0.216012,
+          0.195517
+        ],
+        "expanded_reranked": [
+          0.917303,
+          0.668015,
+          0.255762,
+          0.216012,
+          0.195517
+        ],
+        "combined_reranked": [
+          0.917303,
+          0.668015,
+          0.255762,
+          0.216012,
+          0.195517
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-007",
+      "query": "变换默认相对父节点，还是绝对坐标系？在哪里选择？",
+      "english_query": "OpenSceneGraph 3.6.5 default transformation coordinate system relative to parent node or absolute world coordinates configuration",
+      "evidence": [
+        {
+          "path": "include/osg/Transform",
+          "start_line": 97,
+          "end_line": 122
+        }
+      ],
+      "unique_candidates_scored": 31,
+      "rerank_seconds": 0.821,
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        },
+        "translation_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "translation_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0005",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ],
+        "baseline_reranked": [
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0011",
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/Transform:blocks:0005",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ],
+        "translation_raw": [
+          "3.6.5:include/osg/Transform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0005",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ],
+        "translation_reranked": [
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:src/osg/Group.cpp:blocks:0007",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0005",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0005",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0018",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ],
+        "expanded_reranked": [
+          "3.6.5:include/osgViewer/Viewer:blocks:0002",
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/Transform:blocks:0005",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0005",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ],
+        "combined_reranked": [
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/Transform:blocks:0005",
+          "3.6.5:include/osg/Transform:blocks:0001",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0001"
+        ]
+      },
+      "reranked_top_scores": {
+        "baseline_reranked": [
+          0.836688,
+          0.478041,
+          0.338952,
+          0.183594,
+          0.139294
+        ],
+        "translation_reranked": [
+          0.338952,
+          0.280616,
+          0.215351,
+          0.183594,
+          0.139294
+        ],
+        "expanded_reranked": [
+          0.890675,
+          0.836688,
+          0.338952,
+          0.183594,
+          0.139294
+        ],
+        "combined_reranked": [
+          0.836688,
+          0.338952,
+          0.183594,
+          0.139294,
+          0.137417
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-008",
+      "query": "找一个将图片加载为二维纹理并绑定到纹理单元 0 的官方源码片段。",
+      "english_query": "OpenSceneGraph 3.6.5 official example source code loading an image as a 2D texture and binding to texture unit 0",
+      "evidence": [
+        {
+          "path": "examples/osgtexture2D/osgtexture2D.cpp",
+          "start_line": 170,
+          "end_line": 176
+        }
+      ],
+      "unique_candidates_scored": 38,
+      "rerank_seconds": 1.04,
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        "translation_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        "translation_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 8,
+            "reciprocal_rank": 0.125
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 20,
+            "reciprocal_rank": 0.05
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 5,
+            "reciprocal_rank": 0.2
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 5,
+            "reciprocal_rank": 0.2
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osg/Texture2D:blocks:0002",
+          "3.6.5:include/osg/Texture2D:blocks:0004",
+          "3.6.5:include/osg/Texture2D:blocks:0003",
+          "3.6.5:include/osg/Image:blocks:0007",
+          "3.6.5:include/osg/Image:blocks:0015"
+        ],
+        "baseline_reranked": [
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0018",
+          "3.6.5:include/osg/Image:blocks:0018",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0002",
+          "3.6.5:include/osg/Image:blocks:0007",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0015"
+        ],
+        "translation_raw": [
+          "3.6.5:include/osg/Texture2D:blocks:0002",
+          "3.6.5:include/osg/Texture2D:blocks:0004",
+          "3.6.5:include/osg/Texture2D:blocks:0000",
+          "3.6.5:include/osg/Texture2D:blocks:0003",
+          "3.6.5:include/osg/Image:blocks:0007"
+        ],
+        "translation_reranked": [
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0018",
+          "3.6.5:include/osg/Image:blocks:0018",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0014",
+          "3.6.5:include/osg/Image:blocks:0008",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/StateSet:blocks:0008",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0002",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0004",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0011",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001"
+        ],
+        "expanded_reranked": [
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0007",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0019",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0001",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0011"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/Texture2D:blocks:0002",
+          "3.6.5:include/osg/Texture2D:blocks:0004",
+          "3.6.5:include/osg/Texture2D:blocks:0000",
+          "3.6.5:include/osg/Texture2D:blocks:0003",
+          "3.6.5:include/osg/Image:blocks:0007"
+        ],
+        "combined_reranked": [
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0018",
+          "3.6.5:include/osg/Image:blocks:0018",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0014",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0002",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0004"
+        ]
+      },
+      "reranked_top_scores": {
+        "baseline_reranked": [
+          0.713032,
+          0.335024,
+          0.189821,
+          0.130285,
+          0.102619
+        ],
+        "translation_reranked": [
+          0.713032,
+          0.335024,
+          0.206254,
+          0.160661,
+          0.132066
+        ],
+        "expanded_reranked": [
+          0.434701,
+          0.309024,
+          0.299105,
+          0.226955,
+          0.210442
+        ],
+        "combined_reranked": [
+          0.713032,
+          0.335024,
+          0.206254,
+          0.189821,
+          0.13569
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-009",
+      "query": "Billboard 的旋转轴设置在哪种模式下有效？",
+      "english_query": "OpenSceneGraph 3.6.5 Billboard rotation axis valid modes",
+      "evidence": [
+        {
+          "path": "include/osg/Billboard",
+          "start_line": 43,
+          "end_line": 50
+        }
+      ],
+      "unique_candidates_scored": 26,
+      "rerank_seconds": 2.08,
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 11,
+            "reciprocal_rank": 0.09090909090909091
+          }
+        },
+        "translation_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "translation_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 11,
+            "reciprocal_rank": 0.09090909090909091
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 11,
+            "reciprocal_rank": 0.09090909090909091
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 11,
+            "reciprocal_rank": 0.09090909090909091
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osg/Billboard:blocks:0000",
+          "3.6.5:include/osg/Billboard:blocks:0003",
+          "3.6.5:include/osg/Billboard:blocks:0001",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004"
+        ],
+        "baseline_reranked": [
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osg/Billboard:blocks:0003",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000"
+        ],
+        "translation_raw": [
+          "3.6.5:include/osg/Billboard:blocks:0000",
+          "3.6.5:include/osg/Billboard:blocks:0003",
+          "3.6.5:include/osg/Billboard:blocks:0001",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003"
+        ],
+        "translation_reranked": [
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osg/Billboard:blocks:0003",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0015",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/Billboard:blocks:0000",
+          "3.6.5:include/osg/Billboard:blocks:0003",
+          "3.6.5:include/osg/Billboard:blocks:0001",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004"
+        ],
+        "expanded_reranked": [
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osg/Billboard:blocks:0003",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/Billboard:blocks:0000",
+          "3.6.5:include/osg/Billboard:blocks:0003",
+          "3.6.5:include/osg/Billboard:blocks:0001",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004"
+        ],
+        "combined_reranked": [
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osg/Billboard:blocks:0003",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000"
+        ]
+      },
+      "reranked_top_scores": {
+        "baseline_reranked": [
+          0.717804,
+          0.637539,
+          0.631594,
+          0.276056,
+          0.192539
+        ],
+        "translation_reranked": [
+          0.717804,
+          0.631594,
+          0.276056,
+          0.201813,
+          0.192539
+        ],
+        "expanded_reranked": [
+          0.717804,
+          0.637539,
+          0.631594,
+          0.276056,
+          0.192539
+        ],
+        "combined_reranked": [
+          0.717804,
+          0.637539,
+          0.631594,
+          0.276056,
+          0.192539
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-010",
+      "query": "OSG 的 ref_ptr 构造和析构时怎样处理引用计数？",
+      "english_query": "OpenSceneGraph 3.6.5 ref_ptr constructor and destructor reference counting implementation",
+      "evidence": [
+        {
+          "path": "include/osg/ref_ptr",
+          "start_line": 37,
+          "end_line": 41
+        }
+      ],
+      "unique_candidates_scored": 30,
+      "rerank_seconds": 0.665,
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 14,
+            "reciprocal_rank": 0.07142857142857142
+          }
+        },
+        "translation_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "translation_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 15,
+            "reciprocal_rank": 0.06666666666666667
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 14,
+            "reciprocal_rank": 0.07142857142857142
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 14,
+            "reciprocal_rank": 0.07142857142857142
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osgDB/ReadFile:blocks:0001"
+        ],
+        "baseline_reranked": [
+          "3.6.5:include/osg/Referenced:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/Referenced:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osg/StateAttribute:blocks:0011"
+        ],
+        "translation_raw": [
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/Referenced:blocks:0000",
+          "3.6.5:include/osg/Referenced:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0001"
+        ],
+        "translation_reranked": [
+          "3.6.5:include/osg/Referenced:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/Referenced:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osg/StateAttribute:blocks:0011"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osgDB/ReadFile:blocks:0001"
+        ],
+        "expanded_reranked": [
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/Referenced:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osg/StateAttribute:blocks:0011",
+          "3.6.5:include/osg/ref_ptr:blocks:0002"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osgDB/ReadFile:blocks:0001",
+          "3.6.5:include/osg/ref_ptr:blocks:0004"
+        ],
+        "combined_reranked": [
+          "3.6.5:include/osg/Referenced:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/Referenced:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osg/StateAttribute:blocks:0011"
+        ]
+      },
+      "reranked_top_scores": {
+        "baseline_reranked": [
+          0.565779,
+          0.40592,
+          0.340704,
+          0.314893,
+          0.255344
+        ],
+        "translation_reranked": [
+          0.565779,
+          0.40592,
+          0.340704,
+          0.314893,
+          0.255344
+        ],
+        "expanded_reranked": [
+          0.40592,
+          0.340704,
+          0.314893,
+          0.255344,
+          0.186539
+        ],
+        "combined_reranked": [
+          0.565779,
+          0.40592,
+          0.340704,
+          0.314893,
+          0.255344
+        ]
+      }
+    }
+  ],
+  "quality_result_valid": false,
+  "validity_note": "invalid: attention_mask was created before prefix/suffix token insertion"
+}

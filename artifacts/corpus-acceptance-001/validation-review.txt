@@ -1,0 +1,1087 @@
+rag-validation-001 osgEarth 3.8 里的 Earth File 本质上是什么类型的文件？它描述的是哪个对象的内容？
+ANSWER: Earth File 是一个 XML 文件；它描述 osgEarth 中 Map 的内容（Map 由一组 layer 组成）。
+EVIDENCE: osgEarth uses the familiar **Map/Layer** paradigm for organizing data. The **Map** is comprised of a collection of **layers**. The renderer draws each visible layer one after the next, from bottom to top, to display the final scene. [You can see all the different layer types here](layers.md).
+
+An **Earth File** is an XML file that describes the contents of a **Map** in osgEarth.
+
+rag-validation-002 一个 Map 中依次声明了 World、Boston、New York 三个影像图层，osgEarth 的绘制顺序是怎样的？
+ANSWER: 先绘制 World 图层，接着是 Boston，最后由 New York 覆盖在最上层；Map 的渲染是自下而上逐层绘制可见图层。
+EVIDENCE: osgEarth uses the familiar **Map/Layer** paradigm for organizing data. The **Map** is comprised of a collection of **layers**. The renderer draws each visible layer one after the next, from bottom to top, to display the final scene. [You can see all the different layer types here](layers.md).
+In this case, osgEarth will draw the "World" layer first, followed by "Boston" and finally "New York" on top. We also interspersed some XML comments in there.
+
+rag-validation-003 在 osgEarth 的 Earth File 中，用什么语法把另一个 XML 文件的内容内联进来？
+ANSWER: 使用 xi:include 指令，写成 <xi:include href="..."/>，把另一个 XML 文件内联包含进来。
+EVIDENCE:     <xi:include href="readymap_imagery.xml"/>
+First, we see the use of `<xi:include>`, a handy XML directive to include another XML file inline. We're using this to get our imagery.
+
+rag-validation-004 Earth File 里声明的 OGRFeatures 图层会被 osgEarth 直接渲染到场景里吗？
+ANSWER: 不会。OGRFeatures 是数据层，不会被直接渲染，它只是指向本地的 ESRI Shapefile 等数据；实际绘制由引用它的图层（如 FeatureImage）配合 StyleSheet 完成。
+EVIDENCE: Next is the `OGRFeatures` layer. This is a data layer - it won't be rendered directly - but rather it just points to an ESRI Shapefile we have stored locally.
+    <OGRFeatures name="world-data">
+        <url>../data/world.shp</url>
+    </OGRFeatures>
+Finally, the `FeatureImage` layer points at the data layer and describes how to draw it using a `StyleSheet`.
+
+rag-validation-005 像 Viewpoints 这种不显示内容的数据层，它在 Map 中的位置顺序会影响渲染结果吗？
+ANSWER: 不影响。非可见图层可以出现在 map 中的任意位置，它们的顺序或外观都不重要。
+EVIDENCE: Finally you can see a `Viewpoints` layer. This is not a visible layer at all! Instead if stores data - in this case, a set of pre-set viewpoints the user can navigate to. osgEarth stores all kinds of data as **layers**, not all of it visible. Non-visible layers can occur anywhere in the map. Their order or appearance does not matter.
+
+rag-validation-006 Earth File 中 <url> 写成相对路径时，osgEarth 是相对于哪个位置来解析的？
+ANSWER: 相对于 earth 文件自身所在的位置解析。
+EVIDENCE: This map contains one layer that points to a local GeoTIFF file. In this case, the location is relative to the location of the earth file itself. You can see this map by running one of the osgEarth command line tools:
+
+rag-validation-007 在 osgEarth 3.8 的 earth file 里，设置瓦片尺寸的属性名是什么？影像层与高程层的默认值分别是多少？
+ANSWER: 属性名是 tile_size；影像层默认 256，高程层默认 257。
+EVIDENCE: | tile_size       | Number of elements in each dimension of the tile. For image layers, default is 256. For elevation layers, default is 257. | int    | 256/257 |
+
+rag-validation-008 TileLayer 的 max_data_level 属性起什么作用？超过该层级显示的数据如何处理？
+ANSWER: 它强制设定为该图层生成新数据的最大 LOD；超过这个 LOD 显示的数据由 GPU 进行上采样。
+EVIDENCE: | max_data_level  | Forces a maximum LOD at which to generate new data for this layer. Data displayed past this LOD will be upsampled by the GPU. | int    |         |
+
+rag-validation-009 高程数据里出现超出合理范围或占位数值时，TileLayer 用哪些属性把它们当作 NO DATA 处理？
+ANSWER: min_valid_value：更小的值被转换为 NO DATA；max_valid_value：更高的值被解释为 NO DATA；no_data_value：指定该值被解释为 NO DATA。这三个属性通常只对高程数据有意义。
+EVIDENCE: | min_valid_value | Smallest valid value to accept from the underlying data source. This usually only applies to elevation data. Smaller values are converted to "NO DATA" | float  | none    |
+| max_valid_value | Largest valid value to accept from the underlying data source. This usually applies to elevation data. Higher values are interpreted as "NO DATA" | float  | none    |
+| no_data_value   | Specific value to interpret at "NO DATA"                     | float  | none    |
+
+rag-validation-010 Visible Layer 的 blend 属性有哪些取值？各自含义与默认值是什么？
+ANSWER: 取值 interpolate 与 modulate；interpolate 按 alpha 通道值混合，modulate 用颜色值相乘来混合；默认是 interpolate。
+EVIDENCE: | blend             | How this layer blends with the previously rendered layer<br />`interpolate` : blend based on alpha channel value<br />`modulate` : blend by multiplying color values | string | interpolate |
+
+rag-validation-011 想让一个图层随相机远离而逐渐淡出，并限定它的最大/最小渲染距离，应该用哪几个属性？默认值是什么？
+ANSWER: attenuation_range 设定接近 max_range 时由可见淡出到不可见的距离（米），默认 0；max_range 是渲染该图层的最大相机距离（米），默认 infinity；min_range 是最小相机距离，默认 0。
+EVIDENCE: | attenuation_range | Range (meters) over which this layer fades from visible to invisible when approaching `max_range` | float  | 0           |
+| blend             | How this layer blends with the previously rendered layer<br />`interpolate` : blend based on alpha channel value<br />`modulate` : blend by multiplying color values | string | interpolate |
+| max_range         | Maximum camera distance (meters) at which to render this layer | float  | infinity    |
+| min_range         | Minimum camera distance (meters) at which to render this layer | float  | 0           |
+
+rag-validation-012 Layer 基类的 enabled 属性控制什么？默认值和 cacheid 的默认行为分别是什么？
+ANSWER: enabled 决定加载 earth file 时是否打开该图层，默认 true；cacheid 是自定义缓存 ID 字符串，默认自动生成。
+EVIDENCE: | enabled       | Whether to open this layer when loading an earth file        | bool   | true           |
+| cacheid       | Custom cache ID string to use when storing a cache for this layer | string | auto-generated |
+
+rag-validation-013 FeatureImage 与 FeatureModel 同样是显示矢量数据，两者在实现方式上有什么区别？
+ANSWER: FeatureImage 把矢量数据栅格化成影像图层；FeatureModel 把矢量数据渲染为 OpenSceneGraph 几何体。
+EVIDENCE: | [FeatureImage](featureimage.html) | Rasterizes vector data into an image layer                   |
+| [FeatureModel](featuremodel.html) | Renders vector data as *OpenSceneGraph* geometry             |
+
+rag-validation-014 Earth File 中的 ThreeDTiles 图层对应哪个 API 类？
+ANSWER: ThreeDTilesLayer。
+EVIDENCE: | ThreeDTiles       | ThreeDTilesLayer       | Displays a 3D-Tiles dataset                                  |
+
+rag-validation-015 按 osgEarth 3.8 文档的图层清单，哪些栅格影像图层被标注为需要 license key？
+ANSWER: Microsoft Bing 与 Cesium Ion 明确标注为 ($) 并注明 License key required；ESRI ArcGIS Server 也带 ($) 标记。其余栅格层（GDAL、MBTiles、TMS、WMS、XYZ、Composite、ContourMap、MapboxGL）未做该标注。
+EVIDENCE: | [Microsoft Bing](bing.html) | ($) Connects to Microsoft Bing service. License key required |
+| [Cesium Ion](cesiumion.html) | ($) Connects to a Cesium Ion server instance. License key required |
+| [ESRI ArcGIS Server](arcgis.html) | ($) Connects to an ESRI ArcGIS Server instance |
+| [MapboxGL](mapboxgl.html) | Rasterizes a MapboxGL map to an image layer. |
+
+rag-validation-016 CompositeImage 能否把影像层和高程层混合组合在一起？
+ANSWER: 不能。只能组合相同基类型的图层，例如影像层与影像层。
+EVIDENCE: Note: you can only composite layers of the same base type (e.g. image layers with other image layers.)
+
+rag-validation-017 高程层的 vdatum 属性支持哪些取值？默认是什么？
+ANSWER: 支持 egm96 与 egm2008；默认值是 geodetic。
+EVIDENCE: | vdatum | Vertical datum to use (egm96, egm2008)     | string   | geodetic                 |
+
+rag-validation-018 为什么 XYZ 图层需要由用户自己指定 profile？该属性的默认值是什么？
+ANSWER: 因为 XYZ 图层不暴露任何元数据，用户必须自己告知 osgEarth 数据源的 profile 等要素；profile 的默认值是 global-geodetic。
+EVIDENCE: An XYZ layer exposes no metadata, so the user is resposible for telling osgEarth about the `profile` and other aspects of the data source.
+| profile | Tiling configuration of the data source (typically `global-geodetic` or `spherical-mercator`) | string | `global-geodetic` |
+
+rag-validation-019 osgEarth 的 GDAL 图层示例里，为什么加载 DTED0 高程文件时要显式写 <vdatum>egm96</vdatum>？
+ANSWER: 因为垂直基准信息并未包含在源数据本身之中，必须在 earth file 里显式指定；该示例是一个已知使用 EGM96 垂直基准的 DTED0 高程文件。
+EVIDENCE: NOTE: this example loads a DTED0 elevation file, which is known to use the EGM96 vertical datum. We need to specify that in the earth file since the vertical datum information in NOT included in the source data itself.
+<GDALElevation name="Local terrian data">
+    <url>elevation.dt0</url>
+    <vdatum>egm96</vdatum>
+</GDALElevation>
+
+rag-validation-020 GDALDEM 图层的 processing 属性有哪些取值？默认值是哪个？
+ANSWER: 取值 color-relief 与 hillshade；默认是 hillshade。
+EVIDENCE: | processing     | Type of shading to use. Options are `color-relief` and `hillshade` | string | `hillshade` |
+
+rag-validation-021 osgEarth 3.8 的 <WMSImage> 默认向服务器请求哪个 WMS 版本？而 OGC 06-042 规范的版本号又是多少？
+ANSWER: osgEarth WMSImage 的 wms_version 属性默认请求 1.0.0；OGC 06-042（Web Map Service Implementation Specification）的版本是 1.3.0。二者并非同一版本，文档层面需注意区分。
+EVIDENCE: | wms_version      | Expressly request a WMS version string from the server; usually you do not need this, but sometimes a WMS server requires it. | string  | 1.0.0   |
+ 
+ 
+OGC 06-042 
+Copyright © 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ 
+iii
+ 
+Contents 
+Page 
+Foreword ............................................................................................................................................................iv 
+Introduction.........................................................................................................................................................v 
+1 
+Scope......................................................................................................................................................6 
+2 
+Conformance .........................................................................................................................................6 
+2.1 
+Conformance classes and requirements............................................................................................6 
+2.2 
+Basic WMS .............................................................................................................................................6 
+2.3 
+Queryable WMS .....................................................................................................................................6 
+3 
+Normative references............................................................................................................................6 
+4 
+Terms and definitions ...........................................................................................................................7 
+5 
+Abbreviated terms.................................................................................................................................8 
+6 
+Basic service elements.........................................................................................................................9 
+6.1 
+Introduction............................................................................................................................................9 
+6.2 
+Version numbering and negotiation..................................................................................................10 
+6.3 
+General HTTP request rules ...............................................................................................................11 
+6.4 
+General HTTP response rules............................................................................................................13 
+6.5 
+Numeric and Boolean values .............................................................................................................13 
+6.6 
+Output formats.....................................................................................................................................14 
+6.7 
+Coordinate systems ............................................................................................................................14 
+6.8 
+Request parameter rules ....................................................................................................................19 
+6.9 
+Common request parameters ............................................................................................................19 
+6.10 
+Service result.......................................................................................................................................20 
+6.11 
+Service exceptions..............................................................................................................................20 
+7 
+Web Map Service operations .............................................................................................................21 
+7.1 
+Introduction..........................................................................................................................................21 
+7.2 
+GetCapabilities (mandatory) ..............................................................................................................21 
+7.3 
+GetMap (mandatory)............................................................................................................................32 
+7.4 
+GetFeatureInfo (optional)....................................................................................................................38 
+Annex A (normative)  Conformance tests.......................................................................................................41 
+Annex B (normative)  CRS Definitions ............................................................................................................44 
+Annex C (normative)  Handling multi-dimensional data................................................................................51 
+Annex D (normative)  Web Map Service profile of ISO 8601 .........................................................................57 
+Annex E (normative)  XML Schemas ...............................................................................................................59 
+Annex F (normative)  UML model.....................................................................................................................72 
+Annex G (informative)  Web Mapping Examples ............................................................................................77 
+Annex H (informative)  XML examples.............................................................................................................80 
+Bibliography......................................................................................................................................................85 
+ 
+
+
+rag-validation-022 WMSImage 把 transparent 设为 true 有什么前提条件？它到底表达了什么？
+ANSWER: 它只是提示服务器生成带透明通道（alpha）的影像，前提是所使用的 format 支持 alpha，例如 png；文档未说明服务器一定会遵守该提示。
+EVIDENCE: | transparent      | Hint as to whether the server should create imagery with a transparency channel (alpha). This requires the use of a `format` that supports alpha (like `png`) | boolean | false   |
+
+rag-validation-023 osgEarth 3.8 的 Map 类中，addLayer 用于添加图层；那么 getLayers 在多线程下有什么保证，返回值是什么？
+ANSWER: getLayers 是线程安全的，它把 map 图层的引用复制到输出列表中，并返回复制数据时所生效的 map revision。
+EVIDENCE:         //! Copies references of the map layers into the output list.
+        //! This method is thread safe. It returns the map revision that was
+        //! in effect when the data was copied.
+        Revision getLayers(LayerVector& out_layers) const;
+        //! Adds a Layer to the map.
+        void addLayer(Layer* layer);
+
+rag-validation-024 Map::getIndexOfLayer 在指定图层不存在时会返回什么？
+ANSWER: 返回 getNumLayers() 的值（而不是 -1 或 0）。
+EVIDENCE:         //! Index of the specified layer, or returns getNumLayers() if the layer is not found.
+        unsigned getIndexOfLayer(const Layer* layer) const;
+
+rag-validation-025 MapNode::Options 中控制几何 LOD 屏幕空间误差的选项名是什么？默认值是多少？
+ANSWER: 选项名 screenSpaceError，默认值 25.0f。
+EVIDENCE:             OE_OPTION(float, screenSpaceError, 25.0f);
+
+rag-validation-026 MapNode 继承自哪个类？文档注释如何描述它与 Map 的分工？
+ANSWER: MapNode 继承自 osg::Group；它构成 osgEarth map 的根节点，是一个“view”组件，负责渲染来自 Map 这一数据模型的数据。
+EVIDENCE:     /**
+     * OSG Node that forms the root of an osgEarth map.
+     * This node is a "view" component that renders data from a "Map" data model.
+     */
+    class OSGEARTH_EXPORT MapNode : public osg::Group
+    /**
+     * Map is the main data model. A Map hold a collection of
+     * Layers, each of which provides data of some kind to the
+     * overall Map. Use a MapNode to render the contents of a
+     * Map.
+     */
+
+rag-validation-027 MapNode 提供哪个静态方法可以从命令行参数中的 .earth 文件加载地图节点？
+ANSWER: 静态方法 MapNode::load(osg::ArgumentParser&) 及其带 Options 的重载，用于从参数列表中的 .earth 文件加载 MapNode。
+EVIDENCE:         //! Loads a MapNode form a ".earth" file in the arguemnts list
+        static MapNode* load(class osg::ArgumentParser& arguments);
+
+        //! Loads a MapNode from a ".earth" file in the arguments list
+        static MapNode* load(
+            class osg::ArgumentParser& arguments,
+            const Options& options);
+
+rag-validation-028 osgEarth 3.8 的 Map 头文件里声明的许可证，与仓库根目录 LICENSE.txt 声明的许可证是否一致？
+ANSWER: 不一致。Map 头文件头部版权注释写的是 “Copyright 2025 Pelican Mapping / MIT License”；而仓库 LICENSE.txt 正文写明 osgEarth library 与随附程序按 GNU Lesser General Public License Version 3（29 June 2007）提供，并附有若干例外与约定。逐字看，两处声明不同。
+EVIDENCE: /* osgEarth
+ * Copyright 2025 Pelican Mapping
+ * MIT License
+ */
+The osgEarth library and included programs are provided under the terms
+of the GNU Library General Public License (LGPL - included below) with the
+following exceptions and stipulations:
+                   GNU LESSER GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+rag-validation-029 在 WMS 1.3.0 的 GetMap 请求里，哪些参数是强制要求的（M）？
+ANSWER: 按 Table 8，必填参数为 VERSION=1.3.0、REQUEST=GetMap、LAYERS=layer_list、STYLES=style_list、CRS=namespace:identifier、BBOX=minx,miny,maxx,maxy、WIDTH=output_width、HEIGHT=output_height、FORMAT=output_format。
+EVIDENCE:  
+ 
+OGC 06-042 
+Copyright © 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ 
+33
+ 
+7.3.2 GetMap request overview 
+Table 8 describes the query part of the GetMap request. 
+Table 8 — The Parameters of a GetMap request 
+Request parameter 
+Mandatory/optional
+Description 
+VERSION=1.3.0 
+M 
+Request version. 
+REQUEST=GetMap 
+M 
+Request name. 
+LAYERS=layer_list 
+M 
+Comma-separated list of one or more map layers. 
+STYLES=style_list 
+M 
+Comma-separated list of one rendering style per requested 
+layer. 
+CRS=namespace:identifier 
+M 
+Coordinate reference system. 
+BBOX=minx,miny,maxx,maxy 
+M 
+Bounding box corners (lower left, upper right) in CRS units. 
+WIDTH=output_width 
+M 
+Width in pixels of map picture. 
+HEIGHT=output_height 
+M 
+Height in pixels of map picture. 
+FORMAT=output_format 
+M 
+Output format of map. 
+TRANSPARENT=TRUE|FALSE 
+O 
+Background transparency of map (default=FALSE). 
+BGCOLOR=color_value 
+O 
+Hexadecimal red-green-blue colour value for the background 
+color (default=0xFFFFFF). 
+EXCEPTIONS=exception_format 
+O 
+The format in which exceptions are to be reported by the 
+WMS (default=XML). 
+TIME=time 
+O 
+Time value of layer desired. 
+ELEVATION=elevation 
+O 
+Elevation of layer desired. 
+Other sample dimension(s) 
+O 
+Value of other dimensions as appropriate. 
+7.3.3 Request parameters 
+7.3.3.1 
+VERSION 
+The mandatory VERSION parameter is defined in 6.9.1. The value “1.3.0” shall be used for GetMap requests that 
+comply with this International Standard. 
+7.3.3.2 
+REQUEST 
+The mandatory REQUEST parameter is defined in 6.9.2. To invoke the GetMap operation, the value “GetMap” 
+shall be used. 
+7.3.3.3 
+LAYERS 
+The mandatory LAYERS parameter lists the map layer(s) to be returned by this GetMap request. The value of the 
+LAYERS parameter is a comma-separated list of one or more valid layer names. Allowed layer names are the 
+character data content of any <Layer><Name> element in the service metadata. 
+
+
+rag-validation-030 WMS 1.3.0 的 GetMap 中，TRANSPARENT、BGCOLOR、EXCEPTIONS 三个可选参数各自的默认值是什么？
+ANSWER: TRANSPARENT 默认 FALSE；BGCOLOR 默认 0xFFFFFF；EXCEPTIONS 默认 XML。
+EVIDENCE:  
+ 
+OGC 06-042 
+Copyright © 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ 
+33
+ 
+7.3.2 GetMap request overview 
+Table 8 describes the query part of the GetMap request. 
+Table 8 — The Parameters of a GetMap request 
+Request parameter 
+Mandatory/optional
+Description 
+VERSION=1.3.0 
+M 
+Request version. 
+REQUEST=GetMap 
+M 
+Request name. 
+LAYERS=layer_list 
+M 
+Comma-separated list of one or more map layers. 
+STYLES=style_list 
+M 
+Comma-separated list of one rendering style per requested 
+layer. 
+CRS=namespace:identifier 
+M 
+Coordinate reference system. 
+BBOX=minx,miny,maxx,maxy 
+M 
+Bounding box corners (lower left, upper right) in CRS units. 
+WIDTH=output_width 
+M 
+Width in pixels of map picture. 
+HEIGHT=output_height 
+M 
+Height in pixels of map picture. 
+FORMAT=output_format 
+M 
+Output format of map. 
+TRANSPARENT=TRUE|FALSE 
+O 
+Background transparency of map (default=FALSE). 
+BGCOLOR=color_value 
+O 
+Hexadecimal red-green-blue colour value for the background 
+color (default=0xFFFFFF). 
+EXCEPTIONS=exception_format 
+O 
+The format in which exceptions are to be reported by the 
+WMS (default=XML). 
+TIME=time 
+O 
+Time value of layer desired. 
+ELEVATION=elevation 
+O 
+Elevation of layer desired. 
+Other sample dimension(s) 
+O 
+Value of other dimensions as appropriate. 
+7.3.3 Request parameters 
+7.3.3.1 
+VERSION 
+The mandatory VERSION parameter is defined in 6.9.1. The value “1.3.0” shall be used for GetMap requests that 
+comply with this International Standard. 
+7.3.3.2 
+REQUEST 
+The mandatory REQUEST parameter is defined in 6.9.2. To invoke the GetMap operation, the value “GetMap” 
+shall be used. 
+7.3.3.3 
+LAYERS 
+The mandatory LAYERS parameter lists the map layer(s) to be returned by this GetMap request. The value of the 
+LAYERS parameter is a comma-separated list of one or more valid layer names. Allowed layer names are the 
+character data content of any <Layer><Name> element in the service metadata. 
+
+
+rag-validation-031 在 WMS 的 GetCapabilities 请求中，VERSION 参数是必填还是可选？
+ANSWER: 可选（O，optional），描述为 Request version。
+EVIDENCE:  
+ 
+OGC 06-042 
+Copyright © 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ 
+21
+ 
+be unable to process the WMS request and may issue an error message. Or, upon receiving a request that is 
+invalid according to the rules of the Distributed Computing Platform in use, the server may issue a service 
+exception of a type valid in that DCP (e.g. if the URL prefix is incorrect, an HTTP 404 status code 
+(IETF RFC 2616) may be sent). 
+7 
+Web Map Service operations 
+7.1 Introduction 
+The three operations defined for a WMS are GetCapabilities, GetMap, and GetFeatureInfo. GetFeatureInfo is 
+optional. This clause specifies the implementation and use of these WMS operations in the Hypertext Transfer 
+Protocol (HTTP) Distributed Computing Platform (DCP). 
+7.2 GetCapabilities (mandatory) 
+7.2.1 General 
+The purpose of the mandatory GetCapabilities operation is to obtain service metadata, which is a machine-
+readable (and human-readable) description of the server’s information content and acceptable request parameter 
+values. 
+7.2.2 GetCapabilities request overview 
+The general form of a WMS request is defined in 6.3.3 and 6.3.4. When making the GetCapabilities request of a 
+WMS server, which may offer other service types as well, it is necessary to indicate that the client seeks 
+information about the Web Map Service in particular. Thus, the SERVICE parameter of the request shall have the 
+value “WMS” as shown in Table 3. 
+Table 3 — The parameters of a GetCapabilities request URL 
+Request parameter 
+Mandatory/optional
+Description 
+VERSION=version 
+O 
+Request version 
+SERVICE=WMS 
+M 
+Service type 
+REQUEST=GetCapabilities 
+M 
+Request name 
+FORMAT=MIME_type 
+O 
+Output format of service metadata 
+UPDATESEQUENCE=string 
+O 
+Sequence number or string for cache control 
+7.2.3 Request parameters 
+7.2.3.1 
+FORMAT 
+The optional FORMAT parameter states the desired format of the service metadata. Supported values for a 
+GetCapabilities request on a WMS server are listed in one or more <Request><GetCapabilities><Format> 
+elements of its service metadata. Every server shall support the default text/xml format defined in Annex A. 
+Support for other formats is optional. The entire MIME type string in <Format> is used as the value of the 
+FORMAT parameter. In an HTTP environment, the MIME type shall be set on the returned object using the HTTP 
+
+
+rag-validation-032 这份 WMS 标准定义了哪几个操作？其中哪个是可选的？
+ANSWER: 定义了三个操作：返回服务级元数据的操作、返回参数明确的 map 的操作，以及一个可选的、返回地图上特定要素信息的第三个操作。可选的是第三个（要素信息）操作。
+EVIDENCE:  
+ 
+OGC 06-042 
+Copyright © 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ 
+v
+ 
+Introduction 
+A Web Map Service (WMS) produces maps of spatially referenced data dynamically from geographic information. 
+This International Standard defines a “map” to be a portrayal of geographic information as a digital image file 
+suitable for display on a computer screen. A map is not the data itself. WMS-produced maps are generally 
+rendered in a pictorial format such as PNG, GIF or JPEG, or occasionally as vector-based graphical elements in 
+Scalable Vector Graphics (SVG) or Web Computer Graphics Metafile (WebCGM) formats. 
+This International Standard defines three operations: one returns service-level metadata; another returns a map 
+whose geographic and dimensional parameters are well-defined; and an optional third operation returns 
+information about particular features shown on a map. Web Map Service operations can be invoked using a 
+standard web browser by submitting requests in the form of Uniform Resource Locators (URLs). The content of 
+such URLs depends on which operation is requested. In particular, when requesting a map the URL indicates 
+what information is to be shown on the map, what portion of the Earth is to be mapped, the desired coordinate 
+reference system, and the output image width and height. When two or more maps are produced with the same 
+geographic parameters and output size, the results can be accurately overlaid to produce a composite map. The 
+use of image formats that support transparent backgrounds (e.g. GIF or PNG) allows underlying maps to be 
+visible. Furthermore, individual maps can be requested from different servers. The Web Map Service thus enables 
+the creation of a network of distributed map servers from which clients can build customized maps. Illustrative 
+examples of map request URLs and their resulting maps are shown in Annex G. 
+This International Standard applies to a Web Map Service instance that publishes its ability to produce maps 
+rather than its ability to access specific data holdings. A basic WMS classifies its geographic information holdings 
+into “Layers” and offers a finite number of predefined “Styles” in which to display those layers. This International 
+Standard supports only named Layers and Styles, and does not include a mechanism for user-defined 
+symbolization of feature data. 
+NOTE 
+The Open Geospatial Consortium (OGC) Styled Layer Descriptor (SLD) specification [6] defines a mechanism for 
+user-defined symbolization of feature data instead of named Layers and Styles. In brief, an SLD-enabled WMS retrieves 
+feature data from a Web Feature Service [7] and applies explicit styling information provided by the user in order to render a 
+map. 
+ 
+
+
+rag-validation-033 WMS 1.3.0 的 GetMap 用哪个参数指定坐标参考系？另外，本文档是否也使用旧称 SRS？
+ANSWER: 用 CRS=namespace:identifier，它在 Table 8 中为必填。关于旧称 SRS：对全文逐页检索未出现 SRS 字样，因此“本规范是否沿用 SRS 旧称”无法由本文档自身支持，需另查早期版本规范。
+EVIDENCE:  
+ 
+OGC 06-042 
+Copyright © 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ 
+33
+ 
+7.3.2 GetMap request overview 
+Table 8 describes the query part of the GetMap request. 
+Table 8 — The Parameters of a GetMap request 
+Request parameter 
+Mandatory/optional
+Description 
+VERSION=1.3.0 
+M 
+Request version. 
+REQUEST=GetMap 
+M 
+Request name. 
+LAYERS=layer_list 
+M 
+Comma-separated list of one or more map layers. 
+STYLES=style_list 
+M 
+Comma-separated list of one rendering style per requested 
+layer. 
+CRS=namespace:identifier 
+M 
+Coordinate reference system. 
+BBOX=minx,miny,maxx,maxy 
+M 
+Bounding box corners (lower left, upper right) in CRS units. 
+WIDTH=output_width 
+M 
+Width in pixels of map picture. 
+HEIGHT=output_height 
+M 
+Height in pixels of map picture. 
+FORMAT=output_format 
+M 
+Output format of map. 
+TRANSPARENT=TRUE|FALSE 
+O 
+Background transparency of map (default=FALSE). 
+BGCOLOR=color_value 
+O 
+Hexadecimal red-green-blue colour value for the background 
+color (default=0xFFFFFF). 
+EXCEPTIONS=exception_format 
+O 
+The format in which exceptions are to be reported by the 
+WMS (default=XML). 
+TIME=time 
+O 
+Time value of layer desired. 
+ELEVATION=elevation 
+O 
+Elevation of layer desired. 
+Other sample dimension(s) 
+O 
+Value of other dimensions as appropriate. 
+7.3.3 Request parameters 
+7.3.3.1 
+VERSION 
+The mandatory VERSION parameter is defined in 6.9.1. The value “1.3.0” shall be used for GetMap requests that 
+comply with this International Standard. 
+7.3.3.2 
+REQUEST 
+The mandatory REQUEST parameter is defined in 6.9.2. To invoke the GetMap operation, the value “GetMap” 
+shall be used. 
+7.3.3.3 
+LAYERS 
+The mandatory LAYERS parameter lists the map layer(s) to be returned by this GetMap request. The value of the 
+LAYERS parameter is a comma-separated list of one or more valid layer names. Allowed layer names are the 
+character data content of any <Layer><Name> element in the service metadata. 
+
+
+rag-validation-034 为什么规范要求 EPSG 地理坐标参考系统按“纬度在前、经度在后”的顺序书写坐标？依据是什么？
+ANSWER: 因为 EPSG 地理坐标参考系统遵循 ISO 6709，总是先列纬度再列经度。文档另以 NOTE 指出，使用“经度在纬度之前”的地理 CRS 与历史惯例不同，航空与航海用户可能预期纬度在前。
+EVIDENCE: OGC 06-042 
+16 
+ 
+Copyright © 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
+ 
+⎯ URL: The identifier is a fully-qualified URL that references a publicly-accessible file containing a definition of 
+the CRS that is compliant with ISO 19111. 
+The Layer CRS has two axes, denoted x and y. The x axis is the first axis in the CRS definition, the y axis is the 
+second axis. Depending on the particular CRS, the x axis may or may not be oriented West-to-East, and the y axis 
+may or may not be oriented South-to-North. The WMS portrayal operation shall account for axis order, origin and 
+direction in the Layer CRS when projecting geographic information from a Layer CRS to the Map CS. 
+Coordinates shall be listed in the order defined by the CRS and shall be mapped appropriately to the Map CS i 
+and j axes, swapping axis order as needed during the projection operation. Many projected coordinate reference 
+systems have an axis and coordinate order other than easting, northing. For example, the Uniform Coordinate 
+System used in Finland (EPSG:2393) orders northing before easting. EPSG geographic coordinate reference 
+systems follow ISO 6709 and always list latitude before longitude. 
+Most coordinate reference systems are orientated with one axis positive east (easting) and the other axis positive 
+north (northing). These map conveniently to the bounding box i and j axes, respectively. However, some CRSs 
+have coordinates incrementing in other directions. For example, the Hartebeesthoek94/Lo25 system used in 
+South Africa (EPSG:2051) has axes with coordinates incrementing to the west and south. Tests for valid bounding 
+box areas shall recognise and account for the positive orientation of the CRS axes. 
+In a geographic CRS, latitude shall have values within the range [-90, 90] and longitude shall have values within 
+the range [-180, 180] degrees or equivalent if the CRS definition is in other units. See 7.3.5 regarding the 
+projection of Layer CRS that is a geographic CRS into the Map CS. When the CRS code specifies a geographic 
+2D coordinate reference system with axes in units other than degrees or in a degree representation other than 
+decimal degrees the representation shall be converted to decimal degrees. 
+NOTE 
+The use of geographic CRSs with axis order of longitude before latitude differs from historical convention. Users in 
+the international aviation and marine sectors may expect latitude to be before longitude, and a different coordinate display may 
+have safety implications, especially in an emergency response situation. Although this International Standard does not specify 
+human user interfaces, developers of user interfaces for WMSs are cautioned that all references to latitude and longitude, for 
+example user input of bounding box or readout of cursor coordinates, should show latitude before longitude. 
+6.7.3.2 
+CRS namespace for CRS 
+The “CRS” namespace prefix refers to coordinate reference systems that are defined in Annex B of this 
+International Standard. These definitions are in the form specified by ISO 19111. Geographic CRSs in the “CRS” 
+namespace are defined in Annex B for the WGS 84, NAD27 and NAD83 datums. 
+A “CRS” CRS label comprises the “CRS” prefix, the colon, and a numeric or string code. 
+EXAMPLE 
+“CRS:84” refers to WGS 84 geographic longitude and latitude expressed in decimal degrees, with longitude 
+ranging from −180 degrees to +180 degrees and latitude from −90 degrees to +90 degrees. 
+6.7.3.3 
+EPSG namespace for CRS 
+The “EPSG” namespace prefix refers to the European Petroleum Survey Group geodetic dataset (EPSG), which 
+defines numeric identifiers (the EPSG “CRS code,” corresponding to the field “COORD_REF_SYS_CODE” in the 
+EPSG dataset) for many common coordinate reference systems. Defining geodetic, map projection and 
+coordinate reference system data is related to each CRS identifier. 
+An “EPSG” CRS label comprises the “EPSG” prefix, the colon, and a numeric code. 
+EXAMPLE 
+EPSG:4326 refers to WGS 84 geographic latitude, then longitude. That is, in this CRS the x axis corresponds 
+to latitude, and the y axis to longitude. 
+
+
+rag-validation-035 文档举了哪些“轴顺序不是 easting/northing”的坐标参考系例子？并要求坐标如何映射到 Map CS？
+ANSWER: 例子：芬兰使用的 Uniform Coordinate System（EPSG:2393）是 northing 在 easting 之前；南非使用的 Hartebeesthoek94/Lo25（EPSG:2051）坐标向西南递增。要求：坐标按 CRS 定义中规定的顺序列出，并在投影到 Map CS 的 i、j 轴时按需要交换轴顺序。
+EVIDENCE: OGC 06-042 
+16 
+ 
+Copyright © 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
+ 
+⎯ URL: The identifier is a fully-qualified URL that references a publicly-accessible file containing a definition of 
+the CRS that is compliant with ISO 19111. 
+The Layer CRS has two axes, denoted x and y. The x axis is the first axis in the CRS definition, the y axis is the 
+second axis. Depending on the particular CRS, the x axis may or may not be oriented West-to-East, and the y axis 
+may or may not be oriented South-to-North. The WMS portrayal operation shall account for axis order, origin and 
+direction in the Layer CRS when projecting geographic information from a Layer CRS to the Map CS. 
+Coordinates shall be listed in the order defined by the CRS and shall be mapped appropriately to the Map CS i 
+and j axes, swapping axis order as needed during the projection operation. Many projected coordinate reference 
+systems have an axis and coordinate order other than easting, northing. For example, the Uniform Coordinate 
+System used in Finland (EPSG:2393) orders northing before easting. EPSG geographic coordinate reference 
+systems follow ISO 6709 and always list latitude before longitude. 
+Most coordinate reference systems are orientated with one axis positive east (easting) and the other axis positive 
+north (northing). These map conveniently to the bounding box i and j axes, respectively. However, some CRSs 
+have coordinates incrementing in other directions. For example, the Hartebeesthoek94/Lo25 system used in 
+South Africa (EPSG:2051) has axes with coordinates incrementing to the west and south. Tests for valid bounding 
+box areas shall recognise and account for the positive orientation of the CRS axes. 
+In a geographic CRS, latitude shall have values within the range [-90, 90] and longitude shall have values within 
+the range [-180, 180] degrees or equivalent if the CRS definition is in other units. See 7.3.5 regarding the 
+projection of Layer CRS that is a geographic CRS into the Map CS. When the CRS code specifies a geographic 
+2D coordinate reference system with axes in units other than degrees or in a degree representation other than 
+decimal degrees the representation shall be converted to decimal degrees. 
+NOTE 
+The use of geographic CRSs with axis order of longitude before latitude differs from historical convention. Users in 
+the international aviation and marine sectors may expect latitude to be before longitude, and a different coordinate display may 
+have safety implications, especially in an emergency response situation. Although this International Standard does not specify 
+human user interfaces, developers of user interfaces for WMSs are cautioned that all references to latitude and longitude, for 
+example user input of bounding box or readout of cursor coordinates, should show latitude before longitude. 
+6.7.3.2 
+CRS namespace for CRS 
+The “CRS” namespace prefix refers to coordinate reference systems that are defined in Annex B of this 
+International Standard. These definitions are in the form specified by ISO 19111. Geographic CRSs in the “CRS” 
+namespace are defined in Annex B for the WGS 84, NAD27 and NAD83 datums. 
+A “CRS” CRS label comprises the “CRS” prefix, the colon, and a numeric or string code. 
+EXAMPLE 
+“CRS:84” refers to WGS 84 geographic longitude and latitude expressed in decimal degrees, with longitude 
+ranging from −180 degrees to +180 degrees and latitude from −90 degrees to +90 degrees. 
+6.7.3.3 
+EPSG namespace for CRS 
+The “EPSG” namespace prefix refers to the European Petroleum Survey Group geodetic dataset (EPSG), which 
+defines numeric identifiers (the EPSG “CRS code,” corresponding to the field “COORD_REF_SYS_CODE” in the 
+EPSG dataset) for many common coordinate reference systems. Defining geodetic, map projection and 
+coordinate reference system data is related to each CRS identifier. 
+An “EPSG” CRS label comprises the “EPSG” prefix, the colon, and a numeric code. 
+EXAMPLE 
+EPSG:4326 refers to WGS 84 geographic latitude, then longitude. That is, in this CRS the x axis corresponds 
+to latitude, and the y axis to longitude. 
+
+
+rag-validation-036 在地理 CRS 下，纬度与经度的取值范围分别是多少？单位不是度时如何处理？
+ANSWER: 纬度取值范围 [-90, 90]；经度取值范围 [-180, 180] 度或等价单位。若地理 2D CRS 的轴单位不是度、或不是十进制度表示，则须转换为十进制度。
+EVIDENCE: OGC 06-042 
+16 
+ 
+Copyright © 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
+ 
+⎯ URL: The identifier is a fully-qualified URL that references a publicly-accessible file containing a definition of 
+the CRS that is compliant with ISO 19111. 
+The Layer CRS has two axes, denoted x and y. The x axis is the first axis in the CRS definition, the y axis is the 
+second axis. Depending on the particular CRS, the x axis may or may not be oriented West-to-East, and the y axis 
+may or may not be oriented South-to-North. The WMS portrayal operation shall account for axis order, origin and 
+direction in the Layer CRS when projecting geographic information from a Layer CRS to the Map CS. 
+Coordinates shall be listed in the order defined by the CRS and shall be mapped appropriately to the Map CS i 
+and j axes, swapping axis order as needed during the projection operation. Many projected coordinate reference 
+systems have an axis and coordinate order other than easting, northing. For example, the Uniform Coordinate 
+System used in Finland (EPSG:2393) orders northing before easting. EPSG geographic coordinate reference 
+systems follow ISO 6709 and always list latitude before longitude. 
+Most coordinate reference systems are orientated with one axis positive east (easting) and the other axis positive 
+north (northing). These map conveniently to the bounding box i and j axes, respectively. However, some CRSs 
+have coordinates incrementing in other directions. For example, the Hartebeesthoek94/Lo25 system used in 
+South Africa (EPSG:2051) has axes with coordinates incrementing to the west and south. Tests for valid bounding 
+box areas shall recognise and account for the positive orientation of the CRS axes. 
+In a geographic CRS, latitude shall have values within the range [-90, 90] and longitude shall have values within 
+the range [-180, 180] degrees or equivalent if the CRS definition is in other units. See 7.3.5 regarding the 
+projection of Layer CRS that is a geographic CRS into the Map CS. When the CRS code specifies a geographic 
+2D coordinate reference system with axes in units other than degrees or in a degree representation other than 
+decimal degrees the representation shall be converted to decimal degrees. 
+NOTE 
+The use of geographic CRSs with axis order of longitude before latitude differs from historical convention. Users in 
+the international aviation and marine sectors may expect latitude to be before longitude, and a different coordinate display may 
+have safety implications, especially in an emergency response situation. Although this International Standard does not specify 
+human user interfaces, developers of user interfaces for WMSs are cautioned that all references to latitude and longitude, for 
+example user input of bounding box or readout of cursor coordinates, should show latitude before longitude. 
+6.7.3.2 
+CRS namespace for CRS 
+The “CRS” namespace prefix refers to coordinate reference systems that are defined in Annex B of this 
+International Standard. These definitions are in the form specified by ISO 19111. Geographic CRSs in the “CRS” 
+namespace are defined in Annex B for the WGS 84, NAD27 and NAD83 datums. 
+A “CRS” CRS label comprises the “CRS” prefix, the colon, and a numeric or string code. 
+EXAMPLE 
+“CRS:84” refers to WGS 84 geographic longitude and latitude expressed in decimal degrees, with longitude 
+ranging from −180 degrees to +180 degrees and latitude from −90 degrees to +90 degrees. 
+6.7.3.3 
+EPSG namespace for CRS 
+The “EPSG” namespace prefix refers to the European Petroleum Survey Group geodetic dataset (EPSG), which 
+defines numeric identifiers (the EPSG “CRS code,” corresponding to the field “COORD_REF_SYS_CODE” in the 
+EPSG dataset) for many common coordinate reference systems. Defining geodetic, map projection and 
+coordinate reference system data is related to each CRS identifier. 
+An “EPSG” CRS label comprises the “EPSG” prefix, the colon, and a numeric code. 
+EXAMPLE 
+EPSG:4326 refers to WGS 84 geographic latitude, then longitude. That is, in this CRS the x axis corresponds 
+to latitude, and the y axis to longitude. 
+
+
+rag-validation-037 这份规范的参考编号、版本号与发布日期分别是什么？它声称取代了哪些既往版本？
+ANSWER: 参考编号 OGC 06-042；版本 1.3.0；日期 2006-03-15。前言写明本版本取代此前所有版本的 OpenGIS Web Map Service Implementation Specification，包括 OGC 04-024、01-068r3、01-047r2、01-109r1 和 OGC 00-028。
+EVIDENCE:  
+ 
+OGC 06-042 
+Copyright © 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ 
+iii
+ 
+Contents 
+Page 
+Foreword ............................................................................................................................................................iv 
+Introduction.........................................................................................................................................................v 
+1 
+Scope......................................................................................................................................................6 
+2 
+Conformance .........................................................................................................................................6 
+2.1 
+Conformance classes and requirements............................................................................................6 
+2.2 
+Basic WMS .............................................................................................................................................6 
+2.3 
+Queryable WMS .....................................................................................................................................6 
+3 
+Normative references............................................................................................................................6 
+4 
+Terms and definitions ...........................................................................................................................7 
+5 
+Abbreviated terms.................................................................................................................................8 
+6 
+Basic service elements.........................................................................................................................9 
+6.1 
+Introduction............................................................................................................................................9 
+6.2 
+Version numbering and negotiation..................................................................................................10 
+6.3 
+General HTTP request rules ...............................................................................................................11 
+6.4 
+General HTTP response rules............................................................................................................13 
+6.5 
+Numeric and Boolean values .............................................................................................................13 
+6.6 
+Output formats.....................................................................................................................................14 
+6.7 
+Coordinate systems ............................................................................................................................14 
+6.8 
+Request parameter rules ....................................................................................................................19 
+6.9 
+Common request parameters ............................................................................................................19 
+6.10 
+Service result.......................................................................................................................................20 
+6.11 
+Service exceptions..............................................................................................................................20 
+7 
+Web Map Service operations .............................................................................................................21 
+7.1 
+Introduction..........................................................................................................................................21 
+7.2 
+GetCapabilities (mandatory) ..............................................................................................................21 
+7.3 
+GetMap (mandatory)............................................................................................................................32 
+7.4 
+GetFeatureInfo (optional)....................................................................................................................38 
+Annex A (normative)  Conformance tests.......................................................................................................41 
+Annex B (normative)  CRS Definitions ............................................................................................................44 
+Annex C (normative)  Handling multi-dimensional data................................................................................51 
+Annex D (normative)  Web Map Service profile of ISO 8601 .........................................................................57 
+Annex E (normative)  XML Schemas ...............................................................................................................59 
+Annex F (normative)  UML model.....................................................................................................................72 
+Annex G (informative)  Web Mapping Examples ............................................................................................77 
+Annex H (informative)  XML examples.............................................................................................................80 
+Bibliography......................................................................................................................................................85 
+ 
+
+OGC 06-042 
+iv 
+ 
+Copyright © 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
+ 
+Foreword 
+Attention is drawn to the possibility that some of the elements of this document may be the subject of patent rights. 
+OGC shall not be held responsible for identifying any or all such patent rights. 
+This version supercedes all previous versions of OpenGIS® Web Map Service Implementation Specification, 
+including OGC 04-024, 01-068r3, 01-047r2, 01-109r1 and OGC 00-028. 
+
+
+rag-validation-038 WMS 标准本身是否支持用户对要素数据自定义符号化（symbolization）？
+ANSWER: 不支持。基本 WMS 只支持命名 Layers 与命名 Styles，不包含用户自定义要素符号化的机制。文档在 NOTE 中指出，OGC 的 SLD（Styled Layer Descriptor）规范另行定义了该机制。
+EVIDENCE:  
+ 
+OGC 06-042 
+Copyright © 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ 
+v
+ 
+Introduction 
+A Web Map Service (WMS) produces maps of spatially referenced data dynamically from geographic information. 
+This International Standard defines a “map” to be a portrayal of geographic information as a digital image file 
+suitable for display on a computer screen. A map is not the data itself. WMS-produced maps are generally 
+rendered in a pictorial format such as PNG, GIF or JPEG, or occasionally as vector-based graphical elements in 
+Scalable Vector Graphics (SVG) or Web Computer Graphics Metafile (WebCGM) formats. 
+This International Standard defines three operations: one returns service-level metadata; another returns a map 
+whose geographic and dimensional parameters are well-defined; and an optional third operation returns 
+information about particular features shown on a map. Web Map Service operations can be invoked using a 
+standard web browser by submitting requests in the form of Uniform Resource Locators (URLs). The content of 
+such URLs depends on which operation is requested. In particular, when requesting a map the URL indicates 
+what information is to be shown on the map, what portion of the Earth is to be mapped, the desired coordinate 
+reference system, and the output image width and height. When two or more maps are produced with the same 
+geographic parameters and output size, the results can be accurately overlaid to produce a composite map. The 
+use of image formats that support transparent backgrounds (e.g. GIF or PNG) allows underlying maps to be 
+visible. Furthermore, individual maps can be requested from different servers. The Web Map Service thus enables 
+the creation of a network of distributed map servers from which clients can build customized maps. Illustrative 
+examples of map request URLs and their resulting maps are shown in Annex G. 
+This International Standard applies to a Web Map Service instance that publishes its ability to produce maps 
+rather than its ability to access specific data holdings. A basic WMS classifies its geographic information holdings 
+into “Layers” and offers a finite number of predefined “Styles” in which to display those layers. This International 
+Standard supports only named Layers and Styles, and does not include a mechanism for user-defined 
+symbolization of feature data. 
+NOTE 
+The Open Geospatial Consortium (OGC) Styled Layer Descriptor (SLD) specification [6] defines a mechanism for 
+user-defined symbolization of feature data instead of named Layers and Styles. In brief, an SLD-enabled WMS retrieves 
+feature data from a Web Feature Service [7] and applies explicit styling information provided by the user in order to render a 
+map. 
+ 
+
+
+rag-validation-039 按 WMS 文档的说明，WMS 产出的“map”是什么？它与数据本身是什么关系？
+ANSWER: map 是对地理信息的图示（portrayal），是一个适合在计算机屏幕上显示的数字图像文件；map 不是数据本身。产出格式通常是 PNG、GIF、JPEG，偶尔是 SVG 或 WebCGM 等矢量化图形元素。
+EVIDENCE:  
+ 
+OGC 06-042 
+Copyright © 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ 
+v
+ 
+Introduction 
+A Web Map Service (WMS) produces maps of spatially referenced data dynamically from geographic information. 
+This International Standard defines a “map” to be a portrayal of geographic information as a digital image file 
+suitable for display on a computer screen. A map is not the data itself. WMS-produced maps are generally 
+rendered in a pictorial format such as PNG, GIF or JPEG, or occasionally as vector-based graphical elements in 
+Scalable Vector Graphics (SVG) or Web Computer Graphics Metafile (WebCGM) formats. 
+This International Standard defines three operations: one returns service-level metadata; another returns a map 
+whose geographic and dimensional parameters are well-defined; and an optional third operation returns 
+information about particular features shown on a map. Web Map Service operations can be invoked using a 
+standard web browser by submitting requests in the form of Uniform Resource Locators (URLs). The content of 
+such URLs depends on which operation is requested. In particular, when requesting a map the URL indicates 
+what information is to be shown on the map, what portion of the Earth is to be mapped, the desired coordinate 
+reference system, and the output image width and height. When two or more maps are produced with the same 
+geographic parameters and output size, the results can be accurately overlaid to produce a composite map. The 
+use of image formats that support transparent backgrounds (e.g. GIF or PNG) allows underlying maps to be 
+visible. Furthermore, individual maps can be requested from different servers. The Web Map Service thus enables 
+the creation of a network of distributed map servers from which clients can build customized maps. Illustrative 
+examples of map request URLs and their resulting maps are shown in Annex G. 
+This International Standard applies to a Web Map Service instance that publishes its ability to produce maps 
+rather than its ability to access specific data holdings. A basic WMS classifies its geographic information holdings 
+into “Layers” and offers a finite number of predefined “Styles” in which to display those layers. This International 
+Standard supports only named Layers and Styles, and does not include a mechanism for user-defined 
+symbolization of feature data. 
+NOTE 
+The Open Geospatial Consortium (OGC) Styled Layer Descriptor (SLD) specification [6] defines a mechanism for 
+user-defined symbolization of feature data instead of named Layers and Styles. In brief, an SLD-enabled WMS retrieves 
+feature data from a Web Feature Service [7] and applies explicit styling information provided by the user in order to render a 
+map. 
+ 
+
+
+rag-validation-040 WMS Capabilities 的 XML Schema 中，根元素叫什么？它的 version 属性被固定成了什么值？
+ANSWER: 根元素是 WMS_Capabilities；其 version 属性为 string 类型且 fixed="1.3.0"。
+EVIDENCE: 	<element name="WMS_Capabilities">
+		<annotation>
+			<documentation>
+        A WMS_Capabilities document is returned in response to a
+        GetCapabilities request made on a WMS.
+      </documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element ref="wms:Service"/>
+				<element ref="wms:Capability"/>
+			</sequence>
+			<attribute name="version" type="string" fixed="1.3.0"/>
+			<attribute name="updateSequence" type="string"/>
+		</complexType>
+	</element>
+
+rag-validation-041 在 Schema 里，Capability 元素包含哪些子元素？其中哪些是必须出现的？
+ANSWER: Capability 的 sequence 依次为：Request（必填）、Exception（必填）、_ExtendedCapabilities（minOccurs=0，maxOccurs=unbounded）、Layer（minOccurs=0）。因此必填的是 Request 与 Exception，Layer 是可选。
+EVIDENCE: 	<element name="Capability">
+		<annotation>
+			<documentation>
+        A Capability lists available request types, how exceptions may be
+        reported, and whether any extended capabilities are defined.
+        It also includes an optional list of map layers available from this
+        server.
+      </documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element ref="wms:Request"/>
+				<element ref="wms:Exception"/>
+				<element ref="wms:_ExtendedCapabilities" minOccurs="0" maxOccurs="unbounded"/>
+				<element ref="wms:Layer" minOccurs="0"/>
+			</sequence>
+		</complexType>
+	</element>
+
+rag-validation-042 Schema 中 Request 元素列出了哪些操作？其中哪些在 Capabilities 文档里是可选的？
+ANSWER: Request 的 sequence 为 GetCapabilities、GetMap、GetFeatureInfo（minOccurs=0）、_ExtendedOperation（minOccurs=0，maxOccurs=unbounded）。因此必填的是 GetCapabilities 与 GetMap；GetFeatureInfo 与扩展操作可选。三个操作元素都使用 wms:OperationType 类型。
+EVIDENCE: 	<element name="Request">
+		<annotation>
+			<documentation>
+        Available WMS Operations are listed in a Request element.
+      </documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element ref="wms:GetCapabilities"/>
+				<element ref="wms:GetMap"/>
+				<element ref="wms:GetFeatureInfo" minOccurs="0"/>
+				<element ref="wms:_ExtendedOperation" minOccurs="0" maxOccurs="unbounded"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="GetCapabilities" type="wms:OperationType"/>
+	<element name="GetMap" type="wms:OperationType"/>
+	<element name="GetFeatureInfo" type="wms:OperationType"/>
+	<element name="_ExtendedOperation" type="wms:OperationType" abstract="true"/>
+
+rag-validation-043 Schema 中 BoundingBox 元素有哪些必填属性、哪些可选属性？EX_GeographicBoundingBox 的子元素顺序是什么？
+ANSWER: BoundingBox：CRS、minx、miny、maxx、maxy 均 use="required"；resx、resy 为可选 double。EX_GeographicBoundingBox 的 sequence 依次为 westBoundLongitude、eastBoundLongitude、southBoundLatitude、northBoundLatitude（经度方向两个在前，纬度方向两个在后）。
+EVIDENCE: 	<element name="EX_GeographicBoundingBox">
+		<annotation>
+			<documentation>
+        The EX_GeographicBoundingBox attributes indicate the limits of the enclosing
+        rectangle in longitude and latitude decimal degrees.
+      </documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="westBoundLongitude" type="wms:longitudeType"/>
+				<element name="eastBoundLongitude" type="wms:longitudeType"/>
+				<element name="southBoundLatitude" type="wms:latitudeType"/>
+				<element name="northBoundLatitude" type="wms:latitudeType"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="BoundingBox">
+		<annotation>
+			<documentation>
+        The BoundingBox attributes indicate the limits of the bounding box
+        in units of the specified coordinate reference system.
+      </documentation>
+		</annotation>
+		<complexType>
+			<attribute name="CRS" type="string" use="required"/>
+			<attribute name="minx" type="double" use="required"/>
+			<attribute name="miny" type="double" use="required"/>
+			<attribute name="maxx" type="double" use="required"/>
+			<attribute name="maxy" type="double" use="required"/>
+			<attribute name="resx" type="double"/>
+			<attribute name="resy" type="double"/>
+		</complexType>
+	</element>
+
+rag-validation-044 Schema 注释里 Name 与 Title 两个元素的用途有什么区别？Service 下 Name 的取值被限制成什么？
+ANSWER: Name 通常用于机器对机器通信；Title 用于向人展示的信息性标题。Service/Name 被限制为 string 的 enumeration，唯一枚举值为 "WMS"。
+EVIDENCE: 	<element name="Name" type="string">
+		<annotation>
+			<documentation>
+        The Name is typically for machine-to-machine communication.
+      </documentation>
+		</annotation>
+	</element>
+	<element name="Title" type="string">
+		<annotation>
+			<documentation>
+        The Title is for informative display to a human.
+      </documentation>
+		</annotation>
+	</element>
+				<element name="Name">
+					<simpleType>
+						<restriction base="string">
+							<enumeration value="WMS"/>
+						</restriction>
+					</simpleType>
+				</element>
+
+rag-validation-045 PROJ 9.8.1 官方文档首页写着 PROJ 采用什么开源许可证？
+ANSWER: X/MIT open source license。
+EVIDENCE: PROJ  PROJ is a generic coordinate transformation software that transforms geospatial
+coordinates from one coordinate reference system (CRS) to another. This
+includes cartographic projections as well as geodetic transformations. PROJ
+is released under the X/MIT open source license PROJ includes command line applications for easy conversion of
+coordinates from text files or directly from user input. In addition to the
+command line utilities PROJ also exposes an application programming interface , or API in short. The API
+
+rag-validation-046 按 PROJ 文档首页的说法，PROJ 目前支持多少种不同的地图投影？它对基准面变换的支持程度如何？
+ANSWER: 支持超过一百种（more than a hundred）不同的地图投影；在基准面之间变换坐标时，除最冷僻的大地测量方法外均可支持。
+EVIDENCE: lets developers use the functionality of PROJ in their own software without having
+to implement similar functionality themselves. PROJ started purely as a cartography application letting users convert geodetic
+coordinates into projected coordinates using a number of different cartographic
+projections. Over the years, as the need has become apparent, support for datum
+shifts has slowly worked its way into PROJ as well. Today PROJ supports more
+than a hundred different map projections and can transform coordinates between
+datums using all but the most obscure geodetic techniques. You can download the source code for PROJ on the download section
+
+rag-validation-047 PROJ 9.8.1 软件包中包含哪些命令行工具？各自用途是什么？
+ANSWER: proj（对大地坐标做地图投影）、cs2cs（从一个 CRS 变换到另一个 CRS）、geod（大地线/大圆计算）、cct（通用坐标转换与变换）、gie（Geospatial Integrity Investigation Environment）、projinfo（大地对象与坐标操作查询）、projsync（同步 PROJ 基准与变换支持数据）。
+EVIDENCE: The following command line utilities are included in the PROJ package:
+
+- `proj`: for cartographic projection of geodetic coordinates.
+- `cs2cs`: for transformation from one CRS to another CRS.
+- `geod`: for geodesic (great circle) computations.
+- `cct`: for generic Coordinate Conversions and Transformations.
+- `gie`: the Geospatial Integrity Investigation Environment.
+- `projinfo`: for geodetic object and coordinate operation queries.
+- `projsync`: for synchronizing PROJ datum and transformation support data.
+
+rag-validation-048 PROJ 的资源（网格）文件包应该解压到哪里？在 Windows 上有什么额外要求？
+ANSWER: 解压到 PROJ_LIB，安装后 PROJ 会在该处查找；UNIX 系统上 PROJ_LIB 的默认位置是 /usr/local/share/proj（也可改为其他目录）；在 Windows 上必须自行定义 PROJ_LIB。另有替代方案：使用支持网络的 PROJ 构建时，会自动从 PROJ CDN（cdn.proj.org）获取本地缺失的资源文件。
+EVIDENCE: The resource file packages should be extracted to `PROJ_LIB`
+where PROJ will find them after installation. The default location of
+`PROJ_LIB` on UNIX-based systems is `/usr/local/share/proj` but it may
+be changed to a different directory. On Windows you have to define
+`PROJ_LIB` yourself.
+
+As an alternative to installing the data package on the local system,
+the resource files can be retrieved on-the-fly from the
+[PROJ CDN](https://cdn.proj.org/).
+A [network-enabled](https://proj.org/usage/network.html) PROJ build, will
+automatically fetch resource files that are not present locally from the CDN.
+
+rag-validation-049 PROJ 的源码与网格数据分别以什么文件名分发？文件名里的 x/y/z 表示什么？
+ANSWER: 源码以名为 proj-x.y.z.tar.gz 的压缩 tar 文件分发，其中 x 表示主版本号、y 表示次版本号、z 表示补丁号；基准转换网格与参数文件另以 proj-data-x.y.zip 命名分发，其中 x 为主版本号、y 为次版本号。
+EVIDENCE: Sources are distributed in one or more files.  The principle elements
+of the system are stored in a compressed tar file named `proj-x.y.z.tar.gz` where
+"x" will indicate the major release number, "y" indicates the minor release
+number, and "z" indicates the patch number of the release.
+
+In addition to the PROJ software package, distributions of datum
+conversion grid files and PROJ parameter files are also available.
+The grid package is distributed under the name `proj-data-x.y.zip`,
+where "x" is the major release version and "y" is the minor release
+version numbers. The resource packages can be downloaded from the
+[PROJ website](https://proj.org/download.html).
+
+rag-validation-050 PROJ 9.8.1 中 projsync 支持哪些命令行参数？同步时如何选择特定国家或区域的网格文件？
+ANSWER: 无法由所采集资料完整回答。README.md 只说明 projsync 用于“同步 PROJ 基准与变换支持数据”，未列出任何参数；采集范围内也没有 PROJ 的 projsync 参考手册页面。需要 PROJ 官方 apps/projsync 文档才能回答。
+EVIDENCE: - `projsync`: for synchronizing PROJ datum and transformation support data.

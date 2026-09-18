@@ -1,0 +1,19 @@
+{
+  "scope": "installation and deterministic metric smoke; not OSG quality evaluation",
+  "versions": {
+    "ragas": "0.4.3",
+    "openai": "1.109.1",
+    "langchain-community": "0.3.27",
+    "langchain-openai": "0.3.28"
+  },
+  "cutoff": "2026-07-15T23:59:59+08:00",
+  "lock_artifacts_checked": 501,
+  "cutoff_violations": [],
+  "id_metric_smoke": {
+    "precision": 0.5,
+    "recall": 1.0
+  },
+  "llm_metrics": "imports passed; no LLM call performed",
+  "api_calls": 0,
+  "status": "PASS"
+}

@@ -1,0 +1,31 @@
+{
+  "provenance": "user-pasted client output; stdout audit line not provided",
+  "client_url": "http://127.0.0.1:8765/mcp",
+  "query": "Viewer 的 run() 做什么？",
+  "session_established": true,
+  "session_id_length": 32,
+  "tools": ["search_docs"],
+  "mcp_protocol": "2025-11-25",
+  "index_target_id": "osg-3.6.5-blocks-001",
+  "collection": "osg_3_6_5_dense_blocks",
+  "dense_returned": 20,
+  "bm25_returned": 20,
+  "fused_candidates": 20,
+  "reranker_used": true,
+  "timing_seconds": {
+    "dense": 0.4812,
+    "bm25": 0.003767,
+    "fusion": 0.000061,
+    "rerank": 0.611135
+  },
+  "top_evidence": {
+    "source_path": "include/osgViewer/Viewer",
+    "start_line": 82,
+    "end_line": 115,
+    "chunk_id": "3.6.5:include/osgViewer/Viewer:blocks:0002"
+  },
+  "evidence_status": "unverified",
+  "answer_status": "not_generated",
+  "request_id": "d3b50c5a7ccf466b928f32e8b457cae2",
+  "result": "client MCP smoke passed; audit correlation not independently checked"
+}

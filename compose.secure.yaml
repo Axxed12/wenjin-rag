@@ -1,0 +1,16 @@
+services:
+  mcp:
+    environment:
+      WENJIN_MCP_API_KEY: ${WENJIN_MCP_API_KEY:?Set WENJIN_MCP_API_KEY in .env}
+      WENJIN_MCP_CLIENT_ID: ${WENJIN_MCP_CLIENT_ID:-claude-code}
+      WENJIN_TLS_CERT_FILE: /run/tls/server.crt
+      WENJIN_TLS_KEY_FILE: /run/tls/server.key
+    volumes:
+      - type: bind
+        source: ${WENJIN_TLS_CERT_FILE:?Set WENJIN_TLS_CERT_FILE in .env}
+        target: /run/tls/server.crt
+        read_only: true
+      - type: bind
+        source: ${WENJIN_TLS_KEY_FILE:?Set WENJIN_TLS_KEY_FILE in .env}
+        target: /run/tls/server.key
+        read_only: true

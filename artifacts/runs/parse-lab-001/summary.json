@@ -1,0 +1,74 @@
+{
+  "versions": {
+    "pymupdf": "1.28.2",
+    "pdfplumber": "0.11.10"
+  },
+  "experiments": [
+    {
+      "name": "original-pymupdf",
+      "settings": null,
+      "seconds": 0.038,
+      "text_chars": 18757,
+      "tables": [],
+      "warnings": []
+    },
+    {
+      "name": "original-plumber-lines",
+      "settings": null,
+      "seconds": 0.223,
+      "text_chars": 5645,
+      "tables": [
+        {
+          "rows": 17,
+          "max_columns": 25
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "name": "original-plumber-text-rows",
+      "settings": {
+        "vertical_strategy": "lines",
+        "horizontal_strategy": "text",
+        "intersection_tolerance": 5
+      },
+      "seconds": 0.257,
+      "text_chars": 5645,
+      "tables": [
+        {
+          "rows": 59,
+          "max_columns": 24
+        },
+        {
+          "rows": 3,
+          "max_columns": 1
+        },
+        {
+          "rows": 4,
+          "max_columns": 1
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "name": "scan-pymupdf",
+      "settings": null,
+      "seconds": 0.04,
+      "text_chars": 0,
+      "tables": [],
+      "warnings": [
+        "no_extracted_text; inspect OCR need"
+      ]
+    },
+    {
+      "name": "scan-plumber",
+      "settings": null,
+      "seconds": 0.013,
+      "text_chars": 0,
+      "tables": [],
+      "warnings": [
+        "no_extracted_text; inspect OCR need"
+      ]
+    }
+  ]
+}

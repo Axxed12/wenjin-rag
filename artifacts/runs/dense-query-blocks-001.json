@@ -1,0 +1,52 @@
+[
+  {
+    "score": 0.709,
+    "chunk_id": "3.6.5:src/osg/Geode.cpp:blocks:0000",
+    "source_path": "src/osg/Geode.cpp",
+    "version": "3.6.5",
+    "start_line": 1,
+    "end_line": 62,
+    "strategy": "blocks",
+    "text": "/* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2006 Robert Osfield\r\n *\r\n * This library is open source and may be redistributed and/or modified under\r\n * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or\r\n * (at your option) any later version.  The full license is in LICENSE file\r\n * included with this distribution, and on the openscenegraph.org website.\r\n *\r\n * This library is distributed in the hope that it will be useful,\r\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\r\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\r\n * OpenSceneGraph Public License for more details.\r\n*/\r\n#include <osg/Geode>\r\n#include <osg/Geometry>\r\n#include <osg/Notify>\r\n\r\n#include <stdio.h>\r\n#include <math.h>\r\n\r\n#define square(x)   ((x)*(x))\r\n\r\nusing namespace osg;\r\n\r\nGeode::Geode()\r\n{\r\n}\r\n\r\nGeode::Geode(const Geode& geode,const CopyOp& copyop):\r\n    Group(geode,copyop)\r\n{\r\n}\r\n\r\nGeode::~Geode()\r\n{\r\n}\r\n\r\nbool Geode::addDrawable( Drawable* drawable )\r\n{\r\n    return addChild(drawable);\r\n}\r\n\r\n\r\nbool Geode::removeDrawable( Drawable* drawable )\r\n{\r\n    return removeDrawables(getDrawableIndex(drawable),1);\r\n}\r\n\r\nbool Geode::removeDrawables(unsigned int pos,unsigned int numDrawablesToRemove)\r\n{\r\n    return removeChildren(pos, numDrawablesToRemove);\r\n}\r\n\r\nbool Geode::replaceDrawable( Drawable* origDrawable, Drawable* newDrawable )\r\n{\r\n    return replaceChild(origDrawable, newDrawable);\r\n}\r\n\r\nbool Geode::setDrawable( unsigned  int i, Drawable* newDrawable )\r\n{\r\n    return setChild(i, newDrawable);\r\n}\r\n\r\n"
+  },
+  {
+    "score": 0.6638,
+    "chunk_id": "3.6.5:include/osg/Geode:blocks:0001",
+    "source_path": "include/osg/Geode",
+    "version": "3.6.5",
+    "start_line": 42,
+    "end_line": 63,
+    "strategy": "blocks",
+    "text": "        /** Add a \\c Drawable to the \\c Geode.\r\n          * If \\c drawable is not \\c NULL and is not contained in the \\c Geode\r\n          * then increment its reference count, add it to the drawables list and\r\n          * dirty the bounding sphere to force it to be recomputed on the next\r\n          * call to \\c getBound().\r\n          * @param drawable The \\c Drawable to be added to the \\c Geode.\r\n          * @return  \\c true for success; \\c false otherwise.\r\n        */\r\n        virtual bool addDrawable( Drawable *drawable );\r\n\r\n        template<class T> bool addDrawable( const ref_ptr<T>& drawable ) { return addDrawable(drawable.get()); }\r\n\r\n        /** Remove a \\c Drawable from the \\c Geode.\r\n          * Equivalent to <tt>removeDrawable(getDrawableIndex(drawable)</tt>.\r\n          * @param drawable The drawable to be removed.\r\n          * @return \\c true if at least one \\c Drawable was removed. \\c false\r\n          *         otherwise.\r\n        */\r\n        virtual bool removeDrawable( Drawable *drawable );\r\n\r\n        template<class T> bool removeDrawable( const ref_ptr<T>& drawable ) { return removeDrawable( drawable.get() ); }\r\n\r\n"
+  },
+  {
+    "score": 0.62586,
+    "chunk_id": "3.6.5:include/osg/Geode:blocks:0004",
+    "source_path": "include/osg/Geode",
+    "version": "3.6.5",
+    "start_line": 107,
+    "end_line": 148,
+    "strategy": "blocks",
+    "text": "        /** Return \\c true if a given \\c Drawable is contained within \\c Geode.*/\r\n        inline bool containsDrawable(const Drawable* drawable) const\r\n        {\r\n            for (NodeList::const_iterator itr=_children.begin();\r\n                 itr!=_children.end();\r\n                 ++itr)\r\n            {\r\n                if (itr->get() == drawable) return true;\r\n            }\r\n            return false;\r\n        }\r\n\r\n        template<class T> bool containsDrawable(const ref_ptr<T>& drawable) const { return containsDrawable(drawable.get()); }\r\n\r\n        /** Get the index number of \\c drawable.\r\n          * @return A value between 0 and <tt>getNumDrawables()-1</tt> if\r\n          *         \\c drawable is found; if not found, then\r\n          *         <tt>getNumDrawables()</tt> is returned.\r\n        */\r\n        inline unsigned int getDrawableIndex( const Drawable* drawable ) const\r\n        {\r\n            return getChildIndex(drawable);\r\n        }\r\n\r\n        template<class T> unsigned int getDrawableIndex( const ref_ptr<T>& drawable ) const { return getDrawableIndex(drawable.get()); }\r\n\r\n        /** Compile OpenGL Display List for each drawable.*/\r\n        void compileDrawables(RenderInfo& renderInfo);\r\n\r\n        /** Return the Geode's bounding box, which is the union of all the\r\n          * bounding boxes of the geode's drawables.*/\r\n        inline const BoundingBox& getBoundingBox() const\r\n        {\r\n            if(!_boundingSphereComputed) getBound();\r\n            return _bbox;\r\n        }\r\n\r\n        virtual BoundingSphere computeBound() const;\r\n\r\n\r\n    protected:\r\n\r\n"
+  },
+  {
+    "score": 0.62112,
+    "chunk_id": "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001",
+    "source_path": "examples/osgshape/osgshape.cpp",
+    "version": "3.6.5",
+    "start_line": 41,
+    "end_line": 71,
+    "strategy": "blocks",
+    "text": "    // ---------------------------------------\r\n    // Set up a StateSet to texture the objects\r\n    // ---------------------------------------\r\n    osg::StateSet* stateset = new osg::StateSet();\r\n\r\n    osg::ref_ptr<osg::Image> image = osgDB::readRefImageFile( \"Images/lz.rgb\" );\r\n    if (image)\r\n    {\r\n        osg::Texture2D* texture = new osg::Texture2D;\r\n        texture->setImage(image);\r\n        texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR);\r\n        stateset->setTextureAttributeAndModes(0,texture, osg::StateAttribute::ON);\r\n    }\r\n\r\n    stateset->setMode(GL_LIGHTING, osg::StateAttribute::ON);\r\n\r\n    geode->setStateSet( stateset );\r\n\r\n\r\n    float radius = 0.8f;\r\n    float height = 1.0f;\r\n\r\n    osg::TessellationHints* hints = new osg::TessellationHints;\r\n    hints->setDetailRatio(0.5f);\r\n\r\n    geode->addDrawable(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0.0f,0.0f,0.0f),radius),hints));\r\n    geode->addDrawable(new osg::ShapeDrawable(new osg::Box(osg::Vec3(2.0f,0.0f,0.0f),2*radius),hints));\r\n    geode->addDrawable(new osg::ShapeDrawable(new osg::Cone(osg::Vec3(4.0f,0.0f,0.0f),radius,height),hints));\r\n    geode->addDrawable(new osg::ShapeDrawable(new osg::Cylinder(osg::Vec3(6.0f,0.0f,0.0f),radius,height),hints));\r\n    geode->addDrawable(new osg::ShapeDrawable(new osg::Capsule(osg::Vec3(8.0f,0.0f,0.0f),radius,height),hints));\r\n\r\n"
+  },
+  {
+    "score": 0.60269,
+    "chunk_id": "3.6.5:include/osg/Geode:blocks:0003",
+    "source_path": "include/osg/Geode",
+    "version": "3.6.5",
+    "start_line": 82,
+    "end_line": 106,
+    "strategy": "blocks",
+    "text": "        /** Set \\c Drawable at position \\c i.\r\n          * Decrement the reference count origGSet and increments the\r\n          * reference count of newGset, and dirty the bounding sphere\r\n          * to force it to recompute on next getBound() and returns true.\r\n          * If origDrawable is not found then return false and do not\r\n          * add newGset.  If newGset is NULL then return false and do\r\n          * not remove origGset.\r\n          * @return \\c true if set correctly, \\c false on failure\r\n          *         (if node==NULL || i is out of range).\r\n        */\r\n        virtual bool setDrawable( unsigned int i, Drawable* drawable );\r\n\r\n        template<class T> bool setDrawable( unsigned int i, const ref_ptr<T>& drawable ) { return setDrawable(i, drawable.get()); }\r\n\r\n        /** Return the number of <tt>Drawable</tt>s currently attached to the\r\n          * \\c Geode.\r\n        */\r\n        inline unsigned int getNumDrawables() const { return getNumChildren(); }\r\n\r\n        /** Return the \\c Drawable at position \\c i.*/\r\n        inline Drawable* getDrawable( unsigned int i ) { return _children[i].valid() ? _children[i]->asDrawable() : 0; }\r\n\r\n        /** Return the \\c Drawable at position \\c i.*/\r\n        inline const Drawable* getDrawable( unsigned int i ) const { return _children[i].valid() ? _children[i]->asDrawable() : 0;  }\r\n\r\n"
+  }
+]

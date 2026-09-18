@@ -1,0 +1,73 @@
+{
+  "status": "PASS",
+  "corpus_hash_checks": [
+    {
+      "corpus_id": "gdal-3.13.1",
+      "files": 17,
+      "profiles": {
+        "text-newline-lf-v1": 15,
+        "binary-identity-v1": 2
+      },
+      "canonical_corpus_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "status": "PASS"
+    },
+    {
+      "corpus_id": "ogc-3dtiles-1.1",
+      "files": 2,
+      "profiles": {
+        "text-newline-lf-v1": 1,
+        "binary-identity-v1": 1
+      },
+      "canonical_corpus_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "status": "PASS"
+    },
+    {
+      "corpus_id": "ogc-wms-1.3.0",
+      "files": 2,
+      "profiles": {
+        "binary-identity-v1": 1,
+        "text-newline-lf-v1": 1
+      },
+      "canonical_corpus_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "status": "PASS"
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "files": 15,
+      "profiles": {
+        "text-newline-lf-v1": 14,
+        "binary-identity-v1": 1
+      },
+      "canonical_corpus_sha256": "d4b7b96bec382c9f43c9cdd04f78afc6c4afaced06cf6893302677637ec4dce5",
+      "status": "PASS"
+    },
+    {
+      "corpus_id": "proj-9.8.1",
+      "files": 12,
+      "profiles": {
+        "text-newline-lf-v1": 11,
+        "binary-identity-v1": 1
+      },
+      "canonical_corpus_sha256": "9b499560d2e920958cfa4866c281940875162b28dedaa0260e7ae6a872e263ca",
+      "status": "PASS"
+    }
+  ],
+  "external_originals_unchanged": true,
+  "active_registry_byte_identical": true,
+  "active": {
+    "target_id": "osg-3.6.5-blocks-dualhash-003",
+    "library": "osg",
+    "version": "3.6.5",
+    "strategy": "blocks",
+    "dense_collection": "osg_3_6_5_dense_blocks_dualhash",
+    "bm25_path": "data/indexes/osg_3_6_5_bm25_blocks_dualhash.sqlite",
+    "manifest_path": "corpora/osg-3.6.5/source-manifest.json",
+    "manifest_sha256": "349bbdcb8acaa237dca7e83241a6d622b7dab9d47ffcfc67fa69c89b110a33ea",
+    "chunk_count": 307,
+    "vector_dimension": 1024,
+    "embedding_model": "Qwen3-Embedding-0.6B",
+    "canonical_corpus_sha256": "1f47831f288461c28f99c71b50804447a5028d908d170b324704953242bfcc02",
+    "normalization_profile": "text-newline-lf-v1"
+  },
+  "all_imported_files_match_review": true
+}

@@ -1,0 +1,47 @@
+{
+  "versions": {
+    "torch": "2.11.0+cu128",
+    "transformers": "4.57.6",
+    "sentence-transformers": "5.7.0",
+    "llama-index-core": "0.14.24",
+    "llama-index-embeddings-huggingface": "0.8.0",
+    "llama-index-vector-stores-qdrant": "0.10.3",
+    "qdrant-client": "1.19.0",
+    "pymupdf": "1.28.2",
+    "pdfplumber": "0.11.10",
+    "fastmcp": "3.4.4",
+    "pytest": "9.1.1",
+    "ruff": "0.16.6"
+  },
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 4070 SUPER",
+    "torch_cuda": "12.8"
+  },
+  "pdf_parsers": "PASS",
+  "sqlite_fts5": "PASS",
+  "qdrant": "PASS: write and filtered query",
+  "mineru": {
+    "status": "healthy",
+    "version": "3.4.5",
+    "scope": "health only; no OCR job submitted"
+  },
+  "models": {
+    "embedding": {
+      "dimension": 1024,
+      "scores": [
+        [
+          0.76513671875,
+          0.0966796875
+        ]
+      ]
+    },
+    "reranker": {
+      "scores": [
+        0.9994926452636719,
+        1.1278758393018506e-05
+      ],
+      "scope": "two-item smoke check, not quality evaluation"
+    }
+  },
+  "status": "PASS"
+}

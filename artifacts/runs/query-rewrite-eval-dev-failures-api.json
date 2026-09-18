@@ -1,0 +1,830 @@
+{
+  "dataset": "osg-starter/dev-seed.jsonl",
+  "selected_ids": [
+    "osg-dev-002",
+    "osg-dev-008"
+  ],
+  "dataset_role": "known development failures; not held out",
+  "rewrite_backend": "api",
+  "rewrite_model": "xopqwen35397b",
+  "fixture_role": null,
+  "candidate_k_per_query": 20,
+  "seconds": 5.515,
+  "summary": {
+    "original_fusion": {
+      "at_5": {
+        "questions": 2,
+        "mean_span_recall": 0.3333333333333333,
+        "mean_single_chunk_span_rate": 0.3333333333333333,
+        "all_spans_hit_rate": 0.0,
+        "any_span_hit_rate": 0.5,
+        "first_evidence_touch_mrr": 0.5
+      },
+      "at_20": {
+        "questions": 2,
+        "mean_span_recall": 0.3333333333333333,
+        "mean_single_chunk_span_rate": 0.3333333333333333,
+        "all_spans_hit_rate": 0.0,
+        "any_span_hit_rate": 0.5,
+        "first_evidence_touch_mrr": 0.5
+      }
+    },
+    "translation_fusion": {
+      "at_5": {
+        "questions": 2,
+        "mean_span_recall": 0.3333333333333333,
+        "mean_single_chunk_span_rate": 0.3333333333333333,
+        "all_spans_hit_rate": 0.0,
+        "any_span_hit_rate": 0.5,
+        "first_evidence_touch_mrr": 0.5
+      },
+      "at_20": {
+        "questions": 2,
+        "mean_span_recall": 0.5,
+        "mean_single_chunk_span_rate": 0.5,
+        "all_spans_hit_rate": 0.5,
+        "any_span_hit_rate": 0.5,
+        "first_evidence_touch_mrr": 0.5
+      }
+    },
+    "decomposition_rrf": {
+      "at_5": {
+        "questions": 2,
+        "mean_span_recall": 0.3333333333333333,
+        "mean_single_chunk_span_rate": 0.3333333333333333,
+        "all_spans_hit_rate": 0.0,
+        "any_span_hit_rate": 0.5,
+        "first_evidence_touch_mrr": 0.5
+      },
+      "at_20": {
+        "questions": 2,
+        "mean_span_recall": 0.5,
+        "mean_single_chunk_span_rate": 0.5,
+        "all_spans_hit_rate": 0.5,
+        "any_span_hit_rate": 0.5,
+        "first_evidence_touch_mrr": 0.5
+      }
+    },
+    "decomposition_interleave": {
+      "at_5": {
+        "questions": 2,
+        "mean_span_recall": 0.3333333333333333,
+        "mean_single_chunk_span_rate": 0.3333333333333333,
+        "all_spans_hit_rate": 0.0,
+        "any_span_hit_rate": 0.5,
+        "first_evidence_touch_mrr": 0.5
+      },
+      "at_20": {
+        "questions": 2,
+        "mean_span_recall": 0.3333333333333333,
+        "mean_single_chunk_span_rate": 0.3333333333333333,
+        "all_spans_hit_rate": 0.0,
+        "any_span_hit_rate": 0.5,
+        "first_evidence_touch_mrr": 0.5
+      }
+    },
+    "routed_decomposition_interleave": {
+      "at_5": {
+        "questions": 2,
+        "mean_span_recall": 0.3333333333333333,
+        "mean_single_chunk_span_rate": 0.3333333333333333,
+        "all_spans_hit_rate": 0.0,
+        "any_span_hit_rate": 0.5,
+        "first_evidence_touch_mrr": 0.5
+      },
+      "at_20": {
+        "questions": 2,
+        "mean_span_recall": 0.5,
+        "mean_single_chunk_span_rate": 0.5,
+        "all_spans_hit_rate": 0.5,
+        "any_span_hit_rate": 0.5,
+        "first_evidence_touch_mrr": 0.5
+      }
+    }
+  },
+  "details": [
+    {
+      "id": "osg-dev-002",
+      "query": "OSG 3.6.5 中，Geode 没有 addChild，调用它一定是编造 API——这个说法对吗？",
+      "rewrite": {
+        "english_query": "verify if osg::Geode in OpenSceneGraph 3.6.5 has the addChild method",
+        "subqueries": [
+          "check osg::Geode class definition in OpenSceneGraph 3.6.5 C++ headers for addChild method",
+          "list available methods for osg::Geode in OpenSceneGraph 3.6.5 documentation or source code",
+          "verify inheritance hierarchy of osg::Geode in OpenSceneGraph 3.6.5 to determine if addChild is inherited from osg::Group"
+        ],
+        "seconds": 3.021,
+        "fallback_error_type": null
+      },
+      "source_routes": [
+        "include/%"
+      ],
+      "evidence": [
+        {
+          "path": "include/osg/Geode",
+          "start_line": 28,
+          "end_line": 28
+        },
+        {
+          "path": "include/osg/Group",
+          "start_line": 45,
+          "end_line": 53
+        },
+        {
+          "path": "src/osg/Geode.cpp",
+          "start_line": 38,
+          "end_line": 41
+        }
+      ],
+      "query_traces": [
+        {
+          "route": "q0",
+          "query": "OSG 3.6.5 中，Geode 没有 addChild，调用它一定是编造 API——这个说法对吗？",
+          "bm25_terms": [
+            "OSG",
+            "Geode",
+            "addChild",
+            "API"
+          ],
+          "top_ids": [
+            "3.6.5:src/osg/Geode.cpp:blocks:0000",
+            "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013",
+            "3.6.5:include/osg/Geode:blocks:0000",
+            "3.6.5:examples/osgtext/osgtext.cpp:blocks:0001",
+            "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012"
+          ],
+          "routed_top_ids": [
+            "3.6.5:include/osg/Geode:blocks:0000",
+            "3.6.5:src/osg/Geode.cpp:blocks:0000",
+            "3.6.5:include/osg/Drawable:blocks:0007",
+            "3.6.5:include/osg/Geode:blocks:0005",
+            "3.6.5:include/osg/Image:blocks:0018"
+          ],
+          "evidence_at_20": {
+            "returned": 20,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        {
+          "route": "q1",
+          "query": "verify if osg::Geode in OpenSceneGraph 3.6.5 has the addChild method",
+          "bm25_terms": [
+            "verify",
+            "if",
+            "osg",
+            "Geode",
+            "in",
+            "OpenSceneGraph",
+            "has",
+            "the",
+            "addChild",
+            "method"
+          ],
+          "top_ids": [
+            "3.6.5:src/osg/Geode.cpp:blocks:0000",
+            "3.6.5:include/osg/Geode:blocks:0000",
+            "3.6.5:src/osg/Group.cpp:blocks:0001",
+            "3.6.5:include/osg/Node:blocks:0000",
+            "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013"
+          ],
+          "routed_top_ids": [
+            "3.6.5:include/osg/Geode:blocks:0000",
+            "3.6.5:include/osg/Node:blocks:0000",
+            "3.6.5:src/osg/Geode.cpp:blocks:0000",
+            "3.6.5:src/osg/Group.cpp:blocks:0001",
+            "3.6.5:include/osg/Node:blocks:0004"
+          ],
+          "evidence_at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        {
+          "route": "q2",
+          "query": "check osg::Geode class definition in OpenSceneGraph 3.6.5 C++ headers for addChild method",
+          "bm25_terms": [
+            "check",
+            "osg",
+            "Geode",
+            "class",
+            "definition",
+            "in",
+            "OpenSceneGraph",
+            "C",
+            "headers",
+            "for",
+            "addChild",
+            "method"
+          ],
+          "top_ids": [
+            "3.6.5:src/osg/Geode.cpp:blocks:0000",
+            "3.6.5:include/osg/Geode:blocks:0000",
+            "3.6.5:include/osg/Billboard:blocks:0000",
+            "3.6.5:include/osg/Node:blocks:0000",
+            "3.6.5:include/osg/Geode:blocks:0001"
+          ],
+          "routed_top_ids": [
+            "3.6.5:include/osg/Geode:blocks:0000",
+            "3.6.5:include/osg/Billboard:blocks:0000",
+            "3.6.5:include/osg/Node:blocks:0000",
+            "3.6.5:include/osg/Geode:blocks:0001",
+            "3.6.5:include/osg/StateSet:blocks:0000"
+          ],
+          "evidence_at_20": {
+            "returned": 20,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        {
+          "route": "q3",
+          "query": "list available methods for osg::Geode in OpenSceneGraph 3.6.5 documentation or source code",
+          "bm25_terms": [
+            "list",
+            "available",
+            "methods",
+            "for",
+            "osg",
+            "Geode",
+            "in",
+            "OpenSceneGraph",
+            "documentation",
+            "or",
+            "source",
+            "code"
+          ],
+          "top_ids": [
+            "3.6.5:src/osg/Geode.cpp:blocks:0000",
+            "3.6.5:include/osg/Geode:blocks:0000",
+            "3.6.5:examples/osgshape/osgshape.cpp:blocks:0000",
+            "3.6.5:include/osg/Geometry:blocks:0000",
+            "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0000"
+          ],
+          "routed_top_ids": [
+            "3.6.5:include/osg/Geometry:blocks:0000",
+            "3.6.5:include/osg/Geode:blocks:0000",
+            "3.6.5:include/osg/Drawable:blocks:0000",
+            "3.6.5:include/osg/Node:blocks:0000",
+            "3.6.5:src/osg/Geode.cpp:blocks:0000"
+          ],
+          "evidence_at_20": {
+            "returned": 20,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        {
+          "route": "q4",
+          "query": "verify inheritance hierarchy of osg::Geode in OpenSceneGraph 3.6.5 to determine if addChild is inherited from osg::Group",
+          "bm25_terms": [
+            "verify",
+            "inheritance",
+            "hierarchy",
+            "of",
+            "osg",
+            "Geode",
+            "in",
+            "OpenSceneGraph",
+            "to",
+            "determine",
+            "if",
+            "addChild",
+            "is",
+            "inherited",
+            "from",
+            "Group"
+          ],
+          "top_ids": [
+            "3.6.5:src/osg/Geode.cpp:blocks:0000",
+            "3.6.5:src/osg/Group.cpp:blocks:0000",
+            "3.6.5:include/osg/Geode:blocks:0000",
+            "3.6.5:include/osg/Node:blocks:0000",
+            "3.6.5:include/osg/Group:blocks:0000"
+          ],
+          "routed_top_ids": [
+            "3.6.5:include/osg/Geode:blocks:0000",
+            "3.6.5:include/osg/Node:blocks:0000",
+            "3.6.5:include/osg/Group:blocks:0000",
+            "3.6.5:src/osg/Geode.cpp:blocks:0000",
+            "3.6.5:src/osg/Group.cpp:blocks:0000"
+          ],
+          "evidence_at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      ],
+      "metrics": {
+        "original_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "translation_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "decomposition_rrf": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "decomposition_interleave": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "routed_decomposition_interleave": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "original_fusion": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012"
+        ],
+        "translation_fusion": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0018"
+        ],
+        "decomposition_rrf": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0014",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0000",
+          "3.6.5:include/osg/Geometry:blocks:0000"
+        ],
+        "decomposition_interleave": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:src/osg/Group.cpp:blocks:0000",
+          "3.6.5:src/osg/Group.cpp:blocks:0001"
+        ],
+        "routed_decomposition_interleave": [
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:include/osg/Geometry:blocks:0000",
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:include/osg/Billboard:blocks:0000"
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-008",
+      "query": "找一个将图片加载为二维纹理并绑定到纹理单元 0 的官方源码片段。",
+      "rewrite": {
+        "english_query": "OpenSceneGraph 3.6.5 official example source code loading an image as a 2D texture and binding to texture unit 0",
+        "subqueries": [
+          "OpenSceneGraph 3.6.5 official examples using osg::Image to create osg::Texture2D",
+          "OpenSceneGraph 3.6.5 code snippet binding texture to GL texture unit 0",
+          "OpenSceneGraph 3.6.5 official examples demonstrating glActiveTexture GL_TEXTURE0 usage"
+        ],
+        "seconds": 1.643,
+        "fallback_error_type": null
+      },
+      "source_routes": [
+        "examples/%"
+      ],
+      "evidence": [
+        {
+          "path": "examples/osgtexture2D/osgtexture2D.cpp",
+          "start_line": 170,
+          "end_line": 176
+        }
+      ],
+      "query_traces": [
+        {
+          "route": "q0",
+          "query": "找一个将图片加载为二维纹理并绑定到纹理单元 0 的官方源码片段。",
+          "bm25_terms": [],
+          "top_ids": [
+            "3.6.5:include/osg/Texture2D:blocks:0002",
+            "3.6.5:include/osg/Texture2D:blocks:0004",
+            "3.6.5:include/osg/Texture2D:blocks:0003",
+            "3.6.5:include/osg/Image:blocks:0007",
+            "3.6.5:include/osg/Image:blocks:0015"
+          ],
+          "routed_top_ids": [
+            "3.6.5:include/osg/Texture2D:blocks:0002",
+            "3.6.5:include/osg/Texture2D:blocks:0004",
+            "3.6.5:include/osg/Texture2D:blocks:0003",
+            "3.6.5:include/osg/Image:blocks:0007",
+            "3.6.5:include/osg/Image:blocks:0015"
+          ],
+          "evidence_at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        {
+          "route": "q1",
+          "query": "OpenSceneGraph 3.6.5 official example source code loading an image as a 2D texture and binding to texture unit 0",
+          "bm25_terms": [
+            "OpenSceneGraph",
+            "official",
+            "example",
+            "source",
+            "code",
+            "loading",
+            "an",
+            "image",
+            "as",
+            "a",
+            "D",
+            "texture",
+            "and",
+            "binding",
+            "to",
+            "unit"
+          ],
+          "top_ids": [
+            "3.6.5:include/osg/Texture2D:blocks:0000",
+            "3.6.5:include/osg/Texture2D:blocks:0002",
+            "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000",
+            "3.6.5:include/osg/Texture2D:blocks:0004",
+            "3.6.5:include/osg/Image:blocks:0000"
+          ],
+          "routed_top_ids": [
+            "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000",
+            "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0014",
+            "3.6.5:include/osg/Texture2D:blocks:0000",
+            "3.6.5:include/osg/Texture2D:blocks:0002",
+            "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0000"
+          ],
+          "evidence_at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        {
+          "route": "q2",
+          "query": "OpenSceneGraph 3.6.5 official examples using osg::Image to create osg::Texture2D",
+          "bm25_terms": [
+            "OpenSceneGraph",
+            "official",
+            "examples",
+            "using",
+            "osg",
+            "Image",
+            "to",
+            "create",
+            "Texture2D"
+          ],
+          "top_ids": [
+            "3.6.5:include/osg/Texture2D:blocks:0000",
+            "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000",
+            "3.6.5:include/osg/Texture2D:blocks:0004",
+            "3.6.5:include/osg/Image:blocks:0007",
+            "3.6.5:include/osg/Image:blocks:0000"
+          ],
+          "routed_top_ids": [
+            "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000",
+            "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0018",
+            "3.6.5:include/osg/Texture2D:blocks:0000",
+            "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0001",
+            "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0019"
+          ],
+          "evidence_at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        {
+          "route": "q3",
+          "query": "OpenSceneGraph 3.6.5 code snippet binding texture to GL texture unit 0",
+          "bm25_terms": [
+            "OpenSceneGraph",
+            "code",
+            "snippet",
+            "binding",
+            "texture",
+            "to",
+            "GL",
+            "unit"
+          ],
+          "top_ids": [
+            "3.6.5:include/osg/Geometry:blocks:0002",
+            "3.6.5:include/osg/StateSet:blocks:0007",
+            "3.6.5:include/osg/Drawable:blocks:0014",
+            "3.6.5:include/osg/StateSet:blocks:0008",
+            "3.6.5:include/osg/StateSet:blocks:0009"
+          ],
+          "routed_top_ids": [
+            "3.6.5:include/osg/Geometry:blocks:0002",
+            "3.6.5:include/osg/StateSet:blocks:0007",
+            "3.6.5:include/osg/Drawable:blocks:0014",
+            "3.6.5:include/osg/StateSet:blocks:0008",
+            "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000"
+          ],
+          "evidence_at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        {
+          "route": "q4",
+          "query": "OpenSceneGraph 3.6.5 official examples demonstrating glActiveTexture GL_TEXTURE0 usage",
+          "bm25_terms": [
+            "OpenSceneGraph",
+            "official",
+            "examples",
+            "demonstrating",
+            "glActiveTexture",
+            "GL_TEXTURE0",
+            "usage"
+          ],
+          "top_ids": [
+            "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000",
+            "3.6.5:examples/osgtext/osgtext.cpp:blocks:0003",
+            "3.6.5:examples/osgtext/osgtext.cpp:blocks:0002",
+            "3.6.5:include/osg/Image:blocks:0004",
+            "3.6.5:include/osg/Image:blocks:0003"
+          ],
+          "routed_top_ids": [
+            "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000",
+            "3.6.5:examples/osgtext/osgtext.cpp:blocks:0003",
+            "3.6.5:examples/osgtext/osgtext.cpp:blocks:0002",
+            "3.6.5:examples/osgtext/osgtext.cpp:blocks:0000",
+            "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0001"
+          ],
+          "evidence_at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        }
+      ],
+      "metrics": {
+        "original_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        "translation_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        "decomposition_rrf": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        "decomposition_interleave": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        "routed_decomposition_interleave": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        }
+      },
+      "top_ids": {
+        "original_fusion": [
+          "3.6.5:include/osg/Texture2D:blocks:0002",
+          "3.6.5:include/osg/Texture2D:blocks:0004",
+          "3.6.5:include/osg/Texture2D:blocks:0003",
+          "3.6.5:include/osg/Image:blocks:0007",
+          "3.6.5:include/osg/Image:blocks:0015"
+        ],
+        "translation_fusion": [
+          "3.6.5:include/osg/Texture2D:blocks:0002",
+          "3.6.5:include/osg/Texture2D:blocks:0004",
+          "3.6.5:include/osg/Texture2D:blocks:0000",
+          "3.6.5:include/osg/Texture2D:blocks:0003",
+          "3.6.5:include/osg/Image:blocks:0007"
+        ],
+        "decomposition_rrf": [
+          "3.6.5:include/osg/Texture2D:blocks:0002",
+          "3.6.5:include/osg/Image:blocks:0013",
+          "3.6.5:include/osg/Texture2D:blocks:0000",
+          "3.6.5:include/osg/Image:blocks:0007",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000"
+        ],
+        "decomposition_interleave": [
+          "3.6.5:include/osg/Texture2D:blocks:0002",
+          "3.6.5:include/osg/Texture2D:blocks:0000",
+          "3.6.5:include/osg/Geometry:blocks:0002",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000",
+          "3.6.5:include/osg/Texture2D:blocks:0004"
+        ],
+        "routed_decomposition_interleave": [
+          "3.6.5:include/osg/Texture2D:blocks:0002",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0000",
+          "3.6.5:include/osg/Geometry:blocks:0002",
+          "3.6.5:include/osg/Texture2D:blocks:0004",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0014"
+        ]
+      }
+    }
+  ]
+}

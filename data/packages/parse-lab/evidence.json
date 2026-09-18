@@ -1,0 +1,20 @@
+{
+  "origin": "assistant visually checked original page; development anchors, not exhaustive table labels",
+  "source_file": "original.pdf",
+  "physical_page": 1,
+  "table_title": "NICS Firearm Background Checks",
+  "period": "November - 2015",
+  "cells": [
+    {"row": "Alabama", "column": "Permit", "value": "18,870"},
+    {"row": "Alabama", "column": "Totals", "value": "71,137"},
+    {"row": "Alaska", "column": "Permit", "value": "209"},
+    {"row": "Alaska", "column": "Totals", "value": "7,095"},
+    {"row": "Arizona", "column": "Permit", "value": "2,303"},
+    {"row": "Arizona", "column": "Totals", "value": "27,087"}
+  ],
+  "checks": [
+    "Values must retain both the state row key and the column label; string occurrence alone does not prove correctness.",
+    "Preserve the period and the note that these are background checks, not a direct count of firearms sold.",
+    "scan.pdf and page-image.png are rasterized controlled derivatives of this original, not independent real scans."
+  ]
+}

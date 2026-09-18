@@ -1,0 +1,19 @@
+{
+  "source": "https://pypi.org/pypi/ragas/0.4.3/json",
+  "version": "0.4.3",
+  "cutoff": "2026-07-15T23:59:59+08:00",
+  "files": [
+    {
+      "filename": "ragas-0.4.3-py3-none-any.whl",
+      "uploaded": "2026-01-13T17:47:59.200116Z",
+      "sha256": "ef1d75f674c294e9a6e7d8e9ad261b6bf4697dad1c9cbd1a756ba7a6b4849a38",
+      "yanked": false
+    },
+    {
+      "filename": "ragas-0.4.3.tar.gz",
+      "uploaded": "2026-01-13T17:48:01.043274Z",
+      "sha256": "1eb1f61dbc8613ad014fdb8d630cbe9a1caec1ea01664a106993cb756128c001",
+      "yanked": false
+    }
+  ]
+}

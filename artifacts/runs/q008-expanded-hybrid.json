@@ -1,0 +1,174 @@
+[
+  {
+    "chunk_id": "3.6.5:include/osg/StateSet:blocks:0008",
+    "source_path": "include/osg/StateSet",
+    "version": "3.6.5",
+    "start_line": 240,
+    "end_line": 260,
+    "strategy": "blocks",
+    "text": "        /** Return the number texture units active in the TextureModeList.*/\r\n        inline unsigned int getNumTextureModeLists() const { return static_cast<unsigned int>(_textureModeList.size()); }\r\n\r\n        typedef std::vector<AttributeList>  TextureAttributeList;\r\n\r\n        /** Set this StateSet to contain specified attribute and override flag.*/\r\n        void setTextureAttribute(unsigned int unit,StateAttribute *attribute, StateAttribute::OverrideValue value=StateAttribute::OFF);\r\n\r\n        template<class T> void setTextureAttribute(unsigned int unit, const ref_ptr<T>& attribute, StateAttribute::OverrideValue value=StateAttribute::OFF) { setTextureAttribute( unit, attribute.get(), value); }\r\n\r\n        /** Set this StateSet to contain specified attribute and set the associated GLMode's to specified value.*/\r\n        void setTextureAttributeAndModes(unsigned int unit,StateAttribute *attribute, StateAttribute::GLModeValue value=StateAttribute::ON);\r\n\r\n        template<class T> void setTextureAttributeAndModes(unsigned int unit, const ref_ptr<T>& attribute, StateAttribute::OverrideValue value=StateAttribute::ON) { setTextureAttributeAndModes( unit, attribute.get(), value); }\r\n\r\n        /** remove texture attribute of specified type from StateSet.*/\r\n        void removeTextureAttribute(unsigned int unit, StateAttribute::Type type);\r\n\r\n        /** remove texture attribute from StateSet.*/\r\n        void removeTextureAttribute(unsigned int unit, StateAttribute *attribute);\r\n\r\n",
+    "rrf_score": 0.029877369007803793,
+    "ranks": {
+      "dense": 5,
+      "bm25": 9
+    },
+    "original_scores": {
+      "dense": 0.60598755,
+      "bm25": 5.65751440868308
+    }
+  },
+  {
+    "chunk_id": "3.6.5:include/osg/Texture2D:blocks:0002",
+    "source_path": "include/osg/Texture2D",
+    "version": "3.6.5",
+    "start_line": 81,
+    "end_line": 116,
+    "strategy": "blocks",
+    "text": "        /** Gets the const texture image, ignoring face. */\r\n        virtual const Image* getImage(unsigned int) const { return _image.get(); }\r\n\r\n        /** Gets the number of images that can be assigned to the Texture. */\r\n        virtual unsigned int getNumImages() const { return 1; }\r\n\r\n\r\n        /** Sets the texture width and height. If width or height are zero,\r\n          * calculate the respective value from the source image size. */\r\n        inline void setTextureSize(int width, int height) const\r\n        {\r\n            _textureWidth = width;\r\n            _textureHeight = height;\r\n        }\r\n\r\n        void setTextureWidth(int width) { _textureWidth=width; }\r\n        void setTextureHeight(int height) { _textureHeight=height; }\r\n\r\n        virtual int getTextureWidth() const { return _textureWidth; }\r\n        virtual int getTextureHeight() const { return _textureHeight; }\r\n        virtual int getTextureDepth() const { return 1; }\r\n\r\n        class OSG_EXPORT SubloadCallback : public Referenced\r\n        {\r\n            public:\r\n\r\n                virtual bool textureObjectValid(const Texture2D& texture, State& state) const\r\n                {\r\n                    return texture.textureObjectValid(state);\r\n                }\r\n\r\n                virtual osg::ref_ptr<TextureObject> generateTextureObject(const Texture2D& texture, State& state) const\r\n                {\r\n                    return osg::Texture::generateTextureObject(&texture, state.getContextID(), GL_TEXTURE_2D);\r\n                }\r\n\r\n",
+    "rrf_score": 0.02921395544346364,
+    "ranks": {
+      "dense": 1,
+      "bm25": 18
+    },
+    "original_scores": {
+      "dense": 0.6643096,
+      "bm25": 3.9493447132108903
+    }
+  },
+  {
+    "chunk_id": "3.6.5:include/osg/Texture2D:blocks:0000",
+    "source_path": "include/osg/Texture2D",
+    "version": "3.6.5",
+    "start_line": 1,
+    "end_line": 46,
+    "strategy": "blocks",
+    "text": "/* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2006 Robert Osfield\r\n *\r\n * This library is open source and may be redistributed and/or modified under\r\n * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or\r\n * (at your option) any later version.  The full license is in LICENSE file\r\n * included with this distribution, and on the openscenegraph.org website.\r\n *\r\n * This library is distributed in the hope that it will be useful,\r\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\r\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\r\n * OpenSceneGraph Public License for more details.\r\n*/\r\n\r\n#ifndef OSG_TEXTURE2D\r\n#define OSG_TEXTURE2D 1\r\n\r\n#include <osg/Texture>\r\n\r\nnamespace osg {\r\n\r\n/** Encapsulates OpenGL 2D texture functionality. Doesn't support cube maps,\r\n  * so ignore \\a face parameters.\r\n*/\r\nclass OSG_EXPORT Texture2D : public Texture\r\n{\r\n\r\n    public :\r\n\r\n        Texture2D();\r\n\r\n        Texture2D(Image* image);\r\n\r\n        template<class T> Texture2D(const osg::ref_ptr<T>& image):\r\n            _textureWidth(0),\r\n            _textureHeight(0),\r\n            _numMipmapLevels(0)\r\n        {\r\n            setUseHardwareMipMapGeneration(true);\r\n            setImage(image.get());\r\n        }\r\n\r\n        /** Copy constructor using CopyOp to manage deep vs shallow copy. */\r\n        Texture2D(const Texture2D& text,const CopyOp& copyop=CopyOp::SHALLOW_COPY);\r\n\r\n        META_StateAttribute(osg, Texture2D,TEXTURE);\r\n\r\n",
+    "rrf_score": 0.028814262023217248,
+    "ranks": {
+      "dense": 7,
+      "bm25": 12
+    },
+    "original_scores": {
+      "dense": 0.59911406,
+      "bm25": 4.79357309525678
+    }
+  },
+  {
+    "chunk_id": "3.6.5:include/osg/Texture2D:blocks:0004",
+    "source_path": "include/osg/Texture2D",
+    "version": "3.6.5",
+    "start_line": 143,
+    "end_line": 188,
+    "strategy": "blocks",
+    "text": "        /** Copies a two-dimensional texture subimage, as per\r\n          * glCopyTexSubImage2D. Updates a portion of an existing OpenGL\r\n          * texture object from the current OpenGL background framebuffer\r\n          * contents at position \\a x, \\a y with width \\a width and height\r\n          * \\a height. Loads framebuffer data into the texture using offsets\r\n          * \\a xoffset and \\a yoffset. \\a width and \\a height must be powers\r\n          * of two. */\r\n        void copyTexSubImage2D(State& state, int xoffset, int yoffset, int x, int y, int width, int height );\r\n\r\n\r\n        /** Bind the texture object. If the texture object hasn't already been\r\n          * compiled, create the texture mipmap levels. */\r\n        virtual void apply(State& state) const;\r\n\r\n\r\n\r\n    protected :\r\n\r\n        virtual ~Texture2D();\r\n\r\n        virtual void computeInternalFormat() const;\r\n        void allocateMipmap(State& state) const;\r\n\r\n        /** Return true of the TextureObject assigned to the context associate with osg::State object is valid.*/\r\n        bool textureObjectValid(State& state) const;\r\n\r\n        friend class SubloadCallback;\r\n\r\n        ref_ptr<Image> _image;\r\n\r\n        /** Subloaded images can have different texture and image sizes. */\r\n        mutable GLsizei _textureWidth, _textureHeight;\r\n\r\n        /** Number of mipmap levels created. */\r\n        mutable GLsizei _numMipmapLevels;\r\n\r\n        ref_ptr<SubloadCallback> _subloadCallback;\r\n\r\n        typedef buffered_value<unsigned int> ImageModifiedCount;\r\n        mutable ImageModifiedCount _modifiedCount;\r\n\r\n};\r\n\r\n}\r\n\r\n#endif\r\n",
+    "rrf_score": 0.028629032258064516,
+    "ranks": {
+      "dense": 2,
+      "bm25": 20
+    },
+    "original_scores": {
+      "dense": 0.6316975,
+      "bm25": 3.2594214705439226
+    }
+  },
+  {
+    "chunk_id": "3.6.5:include/osg/Texture2D:blocks:0003",
+    "source_path": "include/osg/Texture2D",
+    "version": "3.6.5",
+    "start_line": 117,
+    "end_line": 142,
+    "strategy": "blocks",
+    "text": "                virtual void load(const Texture2D& texture,State& state) const = 0;\r\n                virtual void subload(const Texture2D& texture,State& state) const = 0;\r\n        };\r\n\r\n        void setSubloadCallback(SubloadCallback* cb) { _subloadCallback = cb;; }\r\n\r\n        SubloadCallback* getSubloadCallback() { return _subloadCallback.get(); }\r\n\r\n        const SubloadCallback* getSubloadCallback() const { return _subloadCallback.get(); }\r\n\r\n\r\n        /** Helper function. Sets the number of mipmap levels created for this\r\n          * texture. Should only be called within an osg::Texture::apply(), or\r\n          * during a custom OpenGL texture load. */\r\n        void setNumMipmapLevels(unsigned int num) const { _numMipmapLevels=num; }\r\n\r\n        /** Gets the number of mipmap levels created. */\r\n        unsigned int getNumMipmapLevels() const { return _numMipmapLevels; }\r\n\r\n\r\n        /** Copies pixels into a 2D texture image, as per glCopyTexImage2D.\r\n          * Creates an OpenGL texture object from the current OpenGL background\r\n          * framebuffer contents at position \\a x, \\a y with width \\a width and\r\n          * height \\a height. \\a width and \\a height must be a power of two. */\r\n        void copyTexImage2D(State& state, int x, int y, int width, int height );\r\n\r\n",
+    "rrf_score": 0.027809742999616416,
+    "ranks": {
+      "dense": 6,
+      "bm25": 19
+    },
+    "original_scores": {
+      "dense": 0.6021802,
+      "bm25": 3.9220578306756484
+    }
+  },
+  {
+    "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0002",
+    "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+    "version": "3.6.5",
+    "start_line": 72,
+    "end_line": 120,
+    "strategy": "blocks",
+    "text": "        _minFilterList.push_back(osg::Texture2D::NEAREST_MIPMAP_LINEAR);\r\n        _magFilterList.push_back(osg::Texture2D::LINEAR);\r\n        _textList.push_back(\"bi-linear mip mapping\\nsetFilter(MIN_FILTER,NEAREST_MIPMAP_LINEAR)\\nsetFilter(MAG_FILTER,LINEAR)\");\r\n\r\n\r\n        setValues();\r\n    }\r\n\r\n    virtual void operator()(osg::Node*, osg::NodeVisitor* nv)\r\n    {\r\n        if (nv->getFrameStamp())\r\n        {\r\n            double currTime = nv->getFrameStamp()->getSimulationTime();\r\n            if (currTime-_prevTime>_delay)\r\n            {\r\n                // update filter modes and text.\r\n                setValues();\r\n\r\n                // advance the current position, wrap round if required.\r\n                _currPos++;\r\n                if (_currPos>=_minFilterList.size()) _currPos=0;\r\n\r\n                // record time\r\n                _prevTime = currTime;\r\n            }\r\n        }\r\n    }\r\n\r\n    void setValues()\r\n    {\r\n        _texture->setFilter(osg::Texture2D::MIN_FILTER,_minFilterList[_currPos]);\r\n        _texture->setFilter(osg::Texture2D::MAG_FILTER,_magFilterList[_currPos]);\r\n\r\n        _text->setText(_textList[_currPos]);\r\n    }\r\n\r\nprotected:\r\n\r\n    typedef std::vector<osg::Texture2D::FilterMode> FilterList;\r\n    typedef std::vector<std::string>                TextList;\r\n\r\n    osg::ref_ptr<osg::Texture2D>    _texture;\r\n    osg::ref_ptr<osgText::Text>     _text;\r\n    double                          _delay;\r\n\r\n    FilterList                      _minFilterList;\r\n    FilterList                      _magFilterList;\r\n    TextList                        _textList;\r\n\r\n",
+    "rrf_score": 0.027212143650499815,
+    "ranks": {
+      "dense": 13,
+      "bm25": 14
+    },
+    "original_scores": {
+      "dense": 0.5509745,
+      "bm25": 4.599759222977068
+    }
+  },
+  {
+    "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0004",
+    "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+    "version": "3.6.5",
+    "start_line": 165,
+    "end_line": 208,
+    "strategy": "blocks",
+    "text": "    osg::Geode* geom_geode = new osg::Geode;\r\n    geom_geode->addDrawable(geom);\r\n    group->addChild(geom_geode);\r\n\r\n\r\n    // set up the texture state.\r\n    osg::Texture2D* texture = new osg::Texture2D;\r\n    texture->setDataVariance(osg::Object::DYNAMIC); // protect from being optimized away as static state.\r\n    texture->setImage(osgDB::readRefImageFile(filename));\r\n\r\n    osg::StateSet* stateset = geom->getOrCreateStateSet();\r\n    stateset->setTextureAttributeAndModes(0,texture,osg::StateAttribute::ON);\r\n\r\n    // create the text label.\r\n\r\n    osgText::Text* text = new osgText::Text;\r\n    text->setDataVariance(osg::Object::DYNAMIC);\r\n\r\n    text->setFont(\"fonts/arial.ttf\");\r\n    text->setPosition(center);\r\n    text->setCharacterSize(height*0.03f);\r\n    text->setAlignment(osgText::Text::CENTER_CENTER);\r\n    text->setAxisAlignment(osgText::Text::YZ_PLANE);\r\n\r\n    osg::Geode* text_geode = new osg::Geode;\r\n    text_geode->addDrawable(text);\r\n\r\n    osg::StateSet* text_stateset = text_geode->getOrCreateStateSet();\r\n    text_stateset->setAttributeAndModes(new osg::PolygonOffset(-1.0f,-1.0f),osg::StateAttribute::ON);\r\n\r\n    group->addChild(text_geode);\r\n\r\n    // set the update callback to cycle through the various min and mag filter modes.\r\n    group->setUpdateCallback(new FilterCallback(texture,text));\r\n\r\n    return group;\r\n\r\n}\r\n\r\n///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\r\n//\r\n// anisotropic wall and animation callback.\r\n//\r\n\r\n",
+    "rrf_score": 0.01639344262295082,
+    "ranks": {
+      "bm25": 1
+    },
+    "original_scores": {
+      "bm25": 10.122338416286242
+    }
+  },
+  {
+    "chunk_id": "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0011",
+    "source_path": "examples/osgtexture2D/osgtexture2D.cpp",
+    "version": "3.6.5",
+    "start_line": 484,
+    "end_line": 519,
+    "strategy": "blocks",
+    "text": "    // set up the texture state.\r\n    osg::Texture2D* texture = new osg::Texture2D;\r\n    texture->setDataVariance(osg::Object::DYNAMIC); // protect from being optimized away as static state.\r\n    texture->setBorderColor(osg::Vec4(1.0f,1.0f,1.0f,0.5f)); // only used when wrap is set to CLAMP_TO_BORDER\r\n    texture->setImage(osgDB::readRefImageFile(filename));\r\n\r\n    osg::StateSet* stateset = geom->getOrCreateStateSet();\r\n    stateset->setTextureAttributeAndModes(0,texture,osg::StateAttribute::ON);\r\n    stateset->setMode(GL_BLEND,osg::StateAttribute::ON);\r\n    stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);\r\n\r\n    // create the text label.\r\n\r\n    osgText::Text* text = new osgText::Text;\r\n    text->setDataVariance(osg::Object::DYNAMIC);\r\n    text->setFont(\"fonts/arial.ttf\");\r\n    text->setPosition(center);\r\n    text->setCharacterSize(height*0.03f);\r\n    text->setAlignment(osgText::Text::CENTER_CENTER);\r\n    text->setAxisAlignment(osgText::Text::YZ_PLANE);\r\n\r\n    osg::Geode* text_geode = new osg::Geode;\r\n    text_geode->addDrawable(text);\r\n\r\n    osg::StateSet* text_stateset = text_geode->getOrCreateStateSet();\r\n    text_stateset->setAttributeAndModes(new osg::PolygonOffset(-1.0f,-1.0f),osg::StateAttribute::ON);\r\n\r\n    group->addChild(text_geode);\r\n\r\n    // set the update callback to cycle through the various min and mag filter modes.\r\n    group->setUpdateCallback(new WrapCallback(texture,text));\r\n\r\n    return group;\r\n\r\n}\r\n\r\n",
+    "rrf_score": 0.016129032258064516,
+    "ranks": {
+      "bm25": 2
+    },
+    "original_scores": {
+      "bm25": 9.783652247916429
+    }
+  },
+  {
+    "chunk_id": "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001",
+    "source_path": "examples/osgshape/osgshape.cpp",
+    "version": "3.6.5",
+    "start_line": 41,
+    "end_line": 71,
+    "strategy": "blocks",
+    "text": "    // ---------------------------------------\r\n    // Set up a StateSet to texture the objects\r\n    // ---------------------------------------\r\n    osg::StateSet* stateset = new osg::StateSet();\r\n\r\n    osg::ref_ptr<osg::Image> image = osgDB::readRefImageFile( \"Images/lz.rgb\" );\r\n    if (image)\r\n    {\r\n        osg::Texture2D* texture = new osg::Texture2D;\r\n        texture->setImage(image);\r\n        texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR);\r\n        stateset->setTextureAttributeAndModes(0,texture, osg::StateAttribute::ON);\r\n    }\r\n\r\n    stateset->setMode(GL_LIGHTING, osg::StateAttribute::ON);\r\n\r\n    geode->setStateSet( stateset );\r\n\r\n\r\n    float radius = 0.8f;\r\n    float height = 1.0f;\r\n\r\n    osg::TessellationHints* hints = new osg::TessellationHints;\r\n    hints->setDetailRatio(0.5f);\r\n\r\n    geode->addDrawable(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0.0f,0.0f,0.0f),radius),hints));\r\n    geode->addDrawable(new osg::ShapeDrawable(new osg::Box(osg::Vec3(2.0f,0.0f,0.0f),2*radius),hints));\r\n    geode->addDrawable(new osg::ShapeDrawable(new osg::Cone(osg::Vec3(4.0f,0.0f,0.0f),radius,height),hints));\r\n    geode->addDrawable(new osg::ShapeDrawable(new osg::Cylinder(osg::Vec3(6.0f,0.0f,0.0f),radius,height),hints));\r\n    geode->addDrawable(new osg::ShapeDrawable(new osg::Capsule(osg::Vec3(8.0f,0.0f,0.0f),radius,height),hints));\r\n\r\n",
+    "rrf_score": 0.015873015873015872,
+    "ranks": {
+      "bm25": 3
+    },
+    "original_scores": {
+      "bm25": 9.761897171668068
+    }
+  },
+  {
+    "chunk_id": "3.6.5:include/osg/Texture2D:blocks:0001",
+    "source_path": "include/osg/Texture2D",
+    "version": "3.6.5",
+    "start_line": 47,
+    "end_line": 80,
+    "strategy": "blocks",
+    "text": "        /** Return -1 if *this < *rhs, 0 if *this==*rhs, 1 if *this>*rhs. */\r\n        virtual int compare(const StateAttribute& rhs) const;\r\n\r\n        virtual GLenum getTextureTarget() const { return GL_TEXTURE_2D; }\r\n\r\n        /** Sets the texture image. */\r\n        void setImage(Image* image);\r\n\r\n        template<class T> void setImage(const ref_ptr<T>& image) { setImage(image.get()); }\r\n\r\n        /** Gets the texture image. */\r\n        Image* getImage() { return _image.get(); }\r\n\r\n        /** Gets the const texture image. */\r\n        inline const Image* getImage() const { return _image.get(); }\r\n\r\n        /** return true if the texture image data has been modified and the associated GL texture object needs to be updated.*/\r\n        virtual bool isDirty(unsigned int contextID) const { return (_image.valid() && _image->getModifiedCount()!=_modifiedCount[contextID]); }\r\n\r\n        inline unsigned int& getModifiedCount(unsigned int contextID) const\r\n        {\r\n            // get the modified count for the current contextID.\r\n            return _modifiedCount[contextID];\r\n        }\r\n\r\n\r\n        /** Sets the texture image, ignoring face. */\r\n        virtual void setImage(unsigned int, Image* image) { setImage(image); }\r\n\r\n        template<class T> void setImage(unsigned int, const ref_ptr<T>& image) { setImage(image.get()); }\r\n\r\n        /** Gets the texture image, ignoring face. */\r\n        virtual Image* getImage(unsigned int) { return _image.get(); }\r\n\r\n",
+    "rrf_score": 0.015873015873015872,
+    "ranks": {
+      "dense": 3
+    },
+    "original_scores": {
+      "dense": 0.63081396
+    }
+  }
+]

@@ -1,0 +1,107 @@
+{
+  "run_id": "corpus-layout-retrieval-regression-001",
+  "target_id": "osg-3.6.5-blocks-lf-002",
+  "dataset_sha256": "caa84676cfc343629e52b46249524c5e05a27c8cdd3c2794bc55fe4b3af09562",
+  "questions": 8,
+  "all_spans_hit_at_5": 7,
+  "expected_minimum": 7,
+  "passed": true,
+  "details": [
+    {
+      "id": "osg-test-001",
+      "all_spans_hit": true,
+      "first_evidence_touch_rank": 1,
+      "top_ids": [
+        "3.6.5:include/osg/Node:blocks:0012",
+        "3.6.5:include/osg/Node:blocks:0011",
+        "3.6.5:include/osg/Node:blocks:0017",
+        "3.6.5:include/osg/Node:blocks:0001",
+        "3.6.5:include/osg/Node:blocks:0000"
+      ]
+    },
+    {
+      "id": "osg-test-002",
+      "all_spans_hit": true,
+      "first_evidence_touch_rank": 1,
+      "top_ids": [
+        "3.6.5:include/osg/Geometry:blocks:0003",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0003",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0014",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016"
+      ]
+    },
+    {
+      "id": "osg-test-003",
+      "all_spans_hit": true,
+      "first_evidence_touch_rank": 1,
+      "top_ids": [
+        "3.6.5:include/osgViewer/Viewer:blocks:0002",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+        "3.6.5:include/osgViewer/Viewer:blocks:0001",
+        "3.6.5:include/osgViewer/Viewer:blocks:0000",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020"
+      ]
+    },
+    {
+      "id": "osg-test-004",
+      "all_spans_hit": true,
+      "first_evidence_touch_rank": 1,
+      "top_ids": [
+        "3.6.5:include/osg/Drawable:blocks:0006",
+        "3.6.5:include/osg/Drawable:blocks:0007",
+        "3.6.5:include/osg/Drawable:blocks:0008",
+        "3.6.5:include/osg/Drawable:blocks:0017",
+        "3.6.5:include/osg/Drawable:blocks:0018"
+      ]
+    },
+    {
+      "id": "osg-test-005",
+      "all_spans_hit": true,
+      "first_evidence_touch_rank": 1,
+      "top_ids": [
+        "3.6.5:include/osg/ref_ptr:blocks:0003",
+        "3.6.5:include/osg/ref_ptr:blocks:0000",
+        "3.6.5:include/osg/Referenced:blocks:0004",
+        "3.6.5:include/osg/ref_ptr:blocks:0002",
+        "3.6.5:include/osg/ref_ptr:blocks:0001"
+      ]
+    },
+    {
+      "id": "osg-test-006",
+      "all_spans_hit": true,
+      "first_evidence_touch_rank": 2,
+      "top_ids": [
+        "3.6.5:include/osg/StateSet:blocks:0008",
+        "3.6.5:include/osg/StateSet:blocks:0005",
+        "3.6.5:include/osg/StateSet:blocks:0003",
+        "3.6.5:include/osg/StateSet:blocks:0007",
+        "3.6.5:include/osg/StateSet:blocks:0019"
+      ]
+    },
+    {
+      "id": "osg-test-007",
+      "all_spans_hit": true,
+      "first_evidence_touch_rank": 1,
+      "top_ids": [
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+        "3.6.5:include/osgViewer/Viewer:blocks:0002",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000"
+      ]
+    },
+    {
+      "id": "osg-test-008",
+      "all_spans_hit": false,
+      "first_evidence_touch_rank": null,
+      "top_ids": [
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0012",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0008",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0011",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0002",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0003"
+      ]
+    }
+  ]
+}

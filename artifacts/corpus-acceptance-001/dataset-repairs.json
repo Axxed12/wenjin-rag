@@ -1,0 +1,1806 @@
+[
+  {
+    "id": "rag-validation-015",
+    "before": {
+      "id": "rag-validation-015",
+      "split": "validation",
+      "library": "osgEarth",
+      "version": "3.8",
+      "source_type": "official-doc",
+      "format": "markdown",
+      "family_id": "osgearth-layer-catalog",
+      "query_type": "partial",
+      "query": "按 osgEarth 3.8 文档的图层清单，哪些栅格影像图层被标注为需要 license key？",
+      "answer_rubric": "Microsoft Bing 与 Cesium Ion 明确标注为 ($) 并注明 License key required；ESRI ArcGIS Server 也带 ($) 标记。其余栅格层（GDAL、MBTiles、TMS、WMS、XYZ、Composite、ContourMap、MapboxGL）未做该标注。",
+      "evidence": [
+        {
+          "path": "extracted/osgearth/docs/source/layers.md",
+          "start_line": 16,
+          "end_line": 19,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": "raw/osgearth/osgearth-3.8.tar.gz",
+          "archive_member": "osgearth-osgearth-3.8/docs/source/layers.md",
+          "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca"
+        }
+      ],
+      "expected_status": "partially_supported",
+      "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+      "archive_member": "osgearth-osgearth-3.8/docs/source/layers.md",
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive；ArcGIS 只标 ($) 未写 key 字样，逐字对应关系需谨慎",
+      "note": "证据仅为 layers.md 的图层清单段。该段用 ($) 标记加表格脚注表达许可要求，需把标记与脚注合并解读，“是否需要 license key”属于推断而非逐条显式声明。",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/osgearth/docs/source/layers.md"
+      ],
+      "source_sha256_all": [
+        "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-validation-015",
+      "split": "validation",
+      "library": "osgEarth",
+      "version": "3.8",
+      "source_type": "official-doc",
+      "format": "markdown",
+      "family_id": "osgearth-layer-catalog",
+      "query_type": "partial",
+      "query": "按 osgEarth 3.8 文档的图层清单，哪些栅格影像图层被标注为需要 license key？",
+      "answer_rubric": "Microsoft Bing 与 Cesium Ion 明确标注为 ($) 并注明 License key required；ESRI ArcGIS Server 也带 ($) 标记。其余栅格层（GDAL、MBTiles、TMS、WMS、XYZ、Composite、ContourMap、MapboxGL）未做该标注。",
+      "evidence": [
+        {
+          "path": "extracted/osgearth/docs/source/layers.md",
+          "start_line": 9,
+          "end_line": 19,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": "raw/osgearth/osgearth-3.8.tar.gz",
+          "archive_member": "osgearth-osgearth-3.8/docs/source/layers.md",
+          "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca"
+        }
+      ],
+      "expected_status": "partially_supported",
+      "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+      "archive_member": "osgearth-osgearth-3.8/docs/source/layers.md",
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive；ArcGIS 只标 ($) 未写 key 字样，逐字对应关系需谨慎",
+      "note": "Bing/Ion explicitly require license keys; ($) alone does not prove this for ESRI.",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/osgearth/docs/source/layers.md"
+      ],
+      "source_sha256_all": [
+        "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca"
+      ]
+    }
+  },
+  {
+    "id": "rag-validation-021",
+    "before": {
+      "id": "rag-validation-021",
+      "split": "validation",
+      "library": "osgEarth",
+      "version": "3.8",
+      "source_type": "official-doc",
+      "format": "markdown",
+      "family_id": "osgearth-wms-layer",
+      "query_type": "version_mismatch",
+      "query": "osgEarth 3.8 的 <WMSImage> 默认向服务器请求哪个 WMS 版本？而 OGC 06-042 规范的版本号又是多少？",
+      "answer_rubric": "osgEarth WMSImage 的 wms_version 属性默认请求 1.0.0；OGC 06-042（Web Map Service Implementation Specification）的版本是 1.3.0。二者并非同一版本，文档层面需注意区分。",
+      "evidence": [
+        {
+          "path": "extracted/osgearth/docs/source/wms.md",
+          "start_line": 21,
+          "end_line": 21,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": "raw/osgearth/osgearth-3.8.tar.gz",
+          "archive_member": "osgearth-osgearth-3.8/docs/source/wms.md",
+          "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca"
+        },
+        {
+          "path": "raw/ogc/06-042.pdf",
+          "start_line": null,
+          "end_line": null,
+          "page": 3,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive；跨文档题，两个 source_sha256 见 coverage 报告",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/osgearth/docs/source/wms.md",
+        "raw/ogc/06-042.pdf"
+      ],
+      "source_sha256_all": [
+        "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-validation-021",
+      "split": "validation",
+      "library": "osgEarth",
+      "version": "3.8",
+      "source_type": "official-doc",
+      "format": "markdown",
+      "family_id": "osgearth-wms-layer",
+      "query_type": "version_mismatch",
+      "query": "osgEarth 3.8 的 <WMSImage> 默认向服务器请求哪个 WMS 版本？而 OGC 06-042 规范的版本号又是多少？",
+      "answer_rubric": "osgEarth WMSImage 的 wms_version 属性默认请求 1.0.0；OGC 06-042（Web Map Service Implementation Specification）的版本是 1.3.0。二者并非同一版本，文档层面需注意区分。",
+      "evidence": [
+        {
+          "path": "extracted/osgearth/docs/source/wms.md",
+          "start_line": 21,
+          "end_line": 21,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": "raw/osgearth/osgearth-3.8.tar.gz",
+          "archive_member": "osgearth-osgearth-3.8/docs/source/wms.md",
+          "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca"
+        },
+        {
+          "path": "raw/ogc/06-042.pdf",
+          "start_line": null,
+          "end_line": null,
+          "page": 1,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive；跨文档题，两个 source_sha256 见 coverage 报告",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/osgearth/docs/source/wms.md",
+        "raw/ogc/06-042.pdf"
+      ],
+      "source_sha256_all": [
+        "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116"
+      ]
+    }
+  },
+  {
+    "id": "rag-validation-022",
+    "before": {
+      "id": "rag-validation-022",
+      "split": "validation",
+      "library": "osgEarth",
+      "version": "3.8",
+      "source_type": "official-doc",
+      "format": "markdown",
+      "family_id": "osgearth-wms-layer",
+      "query_type": "partial",
+      "query": "WMSImage 把 transparent 设为 true 有什么前提条件？它到底表达了什么？",
+      "answer_rubric": "它只是提示服务器生成带透明通道（alpha）的影像，前提是所使用的 format 支持 alpha，例如 png；文档未说明服务器一定会遵守该提示。",
+      "evidence": [
+        {
+          "path": "extracted/osgearth/docs/source/wms.md",
+          "start_line": 17,
+          "end_line": 17,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": "raw/osgearth/osgearth-3.8.tar.gz",
+          "archive_member": "osgearth-osgearth-3.8/docs/source/wms.md",
+          "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca"
+        }
+      ],
+      "expected_status": "partially_supported",
+      "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+      "archive_member": "osgearth-osgearth-3.8/docs/source/wms.md",
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive；原文用 Hint 一词，未承诺服务端行为",
+      "note": "文档只有一句说明 transparent 的含义与 format 前提，未说明服务器是否一定遵守该提示；答案中“文档未说明服务器一定会遵守”属对文档覆盖范围的判断，不是文档的直接陈述。",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/osgearth/docs/source/wms.md"
+      ],
+      "source_sha256_all": [
+        "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-validation-022",
+      "split": "validation",
+      "library": "osgEarth",
+      "version": "3.8",
+      "source_type": "official-doc",
+      "format": "markdown",
+      "family_id": "osgearth-wms-layer",
+      "query_type": "partial",
+      "query": "WMSImage 把 transparent 设为 true 有什么前提条件？它到底表达了什么？",
+      "answer_rubric": "它只是提示服务器生成带透明通道（alpha）的影像，前提是所使用的 format 支持 alpha，例如 png。",
+      "evidence": [
+        {
+          "path": "extracted/osgearth/docs/source/wms.md",
+          "start_line": 17,
+          "end_line": 17,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": "raw/osgearth/osgearth-3.8.tar.gz",
+          "archive_member": "osgearth-osgearth-3.8/docs/source/wms.md",
+          "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+      "archive_member": "osgearth-osgearth-3.8/docs/source/wms.md",
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive；原文用 Hint 一词，未承诺服务端行为",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/osgearth/docs/source/wms.md"
+      ],
+      "source_sha256_all": [
+        "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca"
+      ]
+    }
+  },
+  {
+    "id": "rag-validation-028",
+    "before": {
+      "id": "rag-validation-028",
+      "split": "validation",
+      "library": "osgEarth",
+      "version": "3.8",
+      "source_type": "official-source",
+      "format": "cpp-header",
+      "family_id": "osgearth-licensing",
+      "query_type": "version_mismatch",
+      "query": "osgEarth 3.8 的 Map 头文件里声明的许可证，与仓库根目录 LICENSE.txt 声明的许可证是否一致？",
+      "answer_rubric": "不一致。Map 头文件头部版权注释写的是 “Copyright 2025 Pelican Mapping / MIT License”；而仓库 LICENSE.txt 正文写明 osgEarth library 与随附程序按 GNU Lesser General Public License Version 3（29 June 2007）提供，并附有若干例外与约定。逐字看，两处声明不同。",
+      "evidence": [
+        {
+          "path": "extracted/osgearth/src/osgEarth/Map",
+          "start_line": 1,
+          "end_line": 4,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": "raw/osgearth/osgearth-3.8.tar.gz",
+          "archive_member": "osgearth-osgearth-3.8/src/osgEarth/Map",
+          "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca"
+        },
+        {
+          "path": "raw/osgearth/LICENSE.txt",
+          "start_line": 3,
+          "end_line": 5,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "3324061c295fd17769cd4f045f3d0965fb5c61492edf85e2c943e18077254191"
+        },
+        {
+          "path": "raw/osgearth/LICENSE.txt",
+          "start_line": 22,
+          "end_line": 23,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "3324061c295fd17769cd4f045f3d0965fb5c61492edf85e2c943e18077254191"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive；仅陈述两处原文，不推断哪种许可对整体生效",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/osgearth/src/osgEarth/Map",
+        "raw/osgearth/LICENSE.txt"
+      ],
+      "source_sha256_all": [
+        "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "3324061c295fd17769cd4f045f3d0965fb5c61492edf85e2c943e18077254191"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-validation-028",
+      "split": "validation",
+      "library": "osgEarth",
+      "version": "3.8",
+      "source_type": "official-source",
+      "format": "cpp-header",
+      "family_id": "osgearth-licensing",
+      "query_type": "version_mismatch",
+      "query": "osgEarth 3.8 的 Map 头文件里声明的许可证，与仓库根目录 LICENSE.txt 声明的许可证是否一致？",
+      "answer_rubric": "不一致。Map 头文件头部版权注释写的是 “Copyright 2025 Pelican Mapping / MIT License”；而仓库 LICENSE.txt 正文写明 osgEarth library 与随附程序按 GNU Lesser General Public License Version 3（29 June 2007）提供，并附有若干例外与约定。逐字看，两处声明不同。但根 LICENSE.txt 第3项同时声明其为最终许可说明，优先于源码、头文件及文档中的许可文字。",
+      "evidence": [
+        {
+          "path": "extracted/osgearth/src/osgEarth/Map",
+          "start_line": 1,
+          "end_line": 4,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": "raw/osgearth/osgearth-3.8.tar.gz",
+          "archive_member": "osgearth-osgearth-3.8/src/osgEarth/Map",
+          "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca"
+        },
+        {
+          "path": "raw/osgearth/LICENSE.txt",
+          "start_line": 3,
+          "end_line": 15,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "3324061c295fd17769cd4f045f3d0965fb5c61492edf85e2c943e18077254191"
+        },
+        {
+          "path": "raw/osgearth/LICENSE.txt",
+          "start_line": 22,
+          "end_line": 23,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "3324061c295fd17769cd4f045f3d0965fb5c61492edf85e2c943e18077254191"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive；仅陈述两处原文，不推断哪种许可对整体生效",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/osgearth/src/osgEarth/Map",
+        "raw/osgearth/LICENSE.txt"
+      ],
+      "source_sha256_all": [
+        "206c3a64dc6a907679e6f250262ff3403478c9f0f9db2896dc2d33219c0458ca",
+        "3324061c295fd17769cd4f045f3d0965fb5c61492edf85e2c943e18077254191"
+      ]
+    }
+  },
+  {
+    "id": "rag-validation-037",
+    "before": {
+      "id": "rag-validation-037",
+      "split": "validation",
+      "library": "OGC WMS",
+      "version": "1.3.0 (OGC 06-042)",
+      "source_type": "standard",
+      "format": "pdf",
+      "family_id": "ogc-wms-versioning",
+      "query_type": "multi_evidence",
+      "query": "这份规范的参考编号、版本号与发布日期分别是什么？它声称取代了哪些既往版本？",
+      "answer_rubric": "参考编号 OGC 06-042；版本 1.3.0；日期 2006-03-15。前言写明本版本取代此前所有版本的 OpenGIS Web Map Service Implementation Specification，包括 OGC 04-024、01-068r3、01-047r2、01-109r1 和 OGC 00-028。",
+      "evidence": [
+        {
+          "path": "raw/ogc/06-042.pdf",
+          "start_line": null,
+          "end_line": null,
+          "page": 3,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116"
+        },
+        {
+          "path": "raw/ogc/06-042.pdf",
+          "start_line": null,
+          "end_line": null,
+          "page": 4,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/06-042.pdf"
+      ],
+      "source_sha256_all": [
+        "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-validation-037",
+      "split": "validation",
+      "library": "OGC WMS",
+      "version": "1.3.0 (OGC 06-042)",
+      "source_type": "standard",
+      "format": "pdf",
+      "family_id": "ogc-wms-versioning",
+      "query_type": "multi_evidence",
+      "query": "这份规范的参考编号、版本号与发布日期分别是什么？它声称取代了哪些既往版本？",
+      "answer_rubric": "参考编号 OGC 06-042；版本 1.3.0；日期 2006-03-15。前言写明本版本取代此前所有版本的 OpenGIS Web Map Service Implementation Specification，包括 OGC 04-024、01-068r3、01-047r2、01-109r1 和 OGC 00-028。",
+      "evidence": [
+        {
+          "path": "raw/ogc/06-042.pdf",
+          "start_line": null,
+          "end_line": null,
+          "page": 1,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116"
+        },
+        {
+          "path": "raw/ogc/06-042.pdf",
+          "start_line": null,
+          "end_line": null,
+          "page": 4,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/06-042.pdf"
+      ],
+      "source_sha256_all": [
+        "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116"
+      ]
+    }
+  },
+  {
+    "id": "rag-validation-045",
+    "before": {
+      "id": "rag-validation-045",
+      "split": "validation",
+      "library": "PROJ",
+      "version": "9.8.1",
+      "source_type": "official-doc",
+      "format": "html",
+      "family_id": "proj-overview",
+      "query_type": "api",
+      "query": "PROJ 9.8.1 官方文档首页写着 PROJ 采用什么开源许可证？",
+      "answer_rubric": "X/MIT open source license。",
+      "evidence": [
+        {
+          "path": "raw/proj/proj-9.8-docs-index.html",
+          "start_line": 100,
+          "end_line": 112,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": "html > body > div.document > div.section > p",
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive；行号为解包后的 HTML 原始行",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/proj/proj-9.8-docs-index.html"
+      ],
+      "source_sha256_all": [
+        "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-validation-045",
+      "split": "validation",
+      "library": "PROJ",
+      "version": "9.8.1",
+      "source_type": "official-doc",
+      "format": "rst",
+      "family_id": "proj-overview",
+      "query_type": "api",
+      "query": "PROJ 9.8.1 官方文档首页写着 PROJ 采用什么开源许可证？",
+      "answer_rubric": "X/MIT open source license。",
+      "evidence": [
+        {
+          "path": "pinned/proj/docs/source/about_core.rst",
+          "start_line": 1,
+          "end_line": 4,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive；行号为解包后的 HTML 原始行",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/proj/proj-9.8-docs-index.html"
+      ],
+      "source_sha256_all": [
+        "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300"
+      ]
+    }
+  },
+  {
+    "id": "rag-validation-046",
+    "before": {
+      "id": "rag-validation-046",
+      "split": "validation",
+      "library": "PROJ",
+      "version": "9.8.1",
+      "source_type": "official-doc",
+      "format": "html",
+      "family_id": "proj-overview",
+      "query_type": "semantic",
+      "query": "按 PROJ 文档首页的说法，PROJ 目前支持多少种不同的地图投影？它对基准面变换的支持程度如何？",
+      "answer_rubric": "支持超过一百种（more than a hundred）不同的地图投影；在基准面之间变换坐标时，除最冷僻的大地测量方法外均可支持。",
+      "evidence": [
+        {
+          "path": "raw/proj/proj-9.8-docs-index.html",
+          "start_line": 113,
+          "end_line": 121,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": "html > body > div.document > div.section > p",
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/proj/proj-9.8-docs-index.html"
+      ],
+      "source_sha256_all": [
+        "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-validation-046",
+      "split": "validation",
+      "library": "PROJ",
+      "version": "9.8.1",
+      "source_type": "official-doc",
+      "format": "rst",
+      "family_id": "proj-overview",
+      "query_type": "semantic",
+      "query": "按 PROJ 文档首页的说法，PROJ 目前支持多少种不同的地图投影？它对基准面变换的支持程度如何？",
+      "answer_rubric": "支持超过一百种（more than a hundred）不同的地图投影；在基准面之间变换坐标时，除最冷僻的大地测量方法外均可支持。",
+      "evidence": [
+        {
+          "path": "pinned/proj/docs/source/about_core.rst",
+          "start_line": 13,
+          "end_line": 18,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/proj/proj-9.8-docs-index.html"
+      ],
+      "source_sha256_all": [
+        "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300"
+      ]
+    }
+  },
+  {
+    "id": "rag-validation-050",
+    "before": {
+      "id": "rag-validation-050",
+      "split": "validation",
+      "library": "PROJ",
+      "version": "9.8.1",
+      "source_type": "official-doc",
+      "format": "markdown",
+      "family_id": "proj-cli",
+      "query_type": "out_of_scope",
+      "query": "PROJ 9.8.1 中 projsync 支持哪些命令行参数？同步时如何选择特定国家或区域的网格文件？",
+      "answer_rubric": "无法由所采集资料完整回答。README.md 只说明 projsync 用于“同步 PROJ 基准与变换支持数据”，未列出任何参数；采集范围内也没有 PROJ 的 projsync 参考手册页面。需要 PROJ 官方 apps/projsync 文档才能回答。",
+      "evidence": [
+        {
+          "path": "extracted/proj/README.md",
+          "start_line": 33,
+          "end_line": 33,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": "raw/proj/proj-9.8.1.tar.gz",
+          "archive_member": "proj-9.8.1/README.md",
+          "source_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960"
+        }
+      ],
+      "expected_status": "insufficient",
+      "source_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+      "archive_member": "proj-9.8.1/README.md",
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive；此题为刻意设置的不可回答题，唯一证据只能证明采集范围仅有该一句话描述",
+      "note": "采集范围内不存在 PROJ 的 projsync 参数手册，README.md 只给出该工具的一句话定位，属语料缺口，应回答“资料不足”而非编造参数清单。",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/proj/README.md"
+      ],
+      "source_sha256_all": [
+        "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-validation-050",
+      "split": "validation",
+      "library": "PROJ",
+      "version": "9.8.1",
+      "source_type": "official-doc",
+      "format": "man-roff",
+      "family_id": "proj-cli",
+      "query_type": "api",
+      "query": "PROJ 9.8.1 中 projsync 支持哪些命令行参数？同步时如何选择特定国家或区域的网格文件？",
+      "answer_rubric": "支持 --endpoint、--local-geojson-file、--user-writable-directory、--system-directory、--target-dir、--bbox、--spatial-test、--source-id、--area-of-use、--file、--all、--exclude-world-coverage、--quiet、--verbose、--dry-run、--list-files、--no-version-filtering。区域可用 --bbox west_long,south_lat,east_long,north_lat 指定；--spatial-test 默认为 intersects，也可选 contains。可用 --area-of-use 按区域名称筛选，或 --source-id 按来源筛选；--file、--source-id、--area-of-use 和 --bbox 以 AND 组合。",
+      "evidence": [
+        {
+          "path": "extracted/proj/man/man1/projsync.1",
+          "start_line": 34,
+          "end_line": 181,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": "raw/proj/proj-9.8.1.tar.gz",
+          "archive_member": "proj-9.8.1/man/man1/projsync.1",
+          "source_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+      "archive_member": "proj-9.8.1/README.md",
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive；此题为刻意设置的不可回答题，唯一证据只能证明采集范围仅有该一句话描述",
+      "note": "User-approved man/ scope; original insufficient label invalid.",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/proj/README.md"
+      ],
+      "source_sha256_all": [
+        "af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960"
+      ]
+    }
+  },
+  {
+    "id": "rag-test-005",
+    "before": {
+      "id": "rag-test-005",
+      "split": "test",
+      "library": "GDAL",
+      "version": "3.13.1",
+      "source_type": "official-doc",
+      "format": "html",
+      "family_id": "gdal-warp-cli",
+      "query_type": "semantic",
+      "query": "如何判断 gdalwarp 的运行是 IO 受限还是 CPU 受限？另外，在日志中看到哪个具体函数名意味着性能会比较慢？文档认为最快的情况是什么？",
+      "answer_rubric": "运行中查看 CPU 使用率：若明显低于 100% 说明是 IO 受限，否则是 CPU 受限，--debug 也能提供有用信息。一旦看到 GDALWarpKernel()::GWKGeneralCase() 就说明会相对较慢；最快的情况是 8bit 数据、无 nodata 或 alpha 掩膜生效时的最邻近重采样。另外 Src/Dst 窗口显示的是使用的分块大小，若被切成很多块，适当增大 -wm 可能有帮助。",
+      "evidence": [
+        {
+          "path": "extracted/gdal/gdaldoc/programs/gdalwarp.html",
+          "start_line": 981,
+          "end_line": 990,
+          "page": null,
+          "bbox": null,
+          "anchor": "memory-usage",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/programs/gdalwarp.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        },
+        {
+          "path": "extracted/gdal/gdaldoc/programs/gdalwarp.html",
+          "start_line": 1002,
+          "end_line": 1007,
+          "page": null,
+          "bbox": null,
+          "anchor": "memory-usage",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/programs/gdalwarp.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        }
+      ],
+      "expected_status": "partially_supported",
+      "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "note": "“IO 受限/CPU 受限”判定与 GWKGeneralCase 提示分处两段，需跨段合并；单段无法完整回答。",
+      "source_paths": [
+        "extracted/gdal/gdaldoc/programs/gdalwarp.html"
+      ],
+      "source_sha256_all": [
+        "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-test-005",
+      "split": "test",
+      "library": "GDAL",
+      "version": "3.13.1",
+      "source_type": "official-doc",
+      "format": "html",
+      "family_id": "gdal-warp-cli",
+      "query_type": "semantic",
+      "query": "如何判断 gdalwarp 的运行是 IO 受限还是 CPU 受限？另外，在日志中看到哪个具体函数名意味着性能会比较慢？文档认为最快的情况是什么？",
+      "answer_rubric": "运行中查看 CPU 使用率：若明显低于 100% 说明是 IO 受限，否则是 CPU 受限，--debug 也能提供有用信息。一旦看到 GDALWarpKernel()::GWKGeneralCase() 就说明会相对较慢；最快的情况是 8bit 数据、无 nodata 或 alpha 掩膜生效时的最邻近重采样。另外 Src/Dst 窗口显示的是使用的分块大小，若被切成很多块，适当增大 -wm 可能有帮助。",
+      "evidence": [
+        {
+          "path": "extracted/gdal/gdaldoc/programs/gdalwarp.html",
+          "start_line": 981,
+          "end_line": 990,
+          "page": null,
+          "bbox": null,
+          "anchor": "memory-usage",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/programs/gdalwarp.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        },
+        {
+          "path": "extracted/gdal/gdaldoc/programs/gdalwarp.html",
+          "start_line": 1000,
+          "end_line": 1007,
+          "page": null,
+          "bbox": null,
+          "anchor": "memory-usage",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/programs/gdalwarp.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "note": "Two spans jointly support the answer; multiple spans do not imply partial support.",
+      "source_paths": [
+        "extracted/gdal/gdaldoc/programs/gdalwarp.html"
+      ],
+      "source_sha256_all": [
+        "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+      ]
+    }
+  },
+  {
+    "id": "rag-test-009",
+    "before": {
+      "id": "rag-test-009",
+      "split": "test",
+      "library": "GDAL",
+      "version": "3.13.1",
+      "source_type": "official-doc",
+      "format": "html",
+      "family_id": "gdal-gdalbuildvrt-cli",
+      "query_type": "api",
+      "query": "gdalbuildvrt 的 -resolution 接受哪些取值？其中哪一个是默认值、含义是什么？在输入分辨率不一致时它会做什么？",
+      "answer_rubric": "取值 highest|lowest|average|user|same（synopsis 列出这 6 个以外的写法见下），另有文档正文提到的 common。当所有输入文件分辨率不一致时该选项用于控制输出分辨率如何计算。highest 取源栅格中像素尺寸的最小值；lowest 取最大值；average 是默认值，取源栅格像素尺寸的平均；user 必须与 -tr 配合指定目标分辨率；same（GDAL 3.11 加入）校验所有源分辨率相同、否则报错；common（GDAL 3.11 加入）取源像素尺寸的最大公约数（如 0.4 与 0.6 → 0.2）。",
+      "evidence": [
+        {
+          "path": "extracted/gdal/gdaldoc/programs/gdalbuildvrt.html",
+          "start_line": 276,
+          "end_line": 288,
+          "page": null,
+          "bbox": null,
+          "anchor": "cmdoption-gdalbuildvrt-resolution",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/programs/gdalbuildvrt.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        }
+      ],
+      "expected_status": "partially_supported",
+      "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+      "archive_member": "gdaldoc/programs/gdalbuildvrt.html",
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "note": "synopsis 的取值列表（highest|lowest|average|user|same）与正文额外说明的 common 不完全一致，属文档内部口径差异。",
+      "source_paths": [
+        "extracted/gdal/gdaldoc/programs/gdalbuildvrt.html"
+      ],
+      "source_sha256_all": [
+        "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-test-009",
+      "split": "test",
+      "library": "GDAL",
+      "version": "3.13.1",
+      "source_type": "official-doc",
+      "format": "html",
+      "family_id": "gdal-gdalbuildvrt-cli",
+      "query_type": "api",
+      "query": "gdalbuildvrt 的 -resolution 接受哪些取值？其中哪一个是默认值、含义是什么？在输入分辨率不一致时它会做什么？",
+      "answer_rubric": "取值 highest|lowest|average|user|same（synopsis 列出这 5 个取值），另有文档正文提到的 common。当所有输入文件分辨率不一致时该选项用于控制输出分辨率如何计算。highest 取源栅格中像素尺寸的最小值；lowest 取最大值；average 是默认值，取源栅格像素尺寸的平均；user 必须与 -tr 配合指定目标分辨率；same（GDAL 3.11 加入）校验所有源分辨率相同、否则报错；common（GDAL 3.11 加入）取源像素尺寸的最大公约数（如 0.4 与 0.6 → 0.2）。",
+      "evidence": [
+        {
+          "path": "extracted/gdal/gdaldoc/programs/gdalbuildvrt.html",
+          "start_line": 276,
+          "end_line": 288,
+          "page": null,
+          "bbox": null,
+          "anchor": "cmdoption-gdalbuildvrt-resolution",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/programs/gdalbuildvrt.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+      "archive_member": "gdaldoc/programs/gdalbuildvrt.html",
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "note": "synopsis 的取值列表（highest|lowest|average|user|same）与正文额外说明的 common 不完全一致，属文档内部口径差异。",
+      "source_paths": [
+        "extracted/gdal/gdaldoc/programs/gdalbuildvrt.html"
+      ],
+      "source_sha256_all": [
+        "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+      ]
+    }
+  },
+  {
+    "id": "rag-test-012",
+    "before": {
+      "id": "rag-test-012",
+      "split": "test",
+      "library": "GDAL",
+      "version": "3.13.1",
+      "source_type": "official-doc",
+      "format": "html",
+      "family_id": "gdal-gdal-rasterize-cli",
+      "query_type": "multi_evidence",
+      "query": "gdal_rasterize 的 -burn、-a、-l 三个选项分别是什么用途？其中哪些可以重复指定？-l 与 -sql 之间有什么约束？",
+      "answer_rubric": "-burn <value>：为所有对象烧录一个固定值，可多次指定（每个输出波段一个）。-a <attribute_name>：用一个属性字段的值作为烧录值，会烧进所有输出波段。-l <layername>：指定用于输入要素的图层，可指定多次，但至少要给一个图层名或一个 -sql（两者不能同时用）。",
+      "evidence": [
+        {
+          "path": "extracted/gdal/gdaldoc/programs/gdal_rasterize.html",
+          "start_line": 278,
+          "end_line": 284,
+          "page": null,
+          "bbox": null,
+          "anchor": "cmdoption-gdal_rasterize-burn",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/programs/gdal_rasterize.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        },
+        {
+          "path": "extracted/gdal/gdaldoc/programs/gdal_rasterize.html",
+          "start_line": 287,
+          "end_line": 291,
+          "page": null,
+          "bbox": null,
+          "anchor": "cmdoption-gdal_rasterize-a",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/programs/gdal_rasterize.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        },
+        {
+          "path": "extracted/gdal/gdaldoc/programs/gdal_rasterize.html",
+          "start_line": 308,
+          "end_line": 314,
+          "page": null,
+          "bbox": null,
+          "anchor": "cmdoption-gdal_rasterize-l",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/programs/gdal_rasterize.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/gdal/gdaldoc/programs/gdal_rasterize.html"
+      ],
+      "source_sha256_all": [
+        "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-test-012",
+      "split": "test",
+      "library": "GDAL",
+      "version": "3.13.1",
+      "source_type": "official-doc",
+      "format": "html",
+      "family_id": "gdal-gdal-rasterize-cli",
+      "query_type": "multi_evidence",
+      "query": "gdal_rasterize 的 -burn、-a、-l 三个选项分别是什么用途？其中哪些可以重复指定？-l 与 -sql 之间有什么约束？",
+      "answer_rubric": "-burn <value>：为所有对象烧录一个固定值，可多次指定（每个输出波段一个）。-a <attribute_name>：用一个属性字段的值作为烧录值，会烧进所有输出波段。-l <layername>：指定用于输入要素的图层，可指定多次，但至少要给一个图层名或一个 -sql（两者不能同时用）。",
+      "evidence": [
+        {
+          "path": "extracted/gdal/gdaldoc/programs/gdal_rasterize.html",
+          "start_line": 278,
+          "end_line": 284,
+          "page": null,
+          "bbox": null,
+          "anchor": "cmdoption-gdal_rasterize-burn",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/programs/gdal_rasterize.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        },
+        {
+          "path": "extracted/gdal/gdaldoc/programs/gdal_rasterize.html",
+          "start_line": 285,
+          "end_line": 291,
+          "page": null,
+          "bbox": null,
+          "anchor": "cmdoption-gdal_rasterize-a",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/programs/gdal_rasterize.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        },
+        {
+          "path": "extracted/gdal/gdaldoc/programs/gdal_rasterize.html",
+          "start_line": 308,
+          "end_line": 314,
+          "page": null,
+          "bbox": null,
+          "anchor": "cmdoption-gdal_rasterize-l",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/programs/gdal_rasterize.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/gdal/gdaldoc/programs/gdal_rasterize.html"
+      ],
+      "source_sha256_all": [
+        "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+      ]
+    }
+  },
+  {
+    "id": "rag-test-015",
+    "before": {
+      "id": "rag-test-015",
+      "split": "test",
+      "library": "GDAL",
+      "version": "3.13.1",
+      "source_type": "official-doc",
+      "format": "html",
+      "family_id": "gdal-config-options",
+      "query_type": "api",
+      "query": "为 GDAL 设置配置项有哪些方式？命令行上的 --config 如何用？自 GDAL 3.9 起多了什么写法？在 C/C++ 中如何设置？",
+      "answer_rubric": "① 环境变量：Unix 用 export GDAL_CACHEMAX=64，Windows/DOS 用 set GDAL_CACHEMAX=64；② 命令行：多数 GDAL/OGR 工具支持 --config <NAME> <VALUE>，例如 gdal_translate --config GDAL_CACHEMAX 64 in.tif out.tif；③ 自 GDAL 3.9 起，也可用单个 <NAME>=<VALUE> 字符串，例如 --config GDAL_CACHEMAX=64；④ C/C++ 中用 CPLSetConfigOption(\"GDAL_CACHEMAX\", \"64\")，并可用 CPLSetThreadLocalConfigOption() 限制到当前线程。布尔型选项可用 YES/TRUE/ON 打开、NO/FALSE/OFF 关闭。",
+      "evidence": [
+        {
+          "path": "extracted/gdal/gdaldoc/user/configoptions.html",
+          "start_line": 179,
+          "end_line": 215,
+          "page": null,
+          "bbox": null,
+          "anchor": "how-to-set-configuration-options",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/user/configoptions.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+      "archive_member": "gdaldoc/user/configoptions.html",
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/gdal/gdaldoc/user/configoptions.html"
+      ],
+      "source_sha256_all": [
+        "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-test-015",
+      "split": "test",
+      "library": "GDAL",
+      "version": "3.13.1",
+      "source_type": "official-doc",
+      "format": "html",
+      "family_id": "gdal-config-options",
+      "query_type": "api",
+      "query": "为 GDAL 设置配置项有哪些方式？命令行上的 --config 如何用？自 GDAL 3.9 起多了什么写法？在 C/C++ 中如何设置？",
+      "answer_rubric": "① 环境变量：Unix 用 export GDAL_CACHEMAX=64，Windows/DOS 用 set GDAL_CACHEMAX=64；② 命令行：多数 GDAL/OGR 工具支持 --config <NAME> <VALUE>，例如 gdal_translate --config GDAL_CACHEMAX 64 in.tif out.tif；③ 自 GDAL 3.9 起，也可用单个 <NAME>=<VALUE> 字符串，例如 --config GDAL_CACHEMAX=64；④ C/C++ 中用 CPLSetConfigOption(\"GDAL_CACHEMAX\", \"64\")，并可用 CPLSetThreadLocalConfigOption() 限制到当前线程。布尔型选项可用 YES/TRUE/ON 打开、NO/FALSE/OFF 关闭。",
+      "evidence": [
+        {
+          "path": "extracted/gdal/gdaldoc/user/configoptions.html",
+          "start_line": 179,
+          "end_line": 217,
+          "page": null,
+          "bbox": null,
+          "anchor": "how-to-set-configuration-options",
+          "element_path": null,
+          "source_archive": "raw/gdal/gdal3131doc.zip",
+          "archive_member": "gdaldoc/user/configoptions.html",
+          "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+      "archive_member": "gdaldoc/user/configoptions.html",
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "extracted/gdal/gdaldoc/user/configoptions.html"
+      ],
+      "source_sha256_all": [
+        "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4"
+      ],
+      "required_evidence_atoms": [
+        "TRUE",
+        "ON",
+        "NO",
+        "FALSE",
+        "OFF"
+      ]
+    }
+  },
+  {
+    "id": "rag-test-026",
+    "before": {
+      "id": "rag-test-026",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "pdf",
+      "family_id": "3dtiles-bounding-volume",
+      "query_type": "api",
+      "query": "3D Tiles 的 boundingVolume.region 由几个数字构成？这六个值的顺序是什么？经纬度与高度分别用什么单位？region 使用哪个坐标参考？",
+      "answer_rubric": "region 是由六个数字构成的数组，定义为带纬度、经度与高度坐标的地理范围，顺序为 [west, south, east, north, minimum height, maximum height]。经度与纬度使用弧度，高度使用米。region 使用地理坐标系，具体为 EPSG 4979；参考椭球假定与 tileset 的参考椭球相同。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.pdf",
+          "start_line": null,
+          "end_line": null,
+          "page": 39,
+          "bbox": null,
+          "anchor": "6.7.1.4.1 Region",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "1d349ef636291a9869035f1779dd8278ddcd19df0fd36fe50a9735a4ea5a66a8"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "1d349ef636291a9869035f1779dd8278ddcd19df0fd36fe50a9735a4ea5a66a8",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/22-025r4.pdf"
+      ],
+      "source_sha256_all": [
+        "1d349ef636291a9869035f1779dd8278ddcd19df0fd36fe50a9735a4ea5a66a8"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-test-026",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "pdf",
+      "family_id": "3dtiles-bounding-volume",
+      "query_type": "api",
+      "query": "3D Tiles 的 boundingVolume.region 由几个数字构成？这六个值的顺序是什么？经纬度与高度分别用什么单位？region 使用哪个坐标参考？",
+      "answer_rubric": "region 是由六个数字构成的数组，定义为带纬度、经度与高度坐标的地理范围，顺序为 [west, south, east, north, minimum height, maximum height]。经度与纬度使用弧度，高度使用米。region 使用地理坐标系，具体为 EPSG 4979；高度相对于 WGS 84 椭球测量。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.pdf",
+          "start_line": null,
+          "end_line": null,
+          "page": 39,
+          "bbox": null,
+          "anchor": "6.7.1.4.1 Region",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "1d349ef636291a9869035f1779dd8278ddcd19df0fd36fe50a9735a4ea5a66a8"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "1d349ef636291a9869035f1779dd8278ddcd19df0fd36fe50a9735a4ea5a66a8",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/22-025r4.pdf"
+      ],
+      "source_sha256_all": [
+        "1d349ef636291a9869035f1779dd8278ddcd19df0fd36fe50a9735a4ea5a66a8"
+      ],
+      "required_evidence_atoms": [
+        "WGS 84",
+        "ellipsoid"
+      ]
+    }
+  },
+  {
+    "id": "rag-test-027",
+    "before": {
+      "id": "rag-test-027",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-bounding-volume",
+      "query_type": "api",
+      "query": "3D Tiles 的 boundingVolume.box 由几个数字构成？前三个、接下来三个、最后六个元素分别定义什么？该盒子处于什么坐标系、哪根轴朝上？",
+      "answer_rubric": "box 是由 12 个数字构成的数组，定义右手三轴 (x, y, z) 笛卡尔坐标系（z 轴朝上）中的一个有向包围盒（OBB）。前三个元素定义盒子中心的 x、y、z 值；接下来三个元素（下标 3、4、5）定义 x 轴的朝向与半长；再接下来三个元素（下标 6、7、8）定义 y 轴的朝向与半长；最后三个元素（下标 9、10、11）定义 z 轴的朝向与半长。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 1773,
+          "end_line": 1773,
+          "page": null,
+          "bbox": null,
+          "anchor": "core-bounding-volume-box",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-test-027",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-bounding-volume",
+      "query_type": "api",
+      "query": "3D Tiles 的 boundingVolume.box 由几个数字构成？前三个、接下来三个、最后六个元素分别定义什么？该盒子处于什么坐标系、哪根轴朝上？",
+      "answer_rubric": "box 是由 12 个数字构成的数组，定义右手三轴 (x, y, z) 笛卡尔坐标系（z 轴朝上）中的一个有向包围盒（OBB）。前三个元素定义盒子中心的 x、y、z 值；接下来三个元素（下标 3、4、5）定义 x 轴的朝向与半长；再接下来三个元素（下标 6、7、8）定义 y 轴的朝向与半长；最后三个元素（下标 9、10、11）定义 z 轴的朝向与半长。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 1773,
+          "end_line": 1773,
+          "page": null,
+          "bbox": null,
+          "anchor": "core-box",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ]
+    }
+  },
+  {
+    "id": "rag-test-028",
+    "before": {
+      "id": "rag-test-028",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-bounding-volume",
+      "query_type": "api",
+      "query": "3D Tiles 的 boundingVolume.sphere 由几个数字构成？前三个与最后一个元素分别是什么？半径单位是什么？",
+      "answer_rubric": "sphere 是由 4 个数字构成的数组：前三个元素定义球心在右手三轴 (x,y,z) 笛卡尔坐标系（z 轴朝上）中的 x、y、z 值；最后一个元素（下标 3）定义半径，单位为米。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 1787,
+          "end_line": 1787,
+          "page": null,
+          "bbox": null,
+          "anchor": "core-bounding-volume-sphere",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-test-028",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-bounding-volume",
+      "query_type": "api",
+      "query": "3D Tiles 的 boundingVolume.sphere 由几个数字构成？前三个与最后一个元素分别是什么？半径单位是什么？",
+      "answer_rubric": "sphere 是由 4 个数字构成的数组：前三个元素定义球心在右手三轴 (x,y,z) 笛卡尔坐标系（z 轴朝上）中的 x、y、z 值；最后一个元素（下标 3）定义半径，单位为米。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 1787,
+          "end_line": 1787,
+          "page": null,
+          "bbox": null,
+          "anchor": "core-sphere",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ]
+    }
+  },
+  {
+    "id": "rag-test-033",
+    "before": {
+      "id": "rag-test-033",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-external-tilesets",
+      "query_type": "api",
+      "query": "如何构造“tileset 的 tileset”（树的树）？具体做法是什么、有什么典型用途？",
+      "answer_rubric": "做法是让某个 tile 的 content.uri 指向一个外部 tileset（即另一个 tileset JSON 文件的 uri），从而形成“树的树”。典型用途：例如把每个城市各存为一个 tileset，再做一个全局的 tileset 来组织这些 tileset。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 1710,
+          "end_line": 1712,
+          "page": null,
+          "bbox": null,
+          "anchor": "core-tile-content",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-test-033",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-external-tilesets",
+      "query_type": "api",
+      "query": "如何构造“tileset 的 tileset”（树的树）？具体做法是什么、有什么典型用途？",
+      "answer_rubric": "做法是让某个 tile 的 content.uri 指向一个外部 tileset（即另一个 tileset JSON 文件的 uri），从而形成“树的树”。典型用途：例如把每个城市各存为一个 tileset，再做一个全局的 tileset 来组织这些 tileset。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 1710,
+          "end_line": 1712,
+          "page": null,
+          "bbox": null,
+          "anchor": "core-tile-content",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        },
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 2027,
+          "end_line": 2027,
+          "page": null,
+          "bbox": null,
+          "anchor": null,
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ],
+      "required_evidence_atoms": [
+        "each city",
+        "global tileset"
+      ]
+    }
+  },
+  {
+    "id": "rag-test-035",
+    "before": {
+      "id": "rag-test-035",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-subdivision",
+      "query_type": "semantic",
+      "query": "quadtree 与 octree 在细分方案上的差别是什么（各自分出几个子 tile、哪些维度被二分）？哪类 bounding volume 被明确禁止用于隐式切片？为什么？按 Table 24，子节点的 geometricError 与父节点是什么关系？",
+      "answer_rubric": "subdivision scheme 是把一个 tile 的包围体递归划分成占据同一空间的更小 children tile 的模式。quadtree 只在 x 与 y 两个维度上划分空间：把每个 tile 分成 4 个更小的 tile，x 与 y 维度减半，z 的最小/最大值保持不变，因此每个 tile 有 4 个子节点。octree 沿全部 3 个维度划分：把每个 tile 分成 8 个更小的 tile，每个维度减半，因此每个 tile 有 8 个子节点。对于 region 包围体，x、y、z 分别对应经度、纬度、高度。球体（sphere）包围体被明确禁止，因为它们无法被划分为四叉树或八叉树。按 Table 24 的细分规则：subdivisionScheme 与 refine 对所有后代 tile 恒定；boundingVolume 按 subdivisionScheme 被分成 4 或 8 份；每个子节点的 geometricError 是其父节点 geometricError 的一半。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 3336,
+          "end_line": 3352,
+          "page": null,
+          "bbox": null,
+          "anchor": "implicittiling-subdivision-scheme",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        },
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 3366,
+          "end_line": 3371,
+          "page": null,
+          "bbox": null,
+          "anchor": "implicittiling-subdivision-scheme / Table 24",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-test-035",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-subdivision",
+      "query_type": "semantic",
+      "query": "quadtree 与 octree 在细分方案上的差别是什么（各自分出几个子 tile、哪些维度被二分）？哪类 bounding volume 被明确禁止用于隐式切片？为什么？按 Table 24，子节点的 geometricError 与父节点是什么关系？",
+      "answer_rubric": "subdivision scheme 是把一个 tile 的包围体递归划分成占据同一空间的更小 children tile 的模式。quadtree 只在 x 与 y 两个维度上划分空间：把每个 tile 分成 4 个更小的 tile，x 与 y 维度减半，z 的最小/最大值保持不变，因此每个 tile 有 4 个子节点。octree 沿全部 3 个维度划分：把每个 tile 分成 8 个更小的 tile，每个维度减半，因此每个 tile 有 8 个子节点。对于 region 包围体，x、y、z 分别对应经度、纬度、高度。球体（sphere）包围体被明确禁止，因为它们无法被划分为四叉树或八叉树。按 Table 24 的细分规则：subdivisionScheme 与 refine 对所有后代 tile 恒定；boundingVolume 按 subdivisionScheme 被分成 4 或 8 份；每个子节点的 geometricError 是其父节点 geometricError 的一半。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 3336,
+          "end_line": 3352,
+          "page": null,
+          "bbox": null,
+          "anchor": "implicittiling-subdivision-scheme",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        },
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 3366,
+          "end_line": 3371,
+          "page": null,
+          "bbox": null,
+          "anchor": "implicittiling-subdivision-rules",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ]
+    }
+  },
+  {
+    "id": "rag-test-038",
+    "before": {
+      "id": "rag-test-038",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-revision-history",
+      "query_type": "version_mismatch",
+      "query": "按 22-025r4 的修订历史（Annex H），1.1.0 版的首次发布日期是哪天？该版本的描述如何定性？之后还有哪些修订记录？",
+      "answer_rubric": "2022-07-26 发布了 1.1.0，描述为 “This is the first normative version of this document.”（本文档的第一个规范性版本），编辑为 Sean Lilley，修改范围 all。其后同一 1.1.0 版本还有 2022-08-17（补充关于选用弧度、包围盒表示与矩阵列主序的说明性注释，修正格式与笔误）、2022-10-07（在术语与定义中加入说明：在 3D Tiles 语境下 “metadata” 等价于其他 OGC 标准中 attribution 的概念）、2023-01-09（更新批准日期与公开日期）三条修订记录。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 9791,
+          "end_line": 9804,
+          "page": null,
+          "bbox": null,
+          "anchor": "revision-history",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-test-038",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-revision-history",
+      "query_type": "version_mismatch",
+      "query": "按 22-025r4 的修订历史（Annex H），1.1.0 版的首条修订日期是哪天？该版本的描述如何定性？之后还有哪些修订记录？",
+      "answer_rubric": "1.1.0 的首条修订记录日期为 2022-07-26，描述为 “This is the first normative version of this document.”（本文档的第一个规范性版本），编辑为 Sean Lilley，修改范围 all。其后同一 1.1.0 版本还有 2022-08-17（补充关于选用弧度、包围盒表示与矩阵列主序的说明性注释，修正格式与笔误）、2022-10-07（在术语与定义中加入说明：在 3D Tiles 语境下 “metadata” 等价于其他 OGC 标准中 attribution 的概念）、2023-01-09（更新批准日期与公开日期）三条修订记录。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 9791,
+          "end_line": 9825,
+          "page": null,
+          "bbox": null,
+          "anchor": "toc154",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "supported",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ]
+    }
+  },
+  {
+    "id": "rag-test-039",
+    "before": {
+      "id": "rag-test-039",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-compression",
+      "query_type": "api",
+      "query": "3D Tiles 1.1 正文列出了 glTF 的哪些几何压缩扩展与纹理压缩扩展？文档是否给出了这些扩展各自的默认量化位数或默认压缩级别？",
+      "answer_rubric": "正文 7.2.5 说明 glTF 有若干几何与纹理压缩扩展，可帮助减小文件体积与 GPU 显存占用。7.2.5.1 Geometry Compression 列出：KHR_mesh_quantization、EXT_meshopt_compression、KHR_draco_mesh_compression。7.2.5.2 Texture Compression 列出：KHR_texture_basisu。规范正文并未给出这些扩展各自的默认量化位数或默认压缩级别 —— 这些属于各扩展自身的规范内容，本文档只列扩展名。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 2410,
+          "end_line": 2425,
+          "page": null,
+          "bbox": null,
+          "anchor": "tileformats-gltf-compression",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "partially_supported",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "note": "扩展名清单可从本文档直接得到；默认量化/压缩参数不在本文档范围内，需查各扩展规范。",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-test-039",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-compression",
+      "query_type": "api",
+      "query": "3D Tiles 1.1 正文列出了 glTF 的哪些几何压缩扩展与纹理压缩扩展？文档是否给出了这些扩展各自的默认量化位数或默认压缩级别？",
+      "answer_rubric": "正文 7.2.5 说明 glTF 有若干几何与纹理压缩扩展，可帮助减小文件体积与 GPU 显存占用。7.2.5.1 Geometry Compression 列出：KHR_mesh_quantization、EXT_meshopt_compression、KHR_draco_mesh_compression。7.2.5.2 Texture Compression 列出：KHR_texture_basisu。规范正文并未给出这些扩展各自的默认量化位数或默认压缩级别 —— 这些属于各扩展自身的规范内容，本文档只列扩展名。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 2410,
+          "end_line": 2426,
+          "page": null,
+          "bbox": null,
+          "anchor": "tileformats-gltf-compression",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "partially_supported",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "note": "扩展名清单可从本文档直接得到；默认量化/压缩参数不在本文档范围内，需查各扩展规范。",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ]
+    }
+  },
+  {
+    "id": "rag-test-040",
+    "before": {
+      "id": "rag-test-040",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-runtime-impl",
+      "query_type": "out_of_scope",
+      "query": "在 CesiumJS 中通过 Cesium3DTileset.fromUrl 加载 tileset 时，maximumScreenSpaceError 的默认取值是多少？该参数与 spec 中的哪个概念对应？",
+      "answer_rubric": "本评测集所采集的语料（OGC 22-025r4 规范原文）不含 CesiumJS 运行时 API 的参数默认值。规范中仅有的两处 CesiumJS 提及都是“代码位置指引”：7.3.1 Batch Table Overview 处指出读取 Batch Table 的代码可参考 CesiumJS 实现中的 Cesium3DTileBatchTable.js；Feature Table 一节处指出可参考 Cesium3DTileFeatureTable.js —— 都不涉及 maximumScreenSpaceError 的默认值。规范侧只定义了 Screen-Space Error (SSE) 术语：它是“当一个 tile 的内容被渲染、而其子节点的内容未被渲染时，该 tile 对源几何的简化表示所带来的像素差”，以及 tile.geometricError 的选择语义。因此正确行为是回答“语料不足、无法给出该默认值”，而不是编造数值。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 1573,
+          "end_line": 1574,
+          "page": null,
+          "bbox": null,
+          "anchor": "term-Screen-Space-Error-_SSE_",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        },
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 2566,
+          "end_line": 2568,
+          "page": null,
+          "bbox": null,
+          "anchor": "batch-table-overview",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "insufficient",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "note": "刻意设置的语料外问题，用于检验系统是否会在证据不足时拒绝作答。",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ]
+    },
+    "after_editorial": {
+      "id": "rag-test-040",
+      "split": "test",
+      "library": "OGC 3D Tiles",
+      "version": "1.1 (OGC 22-025r4)",
+      "source_type": "standard",
+      "format": "html",
+      "family_id": "3dtiles-runtime-impl",
+      "query_type": "out_of_scope",
+      "query": "在 CesiumJS 中通过 Cesium3DTileset.fromUrl 加载 tileset 时，maximumScreenSpaceError 的默认取值是多少？该参数与 spec 中的哪个概念对应？",
+      "answer_rubric": "当前可检索范围是标准规范，没有 CesiumJS 运行时 API 的参数默认值依据，因此无法给出 maximumScreenSpaceError 的默认数值。规范中的对应概念是 Screen-Space Error (SSE)：渲染某 tile 而不渲染其子节点时，简化几何相对源几何带来的像素差。不能从 SSE 定义推断实现的默认值。",
+      "evidence": [
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 1573,
+          "end_line": 1574,
+          "page": null,
+          "bbox": null,
+          "anchor": "term-Screen-Space-Error-_SSE_",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        },
+        {
+          "path": "raw/ogc/22-025r4.html",
+          "start_line": 2566,
+          "end_line": 2568,
+          "page": null,
+          "bbox": null,
+          "anchor": "tileformats-batchtable-implementation-example",
+          "element_path": null,
+          "source_archive": null,
+          "archive_member": null,
+          "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+        }
+      ],
+      "expected_status": "insufficient",
+      "source_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+      "archive_member": null,
+      "evidence_policy": "listed spans jointly support the rubric; not exhaustive",
+      "review_status": "human_source_checked",
+      "note": "刻意设置的语料外问题，用于检验系统是否会在证据不足时拒绝作答。",
+      "source_paths": [
+        "raw/ogc/22-025r4.html"
+      ],
+      "source_sha256_all": [
+        "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67"
+      ]
+    }
+  }
+]

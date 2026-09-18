@@ -1,0 +1,240 @@
+{
+  "results": [
+    {
+      "corpus_id": "osgearth-3.8",
+      "target": {
+        "target_id": "osgearth-3.8-blocks-candidate-001",
+        "library": "osgearth",
+        "version": "3.8",
+        "strategy": "blocks",
+        "dense_collection": "osgearth_3_8_dense_blocks_candidate_001",
+        "bm25_path": "data/indexes/osgearth_3_8_bm25_blocks_candidate_001.sqlite",
+        "manifest_path": "corpora/osgearth-3.8/source-manifest.json",
+        "manifest_sha256": "d6905dde98abafa3b0074a1e2e550338f6c8ab3f60c6f3f2ff8e2778812a37a9",
+        "chunk_count": 42,
+        "vector_dimension": 1024,
+        "embedding_model": "Qwen3-Embedding-0.6B",
+        "canonical_corpus_sha256": "d4b7b96bec382c9f43c9cdd04f78afc6c4afaced06cf6893302677637ec4dce5",
+        "normalization_profile": "text-newline-lf-v1"
+      },
+      "validation": {
+        "target_id": "osgearth-3.8-blocks-candidate-001",
+        "manifest_sha256": "d6905dde98abafa3b0074a1e2e550338f6c8ab3f60c6f3f2ff8e2778812a37a9",
+        "canonical_corpus_sha256": "d4b7b96bec382c9f43c9cdd04f78afc6c4afaced06cf6893302677637ec4dce5",
+        "bm25_rows": 42,
+        "qdrant_points": 42,
+        "bm25_metadata_rows": 42,
+        "qdrant_metadata_points": 42,
+        "vector_dimension": 1024,
+        "collection_status": "green",
+        "valid": true
+      },
+      "action": "reused_validated"
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "target": {
+        "target_id": "gdal-3.13.1-blocks-candidate-001",
+        "library": "gdal",
+        "version": "3.13.1",
+        "strategy": "blocks",
+        "dense_collection": "gdal_3_13_1_dense_blocks_candidate_001",
+        "bm25_path": "data/indexes/gdal_3_13_1_bm25_blocks_candidate_001.sqlite",
+        "manifest_path": "corpora/gdal-3.13.1/source-manifest.json",
+        "manifest_sha256": "9cc8693c3cb144aa549103d95b9080e202345d12aa80648443859c4a4fb53bd0",
+        "chunk_count": 306,
+        "vector_dimension": 1024,
+        "embedding_model": "Qwen3-Embedding-0.6B",
+        "canonical_corpus_sha256": "5be8e3225707fb6a1953af2faaa723751084e2ab40a5fa53d40dff28805584e1",
+        "normalization_profile": "text-newline-lf-v1"
+      },
+      "validation": {
+        "target_id": "gdal-3.13.1-blocks-candidate-001",
+        "manifest_sha256": "9cc8693c3cb144aa549103d95b9080e202345d12aa80648443859c4a4fb53bd0",
+        "canonical_corpus_sha256": "5be8e3225707fb6a1953af2faaa723751084e2ab40a5fa53d40dff28805584e1",
+        "bm25_rows": 306,
+        "qdrant_points": 306,
+        "bm25_metadata_rows": 306,
+        "qdrant_metadata_points": 306,
+        "vector_dimension": 1024,
+        "collection_status": "green",
+        "valid": true
+      },
+      "action": "reused_validated"
+    },
+    {
+      "corpus_id": "proj-9.8.1",
+      "target": {
+        "target_id": "proj-9.8.1-blocks-candidate-001",
+        "library": "proj",
+        "version": "9.8.1",
+        "strategy": "blocks",
+        "dense_collection": "proj_9_8_1_dense_blocks_candidate_001",
+        "bm25_path": "data/indexes/proj_9_8_1_bm25_blocks_candidate_001.sqlite",
+        "manifest_path": "corpora/proj-9.8.1/source-manifest.json",
+        "manifest_sha256": "464f2bc5d569dff4d005657d61c00cd1822760e570bce72b7776af1cb3c56d33",
+        "chunk_count": 58,
+        "vector_dimension": 1024,
+        "embedding_model": "Qwen3-Embedding-0.6B",
+        "canonical_corpus_sha256": "60358c76e502244b687cdf359d0800f26f705e42dea4864c29450fb96d6449e3",
+        "normalization_profile": "text-newline-lf-v1"
+      },
+      "validation": {
+        "target_id": "proj-9.8.1-blocks-candidate-001",
+        "manifest_sha256": "464f2bc5d569dff4d005657d61c00cd1822760e570bce72b7776af1cb3c56d33",
+        "canonical_corpus_sha256": "60358c76e502244b687cdf359d0800f26f705e42dea4864c29450fb96d6449e3",
+        "bm25_rows": 58,
+        "qdrant_points": 58,
+        "bm25_metadata_rows": 58,
+        "qdrant_metadata_points": 58,
+        "vector_dimension": 1024,
+        "collection_status": "green",
+        "valid": true
+      },
+      "action": "reused_validated"
+    },
+    {
+      "corpus_id": "ogc-3dtiles-1.1",
+      "target": {
+        "target_id": "ogc-3dtiles-1.1-blocks-candidate-001",
+        "library": "ogc-3dtiles",
+        "version": "1.1",
+        "strategy": "blocks",
+        "dense_collection": "ogc_3dtiles_1_1_dense_blocks_candidate_001",
+        "bm25_path": "data/indexes/ogc_3dtiles_1_1_bm25_blocks_candidate_001.sqlite",
+        "manifest_path": "corpora/ogc-3dtiles-1.1/source-manifest.json",
+        "manifest_sha256": "6c1ee1f4784de96fa82a9019dda5a270ef1cfd7b8f5344a1d1fafcba88652fc3",
+        "chunk_count": 888,
+        "vector_dimension": 1024,
+        "embedding_model": "Qwen3-Embedding-0.6B",
+        "canonical_corpus_sha256": "518fc35241954310a52dd948677fb3228dbd309a54679027f61bf8794b65f4a2",
+        "normalization_profile": "mixed-versioned-v1"
+      },
+      "validation": {
+        "target_id": "ogc-3dtiles-1.1-blocks-candidate-001",
+        "manifest_sha256": "6c1ee1f4784de96fa82a9019dda5a270ef1cfd7b8f5344a1d1fafcba88652fc3",
+        "canonical_corpus_sha256": "518fc35241954310a52dd948677fb3228dbd309a54679027f61bf8794b65f4a2",
+        "bm25_rows": 888,
+        "qdrant_points": 888,
+        "bm25_metadata_rows": 888,
+        "qdrant_metadata_points": 888,
+        "vector_dimension": 1024,
+        "collection_status": "green",
+        "valid": true
+      }
+    },
+    {
+      "corpus_id": "ogc-wms-1.3.0",
+      "target": {
+        "target_id": "ogc-wms-1.3.0-blocks-candidate-001",
+        "library": "ogc-wms",
+        "version": "1.3.0",
+        "strategy": "blocks",
+        "dense_collection": "ogc_wms_1_3_0_dense_blocks_candidate_001",
+        "bm25_path": "data/indexes/ogc_wms_1_3_0_bm25_blocks_candidate_001.sqlite",
+        "manifest_path": "corpora/ogc-wms-1.3.0/source-manifest.json",
+        "manifest_sha256": "8ed78c2a6fec319656b028c09efdfa69af4c30d4bd6a102c1a4981232b5bdd26",
+        "chunk_count": 202,
+        "vector_dimension": 1024,
+        "embedding_model": "Qwen3-Embedding-0.6B",
+        "canonical_corpus_sha256": "ffb0aa6174e926fefaba73840a1d3da2ff1bfad7f3e748c9e6cc84b0d35ebe7c",
+        "normalization_profile": "mixed-versioned-v1"
+      },
+      "validation": {
+        "target_id": "ogc-wms-1.3.0-blocks-candidate-001",
+        "manifest_sha256": "8ed78c2a6fec319656b028c09efdfa69af4c30d4bd6a102c1a4981232b5bdd26",
+        "canonical_corpus_sha256": "ffb0aa6174e926fefaba73840a1d3da2ff1bfad7f3e748c9e6cc84b0d35ebe7c",
+        "bm25_rows": 202,
+        "qdrant_points": 202,
+        "bm25_metadata_rows": 202,
+        "qdrant_metadata_points": 202,
+        "vector_dimension": 1024,
+        "collection_status": "green",
+        "valid": true
+      }
+    }
+  ],
+  "route": {
+    "schema_version": 1,
+    "route_id": "multicorpus-candidates-001",
+    "routing": "explicit library and version; fan out only when caller omits library",
+    "active_unchanged": "osg-3.6.5-blocks-dualhash-003",
+    "candidates": [
+      {
+        "target_id": "osgearth-3.8-blocks-candidate-001",
+        "library": "osgearth",
+        "version": "3.8",
+        "strategy": "blocks",
+        "dense_collection": "osgearth_3_8_dense_blocks_candidate_001",
+        "bm25_path": "data/indexes/osgearth_3_8_bm25_blocks_candidate_001.sqlite",
+        "manifest_path": "corpora/osgearth-3.8/source-manifest.json",
+        "manifest_sha256": "d6905dde98abafa3b0074a1e2e550338f6c8ab3f60c6f3f2ff8e2778812a37a9",
+        "chunk_count": 42,
+        "vector_dimension": 1024,
+        "embedding_model": "Qwen3-Embedding-0.6B",
+        "canonical_corpus_sha256": "d4b7b96bec382c9f43c9cdd04f78afc6c4afaced06cf6893302677637ec4dce5",
+        "normalization_profile": "text-newline-lf-v1"
+      },
+      {
+        "target_id": "gdal-3.13.1-blocks-candidate-001",
+        "library": "gdal",
+        "version": "3.13.1",
+        "strategy": "blocks",
+        "dense_collection": "gdal_3_13_1_dense_blocks_candidate_001",
+        "bm25_path": "data/indexes/gdal_3_13_1_bm25_blocks_candidate_001.sqlite",
+        "manifest_path": "corpora/gdal-3.13.1/source-manifest.json",
+        "manifest_sha256": "9cc8693c3cb144aa549103d95b9080e202345d12aa80648443859c4a4fb53bd0",
+        "chunk_count": 306,
+        "vector_dimension": 1024,
+        "embedding_model": "Qwen3-Embedding-0.6B",
+        "canonical_corpus_sha256": "5be8e3225707fb6a1953af2faaa723751084e2ab40a5fa53d40dff28805584e1",
+        "normalization_profile": "text-newline-lf-v1"
+      },
+      {
+        "target_id": "proj-9.8.1-blocks-candidate-001",
+        "library": "proj",
+        "version": "9.8.1",
+        "strategy": "blocks",
+        "dense_collection": "proj_9_8_1_dense_blocks_candidate_001",
+        "bm25_path": "data/indexes/proj_9_8_1_bm25_blocks_candidate_001.sqlite",
+        "manifest_path": "corpora/proj-9.8.1/source-manifest.json",
+        "manifest_sha256": "464f2bc5d569dff4d005657d61c00cd1822760e570bce72b7776af1cb3c56d33",
+        "chunk_count": 58,
+        "vector_dimension": 1024,
+        "embedding_model": "Qwen3-Embedding-0.6B",
+        "canonical_corpus_sha256": "60358c76e502244b687cdf359d0800f26f705e42dea4864c29450fb96d6449e3",
+        "normalization_profile": "text-newline-lf-v1"
+      },
+      {
+        "target_id": "ogc-3dtiles-1.1-blocks-candidate-001",
+        "library": "ogc-3dtiles",
+        "version": "1.1",
+        "strategy": "blocks",
+        "dense_collection": "ogc_3dtiles_1_1_dense_blocks_candidate_001",
+        "bm25_path": "data/indexes/ogc_3dtiles_1_1_bm25_blocks_candidate_001.sqlite",
+        "manifest_path": "corpora/ogc-3dtiles-1.1/source-manifest.json",
+        "manifest_sha256": "6c1ee1f4784de96fa82a9019dda5a270ef1cfd7b8f5344a1d1fafcba88652fc3",
+        "chunk_count": 888,
+        "vector_dimension": 1024,
+        "embedding_model": "Qwen3-Embedding-0.6B",
+        "canonical_corpus_sha256": "518fc35241954310a52dd948677fb3228dbd309a54679027f61bf8794b65f4a2",
+        "normalization_profile": "mixed-versioned-v1"
+      },
+      {
+        "target_id": "ogc-wms-1.3.0-blocks-candidate-001",
+        "library": "ogc-wms",
+        "version": "1.3.0",
+        "strategy": "blocks",
+        "dense_collection": "ogc_wms_1_3_0_dense_blocks_candidate_001",
+        "bm25_path": "data/indexes/ogc_wms_1_3_0_bm25_blocks_candidate_001.sqlite",
+        "manifest_path": "corpora/ogc-wms-1.3.0/source-manifest.json",
+        "manifest_sha256": "8ed78c2a6fec319656b028c09efdfa69af4c30d4bd6a102c1a4981232b5bdd26",
+        "chunk_count": 202,
+        "vector_dimension": 1024,
+        "embedding_model": "Qwen3-Embedding-0.6B",
+        "canonical_corpus_sha256": "ffb0aa6174e926fefaba73840a1d3da2ff1bfad7f3e748c9e6cc84b0d35ebe7c",
+        "normalization_profile": "mixed-versioned-v1"
+      }
+    ]
+  }
+}

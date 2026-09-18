@@ -1,0 +1,56 @@
+{
+  "source": "include/osg/Geode",
+  "version": "3.6.5",
+  "strategies": {
+    "fixed": {
+      "chunk_count": 6,
+      "contains_addDrawable": [
+        {
+          "chunk_id": "3.6.5:include/osg/Geode:fixed:0001",
+          "start_line": 28,
+          "end_line": 57,
+          "chars": 1296
+        }
+      ],
+      "first_two": [
+        {
+          "chunk_id": "3.6.5:include/osg/Geode:fixed:0000",
+          "start_line": 1,
+          "end_line": 34,
+          "preview": "/* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2006 Robert Osfield\r\n *\r\n * This library is open source and may be redistributed and/or modified under\r\n * the terms of the OpenSce"
+        },
+        {
+          "chunk_id": "3.6.5:include/osg/Geode:fixed:0001",
+          "start_line": 28,
+          "end_line": 57,
+          "preview": "class OSG_EXPORT Geode : public Group\r\n{\r\n    public:\r\n\r\n        Geode();\r\n\r\n        /** Copy constructor using CopyOp to manage deep vs shallow copy.*/\r\n        Geode(const Geode&"
+        }
+      ]
+    },
+    "blocks": {
+      "chunk_count": 6,
+      "contains_addDrawable": [
+        {
+          "chunk_id": "3.6.5:include/osg/Geode:blocks:0001",
+          "start_line": 42,
+          "end_line": 63,
+          "chars": 1148
+        }
+      ],
+      "first_two": [
+        {
+          "chunk_id": "3.6.5:include/osg/Geode:blocks:0000",
+          "start_line": 1,
+          "end_line": 41,
+          "preview": "/* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2006 Robert Osfield\r\n *\r\n * This library is open source and may be redistributed and/or modified under\r\n * the terms of the OpenSce"
+        },
+        {
+          "chunk_id": "3.6.5:include/osg/Geode:blocks:0001",
+          "start_line": 42,
+          "end_line": 63,
+          "preview": "        /** Add a \\c Drawable to the \\c Geode.\r\n          * If \\c drawable is not \\c NULL and is not contained in the \\c Geode\r\n          * then increment its reference count, add "
+        }
+      ]
+    }
+  }
+}

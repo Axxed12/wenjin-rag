@@ -1,0 +1,484 @@
+{
+  "run_id": "evidence-judge-001",
+  "model": "xopqwen35397b",
+  "questions": 16,
+  "three_class_accuracy": 0.8125,
+  "safe_supported_vs_not_accuracy": 1.0,
+  "judge_errors": 1,
+  "mean_judge_seconds": 2.817375,
+  "rows": [
+    {
+      "id": "osg-test-001",
+      "group": "frozen_answerable",
+      "query": "OSG 中如何用掩码决定一个节点在场景遍历时是否被处理？",
+      "expected_status": "supported",
+      "actual_status": "supported",
+      "correct": true,
+      "safe_binary_correct": true,
+      "judge_seconds": 5.419,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "supported",
+        "citations": [
+          1,
+          4
+        ],
+        "supported_claims": [
+          "OSG 使用 NodeMask 位掩码来决定节点在场景遍历时是否被处理。",
+          "遍历机制是通过将 osg::NodeVisitor 的 TraversalMask 与节点的 NodeMask 进行按位与（bitwise AND）运算来实现的。",
+          "如果按位与的结果表明掩码不匹配，节点及其子节点将被忽略（不被处理/渲染）。",
+          "Node 类提供了 setNodeMask 和 getNodeMask 方法来设置和获取掩码值。",
+          "在 META_Node 宏定义的 accept 方法中，通过调用 nv.validNodeMask(*this) 来检查掩码，只有验证通过才会执行后续的遍历操作。"
+        ],
+        "missing_aspects": [],
+        "reason": "证据 1 详细描述了 NodeMask 的定义、默认值以及其在遍历过程中如何通过 bitwise AND 操作与 TraversalMask 配合来决定节点是否被处理，并给出了具体示例。证据 4 中的 META_Node 宏展示了在实际代码实现中，如何在 accept 方法入口处调用 validNodeMask 来执行这一检查。这两处证据完整且明确地回答了用户关于“如何用掩码决定”的问题。"
+      },
+      "evidence_ids": [
+        "3.6.5:include/osg/Node:blocks:0012",
+        "3.6.5:include/osg/Node:blocks:0011",
+        "3.6.5:include/osg/Node:blocks:0017",
+        "3.6.5:include/osg/Node:blocks:0001",
+        "3.6.5:include/osg/Node:blocks:0000"
+      ]
+    },
+    {
+      "id": "osg-test-002",
+      "group": "frozen_answerable",
+      "query": "Geometry 怎样追加一个新的 PrimitiveSet，返回值是什么？",
+      "expected_status": "supported",
+      "actual_status": "supported",
+      "correct": true,
+      "safe_binary_correct": true,
+      "judge_seconds": 3.861,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "supported",
+        "citations": [
+          1,
+          5
+        ],
+        "supported_claims": [
+          "Geometry 类提供了 addPrimitiveSet 方法用于追加新的 PrimitiveSet",
+          "addPrimitiveSet 方法的返回类型是 bool"
+        ],
+        "missing_aspects": [],
+        "reason": "证据 1 明确声明了 `bool addPrimitiveSet(PrimitiveSet* primitiveset);`，直接回答了如何追加（调用该方法）以及返回值类型（bool）。证据 5 提供了具体的调用示例 `pointsGeom->addPrimitiveSet(new osg::DrawArrays(...));`，证实了用法。"
+      },
+      "evidence_ids": [
+        "3.6.5:include/osg/Geometry:blocks:0003",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0003",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006"
+      ]
+    },
+    {
+      "id": "osg-test-003",
+      "group": "frozen_answerable",
+      "query": "osgViewer::Viewer 的 run() 做什么？如果窗口尚未 realize 会怎样？",
+      "expected_status": "supported",
+      "actual_status": "supported",
+      "correct": true,
+      "safe_binary_correct": true,
+      "judge_seconds": 2.749,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "supported",
+        "citations": [
+          1
+        ],
+        "supported_claims": [
+          "osgViewer::Viewer 的 run() 方法执行主帧循环（等价于 while (!viewer.done()) viewer.frame();）",
+          "如果 viewer 尚未 realize，run() 方法会调用 realize()",
+          "如果尚未分配 trackball manipulator，run() 方法会安装一个"
+        ],
+        "missing_aspects": [],
+        "reason": "证据 1 中的注释明确说明了 run() 方法的功能：执行主帧循环，并在 viewer 未 realize 时调用 realize()，以及在没有分配 manipulator 时安装 trackball manipulator。这直接回答了用户关于 run() 做什么以及窗口未 realize 时会怎样的问题。"
+      },
+      "evidence_ids": [
+        "3.6.5:include/osgViewer/Viewer:blocks:0002",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+        "3.6.5:include/osgViewer/Viewer:blocks:0000",
+        "3.6.5:include/osgViewer/Viewer:blocks:0001",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020"
+      ]
+    },
+    {
+      "id": "osg-test-004",
+      "group": "frozen_answerable",
+      "query": "Drawable 禁用 display list 支持后，setUseDisplayList(true) 还能强制使用吗？",
+      "expected_status": "supported",
+      "actual_status": "supported",
+      "correct": true,
+      "safe_binary_correct": true,
+      "judge_seconds": 2.873,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "supported",
+        "citations": [
+          1,
+          5
+        ],
+        "supported_claims": [
+          "当 setSupportsDisplayList(false) 时，setUseDisplayList(true) 的调用会被忽略",
+          "setSupportsDisplayList(false) 会阻止 display list 的创建"
+        ],
+        "missing_aspects": [],
+        "reason": "证据 1 明确指出：当 setSupportsDisplayList 设置为 false 时，'no display lists can be created and calls to setUseDisplayList are ignored'（无法创建 display list，且对 setUseDisplayList 的调用会被忽略）。证据 5 展示了 draw 方法中的逻辑，只有当 _useDisplayList 为 true 且未使用 VBO 时才会执行 display list 相关代码，但由于证据 1 说明在 supports 为 false 时 setUseDisplayList 被忽略（即 _useDisplayList 不会被成功设置为 true 或即使设置也无效），因此无法强制使用。"
+      },
+      "evidence_ids": [
+        "3.6.5:include/osg/Drawable:blocks:0006",
+        "3.6.5:include/osg/Drawable:blocks:0007",
+        "3.6.5:include/osg/Drawable:blocks:0008",
+        "3.6.5:include/osg/Drawable:blocks:0018",
+        "3.6.5:include/osg/Drawable:blocks:0019"
+      ]
+    },
+    {
+      "id": "osg-test-005",
+      "group": "frozen_answerable",
+      "query": "ref_ptr 的 release() 会把持有的指针怎样处理？调用方要承担什么责任？",
+      "expected_status": "supported",
+      "actual_status": "supported",
+      "correct": true,
+      "safe_binary_correct": true,
+      "judge_seconds": 2.919,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "supported",
+        "citations": [
+          1
+        ],
+        "supported_claims": [
+          "release() 通过调用 unref_nodelete() 减少对象的引用计数，但阻止对象在计数归零时被删除。",
+          "release() 将内部持有的指针 (_ptr) 置为 0。",
+          "release() 返回之前持有的原始指针。",
+          "调用方必须承担接管对象管理责任，否则会导致内存泄漏。"
+        ],
+        "missing_aspects": [],
+        "reason": "证据 1 中的注释和代码实现明确说明了 release() 的行为：调用 unref_nodelete() 以防止删除，将内部指针置零，并返回原始指针。注释还明确指出调用者必须接管管理权（'expecting other code to take over management'），否则会导致内存泄漏。所有问题要求均有直接证据支持。"
+      },
+      "evidence_ids": [
+        "3.6.5:include/osg/ref_ptr:blocks:0003",
+        "3.6.5:include/osg/ref_ptr:blocks:0000",
+        "3.6.5:include/osg/Referenced:blocks:0004",
+        "3.6.5:include/osg/ref_ptr:blocks:0004",
+        "3.6.5:include/osg/ref_ptr:blocks:0002"
+      ]
+    },
+    {
+      "id": "osg-test-006",
+      "group": "frozen_answerable",
+      "query": "StateSet 添加一个 StateAttribute 并同时启用关联 GLMode 应查哪个接口？默认值是什么？",
+      "expected_status": "supported",
+      "actual_status": "supported",
+      "correct": true,
+      "safe_binary_correct": true,
+      "judge_seconds": 2.53,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "supported",
+        "citations": [
+          2
+        ],
+        "supported_claims": [
+          "应查接口为 setAttributeAndModes",
+          "默认值为 StateAttribute::ON"
+        ],
+        "missing_aspects": [],
+        "reason": "证据 2 明确提供了非纹理相关的 StateAttribute 添加并启用关联 GLMode 的接口 void setAttributeAndModes(StateAttribute *attribute, StateAttribute::GLModeValue value=StateAttribute::ON);。该声明直接回答了用户关于接口名称（setAttributeAndModes）和默认值（StateAttribute::ON）的询问。虽然证据 1 提供了纹理相关的类似接口，但用户问题未限定为纹理属性，证据 2 覆盖了通用的 StateAttribute 情况。"
+      },
+      "evidence_ids": [
+        "3.6.5:include/osg/StateSet:blocks:0008",
+        "3.6.5:include/osg/StateSet:blocks:0005",
+        "3.6.5:include/osg/StateSet:blocks:0003",
+        "3.6.5:include/osg/StateSet:blocks:0019",
+        "3.6.5:include/osg/StateSet:blocks:0007"
+      ]
+    },
+    {
+      "id": "osg-test-007",
+      "group": "frozen_answerable",
+      "query": "osgviewer 应用在读入模型后，进入主循环前按什么顺序处理场景和窗口？",
+      "expected_status": "supported",
+      "actual_status": "supported",
+      "correct": true,
+      "safe_binary_correct": true,
+      "judge_seconds": 2.749,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "supported",
+        "citations": [
+          1,
+          4
+        ],
+        "supported_claims": [
+          "在 osgviewer 应用中，模型读入（osgDB::readRefNodeFiles）完成后，首先执行场景图优化（osgUtil::Optimizer::optimize）。",
+          "优化完成后，调用 viewer.setSceneData(loadedModel) 将处理后的模型设置到查看器中。",
+          "设置场景数据后，调用 viewer.realize() 初始化窗口和上下文。",
+          "最后调用 viewer.run() 进入主循环。"
+        ],
+        "missing_aspects": [],
+        "reason": "证据 4 显示了模型加载的过程，证据 1 紧接着展示了加载完成后的处理顺序：先优化场景 (optimizer.optimize)，再设置场景数据 (setSceneData)，然后实现窗口 (realize)，最后运行主循环 (run)。这完整且明确地回答了用户关于处理顺序的问题。"
+      },
+      "evidence_ids": [
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+        "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019",
+        "3.6.5:include/osgViewer/Viewer:blocks:0002",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020"
+      ]
+    },
+    {
+      "id": "osg-test-008",
+      "group": "frozen_answerable",
+      "query": "找一个官方例子，说明点图元如何设置顶点数组、整体颜色并加入 PrimitiveSet。",
+      "expected_status": "partially_supported",
+      "actual_status": "judge_error",
+      "correct": false,
+      "safe_binary_correct": true,
+      "judge_seconds": 4.162,
+      "judge_error_type": "JSONDecodeError",
+      "assessment": null,
+      "evidence_ids": [
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0013",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0012",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0002"
+      ]
+    },
+    {
+      "id": "osg-neg-001",
+      "group": "negative_calibration",
+      "query": "OSG 3.6.5 的 Geode::appendDrawable 接口返回什么？",
+      "expected_status": "insufficient",
+      "actual_status": "insufficient",
+      "correct": true,
+      "safe_binary_correct": true,
+      "judge_seconds": 2.021,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "insufficient",
+        "citations": [],
+        "supported_claims": [],
+        "missing_aspects": [
+          "appendDrawable 接口的存在性",
+          "appendDrawable 的返回类型"
+        ],
+        "reason": "提供的证据（OSG 3.6.5 版本的 Geode 头文件和源文件）中仅包含 addDrawable、removeDrawable、setDrawable、replaceDrawable 等接口，未找到名为 appendDrawable 的接口定义或声明。因此无法判断该接口的返回类型。"
+      },
+      "evidence_ids": [
+        "3.6.5:include/osg/Geode:blocks:0001",
+        "3.6.5:include/osg/Geode:blocks:0003",
+        "3.6.5:src/osg/Geode.cpp:blocks:0000",
+        "3.6.5:include/osg/Geode:blocks:0004",
+        "3.6.5:include/osg/Geode:blocks:0000"
+      ]
+    },
+    {
+      "id": "osg-neg-002",
+      "group": "negative_calibration",
+      "query": "OSG 3.6.5 如何创建 Vulkan 光线追踪管线？",
+      "expected_status": "insufficient",
+      "actual_status": "insufficient",
+      "correct": true,
+      "safe_binary_correct": true,
+      "judge_seconds": 2.985,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "insufficient",
+        "citations": [],
+        "supported_claims": [],
+        "missing_aspects": [
+          "Vulkan 光线追踪管线创建方法",
+          "Vulkan 相关 API 或类",
+          "光线追踪特定配置"
+        ],
+        "reason": "提供的证据仅包含 OSG 3.6.5 中传统的 OpenGL 状态属性枚举（如 POINT, LINEWIDTH 等）和基础几何体（POINTS, LINES, TRIANGLES）的创建示例。没有任何证据提及 Vulkan、光线追踪（Ray Tracing）或相关的管线创建接口。证据内容与用户查询的核心需求完全无关。"
+      },
+      "evidence_ids": [
+        "3.6.5:include/osg/StateAttribute:blocks:0005",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0004",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0003",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0002",
+        "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0002"
+      ]
+    },
+    {
+      "id": "osg-neg-003",
+      "group": "negative_calibration",
+      "query": "OSG 4.0 相比3.6.5修改了哪些 NodeMask 行为？",
+      "expected_status": "insufficient",
+      "actual_status": "insufficient",
+      "correct": true,
+      "safe_binary_correct": true,
+      "judge_seconds": 1.785,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "insufficient",
+        "citations": [],
+        "supported_claims": [],
+        "missing_aspects": [
+          "OSG 4.0 版本的 NodeMask 行为定义",
+          "OSG 4.0 与 3.6.5 版本的差异对比",
+          "任何关于版本 4.0 的代码或文档证据"
+        ],
+        "reason": "提供的证据仅包含 OSG 3.6.5 版本的 NodeMask 定义和行为描述，完全没有包含 OSG 4.0 版本的任何信息。因此，无法基于给定证据判断两个版本之间 NodeMask 行为的修改或差异。"
+      },
+      "evidence_ids": [
+        "3.6.5:include/osg/Node:blocks:0012",
+        "3.6.5:include/osg/Node:blocks:0017",
+        "3.6.5:include/osg/Node:blocks:0001",
+        "3.6.5:include/osg/Node:blocks:0000",
+        "3.6.5:include/osg/Node:blocks:0004"
+      ]
+    },
+    {
+      "id": "osg-neg-004",
+      "group": "negative_calibration",
+      "query": "如何让 osgViewer 使用 DirectX 12 渲染后端？",
+      "expected_status": "insufficient",
+      "actual_status": "insufficient",
+      "correct": true,
+      "safe_binary_correct": true,
+      "judge_seconds": 2.142,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "insufficient",
+        "citations": [],
+        "supported_claims": [],
+        "missing_aspects": [
+          "DirectX 12 渲染后端的配置方法",
+          "osgViewer 支持 DirectX 12 的证据",
+          "相关 API 或命令行参数"
+        ],
+        "reason": "提供的证据仅展示了 osgviewer.cpp 的基本结构和 Viewer 类的定义，包含命令行参数解析和场景加载逻辑，但没有任何关于选择或配置渲染后端（如 OpenGL、DirectX 11/12）的代码、宏定义、命令行选项或文档说明。证据中未出现 'DirectX'、'D3D12'、'GraphicsContextTraits' 设置或任何与渲染器选择相关的机制。"
+      },
+      "evidence_ids": [
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0001",
+        "3.6.5:include/osgViewer/Viewer:blocks:0000",
+        "3.6.5:include/osgViewer/Viewer:blocks:0003",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005"
+      ]
+    },
+    {
+      "id": "osg-neg-005",
+      "group": "negative_calibration",
+      "query": "Viewer::run 会监听哪个HTTP端口，并怎样配置TLS证书？",
+      "expected_status": "partially_supported",
+      "actual_status": "insufficient",
+      "correct": false,
+      "safe_binary_correct": true,
+      "judge_seconds": 2.41,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "insufficient",
+        "citations": [],
+        "supported_claims": [],
+        "missing_aspects": [
+          "HTTP port listening mechanism in Viewer::run",
+          "TLS certificate configuration options"
+        ],
+        "reason": "提供的证据仅展示了 Viewer::run() 方法的声明（执行主帧循环）以及在示例应用中如何调用它。证据中完全没有提及 HTTP 协议、网络端口监听、或 TLS/SSL 证书配置的相关内容。Viewer 类主要用于图形渲染循环，而非 HTTP 服务器，且给定文本中没有任何关于网络配置的信息。"
+      },
+      "evidence_ids": [
+        "3.6.5:include/osgViewer/Viewer:blocks:0002",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+        "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0002",
+        "3.6.5:include/osgViewer/Viewer:blocks:0000"
+      ]
+    },
+    {
+      "id": "osg-neg-006",
+      "group": "negative_calibration",
+      "query": "osgDB::readNodeFile 失败时返回什么数值错误码，并抛出哪种异常？",
+      "expected_status": "partially_supported",
+      "actual_status": "insufficient",
+      "correct": false,
+      "safe_binary_correct": true,
+      "judge_seconds": 2.036,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "insufficient",
+        "citations": [
+          1
+        ],
+        "supported_claims": [
+          "osgDB::readNodeFile 失败时返回 NULL"
+        ],
+        "missing_aspects": [
+          "失败时返回的具体数值错误码",
+          "失败时抛出的异常类型"
+        ],
+        "reason": "证据 1 明确指出 `readNodeFile` 在失败时返回 `NULL`，但用户问题还询问了“返回什么数值错误码”以及“抛出哪种异常”。提供的证据中没有任何关于返回数值错误码（error code）或抛出异常（exception）的描述。证据仅说明了返回指针为空，未提及错误码机制或异常机制。"
+      },
+      "evidence_ids": [
+        "3.6.5:include/osgDB/ReadFile:blocks:0011",
+        "3.6.5:include/osgDB/ReadFile:blocks:0003",
+        "3.6.5:include/osgDB/ReadFile:blocks:0012",
+        "3.6.5:include/osgDB/ReadFile:blocks:0004",
+        "3.6.5:include/osgDB/ReadFile:blocks:0009"
+      ]
+    },
+    {
+      "id": "osg-neg-007",
+      "group": "negative_calibration",
+      "query": "OSG 的数据库连接池如何配置最大SQL连接数？",
+      "expected_status": "insufficient",
+      "actual_status": "insufficient",
+      "correct": true,
+      "safe_binary_correct": true,
+      "judge_seconds": 2.408,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "insufficient",
+        "citations": [],
+        "supported_claims": [],
+        "missing_aspects": [
+          "数据库连接池配置",
+          "最大 SQL 连接数设置",
+          "OSG 数据库相关 API"
+        ],
+        "reason": "提供的证据全部来自 OpenSceneGraph (OSG) 的图形渲染模块（如 osgText, osg::Drawable, osg::PrimitiveSet），主要涉及文本渲染、几何图元定义和 OpenGL 状态管理。证据中没有任何关于数据库连接、连接池（Connection Pool）、SQL 配置或相关类/方法的内容。用户询问的是数据库配置，而资料仅包含图形学代码，两者领域完全不匹配，无法找到任何支持证据。"
+      },
+      "evidence_ids": [
+        "3.6.5:examples/osgtext/osgtext.cpp:blocks:0015",
+        "3.6.5:include/osgText/TextBase:blocks:0009",
+        "3.6.5:include/osgText/TextBase:blocks:0005",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0000",
+        "3.6.5:include/osg/Drawable:blocks:0000"
+      ]
+    },
+    {
+      "id": "osg-neg-008",
+      "group": "negative_calibration",
+      "query": "Geometry 自动碰撞检测使用哪个神经网络模型？",
+      "expected_status": "insufficient",
+      "actual_status": "insufficient",
+      "correct": true,
+      "safe_binary_correct": true,
+      "judge_seconds": 2.029,
+      "judge_error_type": null,
+      "assessment": {
+        "status": "insufficient",
+        "citations": [],
+        "supported_claims": [],
+        "missing_aspects": [
+          "自动碰撞检测功能",
+          "神经网络模型"
+        ],
+        "reason": "提供的证据仅包含 OpenSceneGraph 中 `osg::Geometry` 和 `osg::Geode` 类的头文件定义，涉及几何数据管理、渲染属性（如顶点、法线、纹理坐标）及边界框计算。证据中完全没有提及“自动碰撞检测”功能，更未涉及任何“神经网络模型”。因此，无法从给定证据中找到支持用户问题的任何信息。"
+      },
+      "evidence_ids": [
+        "3.6.5:include/osg/Geometry:blocks:0000",
+        "3.6.5:include/osg/Geometry:blocks:0006",
+        "3.6.5:include/osg/Geometry:blocks:0009",
+        "3.6.5:include/osg/Geometry:blocks:0007",
+        "3.6.5:include/osg/Geode:blocks:0004"
+      ]
+    }
+  ]
+}

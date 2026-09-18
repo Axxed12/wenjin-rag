@@ -1,0 +1,50 @@
+{
+  "run_id": "index-switch-rollback-001",
+  "original": {
+    "target_id": "osg-3.6.5-blocks-001",
+    "library": "osg",
+    "version": "3.6.5",
+    "strategy": "blocks",
+    "dense_collection": "osg_3_6_5_dense_blocks",
+    "bm25_path": "data/indexes/osg_3_6_5_bm25_blocks.sqlite",
+    "manifest_path": "osg-starter/source-manifest.json",
+    "manifest_sha256": "4fbfbec79d500f037915ce35c3fcb3ec8854fc9f43eb6587359a30662b89102c",
+    "chunk_count": 313,
+    "vector_dimension": 1024,
+    "embedding_model": "Qwen3-Embedding-0.6B"
+  },
+  "candidate": {
+    "target_id": "osg-3.6.5-blocks-001-candidate-8de550f1",
+    "library": "osg",
+    "version": "3.6.5",
+    "strategy": "blocks",
+    "dense_collection": "osg_3_6_5_dense_blocks_candidate_8de550f1",
+    "bm25_path": "data/indexes/osg_3_6_5_bm25_blocks_candidate_8de550f1.sqlite",
+    "manifest_path": "osg-starter/source-manifest.json",
+    "manifest_sha256": "4fbfbec79d500f037915ce35c3fcb3ec8854fc9f43eb6587359a30662b89102c",
+    "chunk_count": 313,
+    "vector_dimension": 1024,
+    "embedding_model": "Qwen3-Embedding-0.6B"
+  },
+  "cloned_points": 313,
+  "candidate_validation": {
+    "target_id": "osg-3.6.5-blocks-001-candidate-8de550f1",
+    "manifest_sha256": "4fbfbec79d500f037915ce35c3fcb3ec8854fc9f43eb6587359a30662b89102c",
+    "bm25_rows": 313,
+    "qdrant_points": 313,
+    "vector_dimension": 1024,
+    "collection_status": "green",
+    "valid": true
+  },
+  "switch_revision": 2,
+  "smoke": {
+    "index_target_id": "osg-3.6.5-blocks-001-candidate-8de550f1",
+    "collection": "osg_3_6_5_dense_blocks_candidate_8de550f1",
+    "evidence_count": 1,
+    "top_source": "include/osgViewer/Viewer"
+  },
+  "rollback_revision": 3,
+  "active_after_rollback": "osg-3.6.5-blocks-001",
+  "status": "PASS",
+  "seconds": 7.241
+}

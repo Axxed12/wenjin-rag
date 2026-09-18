@@ -1,0 +1,92 @@
+[
+  {
+    "chunk_id": "3.6.5:src/osg/Geode.cpp:blocks:0000",
+    "source_path": "src/osg/Geode.cpp",
+    "version": "3.6.5",
+    "start_line": 1,
+    "end_line": 62,
+    "strategy": "blocks",
+    "text": "/* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2006 Robert Osfield\r\n *\r\n * This library is open source and may be redistributed and/or modified under\r\n * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or\r\n * (at your option) any later version.  The full license is in LICENSE file\r\n * included with this distribution, and on the openscenegraph.org website.\r\n *\r\n * This library is distributed in the hope that it will be useful,\r\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\r\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\r\n * OpenSceneGraph Public License for more details.\r\n*/\r\n#include <osg/Geode>\r\n#include <osg/Geometry>\r\n#include <osg/Notify>\r\n\r\n#include <stdio.h>\r\n#include <math.h>\r\n\r\n#define square(x)   ((x)*(x))\r\n\r\nusing namespace osg;\r\n\r\nGeode::Geode()\r\n{\r\n}\r\n\r\nGeode::Geode(const Geode& geode,const CopyOp& copyop):\r\n    Group(geode,copyop)\r\n{\r\n}\r\n\r\nGeode::~Geode()\r\n{\r\n}\r\n\r\nbool Geode::addDrawable( Drawable* drawable )\r\n{\r\n    return addChild(drawable);\r\n}\r\n\r\n\r\nbool Geode::removeDrawable( Drawable* drawable )\r\n{\r\n    return removeDrawables(getDrawableIndex(drawable),1);\r\n}\r\n\r\nbool Geode::removeDrawables(unsigned int pos,unsigned int numDrawablesToRemove)\r\n{\r\n    return removeChildren(pos, numDrawablesToRemove);\r\n}\r\n\r\nbool Geode::replaceDrawable( Drawable* origDrawable, Drawable* newDrawable )\r\n{\r\n    return replaceChild(origDrawable, newDrawable);\r\n}\r\n\r\nbool Geode::setDrawable( unsigned  int i, Drawable* newDrawable )\r\n{\r\n    return setChild(i, newDrawable);\r\n}\r\n\r\n",
+    "rrf_score": 0.03278688524590164,
+    "ranks": {
+      "dense": 1,
+      "bm25": 1
+    },
+    "original_scores": {
+      "dense": 0.7090008,
+      "bm25": 5.881628050171783
+    }
+  },
+  {
+    "chunk_id": "3.6.5:include/osg/Geode:blocks:0001",
+    "source_path": "include/osg/Geode",
+    "version": "3.6.5",
+    "start_line": 42,
+    "end_line": 63,
+    "strategy": "blocks",
+    "text": "        /** Add a \\c Drawable to the \\c Geode.\r\n          * If \\c drawable is not \\c NULL and is not contained in the \\c Geode\r\n          * then increment its reference count, add it to the drawables list and\r\n          * dirty the bounding sphere to force it to be recomputed on the next\r\n          * call to \\c getBound().\r\n          * @param drawable The \\c Drawable to be added to the \\c Geode.\r\n          * @return  \\c true for success; \\c false otherwise.\r\n        */\r\n        virtual bool addDrawable( Drawable *drawable );\r\n\r\n        template<class T> bool addDrawable( const ref_ptr<T>& drawable ) { return addDrawable(drawable.get()); }\r\n\r\n        /** Remove a \\c Drawable from the \\c Geode.\r\n          * Equivalent to <tt>removeDrawable(getDrawableIndex(drawable)</tt>.\r\n          * @param drawable The drawable to be removed.\r\n          * @return \\c true if at least one \\c Drawable was removed. \\c false\r\n          *         otherwise.\r\n        */\r\n        virtual bool removeDrawable( Drawable *drawable );\r\n\r\n        template<class T> bool removeDrawable( const ref_ptr<T>& drawable ) { return removeDrawable( drawable.get() ); }\r\n\r\n",
+    "rrf_score": 0.03225806451612903,
+    "ranks": {
+      "dense": 2,
+      "bm25": 2
+    },
+    "original_scores": {
+      "dense": 0.66380227,
+      "bm25": 5.747257435906925
+    }
+  },
+  {
+    "chunk_id": "3.6.5:include/osg/Geode:blocks:0004",
+    "source_path": "include/osg/Geode",
+    "version": "3.6.5",
+    "start_line": 107,
+    "end_line": 148,
+    "strategy": "blocks",
+    "text": "        /** Return \\c true if a given \\c Drawable is contained within \\c Geode.*/\r\n        inline bool containsDrawable(const Drawable* drawable) const\r\n        {\r\n            for (NodeList::const_iterator itr=_children.begin();\r\n                 itr!=_children.end();\r\n                 ++itr)\r\n            {\r\n                if (itr->get() == drawable) return true;\r\n            }\r\n            return false;\r\n        }\r\n\r\n        template<class T> bool containsDrawable(const ref_ptr<T>& drawable) const { return containsDrawable(drawable.get()); }\r\n\r\n        /** Get the index number of \\c drawable.\r\n          * @return A value between 0 and <tt>getNumDrawables()-1</tt> if\r\n          *         \\c drawable is found; if not found, then\r\n          *         <tt>getNumDrawables()</tt> is returned.\r\n        */\r\n        inline unsigned int getDrawableIndex( const Drawable* drawable ) const\r\n        {\r\n            return getChildIndex(drawable);\r\n        }\r\n\r\n        template<class T> unsigned int getDrawableIndex( const ref_ptr<T>& drawable ) const { return getDrawableIndex(drawable.get()); }\r\n\r\n        /** Compile OpenGL Display List for each drawable.*/\r\n        void compileDrawables(RenderInfo& renderInfo);\r\n\r\n        /** Return the Geode's bounding box, which is the union of all the\r\n          * bounding boxes of the geode's drawables.*/\r\n        inline const BoundingBox& getBoundingBox() const\r\n        {\r\n            if(!_boundingSphereComputed) getBound();\r\n            return _bbox;\r\n        }\r\n\r\n        virtual BoundingSphere computeBound() const;\r\n\r\n\r\n    protected:\r\n\r\n",
+    "rrf_score": 0.03149801587301587,
+    "ranks": {
+      "dense": 3,
+      "bm25": 4
+    },
+    "original_scores": {
+      "dense": 0.6258575,
+      "bm25": 5.537178648769417
+    }
+  },
+  {
+    "chunk_id": "3.6.5:include/osg/Geode:blocks:0002",
+    "source_path": "include/osg/Geode",
+    "version": "3.6.5",
+    "start_line": 64,
+    "end_line": 81,
+    "strategy": "blocks",
+    "text": "        /** Remove <tt>Drawable</tt>(s) from the specified position in\r\n          * <tt>Geode</tt>'s drawable list.\r\n          * @param i The index of the first \\c Drawable to remove.\r\n          * @param numDrawablesToRemove The number of <tt>Drawable</tt> to\r\n          *        remove.\r\n          * @return \\c true if at least one \\c Drawable was removed. \\c false\r\n          *         otherwise.\r\n        */\r\n        virtual bool removeDrawables(unsigned int i,unsigned int numDrawablesToRemove=1);\r\n\r\n        /** Replace specified Drawable with another Drawable.\r\n         * Equivalent to <tt>setDrawable(getDrawableIndex(origDraw),newDraw)</tt>,\r\n         * see docs for \\c setDrawable() for further details on implementation.\r\n        */\r\n        virtual bool replaceDrawable( Drawable *origDraw, Drawable *newDraw );\r\n\r\n        template<class T, class R> bool replaceDrawable( const ref_ptr<T>& origDraw, const ref_ptr<R>& newDraw ) { return replaceDrawable(origDraw.get(), newDraw.get()); }\r\n\r\n",
+    "rrf_score": 0.030303030303030304,
+    "ranks": {
+      "dense": 6,
+      "bm25": 6
+    },
+    "original_scores": {
+      "dense": 0.60188603,
+      "bm25": 5.166799698841347
+    }
+  },
+  {
+    "chunk_id": "3.6.5:include/osg/Billboard:blocks:0002",
+    "source_path": "include/osg/Billboard",
+    "version": "3.6.5",
+    "start_line": 77,
+    "end_line": 114,
+    "strategy": "blocks",
+    "text": "        /** Add a Drawable with a default position of Vec3(0,0,0).\r\n          * Call the base-class Geode::addDrawble() to add the given Drawable\r\n          * gset as a child. If Geode::addDrawable() returns true, add the\r\n          * default position to the pivot point position list and return true.\r\n          * Otherwise, return false. */\r\n        virtual bool addDrawable( Drawable *gset );\r\n\r\n        /** Add a Drawable with a specified position.\r\n          * Call the base-class Geode::addDrawble() to add the given Drawable\r\n          * gset as a child. If Geode::addDrawable() returns true, add the\r\n          * given position pos to the pivot point position list and return true.\r\n          * Otherwise, return false. */\r\n        virtual bool addDrawable(Drawable *gset,const Vec3& pos);\r\n\r\n        /** Remove a Drawable and its associated position.\r\n          * If gset is a child, remove it, decrement its reference count,\r\n          * remove its pivot point position. and return true.\r\n          * Otherwise, return false. */\r\n        virtual bool removeDrawable( Drawable *gset );\r\n\r\n\r\n        bool computeMatrix(Matrix& modelview, const Vec3& eye_local, const Vec3& pos_local) const;\r\n\r\n        virtual BoundingSphere computeBound() const;\r\n\r\n    protected:\r\n\r\n        virtual ~Billboard();\r\n\r\n        enum AxisAligned\r\n        {\r\n            AXIAL_ROT_X_AXIS=AXIAL_ROT+1,\r\n            AXIAL_ROT_Y_AXIS,\r\n            AXIAL_ROT_Z_AXIS,\r\n            POINT_ROT_WORLD_Z_AXIS,\r\n            CACHE_DIRTY\r\n        };\r\n\r\n",
+    "rrf_score": 0.029877369007803793,
+    "ranks": {
+      "dense": 9,
+      "bm25": 5
+    },
+    "original_scores": {
+      "dense": 0.56138486,
+      "bm25": 5.256079775299797
+    }
+  }
+]

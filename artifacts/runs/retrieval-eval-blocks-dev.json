@@ -1,0 +1,1427 @@
+{
+  "dataset": "osg-starter/dev-seed.jsonl",
+  "dataset_role": "development diagnostics; source-selected and not held out",
+  "strategy": "blocks",
+  "candidate_k": 20,
+  "rrf_k": 60,
+  "evidence_match": "Top-K chunks jointly cover every line in each cited source span; one-chunk containment reported separately",
+  "seconds": 1.434,
+  "summary": {
+    "dense": {
+      "at_5": {
+        "questions": 10,
+        "mean_span_recall": 0.7666666666666667,
+        "mean_single_chunk_span_rate": 0.5666666666666667,
+        "all_spans_hit_rate": 0.7,
+        "any_span_hit_rate": 0.8,
+        "first_evidence_touch_mrr": 0.7333333333333333
+      },
+      "at_20": {
+        "questions": 10,
+        "mean_span_recall": 0.8666666666666666,
+        "mean_single_chunk_span_rate": 0.5666666666666667,
+        "all_spans_hit_rate": 0.8,
+        "any_span_hit_rate": 0.9,
+        "first_evidence_touch_mrr": 0.7333333333333333
+      }
+    },
+    "bm25": {
+      "at_5": {
+        "questions": 10,
+        "mean_span_recall": 0.5,
+        "mean_single_chunk_span_rate": 0.4,
+        "all_spans_hit_rate": 0.5,
+        "any_span_hit_rate": 0.5,
+        "first_evidence_touch_mrr": 0.325
+      },
+      "at_20": {
+        "questions": 10,
+        "mean_span_recall": 0.7,
+        "mean_single_chunk_span_rate": 0.6,
+        "all_spans_hit_rate": 0.7,
+        "any_span_hit_rate": 0.7,
+        "first_evidence_touch_mrr": 0.3451923076923077
+      }
+    },
+    "fusion": {
+      "at_5": {
+        "questions": 10,
+        "mean_span_recall": 0.7666666666666667,
+        "mean_single_chunk_span_rate": 0.5666666666666667,
+        "all_spans_hit_rate": 0.7,
+        "any_span_hit_rate": 0.8,
+        "first_evidence_touch_mrr": 0.7333333333333333
+      },
+      "at_20": {
+        "questions": 10,
+        "mean_span_recall": 0.8666666666666666,
+        "mean_single_chunk_span_rate": 0.5666666666666667,
+        "all_spans_hit_rate": 0.8,
+        "any_span_hit_rate": 0.9,
+        "first_evidence_touch_mrr": 0.7333333333333333
+      }
+    },
+    "expanded_fusion": {
+      "at_5": {
+        "questions": 10,
+        "mean_span_recall": 1.0,
+        "mean_single_chunk_span_rate": 0.7,
+        "all_spans_hit_rate": 1.0,
+        "any_span_hit_rate": 1.0,
+        "first_evidence_touch_mrr": 0.8666666666666666
+      },
+      "at_20": {
+        "questions": 10,
+        "mean_span_recall": 1.0,
+        "mean_single_chunk_span_rate": 0.7,
+        "all_spans_hit_rate": 1.0,
+        "any_span_hit_rate": 1.0,
+        "first_evidence_touch_mrr": 0.8666666666666666
+      }
+    }
+  },
+  "details": [
+    {
+      "id": "osg-dev-001",
+      "query": "OSG 3.6.5 中，向 Geode 添加 Drawable 的接口是什么？返回值是什么？",
+      "bm25_terms": [
+        "OSG",
+        "Geode",
+        "Drawable"
+      ],
+      "bm25_available": true,
+      "expanded_query": "OSG 3.6.5 中，向 Geode 添加 Drawable 的接口是什么？返回值是什么？",
+      "added_terms": [],
+      "identifier_terms": [],
+      "source_routes": [
+        "include/%"
+      ],
+      "evidence": [
+        {
+          "path": "include/osg/Geode",
+          "start_line": 42,
+          "end_line": 52
+        }
+      ],
+      "metrics": {
+        "dense": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "bm25": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "expanded_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "dense": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0001",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0003"
+        ],
+        "bm25": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0001",
+          "3.6.5:src/osg/Geode.cpp:blocks:0001",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:include/osg/Billboard:blocks:0002"
+        ],
+        "fusion": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0001",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0002"
+        ],
+        "expanded_fusion": [
+          "3.6.5:include/osg/Geode:blocks:0001",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0002",
+          "3.6.5:include/osg/Geode:blocks:0003"
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-002",
+      "query": "OSG 3.6.5 中，Geode 没有 addChild，调用它一定是编造 API——这个说法对吗？",
+      "bm25_terms": [
+        "OSG",
+        "Geode",
+        "addChild",
+        "API"
+      ],
+      "bm25_available": true,
+      "expanded_query": "OSG 3.6.5 中，Geode 没有 addChild，调用它一定是编造 API——这个说法对吗？",
+      "added_terms": [],
+      "identifier_terms": [
+        "addChild"
+      ],
+      "source_routes": [
+        "include/%"
+      ],
+      "evidence": [
+        {
+          "path": "include/osg/Geode",
+          "start_line": 28,
+          "end_line": 28
+        },
+        {
+          "path": "include/osg/Group",
+          "start_line": 45,
+          "end_line": 53
+        },
+        {
+          "path": "src/osg/Geode.cpp",
+          "start_line": 38,
+          "end_line": 41
+        }
+      ],
+      "metrics": {
+        "dense": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "bm25": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 8,
+            "reciprocal_rank": 0.125
+          }
+        },
+        "fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.6666666666666666,
+            "single_chunk_span_rate": 0.6666666666666666,
+            "all_spans_hit": false,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "dense": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0014",
+          "3.6.5:include/osg/Geode:blocks:0005",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001"
+        ],
+        "bm25": [
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0017",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0018",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0004"
+        ],
+        "fusion": [
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012"
+        ],
+        "expanded_fusion": [
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:include/osg/Geode:blocks:0000",
+          "3.6.5:src/osg/Geode.cpp:blocks:0000",
+          "3.6.5:include/osg/Drawable:blocks:0007",
+          "3.6.5:include/osg/Geode:blocks:0005"
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-003",
+      "query": "我希望一个场景节点管理多个子节点，应该查哪个类及其添加接口？",
+      "bm25_terms": [],
+      "bm25_available": false,
+      "expanded_query": "我希望一个场景节点管理多个子节点，应该查哪个类及其添加接口？ Group addChild",
+      "added_terms": [
+        "Group",
+        "addChild"
+      ],
+      "identifier_terms": [
+        "addChild"
+      ],
+      "source_routes": [
+        "include/%"
+      ],
+      "evidence": [
+        {
+          "path": "include/osg/Group",
+          "start_line": 25,
+          "end_line": 53
+        }
+      ],
+      "metrics": {
+        "dense": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        },
+        "bm25": {
+          "at_5": {
+            "returned": 0,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 0,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        "fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        },
+        "expanded_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "dense": [
+          "3.6.5:include/osg/Group:blocks:0003",
+          "3.6.5:include/osg/Node:blocks:0001",
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0017"
+        ],
+        "bm25": [],
+        "fusion": [
+          "3.6.5:include/osg/Group:blocks:0003",
+          "3.6.5:include/osg/Node:blocks:0001",
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0017"
+        ],
+        "expanded_fusion": [
+          "3.6.5:include/osg/Group:blocks:0001",
+          "3.6.5:include/osg/Group:blocks:0000",
+          "3.6.5:include/osg/Group:blocks:0002",
+          "3.6.5:include/osg/Group:blocks:0003",
+          "3.6.5:src/osg/Group.cpp:blocks:0001"
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-004",
+      "query": "osgDB::readNodeFile 读取失败返回什么？文件由哪个插件读取？",
+      "bm25_terms": [
+        "osgDB",
+        "readNodeFile"
+      ],
+      "bm25_available": true,
+      "expanded_query": "osgDB::readNodeFile 读取失败返回什么？文件由哪个插件读取？",
+      "added_terms": [],
+      "identifier_terms": [
+        "osgDB",
+        "readNodeFile"
+      ],
+      "source_routes": [],
+      "evidence": [
+        {
+          "path": "include/osgDB/ReadFile",
+          "start_line": 308,
+          "end_line": 325
+        }
+      ],
+      "metrics": {
+        "dense": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "bm25": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "dense": [
+          "3.6.5:include/osgDB/ReadFile:blocks:0011",
+          "3.6.5:include/osgDB/ReadFile:blocks:0003",
+          "3.6.5:include/osgDB/ReadFile:blocks:0012",
+          "3.6.5:include/osgDB/ReadFile:blocks:0004",
+          "3.6.5:include/osgDB/ReadFile:blocks:0000"
+        ],
+        "bm25": [
+          "3.6.5:include/osgDB/ReadFile:blocks:0011",
+          "3.6.5:include/osgDB/ReadFile:blocks:0000",
+          "3.6.5:include/osgDB/ReadFile:blocks:0008",
+          "3.6.5:include/osgDB/ReadFile:blocks:0007",
+          "3.6.5:include/osgDB/ReadFile:blocks:0015"
+        ],
+        "fusion": [
+          "3.6.5:include/osgDB/ReadFile:blocks:0011",
+          "3.6.5:include/osgDB/ReadFile:blocks:0000",
+          "3.6.5:include/osgDB/ReadFile:blocks:0008",
+          "3.6.5:include/osgDB/ReadFile:blocks:0012",
+          "3.6.5:include/osgDB/ReadFile:blocks:0003"
+        ],
+        "expanded_fusion": [
+          "3.6.5:include/osgDB/ReadFile:blocks:0011",
+          "3.6.5:include/osgDB/ReadFile:blocks:0000",
+          "3.6.5:include/osgDB/ReadFile:blocks:0008",
+          "3.6.5:include/osgDB/ReadFile:blocks:0012",
+          "3.6.5:include/osgDB/ReadFile:blocks:0015"
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-005",
+      "query": "透明物体对应的渲染箱按什么顺序绘制？用哪个 StateSet 提示选择它？",
+      "bm25_terms": [
+        "StateSet"
+      ],
+      "bm25_available": true,
+      "expanded_query": "透明物体对应的渲染箱按什么顺序绘制？用哪个 StateSet 提示选择它？",
+      "added_terms": [],
+      "identifier_terms": [
+        "StateSet"
+      ],
+      "source_routes": [],
+      "evidence": [
+        {
+          "path": "include/osg/StateSet",
+          "start_line": 373,
+          "end_line": 391
+        }
+      ],
+      "metrics": {
+        "dense": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "bm25": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 13,
+            "reciprocal_rank": 0.07692307692307693
+          }
+        },
+        "fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "dense": [
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/Drawable:blocks:0018",
+          "3.6.5:include/osg/StateSet:blocks:0015",
+          "3.6.5:include/osg/Drawable:blocks:0010",
+          "3.6.5:include/osg/Drawable:blocks:0019"
+        ],
+        "bm25": [
+          "3.6.5:include/osg/StateSet:blocks:0001",
+          "3.6.5:include/osg/StateSet:blocks:0002",
+          "3.6.5:include/osg/Node:blocks:0013",
+          "3.6.5:include/osg/StateSet:blocks:0011",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0011"
+        ],
+        "fusion": [
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/StateSet:blocks:0017",
+          "3.6.5:include/osg/StateSet:blocks:0018",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001",
+          "3.6.5:include/osg/StateSet:blocks:0001"
+        ],
+        "expanded_fusion": [
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/StateSet:blocks:0018",
+          "3.6.5:include/osg/StateSet:blocks:0017",
+          "3.6.5:include/osg/StateSet:blocks:0001",
+          "3.6.5:include/osg/StateSet:blocks:0002"
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-006",
+      "query": "MatrixTransform 设置新矩阵时会更新哪些状态？",
+      "bm25_terms": [
+        "MatrixTransform"
+      ],
+      "bm25_available": true,
+      "expanded_query": "MatrixTransform 设置新矩阵时会更新哪些状态？",
+      "added_terms": [],
+      "identifier_terms": [
+        "MatrixTransform"
+      ],
+      "source_routes": [],
+      "evidence": [
+        {
+          "path": "include/osg/MatrixTransform",
+          "start_line": 43,
+          "end_line": 44
+        }
+      ],
+      "metrics": {
+        "dense": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "bm25": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          },
+          "at_20": {
+            "returned": 9,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          }
+        },
+        "fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "expanded_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        }
+      },
+      "top_ids": {
+        "dense": [
+          "3.6.5:include/osg/MatrixTransform:blocks:0001",
+          "3.6.5:include/osg/MatrixTransform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0002",
+          "3.6.5:include/osg/Transform:blocks:0000"
+        ],
+        "bm25": [
+          "3.6.5:include/osg/MatrixTransform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020",
+          "3.6.5:include/osg/MatrixTransform:blocks:0001",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0017"
+        ],
+        "fusion": [
+          "3.6.5:include/osg/MatrixTransform:blocks:0000",
+          "3.6.5:include/osg/MatrixTransform:blocks:0001",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0002",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020"
+        ],
+        "expanded_fusion": [
+          "3.6.5:include/osg/MatrixTransform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/MatrixTransform:blocks:0001",
+          "3.6.5:include/osg/Transform:blocks:0002",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020"
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-007",
+      "query": "变换默认相对父节点，还是绝对坐标系？在哪里选择？",
+      "bm25_terms": [],
+      "bm25_available": false,
+      "expanded_query": "变换默认相对父节点，还是绝对坐标系？在哪里选择？ RELATIVE_RF setReferenceFrame ABSOLUTE_RF",
+      "added_terms": [
+        "RELATIVE_RF",
+        "setReferenceFrame",
+        "ABSOLUTE_RF"
+      ],
+      "identifier_terms": [
+        "RELATIVE_RF",
+        "setReferenceFrame",
+        "ABSOLUTE_RF"
+      ],
+      "source_routes": [],
+      "evidence": [
+        {
+          "path": "include/osg/Transform",
+          "start_line": 97,
+          "end_line": 122
+        }
+      ],
+      "metrics": {
+        "dense": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "bm25": {
+          "at_5": {
+            "returned": 0,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 0,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        "fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "dense": [
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0005",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ],
+        "bm25": [],
+        "fusion": [
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0005",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ],
+        "expanded_fusion": [
+          "3.6.5:include/osg/Transform:blocks:0004",
+          "3.6.5:include/osg/Transform:blocks:0003",
+          "3.6.5:include/osg/Transform:blocks:0005",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0018",
+          "3.6.5:include/osg/Transform:blocks:0001"
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-008",
+      "query": "找一个将图片加载为二维纹理并绑定到纹理单元 0 的官方源码片段。",
+      "bm25_terms": [],
+      "bm25_available": false,
+      "expanded_query": "找一个将图片加载为二维纹理并绑定到纹理单元 0 的官方源码片段。 Texture2D readRefImageFile setTextureAttributeAndModes",
+      "added_terms": [
+        "Texture2D",
+        "readRefImageFile",
+        "setTextureAttributeAndModes"
+      ],
+      "identifier_terms": [
+        "readRefImageFile",
+        "setTextureAttributeAndModes"
+      ],
+      "source_routes": [
+        "examples/%"
+      ],
+      "evidence": [
+        {
+          "path": "examples/osgtexture2D/osgtexture2D.cpp",
+          "start_line": 170,
+          "end_line": 176
+        }
+      ],
+      "metrics": {
+        "dense": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        "bm25": {
+          "at_5": {
+            "returned": 0,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 0,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        "fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          }
+        },
+        "expanded_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 3,
+            "reciprocal_rank": 0.3333333333333333
+          }
+        }
+      },
+      "top_ids": {
+        "dense": [
+          "3.6.5:include/osg/Texture2D:blocks:0002",
+          "3.6.5:include/osg/Texture2D:blocks:0004",
+          "3.6.5:include/osg/Texture2D:blocks:0003",
+          "3.6.5:include/osg/Image:blocks:0007",
+          "3.6.5:include/osg/Image:blocks:0015"
+        ],
+        "bm25": [],
+        "fusion": [
+          "3.6.5:include/osg/Texture2D:blocks:0002",
+          "3.6.5:include/osg/Texture2D:blocks:0004",
+          "3.6.5:include/osg/Texture2D:blocks:0003",
+          "3.6.5:include/osg/Image:blocks:0007",
+          "3.6.5:include/osg/Image:blocks:0015"
+        ],
+        "expanded_fusion": [
+          "3.6.5:include/osg/StateSet:blocks:0008",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0002",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0004",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0011",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001"
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-009",
+      "query": "Billboard 的旋转轴设置在哪种模式下有效？",
+      "bm25_terms": [
+        "Billboard"
+      ],
+      "bm25_available": true,
+      "expanded_query": "Billboard 的旋转轴设置在哪种模式下有效？",
+      "added_terms": [],
+      "identifier_terms": [],
+      "source_routes": [],
+      "evidence": [
+        {
+          "path": "include/osg/Billboard",
+          "start_line": 43,
+          "end_line": 50
+        }
+      ],
+      "metrics": {
+        "dense": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "bm25": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 7,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "dense": [
+          "3.6.5:include/osg/Billboard:blocks:0003",
+          "3.6.5:include/osg/Billboard:blocks:0001",
+          "3.6.5:include/osg/Billboard:blocks:0000",
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osg/StateSet:blocks:0014"
+        ],
+        "bm25": [
+          "3.6.5:include/osg/Billboard:blocks:0000",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004",
+          "3.6.5:include/osg/Billboard:blocks:0003",
+          "3.6.5:include/osg/Billboard:blocks:0001"
+        ],
+        "fusion": [
+          "3.6.5:include/osg/Billboard:blocks:0000",
+          "3.6.5:include/osg/Billboard:blocks:0003",
+          "3.6.5:include/osg/Billboard:blocks:0001",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004"
+        ],
+        "expanded_fusion": [
+          "3.6.5:include/osg/Billboard:blocks:0000",
+          "3.6.5:include/osg/Billboard:blocks:0003",
+          "3.6.5:include/osg/Billboard:blocks:0001",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004"
+        ]
+      }
+    },
+    {
+      "id": "osg-dev-010",
+      "query": "OSG 的 ref_ptr 构造和析构时怎样处理引用计数？",
+      "bm25_terms": [
+        "OSG",
+        "ref_ptr"
+      ],
+      "bm25_available": true,
+      "expanded_query": "OSG 的 ref_ptr 构造和析构时怎样处理引用计数？",
+      "added_terms": [],
+      "identifier_terms": [
+        "ref_ptr"
+      ],
+      "source_routes": [],
+      "evidence": [
+        {
+          "path": "include/osg/ref_ptr",
+          "start_line": 37,
+          "end_line": 41
+        }
+      ],
+      "metrics": {
+        "dense": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "bm25": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_fusion": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "dense": [
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/Referenced:blocks:0004",
+          "3.6.5:include/osg/Referenced:blocks:0001",
+          "3.6.5:include/osg/Referenced:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001"
+        ],
+        "bm25": [
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osgDB/ReadFile:blocks:0001",
+          "3.6.5:include/osg/ref_ptr:blocks:0003"
+        ],
+        "fusion": [
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osgDB/ReadFile:blocks:0001"
+        ],
+        "expanded_fusion": [
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osgDB/ReadFile:blocks:0001"
+        ]
+      }
+    }
+  ]
+}

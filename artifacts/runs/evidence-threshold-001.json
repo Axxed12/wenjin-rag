@@ -1,0 +1,397 @@
+{
+  "run_id": "evidence-threshold-001",
+  "positive_dataset": "evaluation/datasets/osg-3_6_5-frozen-001.jsonl",
+  "negative_dataset": "evaluation/datasets/osg-evidence-negative-001.jsonl",
+  "score": "top-1 Qwen3-Reranker-0.6B yes probability",
+  "supported_score_range": [
+    0.9974290728569031,
+    0.9989836812019348
+  ],
+  "unsupported_score_range": [
+    0.021948255598545074,
+    0.9982317090034485
+  ],
+  "best_threshold_on_this_calibration_set": {
+    "threshold": 0.9952893257141113,
+    "tp": 7,
+    "fp": 1,
+    "fn": 0,
+    "tn": 8,
+    "precision": 0.875,
+    "recall": 1.0,
+    "specificity": 0.8888888888888888,
+    "balanced_accuracy": 0.9444444444444444,
+    "f1": 0.9333333333333333
+  },
+  "decision_rule_status": "diagnostic_only_not_enabled",
+  "rows": [
+    {
+      "id": "osg-test-001",
+      "group": "frozen_answerable",
+      "query": "OSG 中如何用掩码决定一个节点在场景遍历时是否被处理？",
+      "expected_status": "supported",
+      "target_supported": true,
+      "top_score": 0.9989836812019348,
+      "top1_margin": 0.009153366088867188,
+      "top_ids": [
+        "3.6.5:include/osg/Node:blocks:0012",
+        "3.6.5:include/osg/Node:blocks:0011",
+        "3.6.5:include/osg/Node:blocks:0017",
+        "3.6.5:include/osg/Node:blocks:0001",
+        "3.6.5:include/osg/Node:blocks:0000"
+      ],
+      "top_sources": [
+        "include/osg/Node",
+        "include/osg/Node",
+        "include/osg/Node",
+        "include/osg/Node",
+        "include/osg/Node"
+      ]
+    },
+    {
+      "id": "osg-test-002",
+      "group": "frozen_answerable",
+      "query": "Geometry 怎样追加一个新的 PrimitiveSet，返回值是什么？",
+      "expected_status": "supported",
+      "target_supported": true,
+      "top_score": 0.9974290728569031,
+      "top1_margin": 0.10411965847015381,
+      "top_ids": [
+        "3.6.5:include/osg/Geometry:blocks:0003",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0003",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006"
+      ],
+      "top_sources": [
+        "include/osg/Geometry",
+        "include/osg/PrimitiveSet",
+        "include/osg/PrimitiveSet",
+        "include/osg/PrimitiveSet",
+        "examples/osggeometry/osggeometry.cpp"
+      ]
+    },
+    {
+      "id": "osg-test-003",
+      "group": "frozen_answerable",
+      "query": "osgViewer::Viewer 的 run() 做什么？如果窗口尚未 realize 会怎样？",
+      "expected_status": "supported",
+      "target_supported": true,
+      "top_score": 0.9983385801315308,
+      "top1_margin": 0.0027039647102355957,
+      "top_ids": [
+        "3.6.5:include/osgViewer/Viewer:blocks:0002",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+        "3.6.5:include/osgViewer/Viewer:blocks:0000",
+        "3.6.5:include/osgViewer/Viewer:blocks:0001",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020"
+      ],
+      "top_sources": [
+        "include/osgViewer/Viewer",
+        "applications/osgviewer/osgviewer.cpp",
+        "include/osgViewer/Viewer",
+        "include/osgViewer/Viewer",
+        "examples/osggeometry/osggeometry.cpp"
+      ]
+    },
+    {
+      "id": "osg-test-004",
+      "group": "frozen_answerable",
+      "query": "Drawable 禁用 display list 支持后，setUseDisplayList(true) 还能强制使用吗？",
+      "expected_status": "supported",
+      "target_supported": true,
+      "top_score": 0.9989182949066162,
+      "top1_margin": 0.011739492416381836,
+      "top_ids": [
+        "3.6.5:include/osg/Drawable:blocks:0006",
+        "3.6.5:include/osg/Drawable:blocks:0007",
+        "3.6.5:include/osg/Drawable:blocks:0008",
+        "3.6.5:include/osg/Drawable:blocks:0018",
+        "3.6.5:include/osg/Drawable:blocks:0019"
+      ],
+      "top_sources": [
+        "include/osg/Drawable",
+        "include/osg/Drawable",
+        "include/osg/Drawable",
+        "include/osg/Drawable",
+        "include/osg/Drawable"
+      ]
+    },
+    {
+      "id": "osg-test-005",
+      "group": "frozen_answerable",
+      "query": "ref_ptr 的 release() 会把持有的指针怎样处理？调用方要承担什么责任？",
+      "expected_status": "supported",
+      "target_supported": true,
+      "top_score": 0.9979169964790344,
+      "top1_margin": 0.03332775831222534,
+      "top_ids": [
+        "3.6.5:include/osg/ref_ptr:blocks:0003",
+        "3.6.5:include/osg/ref_ptr:blocks:0000",
+        "3.6.5:include/osg/Referenced:blocks:0004",
+        "3.6.5:include/osg/ref_ptr:blocks:0004",
+        "3.6.5:include/osg/ref_ptr:blocks:0002"
+      ],
+      "top_sources": [
+        "include/osg/ref_ptr",
+        "include/osg/ref_ptr",
+        "include/osg/Referenced",
+        "include/osg/ref_ptr",
+        "include/osg/ref_ptr"
+      ]
+    },
+    {
+      "id": "osg-test-006",
+      "group": "frozen_answerable",
+      "query": "StateSet 添加一个 StateAttribute 并同时启用关联 GLMode 应查哪个接口？默认值是什么？",
+      "expected_status": "supported",
+      "target_supported": true,
+      "top_score": 0.9988752007484436,
+      "top1_margin": 6.312131881713867e-05,
+      "top_ids": [
+        "3.6.5:include/osg/StateSet:blocks:0008",
+        "3.6.5:include/osg/StateSet:blocks:0005",
+        "3.6.5:include/osg/StateSet:blocks:0003",
+        "3.6.5:include/osg/StateSet:blocks:0019",
+        "3.6.5:include/osg/StateSet:blocks:0007"
+      ],
+      "top_sources": [
+        "include/osg/StateSet",
+        "include/osg/StateSet",
+        "include/osg/StateSet",
+        "include/osg/StateSet",
+        "include/osg/StateSet"
+      ]
+    },
+    {
+      "id": "osg-test-007",
+      "group": "frozen_answerable",
+      "query": "osgviewer 应用在读入模型后，进入主循环前按什么顺序处理场景和窗口？",
+      "expected_status": "supported",
+      "target_supported": true,
+      "top_score": 0.9985221028327942,
+      "top1_margin": 0.004960238933563232,
+      "top_ids": [
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+        "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019",
+        "3.6.5:include/osgViewer/Viewer:blocks:0002",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020"
+      ],
+      "top_sources": [
+        "applications/osgviewer/osgviewer.cpp",
+        "examples/osgtext/osgtext.cpp",
+        "include/osgViewer/Viewer",
+        "applications/osgviewer/osgviewer.cpp",
+        "examples/osggeometry/osggeometry.cpp"
+      ]
+    },
+    {
+      "id": "osg-test-008",
+      "group": "frozen_answerable",
+      "query": "找一个官方例子，说明点图元如何设置顶点数组、整体颜色并加入 PrimitiveSet。",
+      "expected_status": "insufficient",
+      "target_supported": false,
+      "top_score": 0.9982317090034485,
+      "top1_margin": 0.00023508071899414062,
+      "top_ids": [
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0013",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0012",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0002"
+      ],
+      "top_sources": [
+        "examples/osggeometry/osggeometry.cpp",
+        "examples/osggeometry/osggeometry.cpp",
+        "examples/osggeometry/osggeometry.cpp",
+        "examples/osggeometry/osggeometry.cpp",
+        "include/osg/PrimitiveSet"
+      ]
+    },
+    {
+      "id": "osg-neg-001",
+      "group": "negative_calibration",
+      "query": "OSG 3.6.5 的 Geode::appendDrawable 接口返回什么？",
+      "expected_status": "insufficient",
+      "target_supported": false,
+      "top_score": 0.9860442876815796,
+      "top1_margin": 0.04439014196395874,
+      "top_ids": [
+        "3.6.5:include/osg/Geode:blocks:0001",
+        "3.6.5:include/osg/Geode:blocks:0003",
+        "3.6.5:src/osg/Geode.cpp:blocks:0000",
+        "3.6.5:include/osg/Geode:blocks:0004",
+        "3.6.5:include/osg/Geode:blocks:0000"
+      ],
+      "top_sources": [
+        "include/osg/Geode",
+        "include/osg/Geode",
+        "src/osg/Geode.cpp",
+        "include/osg/Geode",
+        "include/osg/Geode"
+      ]
+    },
+    {
+      "id": "osg-neg-002",
+      "group": "negative_calibration",
+      "query": "OSG 3.6.5 如何创建 Vulkan 光线追踪管线？",
+      "expected_status": "insufficient",
+      "target_supported": false,
+      "top_score": 0.2735743820667267,
+      "top1_margin": 0.24048840254545212,
+      "top_ids": [
+        "3.6.5:include/osg/StateAttribute:blocks:0005",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0004",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0003",
+        "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0002",
+        "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0002"
+      ],
+      "top_sources": [
+        "include/osg/StateAttribute",
+        "examples/osggeometry/osggeometry.cpp",
+        "examples/osggeometry/osggeometry.cpp",
+        "examples/osggeometry/osggeometry.cpp",
+        "examples/osgbillboard/osgbillboard.cpp"
+      ]
+    },
+    {
+      "id": "osg-neg-003",
+      "group": "negative_calibration",
+      "query": "OSG 4.0 相比3.6.5修改了哪些 NodeMask 行为？",
+      "expected_status": "insufficient",
+      "target_supported": false,
+      "top_score": 0.9931495785713196,
+      "top1_margin": 0.024293363094329834,
+      "top_ids": [
+        "3.6.5:include/osg/Node:blocks:0012",
+        "3.6.5:include/osg/Node:blocks:0017",
+        "3.6.5:include/osg/Node:blocks:0001",
+        "3.6.5:include/osg/Node:blocks:0000",
+        "3.6.5:include/osg/Node:blocks:0004"
+      ],
+      "top_sources": [
+        "include/osg/Node",
+        "include/osg/Node",
+        "include/osg/Node",
+        "include/osg/Node",
+        "include/osg/Node"
+      ]
+    },
+    {
+      "id": "osg-neg-004",
+      "group": "negative_calibration",
+      "query": "如何让 osgViewer 使用 DirectX 12 渲染后端？",
+      "expected_status": "insufficient",
+      "target_supported": false,
+      "top_score": 0.7606506943702698,
+      "top1_margin": 0.09524011611938477,
+      "top_ids": [
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0001",
+        "3.6.5:include/osgViewer/Viewer:blocks:0000",
+        "3.6.5:include/osgViewer/Viewer:blocks:0003",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005"
+      ],
+      "top_sources": [
+        "applications/osgviewer/osgviewer.cpp",
+        "applications/osgviewer/osgviewer.cpp",
+        "include/osgViewer/Viewer",
+        "include/osgViewer/Viewer",
+        "applications/osgviewer/osgviewer.cpp"
+      ]
+    },
+    {
+      "id": "osg-neg-005",
+      "group": "negative_calibration",
+      "query": "Viewer::run 会监听哪个HTTP端口，并怎样配置TLS证书？",
+      "expected_status": "partially_supported",
+      "target_supported": false,
+      "top_score": 0.037326883524656296,
+      "top1_margin": 0.029749643057584763,
+      "top_ids": [
+        "3.6.5:include/osgViewer/Viewer:blocks:0002",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+        "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019",
+        "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0002",
+        "3.6.5:include/osgViewer/Viewer:blocks:0000"
+      ],
+      "top_sources": [
+        "include/osgViewer/Viewer",
+        "applications/osgviewer/osgviewer.cpp",
+        "examples/osgtext/osgtext.cpp",
+        "applications/osgviewer/osgviewer.cpp",
+        "include/osgViewer/Viewer"
+      ]
+    },
+    {
+      "id": "osg-neg-006",
+      "group": "negative_calibration",
+      "query": "osgDB::readNodeFile 失败时返回什么数值错误码，并抛出哪种异常？",
+      "expected_status": "partially_supported",
+      "target_supported": false,
+      "top_score": 0.9849274158477783,
+      "top1_margin": 0.012512624263763428,
+      "top_ids": [
+        "3.6.5:include/osgDB/ReadFile:blocks:0011",
+        "3.6.5:include/osgDB/ReadFile:blocks:0003",
+        "3.6.5:include/osgDB/ReadFile:blocks:0012",
+        "3.6.5:include/osgDB/ReadFile:blocks:0004",
+        "3.6.5:include/osgDB/ReadFile:blocks:0009"
+      ],
+      "top_sources": [
+        "include/osgDB/ReadFile",
+        "include/osgDB/ReadFile",
+        "include/osgDB/ReadFile",
+        "include/osgDB/ReadFile",
+        "include/osgDB/ReadFile"
+      ]
+    },
+    {
+      "id": "osg-neg-007",
+      "group": "negative_calibration",
+      "query": "OSG 的数据库连接池如何配置最大SQL连接数？",
+      "expected_status": "insufficient",
+      "target_supported": false,
+      "top_score": 0.021948255598545074,
+      "top1_margin": 0.0198159939609468,
+      "top_ids": [
+        "3.6.5:examples/osgtext/osgtext.cpp:blocks:0015",
+        "3.6.5:include/osgText/TextBase:blocks:0009",
+        "3.6.5:include/osgText/TextBase:blocks:0005",
+        "3.6.5:include/osg/PrimitiveSet:blocks:0000",
+        "3.6.5:include/osg/Drawable:blocks:0000"
+      ],
+      "top_sources": [
+        "examples/osgtext/osgtext.cpp",
+        "include/osgText/TextBase",
+        "include/osgText/TextBase",
+        "include/osg/PrimitiveSet",
+        "include/osg/Drawable"
+      ]
+    },
+    {
+      "id": "osg-neg-008",
+      "group": "negative_calibration",
+      "query": "Geometry 自动碰撞检测使用哪个神经网络模型？",
+      "expected_status": "insufficient",
+      "target_supported": false,
+      "top_score": 0.024423090741038322,
+      "top1_margin": 0.008145630359649658,
+      "top_ids": [
+        "3.6.5:include/osg/Geometry:blocks:0000",
+        "3.6.5:include/osg/Geometry:blocks:0006",
+        "3.6.5:include/osg/Geometry:blocks:0009",
+        "3.6.5:include/osg/Geometry:blocks:0007",
+        "3.6.5:include/osg/Geode:blocks:0004"
+      ],
+      "top_sources": [
+        "include/osg/Geometry",
+        "include/osg/Geometry",
+        "include/osg/Geometry",
+        "include/osg/Geometry",
+        "include/osg/Geode"
+      ]
+    }
+  ]
+}

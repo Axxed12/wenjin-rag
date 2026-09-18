@@ -1,0 +1,72 @@
+{
+  "url": "https://127.0.0.1:8771/mcp",
+  "session_established": true,
+  "session_id_length": 32,
+  "tools": [
+    "search_docs"
+  ],
+  "result": {
+    "query": "Viewer 的 run() 做什么？",
+    "version": "3.6.5",
+    "collection": "osg_3_6_5_dense_blocks_lf",
+    "index_target_id": "osg-3.6.5-blocks-lf-002",
+    "retrieval": {
+      "dense_returned": 20,
+      "bm25_returned": 20,
+      "bm25_terms": [
+        "Viewer",
+        "run"
+      ],
+      "fused_candidates": 20,
+      "reranker_used": true,
+      "timing_seconds": {
+        "dense": 0.522276,
+        "bm25": 0.016401,
+        "fusion": 0.000121,
+        "rerank": 0.722468
+      }
+    },
+    "context_char_budget": 8000,
+    "context_chars_used": 1754,
+    "evidence": [
+      {
+        "rank": 1,
+        "chunk_id": "3.6.5:include/osgViewer/Viewer:blocks:0002",
+        "version": "3.6.5",
+        "source_path": "include/osgViewer/Viewer",
+        "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osgViewer/Viewer",
+        "start_line": 82,
+        "end_line": 115,
+        "text": "        /** Execute a main frame loop.\n          * Equivalent to while (!viewer.done()) viewer.frame();\n          * Also calls realize() if the viewer is not already realized,\n          * and installs trackball manipulator if one is not already assigned.\n          */\n        virtual int run();\n\n        /** check to see if the new frame is required, called by run(..) when FrameScheme is set to ON_DEMAND.*/\n        virtual bool checkNeedToDoFrame();\n\n        /** check to see if events have been received, return true if events are now available.*/\n        virtual bool checkEvents();\n\n        virtual void advance(double simulationTime=USE_REFERENCE_TIME);\n\n        virtual void eventTraversal();\n\n        virtual void updateTraversal();\n\n        virtual void getCameras(Cameras& cameras, bool onlyActive=true);\n\n        virtual void getContexts(Contexts& contexts, bool onlyValid=true);\n\n        virtual void getAllThreads(Threads& threads, bool onlyActive=true);\n\n        virtual void getOperationThreads(OperationThreads& threads, bool onlyActive=true);\n\n        virtual void getScenes(Scenes& scenes, bool onlyValid=true);\n\n        virtual void getViews(Views& views, bool onlyValid=true);\n\n        /** Get the keyboard and mouse usage of this viewer.*/\n        virtual void getUsage(osg::ApplicationUsage& usage) const;\n\n",
+        "rrf_score": 0.03252247488101534,
+        "rerank_score": 0.9965435862541199,
+        "retrieval_ranks": {
+          "dense": 1,
+          "bm25": 2
+        }
+      },
+      {
+        "rank": 2,
+        "chunk_id": "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+        "version": "3.6.5",
+        "source_path": "applications/osgviewer/osgviewer.cpp",
+        "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/applications/osgviewer/osgviewer.cpp",
+        "start_line": 175,
+        "end_line": 193,
+        "text": "    // report any errors if they have occurred when parsing the program arguments.\n    if (arguments.errors())\n    {\n        arguments.writeErrorMessages(std::cout);\n        return 1;\n    }\n\n\n    // optimize the scene graph, remove redundant nodes and state etc.\n    osgUtil::Optimizer optimizer;\n    optimizer.optimize(loadedModel);\n\n    viewer.setSceneData(loadedModel);\n\n    viewer.realize();\n\n    return viewer.run();\n\n}\n",
+        "rrf_score": 0.03131881575727918,
+        "rerank_score": 0.9235923886299133,
+        "retrieval_ranks": {
+          "dense": 7,
+          "bm25": 1
+        }
+      }
+    ],
+    "evidence_status": "unverified",
+    "evidence_guidance": "The retrieval service found ranked passages but did not verify that they jointly support every part of the query. The client must inspect evidence before answering.",
+    "answer_status": "not_generated",
+    "score_note": "RRF/reranker scores are ranking signals, not answer confidence",
+    "request_id": "5ff7b7f5261044d99dc62dfefca171f2",
+    "mcp_protocol": "2025-11-25"
+  }
+}

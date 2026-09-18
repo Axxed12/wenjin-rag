@@ -1,0 +1,364 @@
+{
+  "schema_version": 3,
+  "corpus_id": "gdal-3.13.1",
+  "library": "gdal",
+  "version": "3.13.1",
+  "commit": "b2e6057d1d0f2cb4c11bfdf79ab1a61def0ce9ca",
+  "raw_data_subdir": "gdal/3.13.1",
+  "retrieved_on": "2026-09-17",
+  "release_date": "2026-06-05",
+  "cutoff": "2026-07-15",
+  "license": "MIT (GDAL/OGR MIT-style；部分组件另有许可，见 LICENSE.TXT)",
+  "source_url": "https://gdal.org/",
+  "files": [
+    {
+      "path": "LICENSE.TXT",
+      "bytes": 21841,
+      "raw_sha256": "1dae3468e81d00da56e2936f74d33b8b3ad09d726437f19ce209a5dabea41f77",
+      "canonical_sha256": "1dae3468e81d00da56e2936f74d33b8b3ad09d726437f19ce209a5dabea41f77",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://raw.githubusercontent.com/OSGeo/gdal/v3.13.1/LICENSE.TXT",
+      "retrieval_eligible": false,
+      "indexable": false,
+      "parser_status": "preservation_only",
+      "logical_document_id": "gdal-3.13.1:LICENSE.TXT",
+      "provenance": {
+        "staging_path": "raw/gdal/LICENSE.TXT"
+      }
+    },
+    {
+      "path": "archives/gdal-3.13.1.tar.gz",
+      "bytes": 15709136,
+      "raw_sha256": "e04e9813bd215b56753d5554330c53be25f3df2d7ed7e6413a19e6b66751c675",
+      "canonical_sha256": "e04e9813bd215b56753d5554330c53be25f3df2d7ed7e6413a19e6b66751c675",
+      "normalization": "binary-identity-v1",
+      "encoding": null,
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal-3.13.1.tar.gz",
+      "retrieval_eligible": false,
+      "indexable": false,
+      "parser_status": "preservation_only",
+      "logical_document_id": "gdal-3.13.1:archives/gdal-3.13.1.tar.gz",
+      "provenance": {
+        "staging_path": "raw/gdal/gdal-3.13.1.tar.gz"
+      }
+    },
+    {
+      "path": "archives/gdal3131doc.zip",
+      "bytes": 30106044,
+      "raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+      "canonical_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+      "normalization": "binary-identity-v1",
+      "encoding": null,
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": false,
+      "indexable": false,
+      "parser_status": "preservation_only",
+      "logical_document_id": "gdal-3.13.1:archives/gdal3131doc.zip",
+      "provenance": {
+        "staging_path": "raw/gdal/gdal3131doc.zip"
+      }
+    },
+    {
+      "path": "gdaldoc/drivers/raster/gtiff.html",
+      "bytes": 125118,
+      "raw_sha256": "19814ee4a3412d8624e3cce92b546e0b6b7aa1c2ae75def0259a86e33317ec47",
+      "canonical_sha256": "19814ee4a3412d8624e3cce92b546e0b6b7aa1c2ae75def0259a86e33317ec47",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/drivers/raster/gtiff.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/drivers/raster/gtiff.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "gdaldoc/programs/gdal_rasterize.html",
+      "bytes": 39598,
+      "raw_sha256": "7a358f1ee9f3268efee663cf0bef37ef297aabf6bf31969b8b847d802a98eca2",
+      "canonical_sha256": "7a358f1ee9f3268efee663cf0bef37ef297aabf6bf31969b8b847d802a98eca2",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/programs/gdal_rasterize.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/programs/gdal_rasterize.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "gdaldoc/programs/gdal_translate.html",
+      "bytes": 69549,
+      "raw_sha256": "2544124564cc6ea8c632eb9b616e3ac2089d3028e1c0c83eaaba5d1767ca1008",
+      "canonical_sha256": "2544124564cc6ea8c632eb9b616e3ac2089d3028e1c0c83eaaba5d1767ca1008",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/programs/gdal_translate.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/programs/gdal_translate.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "gdaldoc/programs/gdaladdo.html",
+      "bytes": 44841,
+      "raw_sha256": "4572c9e1403178c56e76da66108d6b56dc6823883a50397bcc65c49d05288071",
+      "canonical_sha256": "4572c9e1403178c56e76da66108d6b56dc6823883a50397bcc65c49d05288071",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/programs/gdaladdo.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/programs/gdaladdo.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "gdaldoc/programs/gdalbuildvrt.html",
+      "bytes": 48016,
+      "raw_sha256": "7ee9fd28f9fa354a2f720a34c0f592b3b1c943551a45a67fcdaa0ba82a3cd6a0",
+      "canonical_sha256": "7ee9fd28f9fa354a2f720a34c0f592b3b1c943551a45a67fcdaa0ba82a3cd6a0",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/programs/gdalbuildvrt.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/programs/gdalbuildvrt.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "gdaldoc/programs/gdaldem.html",
+      "bytes": 69857,
+      "raw_sha256": "bb3420843cf3ab96e3ea81ba48672afdb3d82efdff83bde90fb0113b32e864e0",
+      "canonical_sha256": "bb3420843cf3ab96e3ea81ba48672afdb3d82efdff83bde90fb0113b32e864e0",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/programs/gdaldem.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/programs/gdaldem.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "gdaldoc/programs/gdalinfo.html",
+      "bytes": 57492,
+      "raw_sha256": "4b2cc90625a4557ec4cad3c7470045835f9ab829a14ad4b9c02ffb5fd191e98a",
+      "canonical_sha256": "4b2cc90625a4557ec4cad3c7470045835f9ab829a14ad4b9c02ffb5fd191e98a",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/programs/gdalinfo.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/programs/gdalinfo.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "gdaldoc/programs/gdalwarp.html",
+      "bytes": 94452,
+      "raw_sha256": "8cba808af6bfd98a26e6a36a191e2a9d7999b1a830c83631e17833a672bf3cfe",
+      "canonical_sha256": "8cba808af6bfd98a26e6a36a191e2a9d7999b1a830c83631e17833a672bf3cfe",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/programs/gdalwarp.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/programs/gdalwarp.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "gdaldoc/programs/ogr2ogr.html",
+      "bytes": 98212,
+      "raw_sha256": "17364903ea8f089b79a3a7d8e8b09ce7c1460643d416cef4bbfd68c99161ae49",
+      "canonical_sha256": "17364903ea8f089b79a3a7d8e8b09ce7c1460643d416cef4bbfd68c99161ae49",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/programs/ogr2ogr.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/programs/ogr2ogr.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "gdaldoc/user/configoptions.html",
+      "bytes": 251494,
+      "raw_sha256": "94f500afe82d602aa27404fa3632c78486f56fa6869b6c14cda07bb29a227fbd",
+      "canonical_sha256": "94f500afe82d602aa27404fa3632c78486f56fa6869b6c14cda07bb29a227fbd",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/user/configoptions.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/user/configoptions.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "gdaldoc/user/migration_guide.html",
+      "bytes": 59108,
+      "raw_sha256": "00d46ef4da9536721d91cc452f1edbea6f5c3a08e3dd2cc2dd70925172eceb79",
+      "canonical_sha256": "00d46ef4da9536721d91cc452f1edbea6f5c3a08e3dd2cc2dd70925172eceb79",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/user/migration_guide.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/user/migration_guide.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "gdaldoc/user/multithreading.html",
+      "bytes": 18456,
+      "raw_sha256": "03554180400e1e0a2cd624017ce5fdb912a0f61d22ac3b92856feafaa767ffe8",
+      "canonical_sha256": "03554180400e1e0a2cd624017ce5fdb912a0f61d22ac3b92856feafaa767ffe8",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/user/multithreading.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/user/multithreading.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "gdaldoc/user/raster_data_model.html",
+      "bytes": 55065,
+      "raw_sha256": "97570decda6596aee9e53dd18443ade1420e6247078c63e1cd395828e9ef98af",
+      "canonical_sha256": "97570decda6596aee9e53dd18443ade1420e6247078c63e1cd395828e9ef98af",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/user/raster_data_model.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/user/raster_data_model.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    },
+    {
+      "path": "gdaldoc/user/virtual_file_systems.html",
+      "bytes": 176662,
+      "raw_sha256": "26005dd15edf2779974b75940fdf427d4f9dc20de11314126a11d411c8ced6d5",
+      "canonical_sha256": "26005dd15edf2779974b75940fdf427d4f9dc20de11314126a11d411c8ced6d5",
+      "normalization": "text-newline-lf-v1",
+      "encoding": "utf-8",
+      "source_url": "https://github.com/OSGeo/gdal/releases/download/v3.13.1/gdal3131doc.zip",
+      "retrieval_eligible": true,
+      "indexable": false,
+      "parser_status": "format_smoke_passed",
+      "logical_document_id": "gdal-3.13.1:gdaldoc/user/virtual_file_systems.html",
+      "provenance": {
+        "source_archive": "raw_data/gdal/3.13.1/archives/gdal3131doc.zip",
+        "archive_member": "gdaldoc/user/virtual_file_systems.html",
+        "archive_raw_sha256": "e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+        "archive_member_raw_verified": true
+      },
+      "parser": "html-line-v1"
+    }
+  ],
+  "scope": "Exact retrieval_eligible file allowlist; archives are preservation only.",
+  "index_state": "not_built; no active-index change",
+  "canonical_corpus_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "retrieval_content_sha256": "5be8e3225707fb6a1953af2faaa723751084e2ab40a5fa53d40dff28805584e1",
+  "retrieval_scope_files": [
+    "gdaldoc/drivers/raster/gtiff.html",
+    "gdaldoc/programs/gdal_rasterize.html",
+    "gdaldoc/programs/gdal_translate.html",
+    "gdaldoc/programs/gdaladdo.html",
+    "gdaldoc/programs/gdalbuildvrt.html",
+    "gdaldoc/programs/gdaldem.html",
+    "gdaldoc/programs/gdalinfo.html",
+    "gdaldoc/programs/gdalwarp.html",
+    "gdaldoc/programs/ogr2ogr.html",
+    "gdaldoc/user/configoptions.html",
+    "gdaldoc/user/migration_guide.html",
+    "gdaldoc/user/multithreading.html",
+    "gdaldoc/user/raster_data_model.html",
+    "gdaldoc/user/virtual_file_systems.html"
+  ],
+  "exclusion_policy": "All unlisted archive members and preservation_only files excluded."
+}

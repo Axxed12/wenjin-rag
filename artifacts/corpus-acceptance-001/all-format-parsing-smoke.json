@@ -1,0 +1,416 @@
+{
+  "status": "PASS",
+  "files": 40,
+  "parser_counts": {
+    "html-line-v1": 15,
+    "pymupdf-page-v1": 2,
+    "xml-line-v1": 1,
+    "text-line-v1": 14,
+    "rst-line-v1": 1,
+    "man-roff-line-v1": 7
+  },
+  "text_chars": 1910432,
+  "warnings": 0,
+  "reports": [
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/drivers/raster/gtiff.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 61236,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.11
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/programs/gdal_rasterize.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 10304,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.037
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/programs/gdal_translate.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 22071,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.059
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/programs/gdaladdo.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 15606,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.043
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/programs/gdalbuildvrt.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 13019,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.049
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/programs/gdaldem.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 21553,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.072
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/programs/gdalinfo.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 13441,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.058
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/programs/gdalwarp.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 35753,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.087
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/programs/ogr2ogr.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 32432,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.084
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/user/configoptions.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 72556,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.146
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/user/migration_guide.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 19965,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.048
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/user/multithreading.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 5449,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.018
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/user/raster_data_model.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 27240,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.043
+    },
+    {
+      "corpus_id": "gdal-3.13.1",
+      "path": "gdaldoc/user/virtual_file_systems.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 75845,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.096
+    },
+    {
+      "corpus_id": "ogc-3dtiles-1.1",
+      "path": "22-025r4.html",
+      "parser": "html-line-v1",
+      "units": 1,
+      "text_chars": 435075,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 1.147
+    },
+    {
+      "corpus_id": "ogc-3dtiles-1.1",
+      "path": "22-025r4.pdf",
+      "parser": "pymupdf-page-v1",
+      "units": 359,
+      "text_chars": 675148,
+      "nonempty_units": 359,
+      "warnings": 0,
+      "seconds": 4.767
+    },
+    {
+      "corpus_id": "ogc-wms-1.3.0",
+      "path": "06-042.pdf",
+      "parser": "pymupdf-page-v1",
+      "units": 85,
+      "text_chars": 221246,
+      "nonempty_units": 85,
+      "warnings": 0,
+      "seconds": 0.641
+    },
+    {
+      "corpus_id": "ogc-wms-1.3.0",
+      "path": "capabilities_1_3_0.xsd",
+      "parser": "xml-line-v1",
+      "units": 1,
+      "text_chars": 16370,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.002
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "path": "LICENSE.txt",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 8452,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "path": "docs/source/TileLayer.md",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 1568,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "path": "docs/source/composite.md",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 1262,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "path": "docs/source/earthfile.md",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 4519,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "path": "docs/source/elevation.md",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 725,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "path": "docs/source/gdal.md",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 2805,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "path": "docs/source/layer.md",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 1214,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "path": "docs/source/layers.md",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 4290,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "path": "docs/source/visiblelayer.md",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 1139,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "path": "docs/source/wms.md",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 2648,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "path": "docs/source/xyz.md",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 1874,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "path": "src/osgEarth/Map",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 13454,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "path": "src/osgEarth/MapNode",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 9222,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "proj-9.8.1",
+      "path": "README.md",
+      "parser": "text-line-v1",
+      "units": 1,
+      "text_chars": 3664,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "proj-9.8.1",
+      "path": "docs/source/about_core.rst",
+      "parser": "rst-line-v1",
+      "units": 1,
+      "text_chars": 1154,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    },
+    {
+      "corpus_id": "proj-9.8.1",
+      "path": "man/man1/cct.1",
+      "parser": "man-roff-line-v1",
+      "units": 1,
+      "text_chars": 7545,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.001
+    },
+    {
+      "corpus_id": "proj-9.8.1",
+      "path": "man/man1/cs2cs.1",
+      "parser": "man-roff-line-v1",
+      "units": 1,
+      "text_chars": 13575,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.001
+    },
+    {
+      "corpus_id": "proj-9.8.1",
+      "path": "man/man1/geod.1",
+      "parser": "man-roff-line-v1",
+      "units": 1,
+      "text_chars": 6859,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.001
+    },
+    {
+      "corpus_id": "proj-9.8.1",
+      "path": "man/man1/gie.1",
+      "parser": "man-roff-line-v1",
+      "units": 1,
+      "text_chars": 12448,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.001
+    },
+    {
+      "corpus_id": "proj-9.8.1",
+      "path": "man/man1/proj.1",
+      "parser": "man-roff-line-v1",
+      "units": 1,
+      "text_chars": 8601,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.001
+    },
+    {
+      "corpus_id": "proj-9.8.1",
+      "path": "man/man1/projinfo.1",
+      "parser": "man-roff-line-v1",
+      "units": 1,
+      "text_chars": 23965,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.001
+    },
+    {
+      "corpus_id": "proj-9.8.1",
+      "path": "man/man1/projsync.1",
+      "parser": "man-roff-line-v1",
+      "units": 1,
+      "text_chars": 5140,
+      "nonempty_units": 1,
+      "warnings": 0,
+      "seconds": 0.0
+    }
+  ]
+}

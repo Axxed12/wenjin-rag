@@ -1,0 +1,23 @@
+{
+  "note": "Preserve failed runs, but exclude invalid runs from model-quality conclusions.",
+  "runs": [
+    {
+      "path": "artifacts/runs/reranker-0_6b-dev-001.json",
+      "run_id": "reranker-0_6b-dev-001",
+      "quality_result_valid": false,
+      "reason": "invalid: attention_mask was created before prefix/suffix token insertion"
+    },
+    {
+      "path": "artifacts/runs/reranker-0_6b-dev-strict-002.json",
+      "run_id": "reranker-0_6b-dev-strict-002",
+      "quality_result_valid": false,
+      "reason": "invalid: same attention_mask construction bug; cannot compare instruction profiles"
+    },
+    {
+      "path": "artifacts/runs/reranker-0_6b-dev-maskfix-003.json",
+      "run_id": "reranker-0_6b-dev-maskfix-003",
+      "quality_result_valid": true,
+      "reason": "valid development diagnostic after regenerating attention_mask from complete token sequence"
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+[
+  {
+    "repo": "pelicanmapping/osgearth",
+    "tag": "osgearth-3.8",
+    "release": {
+      "url": "https://api.github.com/repos/pelicanmapping/osgearth/releases/tags/osgearth-3.8",
+      "sha": null,
+      "published_at": "2026-03-04T15:45:11Z",
+      "commit_date": null,
+      "assets": []
+    },
+    "commit": {
+      "url": "https://api.github.com/repos/pelicanmapping/osgearth/commits/osgearth-3.8",
+      "sha": "85d84d3e464a8400a43a77b61fc6f7d9115eb189",
+      "published_at": null,
+      "commit_date": "2026-03-04T14:48:55Z",
+      "assets": []
+    }
+  },
+  {
+    "repo": "OSGeo/gdal",
+    "tag": "v3.13.1",
+    "release": {
+      "url": "https://api.github.com/repos/OSGeo/gdal/releases/tags/v3.13.1",
+      "sha": null,
+      "published_at": "2026-06-05T11:02:34Z",
+      "commit_date": null,
+      "assets": [
+        {
+          "name": "gdal-3.13.1.tar.gz",
+          "digest": "sha256:e04e9813bd215b56753d5554330c53be25f3df2d7ed7e6413a19e6b66751c675",
+          "size": 15709136
+        },
+        {
+          "name": "gdal-3.13.1.tar.gz.md5",
+          "digest": "sha256:d5c8e0fcaf8d9d0c0ab0d70a400ad334e70709caf8a293606f457fb5b60ddf9a",
+          "size": 53
+        },
+        {
+          "name": "gdal-3.13.1.tar.gz.sig",
+          "digest": "sha256:43c2efa6d1f4a2e3248c3864e512aefeec17372e21e00a1967f277d54c7406f7",
+          "size": 566
+        },
+        {
+          "name": "gdal-3.13.1.tar.xz",
+          "digest": "sha256:7398fb132753140740fac4f099f0dbe49d1ad074c4162290c308e067c46b7f92",
+          "size": 9957916
+        },
+        {
+          "name": "gdal-3.13.1.tar.xz.md5",
+          "digest": "sha256:bc4a73ebf2a3eb0efecf0d898395739d737e87bec1f308849d6141da5f3f4caf",
+          "size": 53
+        },
+        {
+          "name": "gdal-3.13.1.tar.xz.sig",
+          "digest": "sha256:9149559877193214bc3e29843db72bbd39adcd83302b42e94c9f0d9207ed833c",
+          "size": 566
+        },
+        {
+          "name": "gdal3131.zip",
+          "digest": "sha256:02eb3611b76a154460d83879a4c6165f14c21a2494a9072ff9b6e9f0805a387f",
+          "size": 18302606
+        },
+        {
+          "name": "gdal3131.zip.md5",
+          "digest": "sha256:7d3323bef4f56f11a59bf34fadb0f7b226d98b523090f74dce5942cb3c3eff27",
+          "size": 47
+        },
+        {
+          "name": "gdal3131.zip.sig",
+          "digest": "sha256:e12cddaf817aaf32c061c0456e919e3da7e79cca69c6f8dbc03e7bed6d913877",
+          "size": 566
+        },
+        {
+          "name": "gdal3131doc.zip",
+          "digest": "sha256:e8206fecf77ef6a276e9e83ed4630e618e0c98d45dd7f161d2b2d31057c514b4",
+          "size": 30106044
+        },
+        {
+          "name": "gdalautotest-3.13.1.zip",
+          "digest": "sha256:d3fb9bcf300b3ff34206136d0e3c20b408e08e67ed9f72214276e2eff4a782b8",
+          "size": 23833294
+        }
+      ]
+    },
+    "commit": {
+      "url": "https://api.github.com/repos/OSGeo/gdal/commits/v3.13.1",
+      "sha": "b2e6057d1d0f2cb4c11bfdf79ab1a61def0ce9ca",
+      "published_at": null,
+      "commit_date": "2026-06-01T06:23:07Z",
+      "assets": []
+    }
+  },
+  {
+    "repo": "OSGeo/PROJ",
+    "tag": "9.8.1",
+    "release": {
+      "url": "https://api.github.com/repos/OSGeo/PROJ/releases/tags/9.8.1",
+      "sha": null,
+      "published_at": "2026-04-10T13:08:17Z",
+      "commit_date": null,
+      "assets": [
+        {
+          "name": "proj-9.8.1.tar.gz",
+          "digest": "sha256:af5b731c145c1d13c4e3b4eeb7d167e94e845e440f71e3496b4ed8dae0291960",
+          "size": 5981846
+        },
+        {
+          "name": "proj-9.8.1.tar.gz.md5",
+          "digest": "sha256:780d49a6806956c2b2307a1ed0964acbf234152284f2ac2aaedfb039687c9720",
+          "size": 52
+        },
+        {
+          "name": "proj-9.8.1.zip",
+          "digest": "sha256:5035318496a2efed035d6cf45ccb90605b78bef12286578c00d8a5ce9f6465fb",
+          "size": 6306846
+        },
+        {
+          "name": "proj-9.8.1.zip.md5",
+          "digest": "sha256:b2dd7cee1adf6c841fe151700785e2ce05daa9f7982bd5b1c23f7c3684543651",
+          "size": 49
+        }
+      ]
+    },
+    "commit": {
+      "url": "https://api.github.com/repos/OSGeo/PROJ/commits/9.8.1",
+      "sha": "f08fa86c478c4bbbf003b1ec751dd84aa6eca486",
+      "published_at": null,
+      "commit_date": "2026-04-10T12:56:06Z",
+      "assets": []
+    }
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "target_id": "ogc-3dtiles-1.1-blocks-candidate-001",
+  "library": "ogc-3dtiles",
+  "version": "1.1",
+  "strategy": "blocks",
+  "dense_collection": "ogc_3dtiles_1_1_dense_blocks_candidate_001",
+  "bm25_path": "data/indexes/ogc_3dtiles_1_1_bm25_blocks_candidate_001.sqlite",
+  "manifest_path": "corpora/ogc-3dtiles-1.1/source-manifest.json",
+  "manifest_sha256": "fc4cc883fab579a9497dff0db7bd782670275205c1f7c2ad3845c2dd2c034db2",
+  "chunk_count": 888,
+  "vector_dimension": 1024,
+  "embedding_model": "Qwen3-Embedding-0.6B",
+  "canonical_corpus_sha256": "518fc35241954310a52dd948677fb3228dbd309a54679027f61bf8794b65f4a2",
+  "normalization_profile": "mixed-versioned-v1"
+}

@@ -1,0 +1,15 @@
+{
+  "target_id": "osgearth-3.8-blocks-split-candidate-002",
+  "library": "osgearth",
+  "version": "3.8",
+  "strategy": "blocks-split",
+  "dense_collection": "osgearth_3_8_dense_blocks_split_candidate_002",
+  "bm25_path": "data/indexes/osgearth_3_8_bm25_blocks_split_candidate_002.sqlite",
+  "manifest_path": "corpora/osgearth-3.8/source-manifest.json",
+  "manifest_sha256": "0ba4b5db557d0e2f4b80f582df66a9af9249211f5e1b933a87efb4801eeb1d8c",
+  "chunk_count": 44,
+  "vector_dimension": 1024,
+  "embedding_model": "Qwen3-Embedding-0.6B",
+  "canonical_corpus_sha256": "d4b7b96bec382c9f43c9cdd04f78afc6c4afaced06cf6893302677637ec4dce5",
+  "normalization_profile": "text-newline-lf-v1"
+}

@@ -1,0 +1,90 @@
+name: wenjin-rag
+x-logging: &default-logging
+  driver: local
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.19.1
+    restart: unless-stopped
+    ports:
+      # 开发阶段仅允许本机访问，内网 Agent 后续通过 MCP 访问检索服务。
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:?Set QDRANT_API_KEY in .env}
+      QDRANT__TELEMETRY_DISABLED: "true"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/6333"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    logging: *default-logging
+
+  # RAG检索链路与状态化MCP接口运行在同一应用容器中。
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wenjin-rag-mcp:0.1.0
+    restart: unless-stopped
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    gpus: all
+    ports:
+      - "${MCP_BIND_ADDRESS:-127.0.0.1}:${MCP_PORT:-8765}:8765"
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY:?Set QDRANT_API_KEY in .env}
+      EMBEDDING_MODEL_PATH: /models/embedding
+      EMBEDDING_MODEL_ID: Qwen3-Embedding-0.6B
+      RERANKER_MODEL_PATH: /models/reranker
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      LLAMA_INDEX_CACHE_DIR: /tmp/llama_index
+      WENJIN_AUDIT_SINK: stdout
+      WENJIN_AUDIT_INCLUDE_QUERY: "0"
+      WENJIN_MCP_HOST: 0.0.0.0
+      WENJIN_MCP_PORT: "8765"
+      WENJIN_MCP_PATH: /mcp
+      WENJIN_MCP_ALLOWED_HOSTS: ${MCP_ALLOWED_HOSTS:-127.0.0.1:8765,localhost:8765}
+    volumes:
+      - type: bind
+        source: ${EMBEDDING_MODEL_PATH:?Set EMBEDDING_MODEL_PATH in .env}
+        target: /models/embedding
+        read_only: true
+      - type: bind
+        source: ${RERANKER_MODEL_PATH:?Set RERANKER_MODEL_PATH in .env}
+        target: /models/reranker
+        read_only: true
+      - type: bind
+        source: ./data/indexes
+        target: /app/data/indexes
+        read_only: true
+      - type: bind
+        source: ./corpora
+        target: /app/corpora
+        read_only: true
+      - type: bind
+        source: ${WENJIN_RAW_DATA_ROOT:-./raw_data}
+        target: /app/raw_data
+        read_only: true
+      - type: bind
+        source: ./configs
+        target: /app/configs
+        read_only: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=1g
+    shm_size: "1gb"
+    stop_grace_period: 15s
+    logging: *default-logging
+
+volumes:
+  qdrant-data:

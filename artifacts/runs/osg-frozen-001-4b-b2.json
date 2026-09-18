@@ -1,0 +1,2087 @@
+{
+  "run_id": "osg-frozen-001-4b-b2",
+  "dataset": "evaluation/datasets/osg-3_6_5-frozen-001.jsonl",
+  "dataset_sha256": "caa84676cfc343629e52b46249524c5e05a27c8cdd3c2794bc55fe4b3af09562",
+  "dataset_role": "assistant-authored source-checked frozen set; no tuning on results",
+  "candidate_k": 20,
+  "rrf_k": 60,
+  "reranker_model": "Qwen3-Reranker-4B",
+  "max_length": 1024,
+  "batch_size": 2,
+  "candidate_pool_sha256": "be9537f89b37ce09f07e5f2ca3e5677f71552a9b865c8aae6e8d222686c829b5",
+  "retrieval_seconds": 1.197,
+  "rerank_seconds": 17.881,
+  "peak_cuda_memory_bytes": 8895749120,
+  "summary": {
+    "baseline_raw": {
+      "at_5": {
+        "questions": 8,
+        "mean_span_recall": 0.75,
+        "mean_single_chunk_span_rate": 0.75,
+        "all_spans_hit_rate": 0.75,
+        "any_span_hit_rate": 0.75,
+        "first_evidence_touch_mrr": 0.5875
+      },
+      "at_20": {
+        "questions": 8,
+        "mean_span_recall": 0.875,
+        "mean_single_chunk_span_rate": 0.875,
+        "all_spans_hit_rate": 0.875,
+        "any_span_hit_rate": 0.875,
+        "first_evidence_touch_mrr": 0.6239583333333333
+      }
+    },
+    "expanded_raw": {
+      "at_5": {
+        "questions": 8,
+        "mean_span_recall": 0.75,
+        "mean_single_chunk_span_rate": 0.75,
+        "all_spans_hit_rate": 0.75,
+        "any_span_hit_rate": 0.75,
+        "first_evidence_touch_mrr": 0.59375
+      },
+      "at_20": {
+        "questions": 8,
+        "mean_span_recall": 0.875,
+        "mean_single_chunk_span_rate": 0.875,
+        "all_spans_hit_rate": 0.875,
+        "any_span_hit_rate": 0.875,
+        "first_evidence_touch_mrr": 0.6215277777777778
+      }
+    },
+    "combined_raw": {
+      "at_5": {
+        "questions": 8,
+        "mean_span_recall": 0.75,
+        "mean_single_chunk_span_rate": 0.75,
+        "all_spans_hit_rate": 0.75,
+        "any_span_hit_rate": 0.75,
+        "first_evidence_touch_mrr": 0.5875
+      },
+      "at_20": {
+        "questions": 8,
+        "mean_span_recall": 0.875,
+        "mean_single_chunk_span_rate": 0.875,
+        "all_spans_hit_rate": 0.875,
+        "any_span_hit_rate": 0.875,
+        "first_evidence_touch_mrr": 0.6208333333333333
+      }
+    },
+    "baseline_reranked": {
+      "at_5": {
+        "questions": 8,
+        "mean_span_recall": 0.875,
+        "mean_single_chunk_span_rate": 0.875,
+        "all_spans_hit_rate": 0.875,
+        "any_span_hit_rate": 0.875,
+        "first_evidence_touch_mrr": 1.0
+      },
+      "at_20": {
+        "questions": 8,
+        "mean_span_recall": 0.875,
+        "mean_single_chunk_span_rate": 0.875,
+        "all_spans_hit_rate": 0.875,
+        "any_span_hit_rate": 0.875,
+        "first_evidence_touch_mrr": 1.0
+      }
+    },
+    "expanded_reranked": {
+      "at_5": {
+        "questions": 8,
+        "mean_span_recall": 0.875,
+        "mean_single_chunk_span_rate": 0.875,
+        "all_spans_hit_rate": 0.875,
+        "any_span_hit_rate": 0.875,
+        "first_evidence_touch_mrr": 1.0
+      },
+      "at_20": {
+        "questions": 8,
+        "mean_span_recall": 0.875,
+        "mean_single_chunk_span_rate": 0.875,
+        "all_spans_hit_rate": 0.875,
+        "any_span_hit_rate": 0.875,
+        "first_evidence_touch_mrr": 1.0
+      }
+    },
+    "combined_reranked": {
+      "at_5": {
+        "questions": 8,
+        "mean_span_recall": 0.875,
+        "mean_single_chunk_span_rate": 0.875,
+        "all_spans_hit_rate": 0.875,
+        "any_span_hit_rate": 0.875,
+        "first_evidence_touch_mrr": 1.0
+      },
+      "at_20": {
+        "questions": 8,
+        "mean_span_recall": 0.875,
+        "mean_single_chunk_span_rate": 0.875,
+        "all_spans_hit_rate": 0.875,
+        "any_span_hit_rate": 0.875,
+        "first_evidence_touch_mrr": 1.0
+      }
+    }
+  },
+  "details": [
+    {
+      "id": "osg-test-001",
+      "query": "OSG 中如何用掩码决定一个节点在场景遍历时是否被处理？",
+      "evidence": [
+        {
+          "path": "include/osg/Node",
+          "start_line": 351,
+          "end_line": 367
+        }
+      ],
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 2,
+            "reciprocal_rank": 0.5
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osg/Array:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0012",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/Array:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0012",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/Array:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0012",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001"
+        ],
+        "baseline_reranked": [
+          "3.6.5:include/osg/Node:blocks:0012",
+          "3.6.5:include/osg/Node:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0017",
+          "3.6.5:include/osg/Node:blocks:0011",
+          "3.6.5:include/osg/Node:blocks:0010"
+        ],
+        "expanded_reranked": [
+          "3.6.5:include/osg/Node:blocks:0012",
+          "3.6.5:include/osg/Node:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0017",
+          "3.6.5:include/osg/Node:blocks:0011",
+          "3.6.5:include/osg/Node:blocks:0010"
+        ],
+        "combined_reranked": [
+          "3.6.5:include/osg/Node:blocks:0012",
+          "3.6.5:include/osg/Node:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0017",
+          "3.6.5:include/osg/Node:blocks:0011",
+          "3.6.5:include/osg/Node:blocks:0010"
+        ]
+      },
+      "candidate_ids": {
+        "baseline": [
+          "3.6.5:include/osg/Array:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0012",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0017",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0018",
+          "3.6.5:include/osg/Node:blocks:0001",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0000",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0016",
+          "3.6.5:include/osg/Node:blocks:0011",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:include/osg/Node:blocks:0004",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0002",
+          "3.6.5:include/osg/Node:blocks:0010",
+          "3.6.5:include/osg/Drawable:blocks:0000",
+          "3.6.5:include/osgText/TextBase:blocks:0007",
+          "3.6.5:include/osg/Transform:blocks:0000",
+          "3.6.5:include/osgText/TextBase:blocks:0009"
+        ],
+        "expanded": [
+          "3.6.5:include/osg/Array:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0012",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0017",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0018",
+          "3.6.5:include/osg/Node:blocks:0001",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0000",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0016",
+          "3.6.5:include/osg/Node:blocks:0011",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:include/osg/Node:blocks:0004",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0002",
+          "3.6.5:include/osg/Node:blocks:0010",
+          "3.6.5:include/osg/Drawable:blocks:0000",
+          "3.6.5:include/osgText/TextBase:blocks:0007",
+          "3.6.5:include/osg/Transform:blocks:0000",
+          "3.6.5:include/osgText/TextBase:blocks:0009"
+        ],
+        "combined": [
+          "3.6.5:include/osg/Array:blocks:0000",
+          "3.6.5:include/osg/Node:blocks:0012",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0000",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0001",
+          "3.6.5:include/osg/Node:blocks:0017",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0018",
+          "3.6.5:include/osg/Node:blocks:0001",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0000",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0016",
+          "3.6.5:include/osg/Node:blocks:0011",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0003",
+          "3.6.5:include/osg/Node:blocks:0004",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0002",
+          "3.6.5:include/osg/Node:blocks:0010",
+          "3.6.5:include/osg/Drawable:blocks:0000",
+          "3.6.5:include/osgText/TextBase:blocks:0007",
+          "3.6.5:include/osg/Transform:blocks:0000",
+          "3.6.5:include/osgText/TextBase:blocks:0009"
+        ]
+      }
+    },
+    {
+      "id": "osg-test-002",
+      "query": "Geometry 怎样追加一个新的 PrimitiveSet，返回值是什么？",
+      "evidence": [
+        {
+          "path": "include/osg/Geometry",
+          "start_line": 109,
+          "end_line": 114
+        }
+      ],
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:include/osg/Geometry:blocks:0006",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+          "3.6.5:include/osg/Geometry:blocks:0002"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0008",
+          "3.6.5:include/osg/Geometry:blocks:0006"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+          "3.6.5:include/osg/Geometry:blocks:0006",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0008"
+        ],
+        "baseline_reranked": [
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0014",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0012",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006"
+        ],
+        "expanded_reranked": [
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0014",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0009"
+        ],
+        "combined_reranked": [
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0014",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0009"
+        ]
+      },
+      "candidate_ids": {
+        "baseline": [
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:include/osg/Geometry:blocks:0006",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+          "3.6.5:include/osg/Geometry:blocks:0002",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0008",
+          "3.6.5:include/osg/Geometry:blocks:0000",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0009",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0007",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0006",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0014",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0000",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0001",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0002",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0012",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0003",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0013",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0018"
+        ],
+        "expanded": [
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0008",
+          "3.6.5:include/osg/Geometry:blocks:0006",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0007",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0006",
+          "3.6.5:include/osg/Geometry:blocks:0002",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0000",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0003",
+          "3.6.5:include/osg/Geometry:blocks:0000",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0018",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0017",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0009",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0010",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0014",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0001",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0002"
+        ],
+        "combined": [
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+          "3.6.5:include/osg/Geometry:blocks:0006",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0008",
+          "3.6.5:include/osg/Geometry:blocks:0002",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0007",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0006",
+          "3.6.5:include/osg/Geometry:blocks:0000",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0009",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0000",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0003",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0014",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0018",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0001",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0002",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0017",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0010"
+        ]
+      }
+    },
+    {
+      "id": "osg-test-003",
+      "query": "osgViewer::Viewer 的 run() 做什么？如果窗口尚未 realize 会怎样？",
+      "evidence": [
+        {
+          "path": "include/osgViewer/Viewer",
+          "start_line": 82,
+          "end_line": 87
+        }
+      ],
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osgViewer/Viewer:blocks:0002",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osgViewer/Viewer:blocks:0002",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0003",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osgViewer/Viewer:blocks:0002",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005"
+        ],
+        "baseline_reranked": [
+          "3.6.5:include/osgViewer/Viewer:blocks:0002",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019"
+        ],
+        "expanded_reranked": [
+          "3.6.5:include/osgViewer/Viewer:blocks:0002",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019"
+        ],
+        "combined_reranked": [
+          "3.6.5:include/osgViewer/Viewer:blocks:0002",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019"
+        ]
+      },
+      "candidate_ids": {
+        "baseline": [
+          "3.6.5:include/osgViewer/Viewer:blocks:0002",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0003",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0001",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0002",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0017",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0003",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0017",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012",
+          "3.6.5:include/osg/Drawable:blocks:0012",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0003",
+          "3.6.5:include/osg/Geometry:blocks:0005"
+        ],
+        "expanded": [
+          "3.6.5:include/osgViewer/Viewer:blocks:0002",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0003",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0001",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0002",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0017",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0003",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0017",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012",
+          "3.6.5:include/osg/Drawable:blocks:0012",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0003",
+          "3.6.5:include/osg/Geometry:blocks:0005"
+        ],
+        "combined": [
+          "3.6.5:include/osgViewer/Viewer:blocks:0002",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+          "3.6.5:include/osgViewer/Viewer:blocks:0003",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0001",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0002",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0017",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0003",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0017",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012",
+          "3.6.5:include/osg/Drawable:blocks:0012",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0003",
+          "3.6.5:include/osg/Geometry:blocks:0005"
+        ]
+      }
+    },
+    {
+      "id": "osg-test-004",
+      "query": "Drawable 禁用 display list 支持后，setUseDisplayList(true) 还能强制使用吗？",
+      "evidence": [
+        {
+          "path": "include/osg/Drawable",
+          "start_line": 200,
+          "end_line": 216
+        }
+      ],
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osg/Drawable:blocks:0006",
+          "3.6.5:include/osg/Drawable:blocks:0007",
+          "3.6.5:include/osg/Drawable:blocks:0013",
+          "3.6.5:include/osg/Geometry:blocks:0005",
+          "3.6.5:include/osg/Drawable:blocks:0008"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/Drawable:blocks:0006",
+          "3.6.5:include/osg/Drawable:blocks:0007",
+          "3.6.5:include/osg/Geometry:blocks:0004",
+          "3.6.5:include/osg/Drawable:blocks:0013",
+          "3.6.5:include/osg/Geometry:blocks:0005"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/Drawable:blocks:0006",
+          "3.6.5:include/osg/Drawable:blocks:0007",
+          "3.6.5:include/osg/Drawable:blocks:0013",
+          "3.6.5:include/osg/Geometry:blocks:0005",
+          "3.6.5:include/osg/Drawable:blocks:0008"
+        ],
+        "baseline_reranked": [
+          "3.6.5:include/osg/Drawable:blocks:0006",
+          "3.6.5:include/osg/Drawable:blocks:0018",
+          "3.6.5:include/osg/Drawable:blocks:0008",
+          "3.6.5:include/osg/Drawable:blocks:0007",
+          "3.6.5:include/osg/Drawable:blocks:0019"
+        ],
+        "expanded_reranked": [
+          "3.6.5:include/osg/Drawable:blocks:0006",
+          "3.6.5:include/osg/Drawable:blocks:0018",
+          "3.6.5:include/osg/Drawable:blocks:0008",
+          "3.6.5:include/osg/Drawable:blocks:0007",
+          "3.6.5:include/osg/Drawable:blocks:0019"
+        ],
+        "combined_reranked": [
+          "3.6.5:include/osg/Drawable:blocks:0006",
+          "3.6.5:include/osg/Drawable:blocks:0018",
+          "3.6.5:include/osg/Drawable:blocks:0008",
+          "3.6.5:include/osg/Drawable:blocks:0007",
+          "3.6.5:include/osg/Drawable:blocks:0019"
+        ]
+      },
+      "candidate_ids": {
+        "baseline": [
+          "3.6.5:include/osg/Drawable:blocks:0006",
+          "3.6.5:include/osg/Drawable:blocks:0007",
+          "3.6.5:include/osg/Drawable:blocks:0013",
+          "3.6.5:include/osg/Geometry:blocks:0005",
+          "3.6.5:include/osg/Drawable:blocks:0008",
+          "3.6.5:include/osg/Drawable:blocks:0012",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:include/osg/Geode:blocks:0002",
+          "3.6.5:include/osg/Geometry:blocks:0004",
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/Geode:blocks:0001",
+          "3.6.5:include/osg/Geode:blocks:0003",
+          "3.6.5:include/osg/Drawable:blocks:0017",
+          "3.6.5:include/osg/Drawable:blocks:0018",
+          "3.6.5:include/osg/Drawable:blocks:0019",
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osgText/Text:blocks:0001",
+          "3.6.5:include/osgText/TextBase:blocks:0006",
+          "3.6.5:include/osg/Geometry:blocks:0006",
+          "3.6.5:include/osg/StateSet:blocks:0019"
+        ],
+        "expanded": [
+          "3.6.5:include/osg/Drawable:blocks:0006",
+          "3.6.5:include/osg/Drawable:blocks:0007",
+          "3.6.5:include/osg/Geometry:blocks:0004",
+          "3.6.5:include/osg/Drawable:blocks:0013",
+          "3.6.5:include/osg/Geometry:blocks:0005",
+          "3.6.5:include/osg/Drawable:blocks:0008",
+          "3.6.5:include/osg/Drawable:blocks:0012",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:include/osg/Geode:blocks:0002",
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/Geode:blocks:0001",
+          "3.6.5:include/osg/Geode:blocks:0003",
+          "3.6.5:include/osg/Drawable:blocks:0017",
+          "3.6.5:include/osg/Drawable:blocks:0018",
+          "3.6.5:include/osg/Drawable:blocks:0019",
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osgText/Text:blocks:0001",
+          "3.6.5:include/osgText/TextBase:blocks:0006",
+          "3.6.5:include/osg/Geometry:blocks:0006",
+          "3.6.5:include/osg/StateSet:blocks:0019"
+        ],
+        "combined": [
+          "3.6.5:include/osg/Drawable:blocks:0006",
+          "3.6.5:include/osg/Drawable:blocks:0007",
+          "3.6.5:include/osg/Drawable:blocks:0013",
+          "3.6.5:include/osg/Geometry:blocks:0005",
+          "3.6.5:include/osg/Drawable:blocks:0008",
+          "3.6.5:include/osg/Geometry:blocks:0004",
+          "3.6.5:include/osg/Drawable:blocks:0012",
+          "3.6.5:include/osg/Geode:blocks:0004",
+          "3.6.5:include/osg/Geode:blocks:0002",
+          "3.6.5:include/osg/StateSet:blocks:0013",
+          "3.6.5:include/osg/Geode:blocks:0001",
+          "3.6.5:include/osg/Geode:blocks:0003",
+          "3.6.5:include/osg/Drawable:blocks:0017",
+          "3.6.5:include/osg/Drawable:blocks:0018",
+          "3.6.5:include/osg/Drawable:blocks:0019",
+          "3.6.5:include/osg/Billboard:blocks:0002",
+          "3.6.5:include/osgText/Text:blocks:0001",
+          "3.6.5:include/osgText/TextBase:blocks:0006",
+          "3.6.5:include/osg/Geometry:blocks:0006",
+          "3.6.5:include/osg/StateSet:blocks:0019"
+        ]
+      }
+    },
+    {
+      "id": "osg-test-005",
+      "query": "ref_ptr 的 release() 会把持有的指针怎样处理？调用方要承担什么责任？",
+      "evidence": [
+        {
+          "path": "include/osg/ref_ptr",
+          "start_line": 122,
+          "end_line": 126
+        }
+      ],
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osg/Referenced:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/ref_ptr:blocks:0004"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osgDB/ReadFile:blocks:0001"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/Referenced:blocks:0004"
+        ],
+        "baseline_reranked": [
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/ref_ptr:blocks:0002",
+          "3.6.5:include/osg/Referenced:blocks:0004"
+        ],
+        "expanded_reranked": [
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/ref_ptr:blocks:0002",
+          "3.6.5:include/osg/Referenced:blocks:0004"
+        ],
+        "combined_reranked": [
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/ref_ptr:blocks:0002",
+          "3.6.5:include/osg/Referenced:blocks:0004"
+        ]
+      },
+      "candidate_ids": {
+        "baseline": [
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osg/Referenced:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osg/StateAttribute:blocks:0011",
+          "3.6.5:include/osgDB/ReadFile:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0014",
+          "3.6.5:README.md:blocks:0002",
+          "3.6.5:include/osg/Referenced:blocks:0001",
+          "3.6.5:include/osg/Referenced:blocks:0003",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0001",
+          "3.6.5:include/osg/Referenced:blocks:0000",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0002",
+          "3.6.5:include/osg/Referenced:blocks:0002",
+          "3.6.5:include/osg/StateAttribute:blocks:0010",
+          "3.6.5:include/osgDB/ReadFile:blocks:0009",
+          "3.6.5:README.md:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0002"
+        ],
+        "expanded": [
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osgDB/ReadFile:blocks:0001",
+          "3.6.5:include/osg/StateAttribute:blocks:0011",
+          "3.6.5:include/osg/Referenced:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0002",
+          "3.6.5:include/osgDB/ReadFile:blocks:0003",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0014",
+          "3.6.5:README.md:blocks:0002",
+          "3.6.5:include/osg/Referenced:blocks:0001",
+          "3.6.5:include/osg/Referenced:blocks:0003",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0001",
+          "3.6.5:include/osg/Referenced:blocks:0000",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0002",
+          "3.6.5:include/osg/Node:blocks:0017",
+          "3.6.5:include/osg/Referenced:blocks:0002",
+          "3.6.5:include/osg/StateAttribute:blocks:0010"
+        ],
+        "combined": [
+          "3.6.5:include/osg/ref_ptr:blocks:0003",
+          "3.6.5:include/osg/ref_ptr:blocks:0000",
+          "3.6.5:include/osg/ref_ptr:blocks:0004",
+          "3.6.5:include/osg/ref_ptr:blocks:0001",
+          "3.6.5:include/osg/Referenced:blocks:0004",
+          "3.6.5:include/osgDB/ReadFile:blocks:0001",
+          "3.6.5:include/osg/StateAttribute:blocks:0011",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0014",
+          "3.6.5:README.md:blocks:0002",
+          "3.6.5:include/osg/Referenced:blocks:0001",
+          "3.6.5:include/osg/Referenced:blocks:0003",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0013",
+          "3.6.5:include/osg/ref_ptr:blocks:0002",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0001",
+          "3.6.5:include/osg/Referenced:blocks:0000",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0002",
+          "3.6.5:include/osg/Referenced:blocks:0002",
+          "3.6.5:include/osg/StateAttribute:blocks:0010",
+          "3.6.5:include/osgDB/ReadFile:blocks:0003",
+          "3.6.5:include/osg/Node:blocks:0017"
+        ]
+      }
+    },
+    {
+      "id": "osg-test-006",
+      "query": "StateSet 添加一个 StateAttribute 并同时启用关联 GLMode 应查哪个接口？默认值是什么？",
+      "evidence": [
+        {
+          "path": "include/osg/StateSet",
+          "start_line": 173,
+          "end_line": 176
+        }
+      ],
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 5,
+            "reciprocal_rank": 0.2
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 5,
+            "reciprocal_rank": 0.2
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 4,
+            "reciprocal_rank": 0.25
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 5,
+            "reciprocal_rank": 0.2
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 5,
+            "reciprocal_rank": 0.2
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osg/StateSet:blocks:0003",
+          "3.6.5:include/osg/StateSet:blocks:0004",
+          "3.6.5:include/osg/StateAttribute:blocks:0003",
+          "3.6.5:include/osg/StateSet:blocks:0007",
+          "3.6.5:include/osg/StateSet:blocks:0005"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/StateSet:blocks:0003",
+          "3.6.5:include/osg/StateSet:blocks:0007",
+          "3.6.5:include/osg/StateSet:blocks:0004",
+          "3.6.5:include/osg/StateSet:blocks:0005",
+          "3.6.5:include/osg/StateAttribute:blocks:0003"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/StateSet:blocks:0003",
+          "3.6.5:include/osg/StateSet:blocks:0004",
+          "3.6.5:include/osg/StateSet:blocks:0007",
+          "3.6.5:include/osg/StateAttribute:blocks:0003",
+          "3.6.5:include/osg/StateSet:blocks:0005"
+        ],
+        "baseline_reranked": [
+          "3.6.5:include/osg/StateSet:blocks:0005",
+          "3.6.5:include/osg/StateSet:blocks:0008",
+          "3.6.5:include/osg/StateSet:blocks:0019",
+          "3.6.5:include/osg/StateSet:blocks:0018",
+          "3.6.5:include/osg/StateAttribute:blocks:0009"
+        ],
+        "expanded_reranked": [
+          "3.6.5:include/osg/StateSet:blocks:0005",
+          "3.6.5:include/osg/StateSet:blocks:0008",
+          "3.6.5:include/osg/StateSet:blocks:0019",
+          "3.6.5:include/osg/StateSet:blocks:0018",
+          "3.6.5:include/osg/StateAttribute:blocks:0009"
+        ],
+        "combined_reranked": [
+          "3.6.5:include/osg/StateSet:blocks:0005",
+          "3.6.5:include/osg/StateSet:blocks:0008",
+          "3.6.5:include/osg/StateSet:blocks:0019",
+          "3.6.5:include/osg/StateSet:blocks:0018",
+          "3.6.5:include/osg/StateAttribute:blocks:0009"
+        ]
+      },
+      "candidate_ids": {
+        "baseline": [
+          "3.6.5:include/osg/StateSet:blocks:0003",
+          "3.6.5:include/osg/StateSet:blocks:0004",
+          "3.6.5:include/osg/StateAttribute:blocks:0003",
+          "3.6.5:include/osg/StateSet:blocks:0007",
+          "3.6.5:include/osg/StateSet:blocks:0005",
+          "3.6.5:include/osg/StateSet:blocks:0006",
+          "3.6.5:include/osg/StateAttribute:blocks:0002",
+          "3.6.5:include/osg/StateAttribute:blocks:0009",
+          "3.6.5:include/osg/StateSet:blocks:0008",
+          "3.6.5:include/osg/StateSet:blocks:0020",
+          "3.6.5:include/osg/StateSet:blocks:0019",
+          "3.6.5:include/osg/StateSet:blocks:0010",
+          "3.6.5:include/osg/StateAttribute:blocks:0010",
+          "3.6.5:include/osg/StateSet:blocks:0009",
+          "3.6.5:include/osg/StateAttribute:blocks:0008",
+          "3.6.5:include/osg/StateSet:blocks:0018",
+          "3.6.5:include/osg/StateAttribute:blocks:0004",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0011",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0004",
+          "3.6.5:include/osg/StateSet:blocks:0017"
+        ],
+        "expanded": [
+          "3.6.5:include/osg/StateSet:blocks:0003",
+          "3.6.5:include/osg/StateSet:blocks:0007",
+          "3.6.5:include/osg/StateSet:blocks:0004",
+          "3.6.5:include/osg/StateSet:blocks:0005",
+          "3.6.5:include/osg/StateAttribute:blocks:0003",
+          "3.6.5:include/osg/StateSet:blocks:0008",
+          "3.6.5:include/osg/StateSet:blocks:0006",
+          "3.6.5:include/osg/StateSet:blocks:0019",
+          "3.6.5:include/osg/StateSet:blocks:0020",
+          "3.6.5:include/osg/StateSet:blocks:0010",
+          "3.6.5:include/osg/StateSet:blocks:0009",
+          "3.6.5:include/osg/StateAttribute:blocks:0008",
+          "3.6.5:include/osg/StateAttribute:blocks:0010",
+          "3.6.5:include/osg/StateAttribute:blocks:0009",
+          "3.6.5:include/osg/StateAttribute:blocks:0002",
+          "3.6.5:include/osg/StateSet:blocks:0018",
+          "3.6.5:include/osg/StateAttribute:blocks:0000",
+          "3.6.5:include/osg/StateSet:blocks:0012",
+          "3.6.5:include/osg/StateSet:blocks:0000",
+          "3.6.5:include/osg/Transform:blocks:0002"
+        ],
+        "combined": [
+          "3.6.5:include/osg/StateSet:blocks:0003",
+          "3.6.5:include/osg/StateSet:blocks:0004",
+          "3.6.5:include/osg/StateSet:blocks:0007",
+          "3.6.5:include/osg/StateAttribute:blocks:0003",
+          "3.6.5:include/osg/StateSet:blocks:0005",
+          "3.6.5:include/osg/StateSet:blocks:0006",
+          "3.6.5:include/osg/StateSet:blocks:0008",
+          "3.6.5:include/osg/StateSet:blocks:0019",
+          "3.6.5:include/osg/StateSet:blocks:0020",
+          "3.6.5:include/osg/StateAttribute:blocks:0002",
+          "3.6.5:include/osg/StateAttribute:blocks:0009",
+          "3.6.5:include/osg/StateSet:blocks:0010",
+          "3.6.5:include/osg/StateSet:blocks:0009",
+          "3.6.5:include/osg/StateAttribute:blocks:0010",
+          "3.6.5:include/osg/StateAttribute:blocks:0008",
+          "3.6.5:include/osg/StateSet:blocks:0018",
+          "3.6.5:include/osg/StateAttribute:blocks:0000",
+          "3.6.5:include/osg/StateAttribute:blocks:0004",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0011",
+          "3.6.5:include/osg/StateSet:blocks:0012"
+        ]
+      }
+    },
+    {
+      "id": "osg-test-007",
+      "query": "osgviewer 应用在读入模型后，进入主循环前按什么顺序处理场景和窗口？",
+      "evidence": [
+        {
+          "path": "applications/osgviewer/osgviewer.cpp",
+          "start_line": 183,
+          "end_line": 191
+        }
+      ],
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 6,
+            "reciprocal_rank": 0.16666666666666666
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 6,
+            "reciprocal_rank": 0.16666666666666666
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 6,
+            "reciprocal_rank": 0.16666666666666666
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 1.0,
+            "single_chunk_span_rate": 1.0,
+            "all_spans_hit": true,
+            "any_span_hit": true,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019"
+        ],
+        "expanded_raw": [
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019"
+        ],
+        "combined_raw": [
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019"
+        ],
+        "baseline_reranked": [
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0017"
+        ],
+        "expanded_reranked": [
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0017"
+        ],
+        "combined_reranked": [
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0017"
+        ]
+      },
+      "candidate_ids": {
+        "baseline": [
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+          "3.6.5:include/osgViewer/Viewer:blocks:0002",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0003",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0002",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0017",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0000",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0000",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0001",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0003",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0015"
+        ],
+        "expanded": [
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+          "3.6.5:include/osgViewer/Viewer:blocks:0002",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0003",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0002",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0017",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0000",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0000",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0001",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0003",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0015"
+        ],
+        "combined": [
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0000",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0004",
+          "3.6.5:include/osgViewer/Viewer:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0001",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+          "3.6.5:include/osgViewer/Viewer:blocks:0002",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0000",
+          "3.6.5:include/osgViewer/Viewer:blocks:0003",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0002",
+          "3.6.5:examples/osgbillboard/osgbillboard.cpp:blocks:0004",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0020",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0017",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0000",
+          "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0000",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0001",
+          "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0003",
+          "3.6.5:examples/osgshape/osgshape.cpp:blocks:0000",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0012",
+          "3.6.5:examples/osgtext/osgtext.cpp:blocks:0015"
+        ]
+      }
+    },
+    {
+      "id": "osg-test-008",
+      "query": "找一个官方例子，说明点图元如何设置顶点数组、整体颜色并加入 PrimitiveSet。",
+      "evidence": [
+        {
+          "path": "examples/osggeometry/osggeometry.cpp",
+          "start_line": 161,
+          "end_line": 193
+        }
+      ],
+      "metrics": {
+        "baseline_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 8,
+            "reciprocal_rank": 0.125
+          }
+        },
+        "expanded_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 18,
+            "reciprocal_rank": 0.05555555555555555
+          }
+        },
+        "combined_raw": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": null,
+            "reciprocal_rank": 0.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 10,
+            "reciprocal_rank": 0.1
+          }
+        },
+        "baseline_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "expanded_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        },
+        "combined_reranked": {
+          "at_5": {
+            "returned": 5,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          },
+          "at_20": {
+            "returned": 20,
+            "span_recall": 0.0,
+            "single_chunk_span_rate": 0.0,
+            "all_spans_hit": false,
+            "any_span_hit": false,
+            "first_evidence_touch_rank": 1,
+            "reciprocal_rank": 1.0
+          }
+        }
+      },
+      "top_ids": {
+        "baseline_raw": [
+          "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0008"
+        ],
+        "expanded_raw": [
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0008",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0006"
+        ],
+        "combined_raw": [
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0008",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0006"
+        ],
+        "baseline_reranked": [
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0004",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0012",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0005",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0013",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006"
+        ],
+        "expanded_reranked": [
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0000",
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:include/osg/Geometry:blocks:0002"
+        ],
+        "combined_reranked": [
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0004",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0005",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0013",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016"
+        ]
+      },
+      "candidate_ids": {
+        "baseline": [
+          "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0008",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0006",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0000",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0004",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0005",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0007",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0002",
+          "3.6.5:include/osg/Geometry:blocks:0002",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0013",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0017",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0012",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0010",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0003",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0015",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0003"
+        ],
+        "expanded": [
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0008",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0006",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0000",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0007",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0017",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0010",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0003",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0015",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:include/osg/Geometry:blocks:0002",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0013",
+          "3.6.5:include/osg/Geometry:blocks:0006",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0012",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0018",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0011",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0014"
+        ],
+        "combined": [
+          "3.6.5:include/osg/Geometry:blocks:0003",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0004",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0005",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0008",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0006",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0000",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0016",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0007",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0017",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0006",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0010",
+          "3.6.5:include/osg/Geometry:blocks:0002",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0003",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0015",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0004",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0005",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0002",
+          "3.6.5:examples/osggeometry/osggeometry.cpp:blocks:0013",
+          "3.6.5:include/osg/PrimitiveSet:blocks:0013",
+          "3.6.5:include/osg/Geometry:blocks:0006"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "source_path": "<project-root>/data/packages/parse-lab/scan.pdf",
+    "source_sha256": "920b7d2c25fa8323d9ef0d9518dc85a10a497514b1c29802344e428086c5f7d2",
+    "page_number": 1,
+    "parser": "pdfplumber",
+    "text": "",
+    "tables": [],
+    "image_count": 1,
+    "warnings": [
+      "no_extracted_text; inspect OCR need"
+    ]
+  }
+]

@@ -1,0 +1,596 @@
+rag-test-001 gdal_translate 这个工具是做什么的？在格式转换的同时它还能顺带完成哪些操作？
+ANSWER: 用于在栅格数据的不同格式之间转换；转换过程中还可以做一些操作，例如子集裁剪（subsetting）、重采样（resampling）以及像素值的重缩放（rescaling）。
+EVIDENCE: Description  The gdal_translate utility can be used to convert raster data between
+different formats, potentially performing some operations like subsetting,
+resampling, and rescaling pixels in the process.
+
+rag-test-002 gdal_translate 的 -strict 严格模式遇到可能导致信息丢失的操作（例如无法精确保持的数据类型转换）时会怎样？该行为是否与驱动有关？
+ANSWER: -strict 会启用严格模式：GDAL 会直接失败报错，而不是静默执行可能导致信息丢失的操作。该选项的确切行为与驱动相关；多数栅格驱动用它来强制保持输入数据类型，若无法无损执行所请求的操作就会报错。
+EVIDENCE: -strict  Enable strict mode. In this mode, GDAL will fail instead of silently
+performing operations that may lead to loss of information, such as
+data type conversions that cannot be exactly preserved. The exact behavior of this option is driver-dependent. Most raster
+drivers use it to enforce strict preservation of the input data type
+and will report an error if the requested operation cannot be performed
+without data loss. See Example 5 .
+
+rag-test-003 gdalwarp 是什么类型的工具？它能重投影到什么范围？对携带控制信息的 raw 影像，它能否使用影像自带的 GCP？
+ANSWER: gdalwarp 是影像镶嵌（mosaicing）、重投影（reprojection）与 warp 工具；可以重投影到任何受支持的投影；若影像本身是带控制信息的 “raw” 影像，也可以应用其存储的 GCP。
+EVIDENCE: Description  The gdalwarp utility is an image mosaicing, reprojection and warping
+utility. The program can reproject to any supported projection,
+and can also apply GCPs stored with the image if the image is "raw"
+with control information.
+
+rag-test-004 按官方文档，gdalwarp 默认会不会充分利用 RAM？推荐用什么参数改善？该内存参数在多线程下如何使用？
+ANSWER: 默认不会充分利用 RAM（加内存几乎一定能提速，但不代表值得）。推荐用 -wm 500 之类参数，一次处理 500MB 分块，比默认更好。-wm 指定的 warp 内存在所有线程之间共享，因此当以 -wo NUM_THREADS（或等价的 GDAL_NUM_THREADS）设为大于 1 运行时，提高该值尤其有益。仍可再用 --config GDAL_CACHEMAX 500 提高 I/O 块缓存。
+EVIDENCE: Memory usage  Adding RAM will almost certainly increase the speed of gdalwarp .
+That's not at all the same as saying that it is worth it, or that the speed
+increase will be significant. Disks are the slowest part of the process.  By
+default gdalwarp won't take much advantage of RAM. Using the flag -wm 500 will operate on 500MB chunks at a time which is better than
+the default. The warp memory specified by -wm is shared among all
+threads, so it is especially beneficial to increase this value when running gdalwarp with -wo NUM_THREADS (or its equivalent GDAL_NUM_THREADS ) greater than 1. Increasing the I/O block cache size may also help. This can be done by
+setting the GDAL_CACHEMAX configuration like: gdalwarp --config GDAL_CACHEMAX 500 -wm 500 ...
+
+rag-test-005 如何判断 gdalwarp 的运行是 IO 受限还是 CPU 受限？另外，在日志中看到哪个具体函数名意味着性能会比较慢？文档认为最快的情况是什么？
+ANSWER: 运行中查看 CPU 使用率：若明显低于 100% 说明是 IO 受限，否则是 CPU 受限，--debug 也能提供有用信息。一旦看到 GDALWarpKernel()::GWKGeneralCase() 就说明会相对较慢；最快的情况是 8bit 数据、无 nodata 或 alpha 掩膜生效时的最邻近重采样。另外 Src/Dst 窗口显示的是使用的分块大小，若被切成很多块，适当增大 -wm 可能有帮助。
+EVIDENCE: Check CPU usage while gdalwarp is running. If it is substantially
+less than 100% then you know things are IO bound. Otherwise they are CPU bound.
+The --debug option may also provide useful information. For instance, after
+running the following: gdalwarp --debug on abc.tif def.tif a message like the following will be output: GDAL : 224 block reads on 32 block band 1 of utm . tif
+chunks increasing -wm may help somewhat. But far more important than memory are ensuring you are going through an
+optimized path in the warper. If you ever see it reporting GDALWarpKernel()::GWKGeneralCase() you know things will be relatively slow.
+Basically, the fastest situations are nearest neighbour resampling on 8bit data
+without nodata or alpha masking in effect.
+
+rag-test-006 ogr2ogr 的用途是什么？在转换过程中它还能执行哪些操作？
+ANSWER: 用于在文件格式之间转换 simple features 数据；过程中还能执行多种操作，例如空间或属性选择、减少属性集、设置输出坐标系，甚至在转换时重投影要素。
+EVIDENCE: Description  ogr2ogr can be used to convert simple features data between file
+formats. It can also perform various operations during the process, such as
+spatial or attribute selection, reducing the set of attributes, setting the
+output coordinate system or even reprojecting the features during translation.
+
+rag-test-007 用 ogr2ogr 按边界框裁剪输入图层，示例命令长什么样？该边界框参数的四个值按什么顺序给出？
+ANSWER: 使用 -spat，边界框按 <xmin> <ymin> <xmax> <ymax> 顺序给出。示例：ogr2ogr -spat -13.931 34.886 46.23 74.12 output.gpkg natural_earth_vector.gpkg
+EVIDENCE: Example 2: Clip input layer with a bounding box  The bounding box is specified as <xmin> <ymin> <xmax> <ymax> : ogr2ogr -spat -13.931 34 .886 46 .23 74 .12 output.gpkg natural_earth_vector.gpkg
+
+rag-test-008 从 GDAL 哪个版本开始，gdalinfo -json 的输出会包含可用于构建 STAC item 的键值对？统计量与直方图分别需要同时传入哪个参数？
+ANSWER: 自 GDAL 3.6 起，-json 输出包含可用于构建 STAC item 的键值对；传入 -stats 时包含统计量，传入 -hist 时包含直方图。
+EVIDENCE: -json  Display the output in json format. Since GDAL 3.6, this includes key-value
+pairs useful for building a STAC item , including statistics and histograms if -stats or -hist flags are
+passed, respectively.
+
+rag-test-009 gdalbuildvrt 的 -resolution 接受哪些取值？其中哪一个是默认值、含义是什么？在输入分辨率不一致时它会做什么？
+ANSWER: 取值 highest|lowest|average|user|same（synopsis 列出这 6 个以外的写法见下），另有文档正文提到的 common。当所有输入文件分辨率不一致时该选项用于控制输出分辨率如何计算。highest 取源栅格中像素尺寸的最小值；lowest 取最大值；average 是默认值，取源栅格像素尺寸的平均；user 必须与 -tr 配合指定目标分辨率；same（GDAL 3.11 加入）校验所有源分辨率相同、否则报错；common（GDAL 3.11 加入）取源像素尺寸的最大公约数（如 0.4 与 0.6 → 0.2）。
+EVIDENCE: -resolution {highest|lowest|average|user|same}  In case the resolution of all input files is not the same, the -resolution flag
+enables the user to control the way the output resolution is computed. highest will pick the smallest values of pixel dimensions within the set of source rasters. lowest will pick the largest values of pixel dimensions within the set of source rasters. average is the default and will compute an average of pixel dimensions within the set of source rasters. user must be used in combination with the -tr option to specify the target resolution. same (added in GDAL 3.11) checks that all source rasters have the same resolution and errors out when this is not the case. common (added in GDAL 3.11) determines the greatest common divisor of the source pixel dimensions, e.g. 0.2 for source pixel dimensions of 0.4 and 0.6.
+
+rag-test-010 gdaladdo 的 -r 选项支持哪些重采样算法？默认用哪一个、文档如何评价它？
+ANSWER: 支持 nearest|average|rms|gauss|bilinear|cubic|cubicspline|lanczos|average_magphase|mode；默认是 nearest，文档指出若需要亚像素精度则 generally not appropriate（一般不合适）。另：自 GDAL 3.9 起，刷新已有 TIFF 概视图时若未指定 -r，会沿用概视图 RESAMPLING 元数据中记录的上次方法。
+EVIDENCE: -r {nearest|average|rms|gauss|bilinear|cubic|cubicspline|lanczos|average_magphase|mode}  Select a resampling algorithm. The default is nearest , which is generally not
+appropriate if sub-pixel accuracy is desired. Starting with GDAL 3.9, when refreshing existing TIFF overviews, the previously
+used method, as noted in the RESAMPLING metadata item of the overview, will
+be used if -r is not specified.
+
+rag-test-011 gdaldem hillshade 的 -alg 两个取值各自适合什么地形？-z 与 -s 分别代表什么？
+ANSWER: -alg Horn|ZevenbergenThorne：文献认为 Zevenbergen & Thorne 更适合平滑地形，Horn 公式在更粗糙地形上表现更好。-z <factor> 是垂直夸大系数，用于预乘高程值；-s <scale> 是垂直单位与水平单位之比（若源 DEM 水平单位为度，米制垂直单位可用 scale=111120）。
+EVIDENCE: hillshade  This command outputs an 8-bit raster with a nice shaded relief effect. It’s very useful for visualizing the terrain. You can optionally specify the azimuth and altitude of the light source, a vertical exaggeration factor and a scaling factor to account for differences between vertical and horizontal units. The value 0 is used as the output nodata value. The following specific options are available : -alg Horn|ZevenbergenThorne  The literature suggests Zevenbergen & Thorne to be more suited to smooth landscapes, whereas Horn's formula to perform better on rougher terrain. -z <factor>  Vertical exaggeration used to pre-multiply the elevations
+-s <scale>  Ratio of vertical units to horizontal units. If the horizontal unit of the source DEM is degrees (e.g Lat/Long WGS84 projection), you can use scale=111120 if the vertical units are meters (or scale=370400 if they are in feet). Starting with GDAL 3.11, if none of -scale , -xscale and -yscale are specified, and the CRS is a geographic or projected CRS, gdaldem will automatically determine the appropriate ratio from
+the units of the CRS, as well as the potential value of the units of the
+
+rag-test-012 gdal_rasterize 的 -burn、-a、-l 三个选项分别是什么用途？其中哪些可以重复指定？-l 与 -sql 之间有什么约束？
+ANSWER: -burn <value>：为所有对象烧录一个固定值，可多次指定（每个输出波段一个）。-a <attribute_name>：用一个属性字段的值作为烧录值，会烧进所有输出波段。-l <layername>：指定用于输入要素的图层，可指定多次，但至少要给一个图层名或一个 -sql（两者不能同时用）。
+EVIDENCE: -burn <value>  A fixed value to burn into a band for all objects.  A list of -burn options
+can be supplied, one per band being written to.
+Identifies an attribute field on the features to be used for a burn-in value.
+The value will be burned into all output bands.
+-l <layername>  Indicates the layer(s) from the datasource that will be used for input
+features.  May be specified multiple times, but at least one layer name or a -sql option must be specified (not both).
+
+rag-test-013 GDAL 的仿射 GeoTransform 由几个系数组成？在正射（北向上）影像中 GT(2)、GT(4)、GT(1)、GT(5) 分别是什么？(GT(0),GT(3)) 指向哪个位置？左上角像素的中心坐标是多少？
+ANSWER: 由 GetGeoTransform() 返回的 6 个系数组成，映射关系为 Xgeo = GT(0)+Xpixel*GT(1)+Yline*GT(2)、Ygeo = GT(3)+Xpixel*GT(4)+Yline*GT(5)。正射影像中 GT(2) 与 GT(4) 为 0，GT(1) 是像素宽度、GT(5) 是像素高度。(GT(0),GT(3)) 是左上角像素的左上角。像素/行坐标以左上角像素的左上角为 (0.0,0.0)，到右下角像素的右下角为 (width_in_pixels,height_in_pixels)，因此左上角像素中心为 (0.5,0.5)。
+EVIDENCE: Affine GeoTransform  GDAL datasets have two ways of describing the relationship between raster positions (in pixel/line coordinates) and georeferenced coordinates. The first, and most commonly used is the affine transform (the other is GCPs). The affine transform consists of six coefficients returned by GDALDataset::GetGeoTransform() which map pixel/line coordinates into georeferenced space using the following relationship: Xgeo = GT ( 0 ) + Xpixel * GT ( 1 ) + Yline * GT ( 2 ) Ygeo = GT ( 3 ) + Xpixel * GT ( 4 ) + Yline * GT ( 5 ) In case of north up images, the GT(2) and GT(4) coefficients are zero, and the GT(1) is pixel width, and GT(5) is pixel height. The (GT(0),GT(3)) position is the top left corner of the top left pixel of the raster. Note that the pixel/line coordinates in the above are from (0.0,0.0) at the top left corner of the top left pixel to (width_in_pixels,height_in_pixels) at the bottom right corner of the bottom right pixel. The pixel/line location of the center of the top left pixel would therefore be (0.5,0.5).
+
+rag-test-014 GDAL 虚拟文件系统的命名前缀规则是什么（/vsiPREFIX/ 中的 vsi 代表什么）？不同 handler 能否串联？请给出一个串联示例。
+ANSWER: 每个特殊文件系统有一个前缀，通用语法是 /vsiPREFIX/...；前缀中的 vsi 代表 Virtual System Interface。可以链式串联多个文件系统 handler，例如把网络上的 zip 里的 shapefile 直接读出来：/vsizip//vsicurl/https://raw.githubusercontent.com/OSGeo/gdal/master/autotest/ogr/data/shp/poly.zip（写成 /vsizip/vsicurl/... 单斜杠也可以，但文档要求写文档时仍用两个斜杠）。
+EVIDENCE: Introduction  GDAL can access files located on "standard" file systems, i.e. in the / hierarchy on Unix-like systems or in C:, D:, etc... drives on Windows. But most GDAL raster and vector drivers use a GDAL-specific abstraction to access files. This makes it possible to access less standard types of files, such as in-memory files, compressed files (.zip, .gz, .tar, .tar.gz archives), encrypted files, standard input and output (STDIN, STDOUT), files stored on network (either publicly accessible, or in private buckets of commercial cloud storage services), etc. Each special file system has a prefix, and the general syntax to name a file is /vsiPREFIX/... Example: gdalinfo / vsizip / my . zip / my . tif The leading vsi in /vsiPREFIX/ stands for Virtual System Interface. Chaining  It is possible to chain multiple file system handlers. # ogrinfo a shapefile in a zip file on the internet: ogrinfo - ro - al - so / vsizip // vsicurl / https : // raw . githubusercontent . com / OSGeo / gdal / master / autotest / ogr / data / shp / poly . zip # ogrinfo a shapefile in a zip file on an ftp: ogrinfo - ro - al - so / vsizip // vsicurl / ftp : // user : password @example . com / foldername / file . zip / example . shp (Note is also OK to say /vsizip/vsicurl/... with a single slash. (But when writing documentation please still use two.))
+
+rag-test-015 为 GDAL 设置配置项有哪些方式？命令行上的 --config 如何用？自 GDAL 3.9 起多了什么写法？在 C/C++ 中如何设置？
+ANSWER: ① 环境变量：Unix 用 export GDAL_CACHEMAX=64，Windows/DOS 用 set GDAL_CACHEMAX=64；② 命令行：多数 GDAL/OGR 工具支持 --config <NAME> <VALUE>，例如 gdal_translate --config GDAL_CACHEMAX 64 in.tif out.tif；③ 自 GDAL 3.9 起，也可用单个 <NAME>=<VALUE> 字符串，例如 --config GDAL_CACHEMAX=64；④ C/C++ 中用 CPLSetConfigOption("GDAL_CACHEMAX", "64")，并可用 CPLSetThreadLocalConfigOption() 限制到当前线程。布尔型选项可用 YES/TRUE/ON 打开、NO/FALSE/OFF 关闭。
+EVIDENCE: How to set configuration options?  One example of a configuration option is the GDAL_CACHEMAX option. It controls the size
+of the GDAL block cache , in megabytes. It can be set in the environment on Unix
+(bash/bourne) shell like this: export GDAL_CACHEMAX = 64 In a DOS/Windows command shell it is done like this: set GDAL_CACHEMAX = 64 It can also be set on the commandline for most GDAL and OGR utilities with the --config switch, though in a few cases these switches are not evaluated in
+time to affect behavior. gdal_translate -- config GDAL_CACHEMAX 64 in . tif out . tif Since GDAL 3.9, it is also possible to set a config option in a more conventional
+way by using a single <NAME>``=``<VALUE> command line string instead of having <NAME> and <VALUE> as two space-separated strings. gdal_translate -- config GDAL_CACHEMAX = 64 in . tif out . tif In C/C++ configuration switches can be set programmatically with CPLSetConfigOption() : #include "cpl_conv.h" ... CPLSetConfigOption ( "GDAL_CACHEMAX" , "64" ); Normally a configuration option applies to all threads active in a program, but
+they can be limited to only the current thread with CPLSetThreadLocalConfigOption() CPLSetThreadLocalConfigOption ( "GTIFF_DIRECT_IO" , "YES" );
+
+rag-test-016 从 GDAL 哪个版本开始，当传入的配置项名称对 GDAL 未知时会发出警告？需要开启哪个配置项才能看到该警告？默认行为是什么？
+ANSWER: 自 GDAL 3.11 起：把 CPL_DEBUG 设为 ON（或任何非 OFF、FALSE、NO 的值）时，对未知配置项会发出 GDAL 警告，例如 gdalinfo --config BAD_OPTION=TEST --debug on --version 会输出 “Warning 1: CPLSetConfigOption() called with key=BAD_OPTION, which is unknown to GDAL”。默认情况下 GDAL 不会因配置项名未知而告警。
+EVIDENCE: How to detect if the passed configuration option is known to GDAL  By default GDAL will not warn if the name of the configuration option is unknown.
+Starting with GDAL 3.11, if you set the CPL_DEBUG configuration
+option to ON (or any value that is not OFF , FALSE , NO ), a GDAL
+warning will be emitted for unknown configuration options. $ gdalinfo --config BAD_OPTION = TEST --debug on --version
+Warning 1 : CPLSetConfigOption () called with key = BAD_OPTION, which is unknown to GDAL [ ... ]
+CPL_DEBUG=[ON​/​OFF​/​<PREFIX>]: This may be set to ON, OFF or specific prefixes. If it is ON, all debug
+messages are reported to stdout. If it is OFF or unset no debug messages are
+reported. If it is set to a particular value, then only debug messages with
+that "type" value will be reported. For instance debug messages from the HFA
+driver are normally reported with type "HFA" (seen in the message). At the commandline this can also be set with --debug <value> as well as with
+--config CPL_DEBUG <value>.
+
+rag-test-017 GDAL 3.13 相对 3.12，对 port/cpl_port.h 中的 MIN/MAX/ABS 宏以及 M_PI 分别做了什么改动？
+ANSWER: cpl_port.h 中的 MIN、MAX、ABS 预处理器宏被改名为 CPL_MIN、CPL_MAX、CPL_ABS；M_PI 不再被导出，依赖该宏的用户必须自行包含 math.h 并在其之前定义 _USE_MATH_DEFINES。
+EVIDENCE: From GDAL 3.12 to GDAL 3.13  C API changes: the following functions now return a OGRErr whereas they returned void
+before: OGR_G_SetPointCount() , OGR_G_SetPoint() , OGR_G_SetPoint_2D() , OGR_G_SetPointM() , OGR_G_SetPointZM() , OGR_G_AddPoint() , OGR_G_AddPoint_2D() , OGR_G_AddPointM() , OGR_G_AddPointZM() , OGR_G_SetPoints() and OGR_G_SetPointsZM() . MIN , MAX and ABS pre-processor macros defined in cpl_port.h have been renamed to CPL_MIN , CPL_MAX and CPL_ABS . M_PI is no longer exported. Users that would rely on this macro must now
+include math.h , with the _USE_MATH_DEFINES macro defined before.
+
+rag-test-018 GDAL 的公开 C 函数与 C++ 方法是否线程安全？能否在多线程中并发访问同一个数据集所属的多个 GeoTIFF 波段（同一 GDALDataset 的多个 GDALRasterBand）？文档给出的正确做法和原因是？
+ANSWER: 除少数全局初始化/清理函数（如 GDALAllRegister()、GDALDestroy()、OSRCleanup()）外，GDAL 全部公开 C 函数与 C++ 方法都是可重入（re-entrant）的 —— 即多线程同时调用时每次调用必须使用自己的数据。除非特别说明，不应假设任何 GDAL 公开 C 函数/C++ 方法线程安全：不应在多线程中对同一数据实例、或通过归属关系紧密相关的实例并发调用（例如同一 GDALDataset 拥有的不同 GDALRasterBand 之间并发访问是不安全的，每个线程应各自操作不同的 GDALDataset；同一 GDALDataset 拥有的多个 OGRLayer 同理）。原因：多数 GDALDataset/GDALRasterBand 实现是有状态的（持有文件句柄并做 seek/read），给定 GDALDataset 的块缓存结构非线程安全，驱动常用惰性初始化，且可能依赖本身非线程安全的第三方库。
+EVIDENCE: GDAL API: re-entrant, but (generally) not thread-safe  The exact meaning of the terms thread-safe or re-entrant is not fully
+standardized. We will use here the QT definitions .
+In particular, a C function or C++ method is said to be re-entrant if it can
+be called simultaneously from multiple threads, but only if each invocation
+uses its own data. All GDAL public C functions and C++ methods are re-entrant, except: the general initialization functions, like GDALAllRegister() . the general cleanup functions like GDALDestroy() or OSRCleanup() . Those functions should not be called concurrently from several threads, and it
+is general best practice to call them from the main thread of the program at
+program initialization and termination. Unless otherwise stated, no GDAL public C functions and C++ methods should be
+assumed to be thread-safe. That is you should not call simultaneously GDAL
+functions from multiple threads on the same data instance, or even instances
+that are closely related through ownership relationships. For example, for a
+multi-band raster dataset, it is not safe to call concurrently GDAL functions
+on different GDALRasterBand instances owned by the same GDALDataset instance (each thread should instead manipulate a
+distinct GDALDataset). Similarly for a GDALDataset owning several OGRLayer . The reason is that most implementations of GDALDataset or GDALRasterBand
+are stateful. A GDALDataset typically owns a file handle,
+and performs seek/read operations on it, thus not allowing concurrent access.
+Block cache related structures for a given GDALDataset are not thread-safe.
+Drivers also often implement lazy initialization strategies to access various
+metadata which are resolved only the first time the method to access them is
+invoked. Drivers may also rely on third-party libraries that expose objects
+that are not thread-safe. Those restrictions apply to the C and C++ ABI, and all languages bindings (unless
+they would take special precautions to serialize calls)
+
+rag-test-019 GeoTIFF 驱动的概视图（overviews）可以存放在哪里？以只读方式打开文件时会创建在哪里？概视图在什么时候才会被更新？
+ANSWER: GeoTIFF 驱动支持内部概视图的读取、创建与更新：以更新模式打开（例如用 gdaladdo）可在 GeoTIFF 文件内部创建内部概视图；若以只读方式打开，概视图的创建会落到外部 .ovr 文件。概视图只在请求时通过 BuildOverviews() 方法更新。
+EVIDENCE: Overviews  The GeoTIFF driver supports reading, creation and update of internal
+overviews. Internal overviews can be created on GeoTIFF files opened in
+update mode (with gdaladdo for instance). If the GeoTIFF file is opened
+as read only, the creation of overviews will be done in an external .ovr
+file. Overview are only updated on request with the BuildOverviews()
+method. Several overview creation options are available. They can be provided through GDALDataset::BuildOverviews() , GDALDataset::AddOverviews()
+
+rag-test-020 在 3D Tiles 中，一个 tileset 是什么？它以什么形式描述？树的组织形式体现了什么渲染概念？这棵树必须是二维切片方案吗，可以是哪些空间数据结构？隐式切片（implicit tiling）能简洁表示其中哪两种？
+ANSWER: tileset 是一组按空间数据结构（树）组织的 tile 的集合，至少由一个 tileset JSON 文件描述，其中包含 tileset 元数据以及一棵 tile 对象树，每个 tile 可以引用可渲染内容。树体现了 Hierarchical Level of Detail（HLOD，层级细节）概念，用于空间数据的最优渲染。glTF 2.0 是 3D Tiles 的主要 tile 格式。tileset 可以采用类似栅格/矢量切片（如 WMTS 或 XYZ 方案）的二维切片方案，但内容常常是非均匀的、不易只用二维组织；因此树可以是任何具备空间相干性的空间数据结构，包括 k-d 树、四叉树（quadtree）、八叉树（octree）与网格（grid）。Implicit tiling 给出了四叉树与八叉树的简洁表示。
+EVIDENCE: 6.1.  Introduction In 3D Tiles, a tileset is a set of tiles organized in a spatial data structure, the tree . A tileset is described by at least one tileset JSON file containing tileset metadata and a tree of tile objects, each of which may reference renderable content. glTF 2.0 is the primary tile format for 3D Tiles. glTF is an open specification designed for the efficient transmission and loading of 3D content. A glTF asset includes geometry and texture information for a single tile, and may be extended to include metadata, model instancing, and compression. glTF may be used for a wide variety of 3D content including: Heterogeneous 3D models. E.g. textured terrain and surfaces, 3D building exteriors and interiors, massive models 3D model instances. E.g. trees, windmills, bolts Massive point clouds
+Tiles are organized in a tree which incorporates the concept of Hierarchical Level of Detail (HLOD) for optimal rendering of spatial data. Each tile has a bounding volume , an object defining a spatial extent completely enclosing its content. The tree has spatial coherence ; the content for child tiles are completely inside the parent’s bounding volume. Figure 1 — A tree of tiles A tileset may use a 2D spatial tiling scheme similar to raster and vector tiling schemes (like a Web Map Tile Service (WMTS) or XYZ scheme) that serve predefined tiles at several levels of detail (or zoom levels). However since the content of a tileset is often non-uniform or may not easily be organized in only two dimensions, the tree can be any spatial data structure with spatial coherence, including k-d trees, quadtrees, octrees, and grids. Implicit tiling defines a concise representation of quadtrees and octrees.
+
+rag-test-021 3D Tiles 1.1 中，1.0 时代的四种 legacy tile format（b3dm / i3dm / pnts / cmpt）处于什么状态？它们各自对应的典型用途是什么？
+ANSWER: 这四种格式在 3D Tiles 1.1 中被弃用（deprecated），并可能在未来的 3D Tiles 版本中被移除。Table 1 给出的用途：Batched 3D Model (b3dm) → 异构 3D 模型；Instanced 3D Model (i3dm) → 3D 模型实例；Point Cloud (pnts) → 海量点；Composite (cmpt) → 把不同格式的 tile 拼接进一个 tile。
+EVIDENCE: 6
+3D TILES FORMAT SPECIFICATION
+ 
+6.1. Introduction
+ 
+In 3D Tiles, a tileset is a set of tiles organized in a spatial data structure, the tree. A tileset is 
+described by at least one tileset JSON file containing tileset metadata and a tree of tile objects, 
+each of which may reference renderable content.
+glTF 2.0 is the primary tile format for 3D Tiles. glTF is an open specification designed for the 
+efficient transmission and loading of 3D content. A glTF asset includes geometry and texture 
+information for a single tile, and may be extended to include metadata, model instancing, and 
+compression. glTF may be used for a wide variety of 3D content including:
+•
+Heterogeneous 3D models. E.g. textured terrain and surfaces, 3D building exteriors and 
+interiors, massive models
+•
+3D model instances. E.g. trees, windmills, bolts
+•
+Massive point clouds
+See glTF Tile Format for more details.
+Tiles may also reference the legacy 3D Tiles 1.0 formats listed below. These formats were 
+deprecated in 3D Tiles 1.1 and may be removed in a future version of 3D Tiles.
+ 
+Table 1 — Legacy tile formats and common uses
+LEGACY FORMAT
+USES
+Batched 3D Model (b3dm)
+Heterogeneous 3D models
+Instanced 3D Model (i3dm)
+3D model instances
+Point Cloud (pnts)
+Massive number of points
+Composite (cmpt)
+Concatenate tiles of different formats into one tile
+A tile’s content is an individual instance of a tile format. A tile may have multiple contents.
+The content references a set of features, such as 3D models representing buildings or trees, 
+or points in a point cloud. Each feature has position and appearance properties and additional 
+OPEN GEOSPATIAL CONSORTIUM 22-025R4
+17
+
+
+rag-test-022 3D Tiles 1.1 规定各类文件应使用的扩展名与 Media Type：tileset JSON、JSON subtree、二进制 subtree、二进制 buffer 分别是什么？显式扩展名是强制的吗？
+ANSWER: tileset 文件用 .json 扩展名与 application/json；JSON subtree 文件用 .json 与 application/json；二进制 subtree 文件用 .subtree 扩展名与 application/octet-stream；二进制 buffer 文件用 .bin 与 application/octet-stream。元数据 schema 文件与 tileset 样式文件也用 .json 与 application/json。显式文件扩展名是可选的，合法实现可以忽略扩展名而通过文件头部的 magic 字段识别内容格式。
+EVIDENCE: Application-specific metadata may be provided at multiple granularities within a tileset. 
+Metadata may be associated with high-level entities like tilesets, tiles, contents, or features, or 
+with individual vertices and texels. Metadata conforms to a well-defined type system described 
+by the 3D Metadata Specification, which may be extended with application- or domain-specific 
+semantics.
+Optionally a 3D Tiles Style, or style, may be applied to a tileset. A style defines expressions to be 
+evaluated which modify how each feature is displayed.
+6.2. File Extensions and Media Types
+ 
+3D Tiles uses the following file extensions and Media Types.
+•
+Tileset files should use the .json extension and the application/json Media Type.
+•
+Tile content files should use the file extensions and Media Type specific to their tile format 
+specification.
+•
+Metadata schema files should use the .json extension and the application/json Media 
+Type.
+•
+Tileset style files should use the .json extension and the application/json Media Type.
+•
+JSON subtree files should use the .json extension and the application/json Media 
+Type.
+•
+Binary subtree files should use the .subtree extension and the application/octet-
+stream Media Type.
+•
+Files representing binary buffers should use the .bin extension and application/octet-
+stream Media Type.
+Explicit file extensions are optional. Valid implementations may ignore it and identify a content’s 
+format by the magic field in its header.
+6.3. JSON encoding
+ 
+3D Tiles has the following restrictions on JSON formatting and encoding.
+1.
+JSON shall use UTF-8 encoding without BOM.
+2.
+All strings defined in this spec (properties names, enums) use only ASCII charset 
+and shall be written as plain text, without JSON escaping.
+3.
+Non-ASCII characters that appear as property values in JSON may be escaped.
+OPEN GEOSPATIAL CONSORTIUM 22-025R4
+19
+
+
+rag-test-023 3D Tiles 中所有线性距离与角度的单位分别是什么？它使用什么手性的坐标系、哪根轴朝上？对于局部笛卡尔坐标系，z 轴的定义是什么？
+ANSWER: 所有线性距离的单位是米（meters）；所有角度使用弧度（radians）。3D Tiles 使用右手笛卡尔坐标系，即 x 与 y 的叉积得到 z；对于局部笛卡尔坐标系，3D Tiles 把 z 轴定义为朝上。
+EVIDENCE: The unit for all linear distances is meters. All angles are in radians. 6.6.  Coordinate reference system (CRS) 3D Tiles uses a right-handed Cartesian coordinate system; that is, the cross product of x and y yields z . 3D Tiles defines the z axis as up for local Cartesian coordinate systems. A tileset’s global coordinate system will often be in a WGS 84 Earth-centered, Earth-fixed (ECEF) reference frame ( EPSG 4978 ), but it doesn’t have to be, e.g., a power plant may be defined fully in its local coordinate system for use with a modeling tool without a geospatial context.
+
+rag-test-024 tile 的 geometric error 是什么？从根到叶其数值大致如何变化？在客户端实现里它如何被使用？数值更大意味着什么？
+ANSWER: 一个 tile 的 geometric error 定义了该 tile 的选择度量（selection metric）：它是一个非负数值，以米为单位给出该 tile 对其源几何的简化表示所带来的误差。一般来说根 tile 的 geometric error 最大，逐层子 tile 更小，叶节点的 geometric error 为 0 或接近 0。客户端实现把它与其他屏幕空间度量（tile 到相机的距离、屏幕大小、分辨率）结合，计算“渲染该 tile 而不渲染其子节点”所引入的 SSE（Screen-Space Error，以像素计）；若引入的 SSE 超过允许上限，该 tile 就会被精化、其子节点被纳入渲染考虑。geometric error 更大意味着该 tile 会被更积极地精化，子节点会更早被加载与渲染。
+EVIDENCE: A tile’s geometric error defines the selection metric for that tile. Its value is a nonnegative number that specifies the error, in meters, of the tile’s simplified representation of its source geometry. Generally, the root tile will have the largest geometric error, and each successive level of children will have a smaller geometric error than its parent, with leaf tiles having a geometric error of or close to 0. In a client implementation, geometric error is used with other screen space metrics—​e.g., distance from the tile to the camera, screen size, and resolution— to calculate the SSE introduced if this tile is rendered and its children are not. If the introduced SSE exceeds the maximum allowed, then the tile is refined and its children are considered for rendering. The geometric error is formulated based on a metric like point density, mesh or texture decimation, or another factor specific to that tileset. In general, a higher geometric error means a tile will be refined more aggressively, and children tiles will be loaded and rendered sooner.
+
+rag-test-025 3D Tiles 1.1 允许哪些精化（refinement）类型？两者在渲染上的区别是什么？对 tileset 的根 tile 而言 refine 是必需的吗？子节点未写 refine 时如何处理？
+ANSWER: 允许的精化类型是 replacement（"REPLACE"）与 additive（"ADD"）。replacement 精化下，子节点渲染时取代父节点（父节点不再渲染）；additive 精化下，子节点在父节点之外叠加渲染。一个 tileset 可以只用 replacement、只用 additive，或两者任意组合。refine 对 tileset 的根 tile 是必需的，对其他所有 tile 是可选的；省略时 tile 继承其父节点的精化类型。
+EVIDENCE: of children will have a smaller geometric error than its parent, with leaf tiles having a geometric 
+error of or close to 0.
+In a client implementation, geometric error is used with other screen space metrics—e.g., 
+distance from the tile to the camera, screen size, and resolution— to calculate the SSE 
+introduced if this tile is rendered and its children are not. If the introduced SSE exceeds the 
+maximum allowed, then the tile is refined and its children are considered for rendering.
+The geometric error is formulated based on a metric like point density, mesh or texture 
+decimation, or another factor specific to that tileset. In general, a higher geometric error means a 
+tile will be refined more aggressively, and children tiles will be loaded and rendered sooner.
+6.7.1.3. Refinement
+Refinement determines the process by which a lower resolution parent tile renders when 
+its higher resolution children are selected to be rendered. Permitted refinement types are 
+replacement ("REPLACE") and additive ("ADD"). If the tile has replacement refinement, the 
+children tiles are rendered in place of the parent, that is, the parent tile is no longer rendered. If 
+the tile has additive refinement, the children are rendered in addition to the parent tile.
+A tileset can use replacement refinement exclusively, additive refinement exclusively, or any 
+combination of additive and replacement refinement.
+A refinement type is required for the root tile of a tileset; it is optional for all other tiles. When 
+omitted, a tile inherits the refinement type of its parent.
+6.7.1.3.1. Replacement
+If a tile uses replacement refinement, when refined it renders its children in place of itself.
+ 
+Table 2 — A tile and a refined tile using replacement refinement
+PARENT TILE
+REFINED
+OPEN GEOSPATIAL CONSORTIUM 22-025R4
+22
+
+
+rag-test-026 3D Tiles 的 boundingVolume.region 由几个数字构成？这六个值的顺序是什么？经纬度与高度分别用什么单位？region 使用哪个坐标参考？
+ANSWER: region 是由六个数字构成的数组，定义为带纬度、经度与高度坐标的地理范围，顺序为 [west, south, east, north, minimum height, maximum height]。经度与纬度使用弧度，高度使用米。region 使用地理坐标系，具体为 EPSG 4979；参考椭球假定与 tileset 的参考椭球相同。
+EVIDENCE: 6.7.1.4.1. Region
+The boundingVolume.region property is an array of six numbers that define the bounding 
+geographic region with latitude, longitude, and height coordinates with the order [west,
+ south, east, north, minimum height, maximum height]. Latitudes and longitudes are in 
+the WGS 84 datum as defined in EPSG 4979 and are in radians. Heights are in meters above (or 
+below) the WGS 84 ellipsoid.
+NOTEThe latitude and longitude values are given in radians, deviating from the EPSG 4979 
+definition, where they are given in degrees. The choice of using radians is due to internal 
+computations usually taking place in radians — for example, when converting cartographic to 
+Cartesian coordinates.
+Figure 2 — A bounding region
+"boundingVolume": {
+  "region": [
+    -1.3197004795898053,
+    0.6988582109,
+    -1.3196595204101946,
+    0.6988897891,
+    0,
+    20
+  ]
+}
+OPEN GEOSPATIAL CONSORTIUM 22-025R4
+24
+
+
+rag-test-027 3D Tiles 的 boundingVolume.box 由几个数字构成？前三个、接下来三个、最后六个元素分别定义什么？该盒子处于什么坐标系、哪根轴朝上？
+ANSWER: box 是由 12 个数字构成的数组，定义右手三轴 (x, y, z) 笛卡尔坐标系（z 轴朝上）中的一个有向包围盒（OBB）。前三个元素定义盒子中心的 x、y、z 值；接下来三个元素（下标 3、4、5）定义 x 轴的朝向与半长；再接下来三个元素（下标 6、7、8）定义 y 轴的朝向与半长；最后三个元素（下标 9、10、11）定义 z 轴的朝向与半长。
+EVIDENCE: The boundingVolume.box property is an array of 12 numbers that define an oriented bounding box in a right-handed 3-axis (x, y, z) Cartesian coordinate system where the z -axis is up. The first three elements define the x, y, and z values for the center of the box. The next three elements (with indices 3, 4, and 5) define the x -axis direction and half-length. The next three elements (indices 6, 7, and 8) define the y -axis direction and half-length. The last three elements (indices 9, 10, and 11) define the z -axis direction and half-length. NOTE The representation that is used for an oriented bounding box in 3D Tiles is versatile and compact: In addition the center position, the array contains the elements of a 3×3 matrix. The columns of this matrix are the images of unit vectors under a transformation, and therefore uniquely and compactly define the scaling and orientation of the bounding box.
+
+rag-test-028 3D Tiles 的 boundingVolume.sphere 由几个数字构成？前三个与最后一个元素分别是什么？半径单位是什么？
+ANSWER: sphere 是由 4 个数字构成的数组：前三个元素定义球心在右手三轴 (x,y,z) 笛卡尔坐标系（z 轴朝上）中的 x、y、z 值；最后一个元素（下标 3）定义半径，单位为米。
+EVIDENCE: The boundingVolume.sphere property is an array of four numbers that define a bounding sphere. The first three elements define the x, y, and z values for the center of the sphere in a right-handed 3-axis (x, y, z) Cartesian coordinate system where the z -axis is up. The last element (with index 3) defines the radius in meters.
+
+rag-test-029 tile 的 viewerRequestVolume 有什么用途？文档给出的示例中，点云 tile 的 boundingVolume 与 viewerRequestVolume 分别是什么、为什么内容会被一直渲染并初始请求？
+ANSWER: tile 的 viewerRequestVolume 可用于组合异构数据集，也可与外部 tileset 结合使用。示例：某建筑内的点云，其 tile 的 boundingVolume 是一个半径 1.25 的球；同时它还有一个半径 15 的更大球作为 viewerRequestVolume。由于该 tile 的 geometricError 为 0，当观察者处在这个由 viewerRequestVolume 定义的大球内时，点云 tile 的内容总是被渲染（并且在初始时就被请求）。
+EVIDENCE: A tile’s viewerRequestVolume can be used for combining heterogeneous datasets, and can be combined with external tilesets . The following example has a point cloud inside a building. The point cloud tile’s boundingVolume is a sphere with a radius of 1.25 . It also has a larger sphere with a radius of 15 for the viewerRequestVolume . Since the geometricError is zero, the point cloud tile’s content is always rendered (and initially requested) when the viewer is inside the large sphere defined by viewerRequestVolume .
+
+rag-test-030 3D Tiles 的 tile.transform 会作用于哪些对象？当 transform 未定义时的默认值是什么？子 tile 的局部坐标到 tileset 全局坐标是如何合成的？
+ANSWER: transform 作用于：tile.content；每个要素的位置；每个要素的法线应使用 transform 的逆矩阵的左上 3×3 矩阵来变换（以在存在缩放时得到正确的向量变换）；content.boundingVolume（除非其 region 被定义，此时显式使用 EPSG:4979 坐标）；tile.boundingVolume（同样除非 region 被定义）；tile.viewerRequestVolume（同样除非 region 被定义）。transform 还会按矩阵中最大的缩放因子缩放 geometricError。未定义时默认是单位矩阵。每个 tile 局部坐标系到 tileset 全局坐标系的变换，通过对 tileset 自顶向下遍历、像传统场景图/节点层级那样把子节点的 transform 与其父节点的 transform 后乘（post-multiply）得到。
+EVIDENCE:     "transform": [
+      4.843178171884396,   1.2424271388626869, 0,                  0,
+      -0.7993325488216595,  3.1159251367235608, 3.8278032889280675, 0,
+      0.9511533376784163, -3.7077466670407433, 3.2168186118075526, 0,
+      1215001.7612985559, -4736269.697480114,  4081650.708604793,  1
+    ],
+    "boundingVolume": {
+      "box": [
+        0,     0,    6.701,
+        3.738, 0,    0,
+        0,     3.72, 0,
+        0,     0,    13.402
+      ]
+    },
+    "geometricError": 32,
+    "content": {
+      "uri": "building.glb"
+    }
+  }, {
+    "transform": [
+      0.968635634376879,    0.24848542777253732, 0,                  0,
+      -0.15986650990768783,  0.6231850279035362,  0.7655606573007809, 0,
+      0.19023066741520941, -0.7415493329385225,  0.6433637229384295, 0,
+      1215002.0371330238,  -4736270.772726648,   4081651.6414821907, 1
+    ],
+    "viewerRequestVolume": {
+      "sphere": [0, 0, 0, 15]
+    },
+    "boundingVolume": {
+      "sphere": [0, 0, 0, 1.25]
+    },
+    "geometricError": 0,
+    "content": {
+      "uri": "points.glb"
+    }
+  }]
+}
+For more on request volumes, see the sample tileset.
+6.7.1.6. Transforms
+6.7.1.6.1. Tile transforms
+To support local coordinate systems—e.g., so a building tileset inside a city tileset can be defined 
+in its own coordinate system, and a point cloud tileset inside the building could, again, be 
+defined in its own coordinate system—each tile has an optional transform property.
+The transform property is a 4×4 affine transformation matrix, stored in column-major order, 
+that transforms from the tile’s local coordinate system to the parent tile’s coordinate system—or 
+the tileset’s coordinate system in the case of the root tile.
+NOTEThe storage of the transform matrix in column-major order follows the conventions that 
+are common in graphics programming APIs like OpenGL, meaning that the elements in the
+transform array directly correspond to the entries of a 4×4 matrix in these systems.
+OPEN GEOSPATIAL CONSORTIUM 22-025R4
+28
+
+The transform property applies to
+•
+tile.content
+•
+Each feature’s position.
+•
+Each feature’s normal should be transformed by the top-left 3×3 matrix of the inverse-
+transpose of transform to account for correct vector transforms when scale is used.
+•
+content.boundingVolume, except when content.boundingVolume.region is 
+defined, which is explicitly in EPSG:4979 coordinates.
+•
+tile.boundingVolume, except when tile.boundingVolume.region is defined, which is 
+explicitly in EPSG:4979 coordinates.
+•
+tile.viewerRequestVolume, except when tile.viewerRequestVolume.region is 
+defined, which is explicitly in EPSG:4979 coordinates.
+The transform property scales the geometricError by the largest scaling factor from the 
+matrix.
+When transform is not defined, it defaults to the identity matrix:
+[
+  1.0, 0.0, 0.0, 0.0,
+  0.0, 1.0, 0.0, 0.0,
+  0.0, 0.0, 1.0, 0.0,
+  0.0, 0.0, 0.0, 1.0
+]
+The transformation from each tile’s local coordinate system to the tileset’s global coordinate 
+system is computed by a top-down traversal of the tileset and by post-multiplying a child’s
+transform with its parent’s transform like a traditional scene graph or node hierarchy in 
+computer graphics.
+6.7.1.6.2. glTF transforms
+glTF defines its own node hierarchy and uses a y-up coordinate system. Any transforms specific 
+to a tile format and the tile.transform property are applied after these transforms are 
+resolved.
+6.7.1.6.2.1. glTF node hierarchy
+First, glTF node hierarchy transforms are applied according to the glTF specification.
+OPEN GEOSPATIAL CONSORTIUM 22-025R4
+29
+
+
+rag-test-031 glTF 使用什么坐标系？3D Tiles 在运行时如何把它转成 z-up？完整的三步变换顺序是什么？
+ANSWER: glTF 有自己的节点层级并使用 y-up 坐标系。为与 3D Tiles 的 z-up 坐标系一致，glTF 须在运行时从 y-up 转到 z-up —— 做法是绕 x 轴旋转 π/2 弧度，等价于左乘矩阵 [[1,0,0,0],[0,0,-1,0],[0,1,0,0],[0,0,0,1]]（行主序）。更广泛地，变换顺序为：① glTF 节点层级变换；② glTF y-up 到 z-up 变换；③ tile 的 transform。
+EVIDENCE: 6.7.1.6.2.  glTF transforms glTF defines its own node hierarchy and uses a y -up coordinate system. Any transforms specific to a tile format and the tile.transform property are applied after these transforms are resolved. 6.7.1.6.2.1.  glTF node hierarchy First, glTF node hierarchy transforms are applied according to the glTF specification . 6.7.1.6.2.2. y -up to z -up Next, for consistency with the z -up coordinate system of 3D Tiles, glTFs shall be transformed from y -up to z -up at runtime. This is done by rotating the model about the x -axis by π/2 radians. Equivalently, apply the following matrix transform (shown here as row-major): [ 1.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , -1.0 , 0.0 , 0.0 , 1.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 1.0 ] More broadly the order of transformations is: glTF node hierarchy transformations glTF y -up to z -up transform Tile transform NOTE When working with source data that is inherently z -up, such as data in WGS 84 coordinates or in a local z -up coordinate system, a common workflow is: Mesh data, including positions and normals, are not modified — they remain z -up.
+
+rag-test-032 tileset JSON 有哪四个顶层属性？其中 asset.version 与 tilesetVersion 各表示什么？tileset 顶层的 geometricError 与 root.geometricError 有什么区别？
+ANSWER: 四个顶层属性是 asset、properties、geometricError、root。asset 是包含整个 tileset 元数据的对象；asset.version 是定义 3D Tiles 版本的字符串，用于指明 tileset 的 JSON schema 与基础 tile 格式集合；tilesetVersion 是可选的字符串，用于定义应用特定的 tileset 版本（例如 tileset 被更新时），并可作为请求内容时的查询参数以避免命中过期缓存。properties 是对象，为 tileset 中每个逐要素属性提供一个对象，其名称与逐要素属性名一致，值给出该属性的最小值与最大值（便于做颜色渐变等样式）。geometricError 是非负数，以米为单位，决定 tileset 是否被渲染。tileset 顶层 geometricError 用于运行时决定 tileset 根 tile 在什么 SSE 下渲染；root.geometricError 用于决定根 tile 的子节点在什么 SSE 下渲染 —— 二者不是一回事。
+EVIDENCE:       "region": [
+        -0.0005682966577418737,
+        0.8987233516605286,
+        0.00011646582098558159,
+        0.8990603398325034,
+        0,
+        241.6
+      ]
+    },
+    "geometricError": 268.37878244706053,
+    "refine": "ADD",
+    "content": {
+      "uri": "0/0/0.glb",
+      "boundingVolume": {
+        "region": [
+          -0.0004001690908972599,
+          0.8988700116775743,
+          0.00010096729722787196,
+          0.8989625664878067,
+          0,
+          241.6
+        ]
+      }
+    },
+    "children": [...]
+  }
+}
+The tileset JSON has four top-level properties: asset, properties, geometricError, and root.
+asset is an object containing metadata about the entire tileset. The asset.version property is 
+a string that defines the 3D Tiles version, which specifies the JSON schema for the tileset and 
+the base set of tile formats. The tilesetVersion property is an optional string that defines an 
+application-specific version of a tileset, e.g., for when an existing tileset is updated.
+NOTEThe tilesetVersion can be used as a query parameter when requesting content to avoid 
+using outdated content from a cache.
+properties is an object containing objects for each per-feature property in the tileset. This 
+tileset JSON snippet is for 3D buildings, so each tile has building models, and each building 
+model has a Height property (see Batch Table). The name of each object in properties matches 
+the name of a per-feature property, and its value defines its minimum and maximum numeric 
+values, which are useful, for example, for creating color ramps for styling.
+geometricError is a nonnegative number that defines the error, in meters, that determines if 
+the tileset is rendered. At runtime, the geometric error is used to compute Screen-Space Error
+(SSE), the error measured in pixels. If the SSE does not exceed a required minimum, the tileset 
+should not be rendered, and none of its tiles should be considered for rendering, see Geometric 
+error.
+root is an object that defines the root tile using the tile JSON described in the above section.
+root.geometricError is not the same as the tileset’s top-level geometricError. The tileset’s
+geometricError is used at runtime to determine the SSE at which the tileset’s root tile renders;
+root.geometricError is used at runtime to determine the SSE at which the root tile’s children 
+are rendered.
+OPEN GEOSPATIAL CONSORTIUM 22-025R4
+37
+
+
+rag-test-033 如何构造“tileset 的 tileset”（树的树）？具体做法是什么、有什么典型用途？
+ANSWER: 做法是让某个 tile 的 content.uri 指向一个外部 tileset（即另一个 tileset JSON 文件的 uri），从而形成“树的树”。典型用途：例如把每个城市各存为一个 tileset，再做一个全局的 tileset 来组织这些 tileset。
+EVIDENCE: The content.uri of each content object refers to the tile’s content in one of the tile formats that are defined in the Tile format specifications ), or another tileset JSON to create a tileset of tilesets (see External tilesets ). The content.group property assigns the content to a group. Contents of different tiles or the contents of a single tile can be assigned to groups in order to categorize the content. Additionally, each group can be associated with Metadata .
+
+rag-test-034 implicit tiling 对象有哪些属性？subdivisionScheme 的可取值是什么？对 implicit root tile 有哪些额外约束？
+ANSWER: implicitTiling 对象的属性（Table 21）：subdivisionScheme、availableLevels、subtreeLevels、subtrees。subdivisionScheme 取 QUADTREE 或 OCTREE。availableLevels 表示树中有可用 tile 的层级数；subtreeLevels 表示每个 subtree 内的层级数；subtrees 是指向 subtree 文件的 template URI。对 implicit root tile 的约束：① 该 tile 须省略 children 属性；② 须省略 metadata 属性；③ content.uri 不得指向外部 tileset；④ content 须省略 boundingVolume 属性。
+EVIDENCE: Figure 44 — A point cloud organized into a sparse octree. Data source: Trimble
+8.2. Implicit Root Tile
+ 
+An implicitTiling object may be added to any tile in the tileset JSON. Such a tile is called an
+implicit root tile, to distinguish it from the root tile of the tileset JSON.
+{
+  "root": {
+    "boundingVolume": {
+      "region": [-1.318, 0.697, -1.319, 0.698, 0, 20]
+    },
+    "refine": "REPLACE",
+    "geometricError": 5000,
+    "content": {
+      "uri": "content/{level}/{x}/{y}.glb"
+    },
+    "implicitTiling": {
+      "subdivisionScheme": "QUADTREE",
+      "availableLevels": 21,
+      "subtreeLevels": 7,
+      "subtrees": {
+        "uri": "subtrees/{level}/{x}/{y}.json"
+      }
+    }
+OPEN GEOSPATIAL CONSORTIUM 22-025R4
+103
+
+  }
+}
+The implicitTiling object has the following properties:
+ 
+Table 21 — Properties of implicit tiling object
+PROPERTY
+DESCRIPTION
+subdivisionScheme
+Either QUADTREE or OCTREE. See Subdivision scheme.
+availableLevels
+How many levels there are in the tree with available tiles.
+subtreeLevels
+How many levels there are in each subtree.
+subtrees
+Template URI for subtree files. See Subtrees.
+Template URIs are used for locating subtree files as well as tile contents. For content, the 
+template URI is specified in the tile’s content.uri property.
+The following constraints apply to implicit root tiles:
+•
+The tile shall omit the children property
+•
+The tile shall omit the metadata property
+•
+The content.uri shall not point to an external tileset
+•
+The content shall omit the boundingVolume property
+8.3. Subdivision Scheme
+ 
+A subdivision scheme is a recursive pattern for dividing a bounding volume of a tile into smaller 
+children tiles that take up the same space.
+A quadtree divides space only on the x and y dimensions. It divides each tile into 4 smaller 
+tiles where the x and y dimensions are halved. The quadtree z minimum and maximum remain 
+unchanged. The resulting tree has 4 children per tile.
+OPEN GEOSPATIAL CONSORTIUM 22-025R4
+104
+
+
+rag-test-035 quadtree 与 octree 在细分方案上的差别是什么（各自分出几个子 tile、哪些维度被二分）？哪类 bounding volume 被明确禁止用于隐式切片？为什么？按 Table 24，子节点的 geometricError 与父节点是什么关系？
+ANSWER: subdivision scheme 是把一个 tile 的包围体递归划分成占据同一空间的更小 children tile 的模式。quadtree 只在 x 与 y 两个维度上划分空间：把每个 tile 分成 4 个更小的 tile，x 与 y 维度减半，z 的最小/最大值保持不变，因此每个 tile 有 4 个子节点。octree 沿全部 3 个维度划分：把每个 tile 分成 8 个更小的 tile，每个维度减半，因此每个 tile 有 8 个子节点。对于 region 包围体，x、y、z 分别对应经度、纬度、高度。球体（sphere）包围体被明确禁止，因为它们无法被划分为四叉树或八叉树。按 Table 24 的细分规则：subdivisionScheme 与 refine 对所有后代 tile 恒定；boundingVolume 按 subdivisionScheme 被分成 4 或 8 份；每个子节点的 geometricError 是其父节点 geometricError 的一半。
+EVIDENCE: A subdivision scheme is a recursive pattern for dividing a bounding volume of a tile into smaller children tiles that take up the same space. A quadtree divides space only on the x and y dimensions. It divides each tile into 4 smaller tiles where the x and y dimensions are halved. The quadtree z minimum and maximum remain unchanged. The resulting tree has 4 children per tile. Figure 45 — Subdivision in a quadtree An octree divides space along all 3 dimensions. It divides each tile into 8 smaller tiles where each dimension is halved. The resulting tree has 8 children per tile. Figure 46 — Subdivision in an octree For a region bounding volume, x , y , and z refer to longitude , latitude , and height respectively. Sphere bounding volumes are disallowed, as these cannot be divided into a quadtree or octree.
+Table 24 — Subdivision rules for implicit tiling Property Subdivision Rule subdivisionScheme Constant for all descendant tiles refine Constant for all descendant tiles boundingVolume Divided into four or eight parts depending on the subdivisionScheme geometricError Each child’s geometricError is half of its parent’s geometricError NOTE In order to maintain numerical stability during this subdivision process, the actual bounding volumes should not be computed progressively by subdividing a non-root tile volume. Instead, the exact bounding volumes should be computed directly for a given level. Let the extent of the root bounding volume along one dimension d be (min d , max d ) . The number of bounding volumes along that dimension for a given level  is 2 level . The size of each bounding volume at this level, along dimension d , is size d = (max d — min d ) / 2 level . The extent of the bounding volume of a child can then be computed directly as (min d + size d * i, min d + size d * (i + 1)) , where i is the index of the child in dimension d . The computed tile boundingVolume and geometricError can be overridden with tile metadata , if desired. Content bounding volumes are not computed automatically but they may be provided by content metadata . Tile and content bounding volumes shall maintain spatial coherence .
+
+rag-test-036 Template URI 是什么？它必须包含哪些变量？octree 的 Template URI 还必须包含什么？当以相对路径给出时它相对什么解析？
+ANSWER: Template URI 是一种按 tile 坐标引用 tile 的 URI 模式。它必须包含变量 {level}、{x}、{y}；octree 的 Template URI 还必须包含 {z}。引用具体某个 tile 时，把这些变量替换为该 tile 的坐标。Template URI 以相对路径给出时，相对于 tileset JSON 文件解析。
+EVIDENCE: Table 26 — Tile coordinates for bounding regions
+COORDINATE
+POSITIVE DIRECTION
+x
+From west to east (increasing longitude)
+y
+From south to north (increasing latitude)
+z
+From bottom to top (increasing height)
+Figure 48 — Coordinates of an octree node with a bounding region, and its child nodes
+8.5. Template URIs
+ 
+A Template URI is a URI pattern used to refer to tiles by their tile coordinates.
+Template URIs shall include the variables {level}, {x}, {y}. Template URIs for octrees shall 
+also include {z}. When referring to a specific tile, the tile’s coordinates are substituted for these 
+variables.
+Template URIs, when given as relative paths, are resolved relative to the tileset JSON file.
+OPEN GEOSPATIAL CONSORTIUM 22-025R4
+108
+
+
+rag-test-037 在 3D Metadata 规范中，schema 的 version 是什么类型？文档建议它满足什么语法？什么组合唯一标识一个 schema 及其修订？
+ANSWER: schema version（version）是应用特定的标识，用于表示给定 schema 的某个修订；version 须为字符串，且文档建议其语法与 SemVer 兼容（合法语义化版本如 0.1.2、1.2.3、1.2.3-alpha）。当一个 schema 有多个版本时，(id, version) 这一对唯一标识某个 schema 及其特定修订。
+EVIDENCE: Schema version ( version ) is an application-specific identifier for a given schema revision. Version shall be a string, and should be syntactically compatible with SemVer . When a schema has multiple versions, the (id, version) pair uniquely identifies a particular schema and revision. NOTE Valid semantic versions include strings like 0.1.2 , 1.2.3 , and 1.2.3-alpha . 9.3.1.3.  Name
+
+rag-test-038 按 22-025r4 的修订历史（Annex H），1.1.0 版的首次发布日期是哪天？该版本的描述如何定性？之后还有哪些修订记录？
+ANSWER: 2022-07-26 发布了 1.1.0，描述为 “This is the first normative version of this document.”（本文档的第一个规范性版本），编辑为 Sean Lilley，修改范围 all。其后同一 1.1.0 版本还有 2022-08-17（补充关于选用弧度、包围盒表示与矩阵列主序的说明性注释，修正格式与笔误）、2022-10-07（在术语与定义中加入说明：在 3D Tiles 语境下 “metadata” 等价于其他 OGC 标准中 attribution 的概念）、2023-01-09（更新批准日期与公开日期）三条修订记录。
+EVIDENCE: Primary clauses modified Description 2022-07-26 1.1.0 Sean Lilley all This is the first normative version of this document.
+
+rag-test-039 3D Tiles 1.1 正文列出了 glTF 的哪些几何压缩扩展与纹理压缩扩展？文档是否给出了这些扩展各自的默认量化位数或默认压缩级别？
+ANSWER: 正文 7.2.5 说明 glTF 有若干几何与纹理压缩扩展，可帮助减小文件体积与 GPU 显存占用。7.2.5.1 Geometry Compression 列出：KHR_mesh_quantization、EXT_meshopt_compression、KHR_draco_mesh_compression。7.2.5.2 Texture Compression 列出：KHR_texture_basisu。规范正文并未给出这些扩展各自的默认量化位数或默认压缩级别 —— 这些属于各扩展自身的规范内容，本文档只列扩展名。
+EVIDENCE: glTF has several extensions for geometry and texture compression. These extensions can help reduce file sizes and GPU memory usage. 7.2.5.1.  Geometry Compression KHR_mesh_quantization EXT_meshopt_compression KHR_draco_mesh_compression 7.2.5.2.  Texture Compression
+
+rag-test-040 在 CesiumJS 中通过 Cesium3DTileset.fromUrl 加载 tileset 时，maximumScreenSpaceError 的默认取值是多少？该参数与 spec 中的哪个概念对应？
+ANSWER: 本评测集所采集的语料（OGC 22-025r4 规范原文）不含 CesiumJS 运行时 API 的参数默认值。规范中仅有的两处 CesiumJS 提及都是“代码位置指引”：7.3.1 Batch Table Overview 处指出读取 Batch Table 的代码可参考 CesiumJS 实现中的 Cesium3DTileBatchTable.js；Feature Table 一节处指出可参考 Cesium3DTileFeatureTable.js —— 都不涉及 maximumScreenSpaceError 的默认值。规范侧只定义了 Screen-Space Error (SSE) 术语：它是“当一个 tile 的内容被渲染、而其子节点的内容未被渲染时，该 tile 对源几何的简化表示所带来的像素差”，以及 tile.geometricError 的选择语义。因此正确行为是回答“语料不足、无法给出该默认值”，而不是编造数值。
+EVIDENCE: 4.18. Screen-Space Error (SSE) The difference, in pixels, of a tile’s simplified representation of its source geometry introduced if a tile’s content is rendered and its children’s are not.
+Code for reading the Batch Table can be found in Cesium3DTileBatchTable.js in the CesiumJS implementation of 3D Tiles.

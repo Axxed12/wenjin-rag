@@ -1,0 +1,62 @@
+[
+  {
+    "path": "extracted/osgearth/docs/source/earthfile.md",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/earthfile.md",
+    "match": true
+  },
+  {
+    "path": "extracted/osgearth/docs/source/TileLayer.md",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/TileLayer.md",
+    "match": true
+  },
+  {
+    "path": "extracted/osgearth/docs/source/visiblelayer.md",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/visiblelayer.md",
+    "match": true
+  },
+  {
+    "path": "extracted/osgearth/docs/source/layer.md",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/layer.md",
+    "match": true
+  },
+  {
+    "path": "extracted/osgearth/docs/source/layers.md",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/layers.md",
+    "match": true
+  },
+  {
+    "path": "extracted/osgearth/docs/source/composite.md",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/composite.md",
+    "match": true
+  },
+  {
+    "path": "extracted/osgearth/docs/source/elevation.md",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/elevation.md",
+    "match": true
+  },
+  {
+    "path": "extracted/osgearth/docs/source/xyz.md",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/xyz.md",
+    "match": true
+  },
+  {
+    "path": "extracted/osgearth/docs/source/gdal.md",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/gdal.md",
+    "match": true
+  },
+  {
+    "path": "extracted/osgearth/docs/source/wms.md",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/docs/source/wms.md",
+    "match": true
+  },
+  {
+    "path": "extracted/osgearth/src/osgEarth/Map",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/src/osgEarth/Map",
+    "match": true
+  },
+  {
+    "path": "extracted/osgearth/src/osgEarth/MapNode",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/85d84d3e464a8400a43a77b61fc6f7d9115eb189/src/osgEarth/MapNode",
+    "match": true
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "row_number_in_experiment": 1,
+    "state": "Alabama",
+    "permit": "18,870",
+    "totals": "71,137",
+    "source": {
+      "file": "original.pdf",
+      "page_number": 1,
+      "bbox": [
+        43.2,
+        80.44112000000007,
+        973.7464,
+        86.20112000000006
+      ]
+    }
+  },
+  {
+    "row_number_in_experiment": 2,
+    "state": "Alaska",
+    "permit": "209",
+    "totals": "7,095",
+    "source": {
+      "file": "original.pdf",
+      "page_number": 1,
+      "bbox": [
+        43.2,
+        87.64112,
+        973.74448,
+        93.40111999999999
+      ]
+    }
+  },
+  {
+    "row_number_in_experiment": 3,
+    "state": "Arizona",
+    "permit": "2,303",
+    "totals": "27,087",
+    "source": {
+      "file": "original.pdf",
+      "page_number": 1,
+      "bbox": [
+        43.2,
+        94.84112000000005,
+        973.7464,
+        100.60111999999998
+      ]
+    }
+  },
+  {
+    "row_number_in_experiment": 4,
+    "state": "Arkansas",
+    "permit": "3,298",
+    "totals": "25,048",
+    "source": {
+      "file": "original.pdf",
+      "page_number": 1,
+      "bbox": [
+        43.2,
+        102.04111999999998,
+        973.7464,
+        107.80111999999997
+      ]
+    }
+  },
+  {
+    "row_number_in_experiment": 5,
+    "state": "California",
+    "permit": "98 452",
+    "totals": "180 116",
+    "source": {
+      "file": "original.pdf",
+      "page_number": 1,
+      "bbox": [
+        43.2,
+        109.24111999999997,
+        973.7483199999999,
+        115.00111999999996
+      ]
+    }
+  }
+]

@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "documents": 482,
+  "chunks": 1496,
+  "validation_questions": 50,
+  "evidence_spans": 64,
+  "evidence_hit": 64,
+  "evidence_in_one_chunk": 62,
+  "evidence_covered_by_chunk_union": 64,
+  "multi_chunk_evidence": [
+    {
+      "id": "rag-validation-047",
+      "path": "raw_data/proj/9.8.1/README.md",
+      "page": null,
+      "hits": 2,
+      "contained_in_one_chunk": false,
+      "covered_by_chunk_union": true
+    },
+    {
+      "id": "rag-validation-050",
+      "path": "raw_data/proj/9.8.1/man/man1/projsync.1",
+      "page": null,
+      "hits": 3,
+      "contained_in_one_chunk": false,
+      "covered_by_chunk_union": true
+    }
+  ],
+  "failures": [],
+  "boundary": "仅验证block切片覆盖；未生成Embedding或检索排名。"
+}

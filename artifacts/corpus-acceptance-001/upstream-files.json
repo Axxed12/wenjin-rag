@@ -1,0 +1,83 @@
+[
+  {
+    "path": "raw\\osgearth\\LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/osgearth-3.8/LICENSE.txt",
+    "final_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/osgearth-3.8/LICENSE.txt",
+    "last_modified": null,
+    "sha256": "3324061c295fd17769cd4f045f3d0965fb5c61492edf85e2c943e18077254191",
+    "bytes": 8452,
+    "match": true
+  },
+  {
+    "path": "raw\\osgearth\\README.md",
+    "url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/osgearth-3.8/README.md",
+    "final_url": "https://raw.githubusercontent.com/pelicanmapping/osgearth/osgearth-3.8/README.md",
+    "last_modified": null,
+    "sha256": "33b938a00b1ae7e8caf14fbe18030787743ea97f61995e99a5f0b3cf627ae827",
+    "bytes": 3603,
+    "match": true
+  },
+  {
+    "path": "raw\\gdal\\LICENSE.TXT",
+    "url": "https://raw.githubusercontent.com/OSGeo/gdal/v3.13.1/LICENSE.TXT",
+    "final_url": "https://raw.githubusercontent.com/OSGeo/gdal/v3.13.1/LICENSE.TXT",
+    "last_modified": null,
+    "sha256": "1dae3468e81d00da56e2936f74d33b8b3ad09d726437f19ce209a5dabea41f77",
+    "bytes": 21841,
+    "match": true
+  },
+  {
+    "path": "raw\\proj\\COPYING",
+    "url": "https://raw.githubusercontent.com/OSGeo/PROJ/9.8.1/COPYING",
+    "final_url": "https://raw.githubusercontent.com/OSGeo/PROJ/9.8.1/COPYING",
+    "last_modified": null,
+    "sha256": "6a8f30793e877d32e3f88b972f0970a051a3b5a26cd057d3993cb51e21c43319",
+    "bytes": 1784,
+    "match": true
+  },
+  {
+    "path": "raw\\proj\\proj-9.8-docs-index.html",
+    "url": "https://proj.org/en/9.8/index.html",
+    "final_url": "https://proj.org/en/9.8/index.html",
+    "last_modified": "Fri, 04 Sep 2026 12:49:05 GMT",
+    "sha256": "98f34b53b01f62a0d4ba453390424e6713edaf98f2012ad183717c4f019dc300",
+    "bytes": 8546,
+    "match": true
+  },
+  {
+    "path": "raw\\ogc\\22-025r4.html",
+    "url": "https://docs.ogc.org/cs/22-025r4/22-025r4.html",
+    "final_url": "https://docs.ogc.org/cs/22-025r4/22-025r4.html",
+    "last_modified": "Fri, 24 Apr 2026 01:05:06 GMT",
+    "sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+    "bytes": 52897656,
+    "match": true
+  },
+  {
+    "path": "raw\\ogc\\22-025r4.pdf",
+    "url": "https://docs.ogc.org/cs/22-025r4/22-025r4.pdf",
+    "final_url": "https://docs.ogc.org/cs/22-025r4/22-025r4.pdf",
+    "last_modified": "Thu, 12 Jan 2023 14:53:58 GMT",
+    "sha256": "1d349ef636291a9869035f1779dd8278ddcd19df0fd36fe50a9735a4ea5a66a8",
+    "bytes": 51092867,
+    "match": true
+  },
+  {
+    "path": "raw\\ogc\\06-042.pdf",
+    "url": "https://docs.ogc.org/is/06-042/06-042.pdf",
+    "final_url": "https://docs.ogc.org/is/06-042/06-042.pdf",
+    "last_modified": "Mon, 30 Mar 2026 17:23:24 GMT",
+    "sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116",
+    "bytes": 776825,
+    "match": true
+  },
+  {
+    "path": "raw\\ogc\\capabilities_1_3_0.xsd",
+    "url": "https://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd",
+    "sha256": "bb2db70912176e3c50aa6476d9c13e45d1cb56e6e83c8b285dca793e3c74bdf7",
+    "bytes": 21591,
+    "match": true,
+    "last_modified": "Wed, 09 Apr 2025 01:48:37 GMT",
+    "verification_backend": "curl with TLS verification"
+  }
+]

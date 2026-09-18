@@ -1,0 +1,38 @@
+{
+  "checked_at_utc": "2026-09-17T04:18:45Z",
+  "branch": "main",
+  "has_commits": false,
+  "remotes": [],
+  "candidate_file_count": 172,
+  "candidate_size_mib": 1.99,
+  "secret_scan": {
+    "tracked_candidate_secrets_found": 0,
+    "ignored_private_key_found": true,
+    "ignored_env_found": true
+  },
+  "ignored_generated_assets": [
+    ".env",
+    "raw_data/",
+    "*.md except README.md, SECURITY.md, THIRD_PARTY_NOTICES.md",
+    "artifacts/tls/",
+    "artifacts/audit/",
+    "data/indexes/*.sqlite",
+    "data/packages/parse-lab/scan.pdf",
+    "data/packages/parse-lab/page-image.png",
+    "*.tar",
+    "models/"
+  ],
+  "license": {
+    "project_root_license_selected": false,
+    "osg_raw_files_committed": false,
+    "osg_manifest_source_hash_and_license_metadata_preserved": true,
+    "third_party_notices_present": true
+  },
+  "manual_decisions_required": [
+    "public or private repository",
+    "project code license",
+    "include full experiment JSON/TXT transcripts or only selected summaries",
+    "remote repository URL"
+  ],
+  "status": "READY_FOR_SCOPE_DECISION_NOT_READY_TO_PUSH"
+}

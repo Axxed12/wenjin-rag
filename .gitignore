@@ -1,0 +1,38 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.env
+.env.*
+!.env.example
+*.egg-info/
+artifacts/audit/
+artifacts/tls/
+*.key
+# 可由脚本重建的本地索引和解析衍生件
+data/indexes/*.sqlite
+data/packages/parse-lab/scan.pdf
+data/packages/parse-lab/page-image.png
+artifacts/runs/parse-lab-001/*.png
+# Docker离线制品与本地模型不得进入Git
+*.tar
+*.tar.gz
+models/
+# 原始语料由manifest和导入脚本恢复，不进入Git。
+raw_data/
+# 本轮验收候选包含原始资料副本；仅提交正式manifest和精简验收证据。
+artifacts/corpus-acceptance-001/candidate/
+# 第三方原文副本不进公开仓库：OGC规范页/XSD和PROJ文档只在本机保留，
+# 公开仓库通过corpora里的manifest记录来源URL、固定版本和逐文件Hash。
+artifacts/corpus-acceptance-001/ogc-license.html
+artifacts/corpus-acceptance-001/wms-page-3.png
+artifacts/corpus-acceptance-001/wms-upstream.xsd
+artifacts/corpus-acceptance-001/proj-about-core-pinned.rst
+artifacts/corpus-acceptance-001/proj-index-pinned.rst
+# 忽略所有目录中的 Markdown 文档
+*.md
+# 保留适合仓库公开展示的文档
+!README.md
+!SECURITY.md
+!THIRD_PARTY_NOTICES.md

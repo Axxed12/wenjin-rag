@@ -1,0 +1,27 @@
+{
+  "purpose": "parser teaching fixtures; not production corpus or held-out benchmark",
+  "upstream_url": "https://github.com/jsvine/pdfplumber/blob/4c64b92d5caccd71c645e98e0fabb0c4dba7ff45/examples/pdfs/background-checks.pdf",
+  "upstream_revision": "4c64b92d5caccd71c645e98e0fabb0c4dba7ff45",
+  "physical_pages": 1,
+  "source_note": "Real PDF from pdfplumber official example; raster derivatives generated locally",
+  "files": [
+    {
+      "path": "original.pdf",
+      "sha256": "4f0ae6e017b0e97de211da8fd97316e55bd927af5740d6ce95e1b7b1539f9407",
+      "derived": false,
+      "transform": null
+    },
+    {
+      "path": "scan.pdf",
+      "sha256": "920b7d2c25fa8323d9ef0d9518dc85a10a497514b1c29802344e428086c5f7d2",
+      "derived": true,
+      "transform": "page 1 rendered at 180 dpi; no text layer"
+    },
+    {
+      "path": "page-image.png",
+      "sha256": "abd3c84fb0e16f5b047509e7f6697d9deca9ff6bff39d7227956d6b78b6a7fd3",
+      "derived": true,
+      "transform": "page 1 rendered at 180 dpi; no text layer"
+    }
+  ]
+}

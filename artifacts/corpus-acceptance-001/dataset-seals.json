@@ -1,0 +1,18 @@
+[
+  {
+    "split": "validation",
+    "original_sha256": "9aa83c5e6e0139767391fb89719109a440768c556d1ff945b16afad52145b6c2",
+    "imported_sha256": "70fc10faeb2480cc6984b4545b8c3a5ba6beb2de252da536cd09c5a32626328e",
+    "questions": 50,
+    "evaluated": false,
+    "evaluation_status_basis": "user confirmation"
+  },
+  {
+    "split": "test",
+    "original_sha256": "f40b57da1a82c3d6b7838b1da0a46e71a821e6df4fd5fbd0726341a3f5322e15",
+    "imported_sha256": "f30a9fd3641f17406ad63b95da6ddd0f42a5c4be2422e7102d1819d03dae516d",
+    "questions": 40,
+    "evaluated": false,
+    "evaluation_status_basis": "user confirmation"
+  }
+]

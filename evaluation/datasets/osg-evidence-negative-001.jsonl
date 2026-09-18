@@ -1,0 +1,8 @@
+{"id":"osg-neg-001","split":"calibration","query":"OSG 3.6.5 的 Geode::appendDrawable 接口返回什么？","expected_status":"insufficient","reason":"选定语料只记录addDrawable；相似名称不能证明appendDrawable存在，也不能凭有限语料断言全库不存在。"}
+{"id":"osg-neg-002","split":"calibration","query":"OSG 3.6.5 如何创建 Vulkan 光线追踪管线？","expected_status":"insufficient","reason":"当前资料包没有Vulkan光追管线文档。"}
+{"id":"osg-neg-003","split":"calibration","query":"OSG 4.0 相比3.6.5修改了哪些 NodeMask 行为？","expected_status":"insufficient","reason":"索引只包含3.6.5，不能回答4.0版本差异。"}
+{"id":"osg-neg-004","split":"calibration","query":"如何让 osgViewer 使用 DirectX 12 渲染后端？","expected_status":"insufficient","reason":"当前OSG资料包没有DirectX 12后端证据。"}
+{"id":"osg-neg-005","split":"calibration","query":"Viewer::run 会监听哪个HTTP端口，并怎样配置TLS证书？","expected_status":"partially_supported","reason":"语料能解释run主循环，但没有HTTP端口或TLS配置证据。"}
+{"id":"osg-neg-006","split":"calibration","query":"osgDB::readNodeFile 失败时返回什么数值错误码，并抛出哪种异常？","expected_status":"partially_supported","reason":"语料只说明失败返回NULL，没有数值错误码或异常类型。"}
+{"id":"osg-neg-007","split":"calibration","query":"OSG 的数据库连接池如何配置最大SQL连接数？","expected_status":"insufficient","reason":"当前资料是场景图源码，不含SQL数据库连接池。"}
+{"id":"osg-neg-008","split":"calibration","query":"Geometry 自动碰撞检测使用哪个神经网络模型？","expected_status":"insufficient","reason":"当前Geometry资料没有神经网络碰撞检测证据。"}

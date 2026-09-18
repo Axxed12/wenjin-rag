@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "chunk_payload_matches": 1496,
+  "rows": [
+    {
+      "target": "gdal-3.13.1-blocks-candidate-001",
+      "matched": 306,
+      "expected": 306,
+      "problems": []
+    },
+    {
+      "target": "ogc-3dtiles-1.1-blocks-candidate-001",
+      "matched": 888,
+      "expected": 888,
+      "problems": []
+    },
+    {
+      "target": "ogc-wms-1.3.0-blocks-candidate-001",
+      "matched": 202,
+      "expected": 202,
+      "problems": []
+    },
+    {
+      "target": "osgearth-3.8-blocks-candidate-001",
+      "matched": 42,
+      "expected": 42,
+      "problems": []
+    },
+    {
+      "target": "proj-9.8.1-blocks-candidate-001",
+      "matched": 58,
+      "expected": 58,
+      "problems": []
+    }
+  ]
+}

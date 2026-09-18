@@ -1,0 +1,15 @@
+{
+  "target_id": "gdal-3.13.1-blocks-candidate-001",
+  "library": "gdal",
+  "version": "3.13.1",
+  "strategy": "blocks",
+  "dense_collection": "gdal_3_13_1_dense_blocks_candidate_001",
+  "bm25_path": "data/indexes/gdal_3_13_1_bm25_blocks_candidate_001.sqlite",
+  "manifest_path": "corpora/gdal-3.13.1/source-manifest.json",
+  "manifest_sha256": "2d5f7b27624b7dee5f9449b3641949a761795737777ea6c19d0fa21ea800f22b",
+  "chunk_count": 306,
+  "vector_dimension": 1024,
+  "embedding_model": "Qwen3-Embedding-0.6B",
+  "canonical_corpus_sha256": "5be8e3225707fb6a1953af2faaa723751084e2ab40a5fa53d40dff28805584e1",
+  "normalization_profile": "text-newline-lf-v1"
+}

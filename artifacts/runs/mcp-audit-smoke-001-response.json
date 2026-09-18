@@ -1,0 +1,71 @@
+{
+  "url": "http://127.0.0.1:8766/mcp",
+  "session_established": true,
+  "session_id_length": 32,
+  "tools": [
+    "search_docs"
+  ],
+  "result": {
+    "query": "审计验证：Viewer 的 run() 做什么？",
+    "version": "3.6.5",
+    "collection": "osg_3_6_5_dense_blocks",
+    "retrieval": {
+      "dense_returned": 20,
+      "bm25_returned": 20,
+      "bm25_terms": [
+        "Viewer",
+        "run"
+      ],
+      "fused_candidates": 20,
+      "reranker_used": true,
+      "timing_seconds": {
+        "dense": 0.331402,
+        "bm25": 0.001966,
+        "fusion": 9.3e-05,
+        "rerank": 1.460642
+      }
+    },
+    "context_char_budget": 8000,
+    "context_chars_used": 1807,
+    "evidence": [
+      {
+        "rank": 1,
+        "chunk_id": "3.6.5:include/osgViewer/Viewer:blocks:0002",
+        "version": "3.6.5",
+        "source_path": "include/osgViewer/Viewer",
+        "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osgViewer/Viewer",
+        "start_line": 82,
+        "end_line": 115,
+        "text": "        /** Execute a main frame loop.\r\n          * Equivalent to while (!viewer.done()) viewer.frame();\r\n          * Also calls realize() if the viewer is not already realized,\r\n          * and installs trackball manipulator if one is not already assigned.\r\n          */\r\n        virtual int run();\r\n\r\n        /** check to see if the new frame is required, called by run(..) when FrameScheme is set to ON_DEMAND.*/\r\n        virtual bool checkNeedToDoFrame();\r\n\r\n        /** check to see if events have been received, return true if events are now available.*/\r\n        virtual bool checkEvents();\r\n\r\n        virtual void advance(double simulationTime=USE_REFERENCE_TIME);\r\n\r\n        virtual void eventTraversal();\r\n\r\n        virtual void updateTraversal();\r\n\r\n        virtual void getCameras(Cameras& cameras, bool onlyActive=true);\r\n\r\n        virtual void getContexts(Contexts& contexts, bool onlyValid=true);\r\n\r\n        virtual void getAllThreads(Threads& threads, bool onlyActive=true);\r\n\r\n        virtual void getOperationThreads(OperationThreads& threads, bool onlyActive=true);\r\n\r\n        virtual void getScenes(Scenes& scenes, bool onlyValid=true);\r\n\r\n        virtual void getViews(Views& views, bool onlyValid=true);\r\n\r\n        /** Get the keyboard and mouse usage of this viewer.*/\r\n        virtual void getUsage(osg::ApplicationUsage& usage) const;\r\n\r\n",
+        "rrf_score": 0.032266458495966696,
+        "rerank_score": 0.9926542043685913,
+        "retrieval_ranks": {
+          "dense": 1,
+          "bm25": 3
+        }
+      },
+      {
+        "rank": 2,
+        "chunk_id": "3.6.5:applications/osgviewer/osgviewer.cpp:blocks:0005",
+        "version": "3.6.5",
+        "source_path": "applications/osgviewer/osgviewer.cpp",
+        "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/applications/osgviewer/osgviewer.cpp",
+        "start_line": 175,
+        "end_line": 193,
+        "text": "    // report any errors if they have occurred when parsing the program arguments.\r\n    if (arguments.errors())\r\n    {\r\n        arguments.writeErrorMessages(std::cout);\r\n        return 1;\r\n    }\r\n\r\n\r\n    // optimize the scene graph, remove redundant nodes and state etc.\r\n    osgUtil::Optimizer optimizer;\r\n    optimizer.optimize(loadedModel);\r\n\r\n    viewer.setSceneData(loadedModel);\r\n\r\n    viewer.realize();\r\n\r\n    return viewer.run();\r\n\r\n}\r\n",
+        "rrf_score": 0.031754032258064516,
+        "rerank_score": 0.9257686138153076,
+        "retrieval_ranks": {
+          "dense": 4,
+          "bm25": 2
+        }
+      }
+    ],
+    "evidence_status": "unverified",
+    "evidence_guidance": "The retrieval service found ranked passages but did not verify that they jointly support every part of the query. The client must inspect evidence before answering.",
+    "answer_status": "not_generated",
+    "score_note": "RRF/reranker scores are ranking signals, not answer confidence",
+    "request_id": "1e8bd991e6f9441d8fe71f58130d0c0f",
+    "mcp_protocol": "2025-11-25"
+  }
+}

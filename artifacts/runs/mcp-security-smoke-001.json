@@ -1,0 +1,45 @@
+{
+  "run_id": "mcp-security-smoke-001",
+  "verified_at_utc": "2026-09-17T08:35:42Z",
+  "scope": "local self-signed TLS and single Bearer client identity; not enterprise PKI acceptance",
+  "host_test": {
+    "url": "https://127.0.0.1:8770/mcp",
+    "missing_bearer_status": 401,
+    "wrong_bearer_status": 401,
+    "valid_bearer_session_established": true,
+    "request_id": "6a6281fa6d824d33a9b6d4331463bec9"
+  },
+  "docker_test": {
+    "url": "https://127.0.0.1:8771/mcp",
+    "missing_bearer_status": 401,
+    "wrong_bearer_status": 401,
+    "valid_bearer_session_established": true,
+    "request_id": "5ff7b7f5261044d99dc62dfefca171f2",
+    "client_identity_hashed_in_audit": true,
+    "auth_denied_events_observed": 2,
+    "success_request_id_matched_stdout": true,
+    "container_healthy": true,
+    "index_target_id": "osg-3.6.5-blocks-lf-002"
+  },
+  "certificate": {
+    "type": "development self-signed",
+    "sha256": "fc51887836a2810d7a7ba321eecb3e22693b13e80c051afcbd92ca0a452b3929",
+    "san": [
+      "localhost",
+      "127.0.0.1"
+    ],
+    "expires_at_utc": "2026-10-17T03:14:05+00:00",
+    "private_key_committed": false
+  },
+  "image": {
+    "name": "wenjin-rag-mcp:0.1.0",
+    "id": "sha256:6c2f7abc32f4359042f4ffa388e592d64d11143fc98c8ccaf80258b31abdfa7d",
+    "size_bytes": 15035704744
+  },
+  "limitations": [
+    "one configured API key maps to one client id",
+    "no key rotation store, user directory, roles, or revocation API",
+    "self-signed certificate is for development only",
+    "cross-machine firewall, enterprise CA, and reverse proxy are untested"
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "url": "http://127.0.0.1:8765/mcp",
+  "session_established": true,
+  "session_id_length": 32,
+  "tools": [
+    "search_docs"
+  ],
+  "result": {
+    "query": "Viewer 的 run() 做什么？",
+    "version": "3.6.5",
+    "collection": "osg_3_6_5_dense_blocks",
+    "retrieval": {
+      "dense_returned": 20,
+      "bm25_returned": 20,
+      "bm25_terms": [
+        "Viewer",
+        "run"
+      ],
+      "fused_candidates": 20,
+      "reranker_used": true,
+      "timing_seconds": {
+        "dense": 0.291342,
+        "bm25": 0.001542,
+        "fusion": 0.000196,
+        "rerank": 0.573076
+      }
+    },
+    "context_char_budget": 8000,
+    "context_chars_used": 1970,
+    "evidence": [
+      {
+        "rank": 1,
+        "chunk_id": "3.6.5:include/osgViewer/Viewer:blocks:0002",
+        "version": "3.6.5",
+        "source_path": "include/osgViewer/Viewer",
+        "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/include/osgViewer/Viewer",
+        "start_line": 82,
+        "end_line": 115,
+        "text": "        /** Execute a main frame loop.\r\n          * Equivalent to while (!viewer.done()) viewer.frame();\r\n          * Also calls realize() if the viewer is not already realized,\r\n          * and installs trackball manipulator if one is not already assigned.\r\n          */\r\n        virtual int run();\r\n\r\n        /** check to see if the new frame is required, called by run(..) when FrameScheme is set to ON_DEMAND.*/\r\n        virtual bool checkNeedToDoFrame();\r\n\r\n        /** check to see if events have been received, return true if events are now available.*/\r\n        virtual bool checkEvents();\r\n\r\n        virtual void advance(double simulationTime=USE_REFERENCE_TIME);\r\n\r\n        virtual void eventTraversal();\r\n\r\n        virtual void updateTraversal();\r\n\r\n        virtual void getCameras(Cameras& cameras, bool onlyActive=true);\r\n\r\n        virtual void getContexts(Contexts& contexts, bool onlyValid=true);\r\n\r\n        virtual void getAllThreads(Threads& threads, bool onlyActive=true);\r\n\r\n        virtual void getOperationThreads(OperationThreads& threads, bool onlyActive=true);\r\n\r\n        virtual void getScenes(Scenes& scenes, bool onlyValid=true);\r\n\r\n        virtual void getViews(Views& views, bool onlyValid=true);\r\n\r\n        /** Get the keyboard and mouse usage of this viewer.*/\r\n        virtual void getUsage(osg::ApplicationUsage& usage) const;\r\n\r\n",
+        "rrf_score": 0.032266458495966696,
+        "rerank_score": 0.9950177073478699,
+        "retrieval_ranks": {
+          "dense": 1,
+          "bm25": 3
+        }
+      },
+      {
+        "rank": 2,
+        "chunk_id": "3.6.5:examples/osgtext/osgtext.cpp:blocks:0019",
+        "version": "3.6.5",
+        "source_path": "examples/osgtext/osgtext.cpp",
+        "source_url": "https://github.com/openscenegraph/OpenSceneGraph/blob/a827840baf0786d72e11ac16d5338a4ee25779db/examples/osgtext/osgtext.cpp",
+        "start_line": 785,
+        "end_line": 809,
+        "text": "    std::string filename;\r\n    if (arguments.read(\"-o\",filename))\r\n    {\r\n        osgDB::writeNodeFile(*viewer.getSceneData(),filename);\r\n        return 0;\r\n    }\r\n\r\n    viewer.addEventHandler( new osgGA::StateSetManipulator(viewer.getCamera()->getOrCreateStateSet()) );\r\n    viewer.addEventHandler(new osgViewer::StatsHandler());\r\n\r\n    viewer.run();\r\n\r\n    if (!operationThreads.empty())\r\n    {\r\n        for(Threads::iterator itr = operationThreads.begin();\r\n            itr != operationThreads.end();\r\n            ++itr)\r\n        {\r\n            (*itr)->cancel();\r\n        }\r\n    }\r\n\r\n    return 0;\r\n}\r\n\r\n",
+        "rrf_score": 0.032266458495966696,
+        "rerank_score": 0.9559813141822815,
+        "retrieval_ranks": {
+          "dense": 3,
+          "bm25": 1
+        }
+      }
+    ],
+    "evidence_status": "unverified",
+    "evidence_guidance": "The retrieval service found ranked passages but did not verify that they jointly support every part of the query. The client must inspect evidence before answering.",
+    "answer_status": "not_generated",
+    "score_note": "RRF/reranker scores are ranking signals, not answer confidence",
+    "mcp_protocol": "2025-11-25"
+  }
+}
