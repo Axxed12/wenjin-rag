@@ -103,6 +103,61 @@ class SearchAudit:
             self.logger.info(json.dumps(row, ensure_ascii=False, separators=(",", ":")))
         return request_id
 
+    def record_download(
+        self,
+        *,
+        corpus_id: str,
+        relative_path: str,
+        client_id: str | None,
+        outcome: str,
+        elapsed_seconds: float,
+        bytes_served: int | None = None,
+        detail: str | None = None,
+    ) -> str:
+        """记录一次原文取件。
+
+        `outcome` 取值：served / denied / not_found / hash_mismatch / too_large / error。
+        只记语料内相对路径——它是定位文件必需的，也不含绝对路径；正文、密钥和绝对路径都不记。
+        """
+        request_id = uuid4().hex
+        row = {
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "event": "mcp_download_audit",
+            "service": "wenjin-rag",
+            "request_id": request_id,
+            "corpus_id": corpus_id,
+            "relative_path": relative_path,
+            "client_id_sha256": digest(client_id) if client_id else None,
+            "outcome": outcome,
+            "bytes_served": bytes_served,
+            "elapsed_seconds": round(elapsed_seconds, 6),
+            "detail": detail,
+        }
+        if self.enabled:
+            self.logger.info(json.dumps(row, ensure_ascii=False, separators=(",", ":")))
+        return request_id
+
+    def record_dropped_evidence_details(
+        self, *, query: str, dropped: list[dict], client_id: str | None
+    ) -> None:
+        """记录被丢弃证据的完整明细——**只进服务端审计，不返回客户端**。
+
+        客户端只收到数量和原因码；语料名、路径和chunk ID 留在这里供排查。
+        query只记哈希，明细里不含正文。
+        """
+        if not self.enabled or not dropped:
+            return
+        row = {
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "event": "mcp_evidence_dropped",
+            "service": "wenjin-rag",
+            "query_sha256": digest(query),
+            "client_id_sha256": digest(client_id) if client_id else None,
+            "count": len(dropped),
+            "details": dropped,
+        }
+        self.logger.info(json.dumps(row, ensure_ascii=False, separators=(",", ":")))
+
     def close(self) -> None:
         self.handler.close()
         self.logger.removeHandler(self.handler)

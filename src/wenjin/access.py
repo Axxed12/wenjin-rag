@@ -25,6 +25,14 @@ class AccessDenied(PermissionError):
     """调用方没有被授予该语料的访问权。"""
 
 
+class AccessSnapshotError(RuntimeError):
+    """策略快照无法加载（文件损坏、身份冲突或读取失败）。
+
+    调用方**必须**把这种情况当成拒绝访问，绝不能回退到上一次成功的快照——
+    回退意味着"改了策略把权限收回"之后，旧权限还能继续用。
+    """
+
+
 @dataclass(frozen=True)
 class AccessPolicy:
     corpus_id: str
@@ -158,3 +166,18 @@ class AccessRegistry:
     def refresh(self) -> "AccessRegistry":
         """重新读盘：策略变更后不需要重启服务。"""
         return AccessRegistry.from_directory(self.directory)
+
+
+def load_snapshot(directory: Path) -> AccessRegistry:
+    """加载一份完整的策略快照。
+
+    调用方在**每个请求开始时**调用一次，整个请求都用这一份：请求中途改策略不会让
+    同一次响应里出现"前半段放行、后半段拒绝"的混合判定。
+
+    任何文件损坏或身份冲突都整体失败（fail closed），不跳过坏文件继续用其余策略——
+    跳过等于把"某条策略读不出来"悄悄变成"那条策略不存在"。
+    """
+    try:
+        return AccessRegistry.from_directory(directory)
+    except (ValueError, OSError) as error:
+        raise AccessSnapshotError(f"访问策略快照加载失败：{error}") from error

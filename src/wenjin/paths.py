@@ -49,6 +49,32 @@ def _has_symlink(resolved_root: Path, candidate: Path) -> bool:
     return False
 
 
+def validate_relative_path(value: str, *, field: str = "路径") -> str:
+    """校验一个**语料内相对路径**的写法，返回统一的 POSIX 形式。
+
+    只看前导斜杠和 `..` 是不够的：Windows 上 `C:/outside/a.txt` 是绝对路径，
+    `C:a.txt` 是盘符相对路径，`\\\\server\\share\\x` 是 UNC 路径，都必须在进入
+    任何路径拼接之前就拒绝。这里不碰文件系统，纯写法校验。
+    """
+    text = (value or "").strip()
+    if not text:
+        raise UnsafePathError(f"{field}不能为空")
+    normalized = text.replace("\\", "/")
+    if normalized.startswith("/"):
+        raise UnsafePathError(f"{field}必须是相对路径：{value}")
+    # 盘符形式（C:/x 与 C:x），以及UNC前缀。
+    if len(normalized) >= 2 and normalized[1] == ":" and normalized[0].isalpha():
+        raise UnsafePathError(f"{field}不能带盘符：{value}")
+    if normalized.startswith("//"):
+        raise UnsafePathError(f"{field}不能是UNC路径：{value}")
+    parts = normalized.split("/")
+    if any(part == ".." for part in parts):
+        raise UnsafePathError(f"{field}不能包含 ..：{value}")
+    if any(part in {"", "."} for part in parts):
+        raise UnsafePathError(f"{field}包含空路径段：{value}")
+    return normalized
+
+
 def is_within(root: Path, path: Path) -> bool:
     """判断一个已解析的路径是否位于根目录内。"""
     resolved_root = root.resolve()

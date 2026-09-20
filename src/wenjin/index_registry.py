@@ -10,6 +10,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
+from wenjin.corpus_identity import (  # noqa: E402
+    CorpusIdentity,
+    CorpusIdentityError,
+    resolve_identity,
+)
+
 COLLECTION_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$")
 
 
@@ -65,6 +71,31 @@ def resolve_project_path(root: Path, relative: str) -> Path:
     return resolved
 
 
+def resolve_corpus_identity(target: IndexTarget, *, root: Path) -> CorpusIdentity:
+    """确定索引目标对应的语料身份，三个来源冲突时拒绝。
+
+    这是 `wenjin.corpus_identity.resolve_identity` 在索引场景下的包装：多了
+    「读manifest取声明值」这一步。语料目录和原文取件用的是同一个底层判定，
+    因此三处入口不会出现强弱不一致的身份校验。
+    """
+    manifest_path = resolve_project_path(root, target.manifest_path)
+    declared = None
+    if manifest_path.is_file():
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
+        except (json.JSONDecodeError, OSError) as error:
+            raise CorpusIdentityError(
+                f"manifest无法解析，无法确定语料身份：{target.manifest_path}"
+            ) from error
+        declared = manifest.get("corpus_id")
+    return resolve_identity(
+        directory=manifest_path.parent.name,
+        declared=declared,
+        explicit=target.corpus_id,
+        context=f"（索引目标 {target.target_id}）",
+    )
+
+
 def load_target(path: Path) -> IndexTarget:
     return IndexTarget.from_dict(json.loads(path.read_text(encoding="utf-8-sig")))
 
@@ -78,16 +109,21 @@ def validate_target(target: IndexTarget, *, root: Path, qdrant_client) -> dict:
     actual_manifest_hash = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
     if actual_manifest_hash != target.manifest_sha256:
         raise ValueError("manifest SHA256与目标配置不一致")
-    if target.canonical_corpus_sha256:
-        from wenjin.content_hashing import manifest_content_fingerprint
+    from wenjin import manifest as manifest_module
 
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
-        actual_canonical_hash = (
-            manifest.get("retrieval_content_sha256")
-            or manifest_content_fingerprint(manifest)
-        )
-        if actual_canonical_hash != target.canonical_corpus_sha256:
-            raise ValueError("canonical语料指纹与目标配置不一致")
+    manifest = manifest_module.load(manifest_path)
+    # manifest本身也要过契约：标识符、路径越界、每条记录的内容Hash。
+    manifest_module.validate_identity(manifest, manifest_path=manifest_path)
+    manifest_module.file_records(manifest)
+    if target.canonical_corpus_sha256:
+        # **按记录重算**，不能直接相信manifest声明的值：声明的字段可以被改，
+        # 而重算必须真的读过每一条记录的双Hash才可能对上。
+        recomputed = manifest_module.retrieval_fingerprint(manifest)
+        if recomputed != target.canonical_corpus_sha256:
+            raise ValueError("canonical语料指纹与目标配置不一致（按记录重算）")
+        declared = manifest.get("retrieval_content_sha256")
+        if declared and declared != recomputed:
+            raise ValueError("manifest声明的检索指纹与按记录重算的结果不一致")
     with sqlite3.connect(bm25_path) as database:
         bm25_count = database.execute("SELECT COUNT(*) FROM chunks").fetchone()[0]
         versions = {row[0] for row in database.execute("SELECT DISTINCT version FROM chunks")}

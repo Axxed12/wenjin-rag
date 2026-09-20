@@ -15,8 +15,22 @@ from wenjin.index_registry import (
 
 
 def target(tmp_path: Path, target_id: str = "a") -> IndexTarget:
-    manifest = tmp_path / "manifest.json"
-    manifest.write_text("{}", encoding="utf-8")
+    # 用真实形态的manifest：validate_target会执行manifest契约校验
+    # （标识符、文件路径、每条记录的内容Hash），空对象会被正确拒绝。
+    corpus_dir = tmp_path / "corpora" / "osg-3.6.5"
+    corpus_dir.mkdir(parents=True, exist_ok=True)
+    manifest = corpus_dir / "source-manifest.json"
+    manifest.write_text(json.dumps({
+        "library": "osg", "version": "3.6.5", "raw_data_subdir": "osg/3.6.5",
+        "files": [{
+            "path": "README.md",
+            "raw_sha256": "0" * 64,
+            "canonical_sha256": "0" * 64,
+            "normalization": "text-newline-lf-v1",
+            "logical_document_id": "osg-3.6.5:README.md",
+            "indexable": True,
+        }],
+    }), encoding="utf-8")
     database = tmp_path / "index.sqlite"
     with sqlite3.connect(database) as connection:
         connection.execute("CREATE TABLE IF NOT EXISTS chunks(version, strategy)")
@@ -31,7 +45,7 @@ def target(tmp_path: Path, target_id: str = "a") -> IndexTarget:
         strategy="blocks",
         dense_collection=f"collection_{target_id}",
         bm25_path="index.sqlite",
-        manifest_path="manifest.json",
+        manifest_path="corpora/osg-3.6.5/source-manifest.json",
         manifest_sha256=hashlib.sha256(manifest.read_bytes()).hexdigest(),
         chunk_count=2,
         vector_dimension=3,

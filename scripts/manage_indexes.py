@@ -10,9 +10,16 @@ sys.path.insert(0, str(ROOT))
 REGISTRY_PATH = ROOT / "data/indexes/index-registry.json"
 
 
-def validate_with_client(target):
+def validate_with_client(target, *, deep: bool = False):
+    """校验目标。
+
+    `deep=True` 走**统一准入入口** `admit_index`（完整审计，失败即抛异常）。
+    默认的浅检查只用于 `status`/`validate` 这类只读展示；切换、初始化与回退
+    一律用 deep，保证同一份坏资产在任何入口都被拒绝。
+    """
     from qdrant_client import QdrantClient
 
+    from wenjin.index_audit import admit_index
     from wenjin.index_registry import validate_target
     from wenjin.settings import Settings
 
@@ -24,6 +31,8 @@ def validate_with_client(target):
         )
     client = QdrantClient(url=settings.qdrant_url, api_key=settings.qdrant_api_key)
     try:
+        if deep:
+            return admit_index(target, root=ROOT, qdrant_client=client)
         return validate_target(target, root=ROOT, qdrant_client=client)
     finally:
         client.close()
@@ -54,12 +63,13 @@ def main() -> None:
         result = validate_with_client(load_target(args.target))
     elif args.command == "init":
         target = load_target(args.target)
-        validation = validate_with_client(target)
+        validation = validate_with_client(target, deep=True)
         state = store.initialize(target, reason=args.reason)
         result = {"validation": validation, "registry": state}
     elif args.command == "switch":
         target = load_target(args.target)
-        validation = validate_with_client(target)
+        # 切换前做逐chunk审计：这是进入active的最后一道门。
+        validation = validate_with_client(target, deep=True)
         state = store.switch(target, reason=args.reason)
         result = {
             "validation": validation,
@@ -68,7 +78,8 @@ def main() -> None:
         }
     else:
         target = store.previous()
-        validation = validate_with_client(target)
+        # 回退也要过完整准入：回退目标同样不能是坏资产。
+        validation = validate_with_client(target, deep=True)
         state = store.rollback(reason=args.reason)
         result = {
             "validation": validation,
