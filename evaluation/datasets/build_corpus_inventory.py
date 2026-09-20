@@ -19,7 +19,9 @@ import json
 import os
 from datetime import datetime
 
-ROOT = r"<project-root>"
+# 项目根由脚本位置推导，不写死本机绝对路径：写死会让脚本换台机器就跑不了，
+# 也会把开发机的目录结构带进仓库。
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT_PATH = os.path.join(ROOT, "evaluation", "datasets", "rag-dataset-corpus-inventory-001.json")
 
 # 既有数据集：其证据区间不得在新数据集中复用
