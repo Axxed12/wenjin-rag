@@ -2,48 +2,167 @@
 
 协议按2025-11-25生命周期运行：客户端先initialize并发送initialized通知，HTTP会话可使用
 MCP-Session-Id；启动时显式禁止stateless HTTP。
+
+身份与授权有三条硬规则，改动前请先读：
+1. **注册表只读一次**：正常运行路径上只由 `create_runtime()` 读一次，得到的`IndexTarget`
+   同时用于索引校验、服务构造和授权身份（`RuntimeIdentity`），三者出自同一次读取；
+   请求期间不再读注册表，否则"检查的语料"会和"实际检索的索引"漂移。
+   仅当测试注入`service`且未给`identity`时，才在构造时补读一次。
+2. **客户身份只在装了Bearer中间件时才可信**：没有中间件时 `x-wenjin-authenticated-client`
+   完全由客户端控制，采信它等于允许冒充。
+3. **访问策略每请求取一份完整快照**：请求中途改策略不会让同一次响应出现混合判定；
+   快照加载失败一律拒绝，不回退到上一次成功的快照。
 """
 
 import argparse
+import asyncio
 import json
 import os
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
+from dataclasses import dataclass
+from functools import partial
 from pathlib import Path
 from typing import Any
 
 from fastmcp import Context, FastMCP
 from fastmcp.server.dependencies import get_http_headers
 from mcp.types import LATEST_PROTOCOL_VERSION
+from starlette.concurrency import run_in_threadpool
 from starlette.middleware import Middleware
 from starlette.requests import Request
-from starlette.responses import FileResponse, JSONResponse, Response
+from starlette.responses import JSONResponse, Response
+from starlette.responses import Response as StarletteResponse
 
-from wenjin.access import AccessDenied, AccessRegistry
+from wenjin.access import AccessDenied, AccessRegistry, AccessSnapshotError, load_snapshot
 from wenjin.audit import SearchAudit
 from wenjin.auth import TRUSTED_CLIENT_HEADER_NAME, BearerAuthMiddleware
-from wenjin.catalog import corpus_catalog
-from wenjin.index_registry import IndexRegistryStore, resolve_project_path, validate_target
+from wenjin.catalog import corpus_catalog, find_corpus, index_target_configs
+from wenjin.corpus_identity import CorpusIdentityError
+from wenjin.index_audit import preflight_target
+from wenjin.index_registry import (
+    IndexRegistryStore,
+    IndexTarget,
+    resolve_corpus_identity,
+    resolve_project_path,
+)
 from wenjin.retrieval.service import RetrievalService, SearchConfig, load_source_urls
-from wenjin.serving import DOWNLOAD_PREFIX, SourceLibrary, SourceNotFound, attach_download_paths
+from wenjin.serving import (
+    DOWNLOAD_PREFIX,
+    CorpusSources,
+    SourceModified,
+    SourceNotFound,
+    SourceTooLarge,
+    SourceUnverified,
+    attach_download_paths,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 EXPECTED_PROTOCOL_VERSION = "2025-11-25"
+# 同时在处理的取件请求数上限；配合 serving.MAX_SERVE_BYTES 给内存占用设上界。
+MAX_CONCURRENT_DOWNLOADS = 2
 
 
-def create_default_service(*, use_reranker: bool = True) -> RetrievalService:
-    """加载Qdrant客户端和两个本地0.6B模型；供常驻MCP进程复用。"""
+@dataclass(frozen=True)
+class RuntimeIdentity:
+    """服务启动时确定的索引身份；请求期间不再读注册表。"""
+
+    corpus_id: str
+    corpus_id_source: str
+    target_id: str
+
+
+class SlotHoldingResponse(StarletteResponse):
+    """把并发槽位持有到**正文发送结束**的响应包装。
+
+    只包住"读取文件+构造响应"是不够的：函数一返回槽位就被释放，而框架才开始发送正文，
+    此时那个已经读进内存的文件缓冲区还被慢客户端占着，新请求却能继续读取——内存上界
+    就不成立了。所以槽位必须留到发送真正结束。
+
+    `finally` 保证正常发送完、发送抛异常、客户端断开（发送协程被取消）都会通知槽位，
+    不会有请求永久占着槽位。
+    """
+
+    def __init__(self, inner: StarletteResponse, on_settled: Callable[[], None]) -> None:
+        super().__init__(status_code=inner.status_code)
+        self._inner = inner
+        self._on_settled = on_settled
+
+    async def __call__(self, scope, receive, send) -> None:
+        try:
+            await self._inner(scope, receive, send)
+        finally:
+            self._on_settled()
+
+
+class DownloadSlot:
+    """一次取件对并发槽位的持有权。
+
+    槽位必须**同时**满足两件事才释放：
+
+    1. **后台读取线程已经结束**。请求协程被取消不会停掉执行器里的线程，线程还占着刚读进
+       内存的文件缓冲区；如果这时就释放槽位，后续请求会开始新的读取，声明的并发与内存
+       上界就不成立（实测取消两次后读取并发峰值达到3，而上限是2）。
+    2. **正文已经发完**，或确定不会有正文（读取抛异常/被取消）。
+
+    两个标记由不同来源设置：线程结束由**独立工作任务**的 `finally` 设置（该任务不随请求
+    协程取消，否则会在线程还在读时就被标记为已结束——这正是第一版的错误），正文结束由
+    响应发送或异常分支设置。最后满足条件的那个负责释放，且只释放一次。
+    """
+
+    def __init__(self, release: Callable[[], None]) -> None:
+        self._release = release
+        self._thread_finished = False
+        self._body_settled = False
+        self._released = False
+
+    def mark_thread_finished(self) -> None:
+        self._thread_finished = True
+        self._maybe_release()
+
+    def mark_body_sent(self) -> None:
+        self._body_settled = True
+        self._maybe_release()
+
+    def mark_no_body(self) -> None:
+        """确定不会发送正文：读取抛了异常，或请求在被取消的状态下结束。"""
+        self._body_settled = True
+        self._maybe_release()
+
+    def _maybe_release(self) -> None:
+        if self._thread_finished and self._body_settled and not self._released:
+            self._released = True
+            self._release()
+
+
+def create_runtime(
+    *, use_reranker: bool = True, root: Path | None = None
+) -> tuple[RetrievalService, RuntimeIdentity]:
+    """加载Qdrant客户端和两个本地0.6B模型，并返回绑定在一起的索引身份。
+
+    注册表在这里读一次，得到的`IndexTarget`同时用于索引校验、服务构造和授权身份——
+    三者出自同一次读取，不会出现"检查的语料"与"实际检索的索引"不一致。
+
+    **MCP服务用这个函数**；只需要service的调用方用`create_default_service()`。
+    """
     import torch
     from qdrant_client import QdrantClient
 
+    from wenjin.index_audit import admit_index
     from wenjin.retrieval.rerank import Qwen3Reranker
     from wenjin.settings import Settings
 
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+    project_root = root or ROOT
     settings = Settings()
-    target = IndexRegistryStore(ROOT / "data/indexes/index-registry.json").active()
+    target = IndexRegistryStore(project_root / "data/indexes/index-registry.json").active()
+    identity = RuntimeIdentity(
+        corpus_id=resolve_corpus_identity(target, root=project_root).corpus_id,
+        corpus_id_source="registry",
+        target_id=target.target_id,
+    )
     actual_embedding_model = os.getenv(
         "EMBEDDING_MODEL_ID", settings.embedding_model_path.name
     )
@@ -55,7 +174,8 @@ def create_default_service(*, use_reranker: bool = True) -> RetrievalService:
     client = QdrantClient(url=settings.qdrant_url, api_key=settings.qdrant_api_key)
     reranker = None
     try:
-        validate_target(target, root=ROOT, qdrant_client=client)
+        # 启动也走完整准入：缺页、越界位置、非白名单文件在启动时就要拦住。
+        admit_index(target, root=project_root, qdrant_client=client)
         reranker = (
             Qwen3Reranker(
                 settings.reranker_model_path,
@@ -63,23 +183,51 @@ def create_default_service(*, use_reranker: bool = True) -> RetrievalService:
                 max_length=1024,
                 batch_size=2,
             )
-            if use_reranker else None
+            if use_reranker
+            else None
         )
-        return RetrievalService(
+        service = RetrievalService(
             qdrant_client=client,
             embedder=settings.embedding(),
             reranker=reranker,
-            bm25_path=resolve_project_path(ROOT, target.bm25_path),
-            source_urls=load_source_urls(resolve_project_path(ROOT, target.manifest_path)),
+            bm25_path=resolve_project_path(project_root, target.bm25_path),
+            source_urls=load_source_urls(
+                resolve_project_path(project_root, target.manifest_path)
+            ),
             collection_name=target.dense_collection,
             supported_version=target.version,
             index_target_id=target.target_id,
         )
+        return service, identity
     except Exception:
         if reranker is not None:
             reranker.close()
         client.close()
         raise
+
+
+def create_default_service(
+    *, use_reranker: bool = True, root: Path | None = None
+) -> RetrievalService:
+    """只需要检索服务的调用方用这个（CLI、评测脚本、演示脚本）。
+
+    返回值是`RetrievalService`本身，**不是元组**——保持既有调用方的契约不变；
+    需要索引身份的MCP服务请用`create_runtime()`。
+    """
+    return create_runtime(use_reranker=use_reranker, root=root)[0]
+
+
+def identity_from_registry(root: Path) -> RuntimeIdentity | None:
+    """按需构造身份时用一次；无法确定就返回None，由调用方按拒绝处理。"""
+    registry = root / "data/indexes/index-registry.json"
+    if not registry.is_file():
+        return None
+    try:
+        target: IndexTarget = IndexRegistryStore(registry).active()
+        identity = resolve_corpus_identity(target, root=root)
+    except (KeyError, ValueError, OSError, json.JSONDecodeError):
+        return None
+    return RuntimeIdentity(identity.corpus_id, identity.source, target.target_id)
 
 
 def client_identity(*, bearer_enabled: bool) -> str | None:
@@ -98,19 +246,6 @@ def client_identity(*, bearer_enabled: bool) -> str | None:
     )
 
 
-def active_corpus_id(root: Path | None = None) -> str | None:
-    """active索引对应哪个语料；从manifest路径的目录名取，和语料目录命名一致。"""
-    registry_path = (root or ROOT) / "data/indexes/index-registry.json"
-    if not registry_path.is_file():
-        return None
-    try:
-        data = json.loads(registry_path.read_text(encoding="utf-8-sig"))
-        manifest = Path(data["active"]["manifest_path"])
-    except (KeyError, json.JSONDecodeError, OSError):
-        return None
-    return manifest.parent.name
-
-
 def build_mcp_server(
     service: RetrievalService | None = None,
     *,
@@ -119,10 +254,12 @@ def build_mcp_server(
     raw_root: Path | None = None,
     project_root: Path | None = None,
     bearer_enabled: bool = False,
+    identity: RuntimeIdentity | None = None,
 ) -> FastMCP:
     """创建只读的MCP服务（检索、语料目录、原文取件）。
 
-    根目录、审计和访问策略都可注入：测试用临时目录，部署用项目目录，模块里不写死。
+    根目录、审计、访问策略和索引身份都可注入：测试用临时目录，部署用项目目录，
+    模块里不写死。注入`service`时若没给`identity`，会**在构造时读一次**注册表。
     """
     if LATEST_PROTOCOL_VERSION != EXPECTED_PROTOCOL_VERSION:
         raise RuntimeError(
@@ -130,34 +267,93 @@ def build_mcp_server(
         )
 
     root = project_root or ROOT
-
-    def resolved_corpus_id(ctx: Context | None) -> str | None:
-        """检索服务启动时确定的语料身份。
-
-        正常部署走lifespan（与索引同一次读注册表，不会漂移）；测试注入service时没有
-        lifespan，退回按需读取，仅用于测试。
-        """
-        if service is not None:
-            return active_corpus_id(root)
-        if ctx is None:
-            return None
-        return ctx.lifespan_context.get("corpus_id")
-
-    # 不依赖HTTP访问日志：进程内和网络MCP调用走同一审计入口。
     audit = audit or SearchAudit.from_environment(root)
-    # 访问策略默认从部署目录加载；没有策略文件的语料一律拒绝。
-    access = access if access is not None else AccessRegistry.from_directory(root / "configs/access")
-    source_library = SourceLibrary(raw_root or (root / "raw_data"))
+    raw_root_path = raw_root or (root / "raw_data")
+    access_dir = root / "configs/access"
+
+    # 只有在"注入了service"这条测试路径上才需要在这里解析身份。正常部署走lifespan，
+    # 由create_runtime()连同检索服务一起确定——那时这里再读一次注册表是多余的，
+    # 也会让"只读一次"这句话变成假的。
+    if identity is None and service is not None:
+        identity = identity_from_registry(root)
+
+    def current_access() -> AccessRegistry:
+        """每个请求开始取一份完整策略快照；注入的注册表直接沿用。"""
+        return access if access is not None else load_snapshot(access_dir)
+
+    def sources_for(corpus_id: str) -> CorpusSources:
+        """按语料身份找manifest，建立登记记录视图。"""
+        entry = find_corpus(root, corpus_id)
+        if entry is None:
+            raise SourceNotFound(f"语料不存在：{corpus_id}")
+        return CorpusSources.from_manifest(
+            resolve_project_path(root, entry.manifest_path),
+            raw_root=raw_root_path,
+            expected_corpus_id=corpus_id,
+        )
+
+    def current_service(ctx: Context | None):
+        """本次请求的检索服务；不在这里新建，也不读注册表。"""
+        runtime = service
+        if runtime is None:
+            if ctx is None:
+                raise RuntimeError("MCP Context不可用")
+            runtime = ctx.lifespan_context["retrieval_service"]
+        return runtime
+
+    def _index_state(entry, *, ctx: Context | None) -> dict:
+        """这份语料的索引现在能不能用。
+
+        `indexed` 只表示"有配置提到它"；配置在而 collection 被删、BM25 缺失或
+        manifest 换过时，旧实现照样报 true，实际一条都检索不出来。
+        逐 target 做一次廉价预检（见 `preflight_target`），把两种状态分开报。
+        """
+        if not entry.index_targets:
+            return {"index_state": "no_index_config", "index_usable_targets": [],
+                    "index_failures": []}
+        configs = index_target_configs(root)
+        try:
+            client = current_service(ctx).qdrant_client
+        except Exception:  # noqa: BLE001 - 拿不到客户端时如实报"不可用"，不猜
+            client = None
+        usable, failures = [], []
+        for target_id in entry.index_targets:
+            raw = configs.get(target_id)
+            if raw is None:
+                failures.append({"target_id": target_id, "reason": "config_missing"})
+                continue
+            try:
+                target = IndexTarget.from_dict(raw)
+            except (TypeError, ValueError):
+                failures.append({"target_id": target_id, "reason": "config_invalid"})
+                continue
+            if client is None:
+                failures.append({"target_id": target_id, "reason": "qdrant_unavailable"})
+                continue
+            result = preflight_target(target, root=root, qdrant_client=client)
+            if result["usable"]:
+                usable.append(target_id)
+            else:
+                failures.append({"target_id": target_id, "reason": result["reason"]})
+        return {
+            "index_state": "usable" if usable else "unusable",
+            "index_usable_targets": usable,
+            "index_failures": failures,
+        }
+
+    # 并发取件上限。单个文件最多MAX_SERVE_BYTES在内存里，两个并发就是两倍；
+    # 限制住才能让"内存占用有上界"这句话成立。这是每个服务实例一份。
+    download_slots = asyncio.Semaphore(MAX_CONCURRENT_DOWNLOADS)
+    # 取件工作任务的强引用集合；任务结束后自动移除。
+    background_tasks: set[asyncio.Task] = set()
 
     if service is None:
 
         @asynccontextmanager
         async def lifespan(server: FastMCP) -> AsyncIterator[dict[str, Any]]:
-            runtime = create_default_service()
-            # 语料身份在启动时和检索服务一起确定，请求期间不再重读注册表：
-            # 运行中改了注册表的话，重读会让"检查的语料"和"实际检索的索引"漂移。
+            runtime, runtime_identity = create_runtime(root=root)
             try:
-                yield {"retrieval_service": runtime, "corpus_id": active_corpus_id(root)}
+                yield {"retrieval_service": runtime, "identity": runtime_identity}
             finally:
                 runtime.close()
                 audit.close()
@@ -176,6 +372,26 @@ def build_mcp_server(
             instructions="Search verified OSG 3.6.5 evidence. Returned scores are ranking signals.",
             mask_error_details=True,
         )
+
+    def request_identity(ctx: Context | None) -> RuntimeIdentity | None:
+        """本次请求对应的索引身份；不在这里读注册表。"""
+        if service is not None or ctx is None:
+            return identity
+        return ctx.lifespan_context.get("identity", identity)
+
+    def forbidden(detail: str, *, corpus_id: str | None, query: str | None = None) -> dict:
+        payload: dict[str, Any] = {
+            "error": "forbidden",
+            "detail": detail,
+            "corpus_id": corpus_id,
+            "evidence": [],
+            "evidence_status": "not_retrieved",
+            "answer_status": "not_generated",
+            "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
+        }
+        if query is not None:
+            payload["query"] = query
+        return payload
 
     @mcp.tool(
         name="search_docs",
@@ -204,33 +420,25 @@ def build_mcp_server(
         except RuntimeError:
             session_id = None
         client_id = client_identity(bearer_enabled=bearer_enabled)
+        current = request_identity(ctx)
+        corpus_id = current.corpus_id if current else None
+
         # 检索路径同样过访问策略：只锁下载是没用的，能拿到chunk正文就等于看到了内容。
         # 被拒绝时返回结构化的forbidden结果而不是抛异常：服务端开了错误屏蔽，
         # 抛异常会让客户端只看到"调用失败"，分不清是被拒还是服务坏了。
-        corpus_id = resolved_corpus_id(ctx)
         try:
-            # 必须fail-closed：registry读不出来时corpus_id为None，此时不能"跳过检查继续检索"，
-            # 那等于把"默认拒绝"变成"默认放行"。确定不了目标语料就拒绝。
-            if not corpus_id:
-                raise AccessDenied("无法从索引注册表确定目标语料，拒绝检索")
-            access.require(corpus_id, client_id)
-        except AccessDenied as exc:
+            if current is None:
+                raise AccessDenied("无法确定服务对应的索引身份，拒绝检索")
+            current_access().require(corpus_id, client_id)
+        except (AccessDenied, AccessSnapshotError) as exc:
             audit.record(
                 query=query, version=version, top_k=top_k,
                 context_char_budget=context_char_budget, session_id=session_id,
                 client_id=client_id,
                 elapsed_seconds=time.perf_counter() - started, error=exc,
             )
-            return {
-                "query": query,
-                "error": "forbidden",
-                "detail": str(exc),
-                "corpus_id": corpus_id,
-                "evidence": [],
-                "evidence_status": "not_retrieved",
-                "answer_status": "not_generated",
-                "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
-            }
+            return forbidden(str(exc), corpus_id=corpus_id, query=query)
+
         try:
             result = runtime.search(
                 query,
@@ -248,25 +456,32 @@ def build_mcp_server(
                 elapsed_seconds=time.perf_counter() - started, error=exc,
             )
             raise
+
+        # 补取件链接；映射不到本语料的证据会被丢弃并单独报告，绝不重标成当前语料。
+        attachment = attach_download_paths(result["evidence"], sources_for(corpus_id))
+        result["evidence"] = attachment.evidence
+        # 只给客户端数量和原因码：完整明细含语料名、路径和chunk ID，
+        # "某个私有语料里有个叫X的文件"本身就是机密。明细进服务端审计。
+        result["evidence_dropped"] = attachment.dropped_summary()
+        if attachment.dropped:
+            audit.record_dropped_evidence_details(
+                query=query, dropped=attachment.dropped, client_id=client_id
+            )
+            audit.record(
+                query=query, version=version, top_k=top_k,
+                context_char_budget=context_char_budget, session_id=session_id,
+                client_id=client_id,
+                elapsed_seconds=time.perf_counter() - started,
+                error=RuntimeError(
+                    f"{len(attachment.dropped)}条证据不属于当前语料，已丢弃"
+                ),
+            )
         request_id = audit.record(
             query=query, version=version, top_k=top_k,
             context_char_budget=context_char_budget, session_id=session_id,
             client_id=client_id,
             elapsed_seconds=time.perf_counter() - started, result=result,
         )
-        # 补上取件路径，让调用方能直接下载到原文；只拼接，鉴权在端点里做。
-        result["evidence"] = attach_download_paths(result["evidence"], corpus_id)
-        # 纵深防御：逐条证据再按它自己的语料核一次权限，丢弃无权读取的片段。
-        # 现在search_docs只服务单库，这一步是冗余的；但等跨库路由接进来，
-        # 证据会来自多个语料，没有这层过滤就会出现某个库的内容跟着另一个库的授权漏出去。
-        allowed = []
-        for item in result["evidence"]:
-            item_corpus = item.get("corpus_id") or corpus_id
-            if access.check(item_corpus, client_id):
-                allowed.append(item)
-        dropped = len(result["evidence"]) - len(allowed)
-        result["evidence"] = allowed
-        result["evidence_dropped_by_access"] = dropped
         result["request_id"] = request_id
         result["mcp_protocol"] = EXPECTED_PROTOCOL_VERSION
         return result
@@ -284,16 +499,36 @@ def build_mcp_server(
         include_files: bool = False,
         ctx: Context | None = None,
     ) -> dict:
-        """返回调用方有权查看的语料清单；无权限的语料不会出现，也不暴露其存在。"""
+        """返回调用方有权查看的语料清单；无权限的语料不会出现，也不暴露其存在。
+
+        **"有索引配置"不等于"索引能用"**：配置文件在而 collection 被删、BM25 缺失或
+        manifest 换过，语料在旧实现里照样报 indexed=true，但它一条都检索不出来。
+        因此每条语料额外给 `index_state`，由预检得出。
+        """
         client_id = client_identity(bearer_enabled=bearer_enabled)
-        entries = [
-            entry.to_dict(include_files=include_files)
-            for entry in corpus_catalog(root)
-            if access.check(entry.corpus_id, client_id)
-        ]
+        try:
+            registry = current_access()
+        except AccessSnapshotError as exc:
+            return {"corpora": [], "count": 0, "error": "unavailable", "detail": str(exc),
+                    "mcp_protocol": EXPECTED_PROTOCOL_VERSION}
+        entries = []
+        for entry in corpus_catalog(root):
+            if not registry.check(entry.corpus_id, client_id):
+                continue
+            payload = entry.to_dict(include_files=include_files)
+            payload.update(_index_state(entry, ctx=ctx))
+            entries.append(payload)
+        usable = sum(1 for item in entries if item["index_state"] == "usable")
         return {
             "corpora": entries,
             "count": len(entries),
+            "usable_count": usable,
+            "index_state_note": (
+                "'usable' means a preflight check passed (manifest bytes, BM25, collection "
+                "and point count all match). It is NOT full admission — run "
+                "scripts/verify_candidate_indexes.py for that. 'no_index_config' means no "
+                "index target references this corpus yet."
+            ),
             "note": (
                 "Only corpora this client is allowed to read are listed. "
                 "Retrieval scores are ranking signals, not answer confidence."
@@ -303,32 +538,133 @@ def build_mcp_server(
 
     @mcp.custom_route(f"{DOWNLOAD_PREFIX}/{{corpus_id}}/{{file_path:path}}", methods=["GET"])
     async def download_source(request: Request) -> Response:
-        """按语料内相对路径返回原文文件；Bearer由中间件校验，这里只管授权和路径安全。"""
-        # 不读请求头：只有Bearer中间件注入的身份才可信，没装中间件时一律匿名。
+        """按语料内相对路径返回原文；Bearer由中间件校验，这里只管授权、登记与字节校验。
+
+        取件要读文件、算Hash，可能几十MB，全是同步阻塞操作。放在事件循环里会卡住
+        同一进程的其他连接（实测一次200ms读取会把本该20ms的定时任务推迟到203ms），
+        所以丢到有界线程池执行；同时用信号量限制并发，避免多个大文件同时占满内存。
+        """
         client_id = client_identity(bearer_enabled=bearer_enabled)
+        # 路径参数在事件循环里取好，线程里不再碰请求对象。
         corpus_id = request.path_params["corpus_id"]
-        file_path = request.path_params["file_path"]
+        relative_path = request.path_params["file_path"]
+
+        # 手动acquire而不是async with：槽位要留到读取线程结束且正文发完，见DownloadSlot。
+        await download_slots.acquire()
+        slot = DownloadSlot(download_slots.release)
+
+        async def run_work() -> StarletteResponse:
+            try:
+                return await run_in_threadpool(
+                    partial(
+                        serve_download,
+                        corpus_id=corpus_id,
+                        relative_path=relative_path,
+                        client_id=client_id,
+                        current_access=current_access,
+                        sources_for=sources_for,
+                        audit=audit,
+                    )
+                )
+            finally:
+                # 只有线程真正结束才会走到这里。run_work跑在独立任务里，
+                # 不随请求协程取消——否则会在线程还在读时就把槽位标记为已结束。
+                slot.mark_thread_finished()
+
+        # 独立任务 + shield：请求被取消时工作继续跑完，槽位由它的 finally 释放。
+        work = asyncio.create_task(run_work())
+        background_tasks.add(work)  # 持强引用，避免任务被GC提前回收
+        work.add_done_callback(background_tasks.discard)
         try:
-            access.require(corpus_id, client_id)
-        except AccessDenied as exc:
-            # 按项目约定：明确返回403，而不是伪装成404。
-            return JSONResponse({"error": "forbidden", "detail": str(exc)}, status_code=403)
-        entry = next(
-            (item for item in corpus_catalog(root) if item.corpus_id == corpus_id), None
-        )
-        if entry is None or not entry.raw_data_subdir:
-            return JSONResponse({"error": "not_found", "detail": "语料不存在"}, status_code=404)
-        try:
-            served = source_library.resolve_in_corpus(entry.raw_data_subdir, file_path)
-        except SourceNotFound as exc:
-            return JSONResponse({"error": "not_found", "detail": str(exc)}, status_code=404)
-        return FileResponse(
-            served.path,
-            media_type=served.media_type,
-            headers=served.response_headers(),
-        )
+            response = await asyncio.shield(work)
+        except BaseException:
+            # 取消或异常都**不**在这里释放槽位：线程可能还在读。只声明"不会有正文"，
+            # 由 mark_thread_finished 与它共同决定何时真正释放。
+            slot.mark_no_body()
+            raise
+        return SlotHoldingResponse(response, slot.mark_body_sent)
 
     return mcp
+
+
+def serve_download(
+    *,
+    corpus_id: str,
+    relative_path: str,
+    client_id: str | None,
+    current_access: Callable[[], AccessRegistry],
+    sources_for: Callable[[str], CorpusSources],
+    audit: SearchAudit,
+) -> Response:
+    """取件的完整判定，独立成函数以便直接测试和审计。
+
+    四个条件必须同时满足：调用方获准访问该语料、文件登记在manifest中、
+    路径位于该语料可信目录内、文件字节符合登记的raw_sha256。
+    """
+    started = time.perf_counter()
+
+    def finish(outcome: str, status: int, payload: dict, *, bytes_served: int | None = None,
+               detail: str | None = None, response: Response | None = None) -> Response:
+        audit.record_download(
+            corpus_id=corpus_id, relative_path=relative_path, client_id=client_id,
+            outcome=outcome, elapsed_seconds=time.perf_counter() - started,
+            bytes_served=bytes_served, detail=detail,
+        )
+        return response if response is not None else JSONResponse(payload, status_code=status)
+
+    try:
+        registry = current_access()
+    except AccessSnapshotError as exc:
+        return finish("error", 503, {"error": "unavailable", "detail": str(exc)})
+    try:
+        registry.require(corpus_id, client_id)
+    except AccessDenied as exc:
+        # 按项目约定：明确返回403，而不是伪装成404。
+        return finish("denied", 403, {"error": "forbidden", "detail": str(exc)})
+
+    # 缺Hash可能在**两个阶段**暴露：加载manifest时（content_hash_of校验每条登记记录）
+    # 和读取文件时。两处都要给出结构化拒绝并留下审计——只捕获后一处的话，
+    # manifest阶段的异常会变成500且不留任何记录。
+    unverified_detail = "语料的原文校验信息不完整，拒绝返回内容"
+
+    try:
+        sources = sources_for(corpus_id)
+    except SourceNotFound as exc:
+        return finish("not_found", 404, {"error": "not_found", "detail": str(exc)})
+    except SourceUnverified as exc:
+        # 部署问题：给客户端通用说明，具体缺哪条记录只进服务端审计。
+        return finish("unverified", 409,
+                      {"error": "source_unverified", "detail": unverified_detail},
+                      detail=str(exc))
+    except (CorpusIdentityError, ValueError):
+        # 身份冲突或manifest损坏属于部署错误：拒绝，且不向客户端透露细节。
+        return finish("unavailable", 503, {"error": "unavailable",
+                                           "detail": "语料配置无效，请联系管理员"})
+
+    try:
+        verified = sources.read_verified(relative_path)
+    except SourceNotFound as exc:
+        return finish("not_found", 404, {"error": "not_found", "detail": str(exc)})
+    except SourceModified as exc:
+        # 语料被改动过：宁可拒绝，也不能把"和登记Hash不符"的内容当原文送出去。
+        return finish("hash_mismatch", 409, {"error": "source_modified", "detail": str(exc)})
+    except SourceUnverified as exc:
+        # 没有可用Hash就无法证明取回的是被引用的那份原文，只能拒绝。
+        return finish("unverified", 409,
+                      {"error": "source_unverified", "detail": unverified_detail},
+                      detail=str(exc))
+    except SourceTooLarge as exc:
+        return finish("too_large", 413, {"error": "too_large", "detail": str(exc)})
+
+    return finish(
+        "served", 200, {},
+        bytes_served=len(verified.content),
+        response=StarletteResponse(
+            content=verified.content,
+            media_type=verified.media_type,
+            headers=verified.response_headers(),
+        ),
+    )
 
 
 def main() -> None:

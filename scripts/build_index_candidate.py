@@ -23,7 +23,10 @@ def main() -> None:
     parser.add_argument("--collection", required=True)
     parser.add_argument("--bm25-output", type=Path, required=True)
     parser.add_argument("--target-output", type=Path, required=True)
-    parser.add_argument("--strategy", choices=["blocks", "fixed"], default="blocks")
+    # 必须与 build_candidate_index 接受的三种策略一致：少了 blocks-split，
+    # 这个入口就建不出已验收候选所用的那种切片。
+    parser.add_argument("--strategy", choices=["blocks", "blocks-split", "fixed"],
+                        default="blocks")
     args = parser.parse_args()
     if args.target_output.exists():
         raise FileExistsError(f"目标配置已存在：{args.target_output}")

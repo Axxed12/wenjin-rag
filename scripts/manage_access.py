@@ -32,16 +32,17 @@ ACCESS_DIR = ROOT / "configs/access"
 def list_policies() -> int:
     catalog = {entry.corpus_id: entry for entry in corpus_catalog(ROOT)}
     registry = AccessRegistry.from_directory(ACCESS_DIR)
-    print(f"{'语料':32s} {'可见性':9s} {'允许的客户端':28s} 索引")
+    # 索引列只说"有没有配置提到它"——能不能用要另外预检（list_corpora 的 index_state）。
+    # 这里写成"有配置/无配置"，避免被读成"索引可用"。
+    print(f"{'语料':32s} {'可见性':9s} {'允许的客户端':28s} 索引配置")
     for corpus_id, entry in sorted(catalog.items()):
         policy = registry.policy(corpus_id)
+        targets = f"有（{len(entry.index_targets)}个）" if entry.indexed else "无"
         if policy is None:
-            print(f"{corpus_id:32s} {'-':9s} {'【无策略：默认拒绝】':28s} "
-                  f"{'有' if entry.indexed else '无'}")
+            print(f"{corpus_id:32s} {'-':9s} {'【无策略：默认拒绝】':28s} {targets}")
             continue
         clients = ",".join(policy.allowed_clients) or "（空：拒绝所有人）"
-        print(f"{corpus_id:32s} {policy.visibility:9s} {clients:28s} "
-              f"{'有' if entry.indexed else '无'}")
+        print(f"{corpus_id:32s} {policy.visibility:9s} {clients:28s} {targets}")
     return 0
 
 

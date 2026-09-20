@@ -18,7 +18,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="跨库路由检索（只读，不生成答案）")
     parser.add_argument("query", nargs="?", help="检索问题；--catalog时不使用")
     parser.add_argument("--library", help="显式指定library；省略则受预算约束跨库扇出")
-    parser.add_argument("--version")
+    parser.add_argument("--version", help="library有多个版本时必须显式指定")
+    parser.add_argument("--target-id",
+                        help="按唯一target_id寻址；与--library/--version互斥")
     parser.add_argument("--route", type=Path,
                         default=ROOT / "configs/indexes/multicorpus-candidates-002.json")
     parser.add_argument("--top-k", type=int, default=5)
@@ -68,6 +70,7 @@ def main() -> None:
             args.query,
             library=args.library,
             version=args.version,
+            target_id=args.target_id,
             config=RouteConfig(
                 candidate_k=args.candidate_k,
                 top_k=args.top_k,
@@ -87,7 +90,11 @@ def main() -> None:
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return
     print(f"问题：{result['query']}")
-    print(f"路由：{[item['library'] + ' ' + item['version'] for item in result['routed_libraries']]}")
+    # 带上 target_id：同一个 library 有多个版本时，只写 library+version 仍不够定位。
+    print("路由：" + "；".join(
+        f"{item['library']} {item['version']} [{item['target_id']}]"
+        for item in result["routed_libraries"]
+    ))
     if result["skipped_libraries"]:
         print(f"因预算跳过的库：{result['skipped_libraries']}")
     print(f"证据：{len(result['evidence'])} 条；reranker={result['retrieval']['reranker_used']}")
