@@ -10,9 +10,22 @@
   {
     "split": "test",
     "original_sha256": "f40b57da1a82c3d6b7838b1da0a46e71a821e6df4fd5fbd0726341a3f5322e15",
-    "imported_sha256": "f30a9fd3641f17406ad63b95da6ddd0f42a5c4be2422e7102d1819d03dae516d",
+    "imported_sha256": "c71a8e5e4a47459f52c1621c2f6364944cf9044789c63282dbef8adae6ff1179",
     "questions": 40,
-    "evaluated": false,
-    "evaluation_status_basis": "user confirmation"
+    "evaluated": true,
+    "evaluation_status_basis": "run once on 2026-09-20 (frozen-test-001)",
+    "revision_history": [
+      {
+        "revision": "pre-evaluation-repair-2026-09-17",
+        "sha256": "f30a9fd3641f17406ad63b95da6ddd0f42a5c4be2422e7102d1819d03dae516d",
+        "note": "导入时的修订版本"
+      },
+      {
+        "revision": "pre-evaluation-repair-2026-09-20",
+        "sha256": "c71a8e5e4a47459f52c1621c2f6364944cf9044789c63282dbef8adae6ff1179",
+        "note": "首次运行冻结 test 时发现 21 道题无法路由：library 写成显示名 'OGC 3D Tiles'，经 normalize_library 得到 ogc-3d-tiles，而语料 id 是 ogc-3dtiles。只改 library 一列（21 行，改为 'ogc-3dtiles'）并更新 dataset_revision；题目、查询、证据、标签一律未动。改在**看到任何评测结果之前**，不构成调参。"
+      }
+    ],
+    "evaluated_sha256": "c71a8e5e4a47459f52c1621c2f6364944cf9044789c63282dbef8adae6ff1179"
   }
 ]

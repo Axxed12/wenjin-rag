@@ -134,10 +134,120 @@ uv run python scripts/search_routed.py "WMS 和 osgEarth 的版本约定" --max-
 ## 评测结果
 
 全部为本机小样本结果，用于开发回归，**不构成生产结论或第三方盲测**。
+题集由本项目自行编写（含 Agent 审查），不是第三方盲测。
+
+**两套数字要分开读**：`validation`（50 题）用来挑选方案，方案就是按它的表现定的，
+因此偏乐观；`test`（40 题）在此之前**封存未用**，只在方案定死后跑过一次。
+**对外的预期性能应引用 test 的数字。**
+
+| 题集 | 用途 | 重排 @5 全证据 | 重排 @5 MRR |
+|---|---|---:|---:|
+| validation 50 题 | 挑方案（偏乐观） | 0.96 | 0.917 |
+| **test 40 题** | **封存后只跑一次** | **0.750** | **0.753** |
 
 冻结 OSG 8 题（全证据 @5）：baseline 5/8，加 0.6B 重排 7/8。
 
-五库 validation 50 题（`candidate_k=20`、RRF `k=60`）：
+### 冻结 test 40 题：首次也是唯一一次运行
+
+题集 `evaluation/datasets/rag-test-001.jsonl`，40 题覆盖 GDAL（19）与 OGC 3D Tiles（21），
+51 条证据（41 条行级 + 10 条 PDF 页级）。配置与 validation 相同
+（`candidate_k=20`、RRF `k=60`、002 候选、Qwen3-Reranker-0.6B）。
+
+| 检索器 | @5 span_recall | @5 全证据 | @5 任一命中 | @5 MRR | @20 全证据 |
+|---|---:|---:|---:|---:|---:|
+| dense | 0.675 | 0.625 | 0.725 | 0.593 | 0.850 |
+| BM25 | 0.575 | 0.525 | 0.625 | 0.430 | 0.700 |
+| RRF | 0.650 | 0.625 | 0.675 | 0.562 | 0.825 |
+| + 0.6B 重排 | **0.812** | **0.750** | **0.875** | **0.753** | **0.875** |
+
+重排单题延时 0.758 ± 0.099 秒（本机 GPU）。
+
+分库看，**两个库的问题不一样**（重排 @5）：
+
+| 库 | 题数 | 全证据 | MRR | 瓶颈 |
+|---|---:|---:|---:|---|
+| GDAL | 19 | 0.842 | **0.974** | 召回：证据进了候选池几乎都能排到最前 |
+| OGC 3D Tiles | 21 | 0.667 | 0.553 | 召回与排序都弱：该库仅 2 个文件却切出 1025 个 chunk，候选池大 |
+
+**发现**：
+
+- 真实水平约为 test 的 **0.750**，低于 validation 的 0.96。两套题覆盖的库不同
+  （validation 为 osgEarth/WMS/PROJ，test 为 GDAL/3D Tiles），因此这 0.21 的差
+  既包含"按 validation 调过参"，也包含"这两个库本身更难"，**现有数据分不开这两者**。
+- GDAL 的瓶颈是召回而非排序（MRR 0.974 但全证据 0.842）；提升应从召回入手，不是重排。
+- 5 道题连 @20 都取不到（`013/014/015/037/038`），属未召回而非排错。
+
+**读数要注意的口径**：
+
+- 页级证据（10 条）只判"该页有 chunk"，不校验原文是否落在文本里；
+- 指标把登记的每条证据都视为必需，包括 `expected_status=insufficient` 的 `rag-test-040`
+  ——那题"未被覆盖"本身可能就是正确行为；
+- **空行不算证据**。切片按空行分块，连续空行里靠后的那些不属于任何 chunk（这是切片
+  正确行为）。早期实现要求证据区间**每一行**都被覆盖，把"内容全在、中间隔了个空行"
+  判成未覆盖——例如证据 199-209、两段 chunk 分别是 194-204 和 206-222，缺的第 205 行
+  是 `</div>`（解析后为空）。修正后重排 @5 全证据由 0.675 升到 0.750，**检索本身未变**
+  （40/40 题 top-5 chunk ID 与修正前逐字节一致）。判定实现在 `src/wenjin/coverage.py`
+  与 `evaluation/run_retrieval_eval.covers_span`。
+
+### RAGAS 复核（语义口径，与上面的词法口径互为对照）
+
+判分模型 DeepSeek `deepseek-flash`，`reference` 用题集的 `answer_rubric`。
+
+**两个口径在问不同的问题**，数值不可互替：
+
+- 上面的 span_recall / 全证据是**词法·位置**判定：**登记的那几段证据**取回来了吗？
+- RAGAS 是**语义·答案**判定：取回来的东西**够不够推导出参考答案**？
+
+| 指标 | 均值 | 最低 | 可用性 |
+|---|---:|---:|---|
+| `context_recall` | **0.9517** | 0.33 | 可用 |
+| `context_precision` | **0.9642** | 0.75 | 可用 |
+| `faithfulness` | 0.9228 | 0.40 | **不可用，不纳入结论** |
+
+RAGAS 明显高于词法口径，因为题集自己写着 `listed spans jointly support the rubric;
+not exhaustive`——登记证据是**充分条件而非唯一解**，别处有同样内容也能答对。
+
+**为什么说判分可用**（受控验证，不是只看分数）：它给 `expected_status=insufficient`
+的 `rag-test-040` 打 0.0、给 `partially_supported` 的 039 打 0.75，与标注一致；
+两轮重跑的逐题波动是 3/40 题、题均绝对差 0.0175。
+
+#### 生成答案与 `faithfulness`：做了，但判分不可信
+
+为跑 `Faithfulness` 加了一层生成：**讯飞 `xopqwen35397b`** 依据检索到的 top-5 作答，
+`reference` 对照 `answer_rubric`。**这层只存在于评测里**——服务端仍然不生成答案
+（MCP 返回 `answer_status: not_generated`），契约没变。40 题全部生成成功，平均 486 字。
+
+但**判分结果不可信，因此不作为结论**。三条受控证据：
+
+| 测试 | 期望 | 实测 |
+|---|---|---|
+| 把**检索到的上下文原文本身**当答案 | 1.0 | **0.857** |
+| 同一份输入连续判两次 | 一致 | **0.4 / 0.667** |
+| 判分链路是否通则（context 两项） | 正常 | 正常 |
+
+同一批低分题的答案人读起来是对的（如 016 答出了 GDAL 3.11、`CPL_DEBUG`、默认不告警，
+与参考一致），却只得 0.4。**所以这是指标配这个判分模型时的噪声，不是生成质量差。**
+
+同理 `FactualCorrectness` 也试过并弃用：答案=参考得 1.0、答案正确但更长得 0.0、
+把两者对调又变回 1.0——结果严重依赖方向。`AnswerRelevancy` / `AnswerCorrectness`
+需要 embedding 模型，`evaluation/ragas/` 环境里未安装。**三个都不可信或不可用，
+就不报数。**
+
+逐题结果与判分可靠性记录见
+[`artifacts/frozen-test-001/ragas-retrieval-eval.json`](artifacts/frozen-test-001/ragas-retrieval-eval.json)。
+
+**运行记录与已知修订**：跑之前发现 21 道 3D Tiles 题的 `library` 写成显示名
+`"OGC 3D Tiles"`，经归一化得到 `ogc-3d-tiles`，而语料 id 是 `ogc-3dtiles`，**无法路由**
+（validation 里没有 3D Tiles 题，这条路径从未被走过）。只改了 `library` 一列并更新
+`dataset_revision`，题目/查询/证据/标签未动，**改在见到任何结果之前**。该题集现已
+`evaluated=true`，不再作为未用过的考卷。运行记录见
+[`artifacts/frozen-test-001/run-record.json`](artifacts/frozen-test-001/run-record.json)，
+逐题结果见
+[`artifacts/frozen-test-001/test-retrieval-eval.json`](artifacts/frozen-test-001/test-retrieval-eval.json)。
+
+### validation 50 题（用于挑选方案）
+
+`candidate_k=20`、RRF `k=60`：
 
 | 检索器 | Recall@5 | 全证据@5 | MRR@5 |
 |---|---:|---:|---:|
@@ -340,7 +450,11 @@ artifacts/                   实验输出与验收证据（大文件与第三方
 - 离线镜像在目标内网的导入与验收；
 - 父子片段、文档级路由、内网原文查看器；
 - PDF 表格关系与复杂 HTML DOM 的独立质量验收；
-- RAGAS 真实业务指标与 Faithfulness 评测。
+- RAGAS 真实业务指标与 Faithfulness 评测；
+- **召回侧改进**：冻结 test 显示 GDAL 的瓶颈是召回而非排序（MRR 0.974 / 全证据 0.684），
+  且 5 道题连 @20 都取不到。这些都是未召回的题，调重排没有用；
+- **PDF 页级证据的细化判定**：目前只能判"该页有 chunk"，无法校验证据原文是否真的
+  落在切出来的文本里（缺字符级锚点）。
 
 ## 许可证
 

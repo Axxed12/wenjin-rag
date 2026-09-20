@@ -458,3 +458,36 @@ def test_bm25_script_writes_every_artifact_under_the_given_root(tmp_path):
     report_path = root / "artifacts/runs/bm25-index-blocks.json"
     assert report_path.is_file(), "报告没有写在临时根里"
     assert json.loads(report_path.read_text(encoding="utf-8"))["index"].startswith(str(root))
+
+
+# --- 评测数字必须区分 validation 与冻结 test ---
+#
+# 方案是按 validation 的表现挑的，只引用它等于自己出题自己判卷。这里把"两套数字
+# 必须并列出现、且指明该引用哪个"钉住，避免以后又退回只报 0.96。
+
+
+def test_readme_reports_both_splits_with_the_test_number_as_the_headline():
+    text = readme()
+    assert "两套数字要分开读" in text
+    assert "对外的预期性能应引用 test 的数字" in text
+    assert "0.96" in text and "0.750" in text
+
+
+def test_readme_does_not_claim_the_validation_number_as_the_result():
+    """validation 那行必须标出"偏乐观"，不能光秃秃地当结论。"""
+    text = readme()
+    section = text.split("## 评测结果", 1)[1].split("### 冻结 test", 1)[0]
+    assert "偏乐观" in section
+
+
+def test_readme_states_the_frozen_test_was_run_once_and_is_now_spent():
+    text = readme()
+    assert "首次也是唯一一次运行" in text
+    assert "不再作为未用过的考卷" in text
+
+
+def test_readme_records_the_pre_run_dataset_revision():
+    """跑之前改过一列，必须写出来，并说明改在见到结果之前。"""
+    text = readme()
+    assert "ogc-3dtiles" in text
+    assert "改在见到任何结果之前" in text

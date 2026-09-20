@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "run": "frozen-test-001",
+  "dataset": {
+    "path": "evaluation/datasets/rag-test-001.jsonl",
+    "sha256": "c71a8e5e4a47459f52c1621c2f6364944cf9044789c63282dbef8adae6ff1179",
+    "revision": "pre-evaluation-repair-2026-09-20",
+    "questions": 40,
+    "libraries": {
+      "gdal": 19,
+      "ogc-3dtiles": 21
+    },
+    "evidence_spans": 51,
+    "span_kinds": {
+      "line": 41,
+      "pdf_page": 10
+    },
+    "expected_status": {
+      "supported": 38,
+      "partially_supported": 1,
+      "insufficient": 1
+    }
+  },
+  "config": {
+    "route": "configs/indexes/multicorpus-candidates-002.json",
+    "strategy": "blocks-split",
+    "candidate_k": 20,
+    "rrf_k": 60,
+    "reranker": "Qwen3-Reranker-0.6B",
+    "note": "与 validation 对照使用的是同一套冻结配置"
+  },
+  "run_once_statement": "本次是冻结 test 的首次运行。第一次调用在**写报告时**因 --dataset 传相对路径（脚本用 relative_to(ROOT)）失败，循环已跑完但未打印任何结果；两次调用之间未改动任何配置或题集，因此不存在'看到结果再调参'。",
+  "pre_run_revision": {
+    "why": "21 道 3D Tiles 题无法路由：library 写成显示名 'OGC 3D Tiles'，normalize_library 得到 ogc-3d-tiles，而语料 id 是 ogc-3dtiles。validation 里没有 3D Tiles 题，这条路径从未被走过。",
+    "change": "只改 library 一列（21 行 → 'ogc-3dtiles'）并更新 dataset_revision",
+    "untouched": "题目、查询、证据路径与行号、答案 rubric、标签一律未动",
+    "timing": "改在**看到任何评测结果之前**，不构成调参",
+    "sha256_before": "f30a9fd3641f17406ad63b95da6ddd0f42a5c4be2422e7102d1819d03dae516d",
+    "sha256_after": "c71a8e5e4a47459f52c1621c2f6364944cf9044789c63282dbef8adae6ff1179"
+  },
+  "result_file": "artifacts/frozen-test-001/test-retrieval-eval.json",
+  "known_metric_caveats": [
+    "页级证据（10 条）只判定'该页有 chunk'，不校验证据原文是否落在文本里",
+    "指标把登记的每条证据都当作必需，对 expected_status=insufficient 的题（rag-test-040）也一样；那题'未被覆盖'本身可能就是正确行为",
+    "40 题只覆盖 GDAL 与 OGC 3D Tiles 两库，与 validation 的 osgEarth/WMS/PROJ 不同分布，两套数字不可直接相减归因"
+  ],
+  "metric_correction": {
+    "when": "2026-09-20，首次运行之后",
+    "what": "覆盖率判定要求证据区间**每一行**都被覆盖，把空行也算作必须覆盖。切片按空行分块，连续空行里靠后的那些不属于任何 chunk（切片正确行为），于是'内容全在、中间隔了个空行'被判成未覆盖。",
+    "example": "rag-test-013：证据 raster_data_model.html 199-209，两段 chunk 为 194-204 与 206-222；缺的第 205 行是 </div>，解析后为空。",
+    "fix": "src/wenjin/coverage.py 的 content_lines()；evaluation/run_retrieval_eval.covers_span 新增 blank_lines 参数",
+    "retrieval_unchanged": "40/40 题 top-5 chunk ID 与修正前逐字节一致——改的是指标，不是检索",
+    "headline_before": 0.675,
+    "headline_after": 0.75,
+    "previous_report": "artifacts/frozen-test-001/test-retrieval-eval-strict-metric.json"
+  },
+  "ragas_cross_check": {
+    "when": "2026-09-20",
+    "metrics": [
+      "context_recall",
+      "context_precision"
+    ],
+    "why_only_these": "Faithfulness / AnswerRelevancy 需要生成答案，本项目不生成答案",
+    "judge_model": "deepseek-flash",
+    "reference_field": "answer_rubric",
+    "result": {
+      "context_recall": 0.9425,
+      "context_precision": 0.9611
+    },
+    "report": "artifacts/frozen-test-001/ragas-retrieval-eval.json",
+    "interpretation": "RAGAS 是语义·答案判定（'取回的内容够不够推导参考答案'），本项目指标是词法·位置判定（'登记的那几段证据取回来了吗'）。题集写明 listed spans jointly support the rubric; not exhaustive，登记证据是充分条件而非唯一解，因此 RAGAS 天然更高。两者不可互替。"
+  }
+}

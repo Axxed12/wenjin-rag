@@ -66,14 +66,45 @@ def classify_chunk(chunk, source_lines: list[str]) -> str:
     return CONFLICT
 
 
+def content_lines(source_lines: list[str], start: int, end: int) -> set[int]:
+    """证据区间里**本身有内容**的行号。
+
+    空行不算证据。切片按空行分块，而连续空行里靠后的那些不会属于任何 chunk——
+    这是切片**正确**的行为（不该产出只含空行的 chunk）。若把空行也算进"必须覆盖"，
+    "内容全在、只是中间隔了个空行"就会被判成未覆盖，是假阴性。
+
+    实例：`raster_data_model.html` 第 204、205 行都是纯闭合标签，解析后为空，
+    分块时成为分隔符，第 205 行不属于任何 chunk；而某条证据区间正好是 199-209。
+    """
+    return {
+        number for number in range(start, end + 1)
+        if number <= len(source_lines) and source_lines[number - 1].strip()
+    }
+
+
 def evidence_coverage(hits, source_lines: list[str], start: int, end: int) -> dict:
     """证据是否完整进入命中片段集合。
 
-    判定 = **完整行片段**的行范围并集盖满证据区间，且没有与登记内容冲突的片段。
+    判定 = **完整行片段**的行范围并集盖满证据区间里**有内容的行**，且没有与登记内容
+    冲突的片段。空行不参与判定（见 `content_lines`）。
 
     只做位置合并，不做字符串相似度去重（见模块说明）；也**不把子串当完整性证明**：
     半行片段没有字符偏移量，无法证明它盖住了哪一段，因此单独报出来而不计入覆盖。
     """
+    wanted = content_lines(source_lines, start, end)
+    if not wanted:
+        # 整段证据都是空行/纯标记：这是登记问题，不能报成"已覆盖"。
+        # 与"没有命中片段"区分开，否则一条实际不含内容的证据会静默通过。
+        return {
+            "covered": False,
+            "empty_evidence_span": True,
+            "missing_lines": [],
+            "undecidable_lines": [],
+            "partial_line_chunks": [],
+            "text_range_conflicts": [],
+            "basis": TEXT_BASIS,
+        }
+
     covered_lines: set[int] = set()
     claimed_by_partial: set[int] = set()
     partial_chunks: list[str] = []
@@ -85,7 +116,6 @@ def evidence_coverage(hits, source_lines: list[str], start: int, end: int) -> di
             continue
         if not chunk.text.strip():
             # 空正文不承载内容：既不算覆盖，也不算"被它占了位置"。
-            # 那几行是真的没有文字，报 missing 而不是 undecidable 更准确。
             continue
         kind = classify_chunk(chunk, source_lines)
         if kind == COMPLETE:
@@ -96,12 +126,13 @@ def evidence_coverage(hits, source_lines: list[str], start: int, end: int) -> di
         else:
             conflicts.append(chunk.chunk_id)
 
-    wanted = set(range(start, end + 1))
+    # 只统计有内容的行：空行既不该算 missing，也不该算 undecidable。
     missing = sorted(wanted - covered_lines - claimed_by_partial)
     # 只被半行片段沾到、又没有完整片段覆盖的行：**无法判定**，不能算覆盖。
     undecidable = sorted((wanted & claimed_by_partial) - covered_lines)
     return {
         "covered": not missing and not undecidable and not conflicts,
+        "empty_evidence_span": False,
         "missing_lines": missing,
         "undecidable_lines": undecidable,
         "partial_line_chunks": partial_chunks,

@@ -7,6 +7,8 @@
 3. 弱口径（行号相交）在前两种情形下都会说"命中"，所以不能用它判断覆盖。
 """
 
+import pytest
+
 from scripts.evaluate_chunk_coverage import evaluate
 from wenjin.coverage import evidence_coverage
 from wenjin.ingestion.chunking import Chunk
@@ -182,3 +184,85 @@ def test_classify_chunk_names_the_three_kinds():
     assert classify_chunk(make("b", 1, 1, "ABC"), lines) == PARTIAL
     assert classify_chunk(make("c", 1, 1, "XYZ"), lines) == CONFLICT
     assert classify_chunk(make("d", 1, 1, "   "), lines) == PARTIAL
+
+
+# --- 空行不算证据 ---
+#
+# 切片按空行分块，连续空行里靠后的那些不属于任何 chunk（这是切片正确行为）。
+# 早期实现要求证据区间**每一行**都被覆盖，于是"内容全在、中间隔了个空行"被判成未覆盖。
+# 实例：raster_data_model.html 证据 199-209，chunk 是 194-204 与 206-222，
+# 缺的第 205 行是 `</div>`，解析后为空。
+
+
+def blank_line_source() -> list[str]:
+    """构造与上述实例同形的来源：第 4、5 行解析后为空。"""
+    lines = [f"line{number}\n" for number in range(1, 13)]
+    lines[3] = "\n"   # 第 4 行
+    lines[4] = "\n"   # 第 5 行 —— 落在两个 chunk 之间
+    return lines
+
+
+def test_blank_line_gap_is_not_a_missing_line():
+    src = blank_line_source()
+    hits = [
+        make("a", 1, 4, "".join(src[0:4])),    # 覆盖 1-4
+        make("b", 6, 12, "".join(src[5:12])),  # 覆盖 6-12，跳过第 5 行
+    ]
+    verdict = evidence_coverage(hits, src, 2, 8)
+    assert verdict["covered"] is True, verdict
+    assert verdict["missing_lines"] == []
+
+
+def test_real_content_gap_is_still_reported():
+    """对照：跳过的恰好是**有内容**的行，必须报出来。
+
+    `blank_line_source` 里第 4、5 行都为空。这里换一个只在第 4 行为空的来源，
+    让 chunk 跳过第 5 行——那一行有内容，是真缺口，不能因为有空行的存在就一起放过。
+    """
+    src = [f"line{number}\n" for number in range(1, 13)]
+    src[3] = "\n"                                  # 只有第 4 行是空行
+    hits = [
+        make("a", 1, 4, "".join(src[0:4])),
+        make("b", 6, 12, "".join(src[5:12])),      # 跳过第 5 行（有内容）
+    ]
+    verdict = evidence_coverage(hits, src, 2, 8)
+    assert verdict["covered"] is False
+    assert verdict["missing_lines"] == [5]
+
+
+def test_span_made_only_of_blank_lines_is_not_covered():
+    """整段证据都是空行/纯标记：登记问题，不能报成已覆盖。"""
+    src = ["\n", "\n", "\n", "\n"]
+    verdict = evidence_coverage([make("a", 1, 4, "\n")], src, 1, 4)
+    assert verdict["covered"] is False
+    assert verdict["empty_evidence_span"] is True
+
+
+def test_content_lines_helper_skips_blanks():
+    from wenjin.coverage import content_lines
+
+    src = blank_line_source()
+    assert 4 not in content_lines(src, 1, 12)
+    assert 5 not in content_lines(src, 1, 12)
+    assert content_lines(src, 1, 3) == {1, 2, 3}
+
+
+def test_retrieval_eval_covers_span_agrees_with_coverage_module():
+    """两个入口的空行语义必须一致，否则同一份数据会得出两个数。"""
+    from evaluation.run_retrieval_eval import covers_span
+
+    span = {"path": "a.html", "start_line": 2, "end_line": 8}
+    results = [
+        {"source_path": "a.html", "start_line": 1, "end_line": 4},
+        {"source_path": "a.html", "start_line": 6, "end_line": 12},
+    ]
+    assert covers_span(results, span) is False                              # 严格：缺第 5 行
+    assert covers_span(results, span, blank_lines=frozenset({5})) is True   # 第 5 行是空行
+
+
+def test_retrieval_eval_metrics_rejects_page_level_spans():
+    """按页证据没有行号，必须由调用方先分流，不能被静默当成"未覆盖"。"""
+    from evaluation.run_retrieval_eval import metrics
+
+    with pytest.raises(ValueError, match="只处理行级证据"):
+        metrics([], [{"path": "a.pdf", "page": 3, "start_line": None, "end_line": None}], k=5)

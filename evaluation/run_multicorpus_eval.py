@@ -69,12 +69,19 @@ def page_span_hit(top: list[dict], span: dict) -> int | None:
     )
 
 
-def evidence_metrics(candidates: list[dict], evidence: list[dict], *, k: int) -> dict:
-    """行级证据交给既有metrics，页级证据单独判定，再合并成同一结构。"""
+def evidence_metrics(
+    candidates: list[dict], evidence: list[dict], *, k: int,
+    blank_lines: dict[str, frozenset[int]] | None = None,
+) -> dict:
+    """行级证据交给既有metrics，页级证据单独判定，再合并成同一结构。
+
+    `blank_lines` 透传给 `metrics`：空行不承载内容，把它算作"必须覆盖"会把
+    "内容全在、只是中间隔了个空行"判成未覆盖（见 `wenjin.coverage`）。
+    """
     top = candidates[:k]
     line_spans = [span for span in evidence if span.get("page") is None]
     page_spans = [span for span in evidence if span.get("page") is not None]
-    parts = [metrics(top, [span], k=k) for span in line_spans]
+    parts = [metrics(top, [span], k=k, blank_lines=blank_lines) for span in line_spans]
     page_ranks = [page_span_hit(top, span) for span in page_spans]
     recalls = [part["span_recall"] for part in parts] + [
         float(rank is not None) for rank in page_ranks
@@ -98,6 +105,38 @@ def evidence_metrics(candidates: list[dict], evidence: list[dict], *, k: int) ->
         "first_evidence_touch_rank": first_rank,
         "reciprocal_rank": 0.0 if first_rank is None else 1.0 / first_rank,
     }
+
+
+def blank_line_map(route_path: Path, evidence: list[dict]) -> dict[str, frozenset[int]]:
+    """证据文件里**解析后为空**的行号。
+
+    必须用解析后的文本判断，不能用原始 HTML：像 `</div>` 这样的纯标记行原文非空，
+    但行映射解析后是空行，切片时会被当成块分隔符。用原文判断会得出错误的空行集合。
+
+    只解析**确实出现在行级证据里**的文件：3D Tiles 那份 51MB / 359 页的 PDF 不参与
+    行级判定，没必要为它付解析开销。
+    """
+    from wenjin.ingestion.multiformat import load_retrieval_documents
+
+    wanted = {span["path"] for span in evidence if span.get("start_line") is not None}
+    if not wanted:
+        return {}
+    route = json.loads(route_path.read_text(encoding="utf-8-sig"))
+    result: dict[str, frozenset[int]] = {}
+    for item in route["candidates"]:
+        manifest_path = ROOT / item["manifest_path"]
+        if not manifest_path.is_file():
+            continue
+        raw_root = ROOT / "raw_data"
+        for document in load_retrieval_documents(manifest_path, raw_root):
+            path = document["source_path"]
+            if path not in wanted or path in result:
+                continue
+            result[path] = frozenset(
+                number for number, line in enumerate(document["text"].splitlines(), start=1)
+                if not line.strip()
+            )
+    return result
 
 
 def main() -> None:
@@ -135,6 +174,13 @@ def main() -> None:
     embedder = settings.embedding()
     reranker = None
     routing = None
+    # 一次性建好全数据集的"解析后空行"表：空行不算证据，见 evidence_metrics。
+    blank_lines = blank_line_map(
+        arguments.route.resolve(),
+        [span for row in dataset for span in row["evidence"]],
+    )
+    print(f"空行表：{len(blank_lines)} 个证据文件，"
+          f"共 {sum(len(v) for v in blank_lines.values())} 个空行")
     records = []
     try:
         if not arguments.no_reranker:
@@ -199,7 +245,8 @@ def main() -> None:
                 ),
                 "evidence_libraries": evidence_libraries(row["evidence"]),
                 "metrics": {
-                    name: {f"at_{k}": evidence_metrics(results, row["evidence"], k=k)
+                    name: {f"at_{k}": evidence_metrics(
+                        results, row["evidence"], k=k, blank_lines=blank_lines)
                            for k in (5, 20)}
                     for name, results in retrievers.items()
                 },
