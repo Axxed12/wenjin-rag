@@ -5,7 +5,6 @@
 """
 
 import html
-import json
 import re
 import warnings
 from dataclasses import dataclass, field
@@ -15,6 +14,14 @@ import pymupdf
 from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
 
 from wenjin.content_hashing import BINARY_IDENTITY_V1, hash_content
+from wenjin.parser_names import (
+    HYBRID_PAGE_PARSER,
+    OCR_PAGE_PARSER,
+    PAGE_PARSERS,
+    TEXT_PAGE_PARSER,
+    allowed_unit_parsers,
+    is_ocr_derived,
+)
 
 
 @dataclass(frozen=True)
@@ -26,6 +33,11 @@ class ParsedUnit:
     end_line: int | None = None
     page_number: int | None = None
     warnings: list[str] = field(default_factory=list)
+
+    @property
+    def ocr_derived(self) -> bool:
+        """正文是否来自OCR。由parser推导，不允许各调用方各自判断。"""
+        return is_ocr_derived(self.parser)
 
 
 def _html_line(line: str) -> str:
@@ -87,7 +99,7 @@ def parse_pdf_pages(path: Path, source_path: str) -> list[ParsedUnit]:
             text = page.get_text(sort=True)
             units.append(ParsedUnit(
                 source_path=source_path,
-                parser="pymupdf-page-v1",
+                parser=TEXT_PAGE_PARSER,
                 text=text,
                 page_number=index + 1,
                 warnings=[] if text.strip() else ["no_extracted_text; inspect OCR need"],
@@ -116,34 +128,105 @@ def parse_file(
 ) -> list[ParsedUnit]:
     """按manifest记录的parser解析；未指定时按后缀推断。
 
-    `parser="mineru-ocr-page-v1"` 表示这是扫描件，必须走OCR：光有文本层判定不够，
-    因为重建索引时也要复现同一份解析结果。
+    `parser="mineru-ocr-page-v1"` 表示这份就是扫描件，必须整份走OCR；
+    `parser="mixed-text-ocr-page-v1"` 表示文本层页保留文本层、只有扫描页走OCR。
+    两者都不能靠"有没有文本层"临时判定：重建索引时也要复现同一份解析结果。
     """
-    if parser == "mineru-ocr-page-v1":
+    if parser in {OCR_PAGE_PARSER, HYBRID_PAGE_PARSER}:
         # 延迟导入：ocr模块要复用本模块的ParsedUnit，模块级导入会形成循环。
-        from wenjin.ingestion.ocr import MINERU_DEFAULT_URL, ocr_pdf_pages
-
-        return ocr_pdf_pages(
-            path,
-            source_path,
-            base_url=mineru_url or MINERU_DEFAULT_URL,
-            timeout=mineru_timeout,
+        from wenjin.ingestion.ocr import (
+            MINERU_DEFAULT_URL,
+            ocr_pdf_pages,
+            parse_pdf_hybrid,
         )
+
+        options = {
+            "base_url": mineru_url or MINERU_DEFAULT_URL,
+            "timeout": mineru_timeout,
+        }
+        if parser == OCR_PAGE_PARSER:
+            return ocr_pdf_pages(path, source_path, **options)
+        return parse_pdf_hybrid(path, source_path, **options)
     if path.suffix.lower() == ".pdf":
         return parse_pdf_pages(path, source_path)
     return [parse_line_mapped(path, source_path, parser or parser_for_path(path))]
 
 
+def pdf_page_count(path: Path) -> int | None:
+    """来源 PDF 的物理页数；读不到返回 None。"""
+    try:
+        import pymupdf
+
+        with pymupdf.open(path) as pdf:
+            return len(pdf)
+    except Exception:  # noqa: BLE001 - 读不到由调用方决定怎么办，不在这里掩盖
+        return None
+
+
+def _check_page_coverage(
+    relative: str,
+    declared: str | None,
+    units: list[ParsedUnit],
+    total_pages: int | None,
+) -> None:
+    """按页解析的来源必须**唯一且完整覆盖 1..N**，N 取自来源 PDF 本身。
+
+    预期页数不能用 `len(units)` 推：那等于拿解析器的输出当标准答案，只能发现中间缺页，
+    发现不了空结果、尾页丢失和多出页。N 必须来自已通过双 Hash 校验的原文件。
+
+    空白页可以没有正文，但必须保留单元——否则后续页码会整体前移。
+    """
+    if declared not in PAGE_PARSERS:
+        return
+    if total_pages is None or total_pages < 1:
+        raise ValueError(f"无法确定来源PDF的页数，按页覆盖无法校验：{relative}")
+
+    pages = [unit.page_number for unit in units]
+    invalid = [page for page in pages if not isinstance(page, int) or page < 1]
+    if invalid:
+        raise ValueError(f"按页来源出现非法页码：{relative}：{invalid}")
+    duplicates = sorted({page for page in pages if pages.count(page) > 1})
+    if duplicates:
+        raise ValueError(f"按页来源出现重复页码：{relative}：{duplicates}")
+
+    expected = set(range(1, total_pages + 1))
+    actual = set(pages)
+    if actual != expected:
+        missing = sorted(expected - actual)
+        extra = sorted(actual - expected)
+        detail = []
+        if missing:
+            detail.append(f"缺 {missing}")
+        if extra:
+            detail.append(f"超出 {extra}")
+        raise ValueError(
+            f"按页来源未完整覆盖 1..{total_pages}（来源PDF共{total_pages}页）："
+            f"{relative}：{'；'.join(detail)}"
+        )
+
+
 def load_retrieval_documents(manifest_path: Path, raw_data_root: Path) -> list[dict]:
-    """读取manifest的精确白名单，校验双Hash，再返回可供切片的解析单元。"""
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    raw_root = (raw_data_root / manifest["raw_data_subdir"]).resolve()
+    """读取manifest的精确白名单，校验双Hash，再返回可供切片的解析单元。
+
+    `raw_data_root` 是 **`raw_data` 根**，函数会自己接上 manifest 的 `raw_data_subdir`。
+    和 `intake.materialize` 的同名参数不是一回事：那个接的是语料根。
+    """
+    from wenjin import manifest as manifest_module
+    from wenjin.paths import UnsafePathError, resolve_within
+
+    manifest = manifest_module.load(manifest_path)
+    # 先确认 raw_data_subdir 落在可信根内，再逐条校验文件路径：
+    # subdir 本身可能是 `../..`，那样"每个文件都在 raw_root 内"就失去意义了。
+    raw_root = manifest_module.trusted_raw_root(manifest, raw_data_root)
     documents = []
     for entry in manifest["files"]:
         if not entry.get("retrieval_eligible"):
             continue
-        path = (raw_root / entry["path"]).resolve()
-        if not path.is_relative_to(raw_root) or not path.is_file():
+        try:
+            path = resolve_within(raw_root, str(entry["path"]))
+        except UnsafePathError as error:
+            raise ValueError(f"语料路径无效：{entry['path']}：{error}") from error
+        if not path.is_file():
             raise ValueError(f"语料路径无效：{entry['path']}")
         raw = path.read_bytes()
         normalization = entry["normalization"]
@@ -157,10 +240,19 @@ def load_retrieval_documents(manifest_path: Path, raw_data_root: Path) -> list[d
         ):
             raise ValueError(f"双Hash不匹配：{entry['path']}")
         source_path = f"raw_data/{manifest['raw_data_subdir']}/{entry['path']}"
-        units = parse_file(path, source_path, parser=entry.get("parser"))
-        expected_parser = entry.get("parser")
-        if expected_parser and any(unit.parser != expected_parser for unit in units):
-            raise ValueError(f"解析器与manifest不一致：{entry['path']}")
+        declared = entry.get("parser")
+        units = parse_file(path, source_path, parser=declared)
+        allowed = allowed_unit_parsers(declared)
+        if allowed is not None:
+            wrong = sorted({unit.parser for unit in units} - allowed)
+            if wrong:
+                raise ValueError(
+                    f"解析器与manifest不一致：{entry['path']} 声明 {declared}，"
+                    f"实际出现 {wrong}"
+                )
+        # 预期页数取自**已通过双 Hash 校验的原文件**，不是解析器的输出。
+        total_pages = pdf_page_count(path) if declared in PAGE_PARSERS else None
+        _check_page_coverage(entry["path"], declared, units, total_pages)
         for unit in units:
             documents.append({
                 "source_path": source_path,
@@ -169,6 +261,8 @@ def load_retrieval_documents(manifest_path: Path, raw_data_root: Path) -> list[d
                 "text": unit.text,
                 "page_number": unit.page_number,
                 "parser": unit.parser,
+                # OCR标记必须带下去：少了它，检索结果就无法说明正文是识别来的。
+                "ocr_derived": unit.ocr_derived,
                 # warnings必须传下去：不传的话扫描件会以0 chunk静默消失，没人知道。
                 "warnings": unit.warnings,
                 "raw_sha256": hashed.raw_sha256,

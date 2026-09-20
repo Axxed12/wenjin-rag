@@ -21,6 +21,11 @@ from wenjin.content_hashing import (
 )
 from wenjin.ingestion.chunking import block_chunks
 from wenjin.ingestion.multiformat import parser_for_path
+from wenjin.parser_names import (
+    HYBRID_PAGE_PARSER,
+    OCR_PAGE_PARSER,
+    TEXT_PAGE_PARSER,
+)
 from wenjin.paths import is_within, resolve_within
 
 # 按二进制处理的已知后缀；PDF 仍可检索，其余只归档。
@@ -31,12 +36,35 @@ ARCHIVE_SUFFIXES = {".zip", ".gz", ".tar", ".7z", ".docx", ".pptx", ".xlsx"}
 PARSER_BY_SUFFIX = {".html": "html-line-v1", ".htm": "html-line-v1",
                     ".xml": "xml-line-v1", ".xsd": "xml-line-v1",
                     ".rst": "rst-line-v1", ".1": "man-roff-line-v1"}
-OCR_PARSER = "mineru-ocr-page-v1"
-PDF_PARSER = "pymupdf-page-v1"
+# 解析器名的唯一定义在 multiformat；这里只做别名，避免同一批字符串多处各写一份。
+OCR_PARSER = OCR_PAGE_PARSER
+PDF_PARSER = TEXT_PAGE_PARSER
 
 TEXT_KIND = "text"
 PDF_KIND = "pdf"
 ARCHIVE_KIND = "archive"
+
+
+@dataclass(frozen=True)
+class PdfPlan:
+    """一个PDF的解析安排。
+
+    解析器名只在这里决定一次，检测事实随文件写进manifest：入库时为什么选了这条路，
+    之后必须能只凭manifest复核，而不是靠重跑一遍检测。
+    """
+
+    parser: str
+    report: dict
+    # 选了文本层解析但文件里仍有扫描页时，这些页不会被索引——必须显式记下来。
+    skipped_scan_pages: tuple[int, ...] = ()
+
+    @property
+    def status(self) -> str:
+        if self.parser == OCR_PARSER:
+            return "mineru_ocr"
+        if self.parser == HYBRID_PAGE_PARSER:
+            return "mineru_ocr_hybrid"
+        return "text_layer_only" if self.skipped_scan_pages else "pending"
 
 
 @dataclass(frozen=True)
@@ -55,6 +83,7 @@ class PlannedFile:
     parser: str | None
     parser_status: str
     notes: list[str] = field(default_factory=list)
+    parse_report: dict = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -88,10 +117,10 @@ def classify(path: Path) -> tuple[str, str, str | None]:
     return TEXT_KIND, TEXT_NEWLINE_LF_V1, "utf-8"
 
 
-def parser_for(kind: str, path: Path, *, ocr: bool) -> str:
+def parser_for(kind: str, path: Path, *, pdf_plan: PdfPlan | None) -> str:
     """解析器名会写进manifest，重建索引时据此复现同一份解析结果。"""
     if kind == PDF_KIND:
-        return OCR_PARSER if ocr else PDF_PARSER
+        return pdf_plan.parser if pdf_plan else PDF_PARSER
     return PARSER_BY_SUFFIX.get(path.suffix.lower(), parser_for_path(path))
 
 
@@ -112,21 +141,35 @@ def plan_corpus(
     library: str,
     version: str,
     corpus_id: str,
-    ocr_paths: frozenset[Path] = frozenset(),
+    pdf_plans: dict[Path, PdfPlan] | None = None,
     excluded: dict[Path, str] | None = None,
 ) -> CorpusPlan:
-    """读取每个文件的字节、算双Hash并决定是否可检索；不写盘。"""
-    excluded = excluded or {}
+    """读取每个文件的字节、算双Hash并决定是否可检索；不写盘。
+
+    PDF 的解析安排由调用方先算好（`PdfPlan`）：本模块不导入 ocr，
+    检测和决策留在 `wenjin.ingestion.ocr`，这里只消费结果。
+    """
+    if excluded is None:
+        excluded = {}
+    if pdf_plans is None:
+        pdf_plans = {}
     files = []
     for path in sorted(collect_files(source)):
         kind, normalization, encoding = classify(path)
         raw = path.read_bytes()
         hashed = hash_content(raw, normalization=normalization, encoding=encoding)
+        plan = pdf_plans.get(path)
         notes = []
         if path in excluded:
             notes.append(excluded[path])
         if kind == ARCHIVE_KIND:
             notes.append("容器或二进制格式：仅归档，不参与检索")
+        if plan is not None and plan.skipped_scan_pages:
+            # 不静默：这些页不会被索引，必须在入库时和manifest里都看得见。
+            notes.append(
+                f"第 {list(plan.skipped_scan_pages)} 页没有可用文字层且未启用OCR："
+                "这些页不会被索引"
+            )
         eligible = kind != ARCHIVE_KIND and path not in excluded
         files.append(PlannedFile(
             path=path,
@@ -138,11 +181,12 @@ def plan_corpus(
             canonical_sha256=hashed.canonical_sha256,
             size=len(raw),
             eligible=eligible,
-            parser=parser_for(kind, path, ocr=path in ocr_paths) if eligible else None,
-            parser_status=(
-                "mineru_ocr" if path in ocr_paths else ("pending" if eligible else "not_indexed")
+            parser=parser_for(kind, path, pdf_plan=plan) if eligible else None,
+            parser_status=plan.status if (eligible and plan) else (
+                "pending" if eligible else "not_indexed"
             ),
             notes=notes,
+            parse_report=dict(plan.report) if (plan and kind == PDF_KIND) else {},
         ))
     if not files:
         raise ValueError(f"来源里没有可入库的文件：{source}")
@@ -204,6 +248,12 @@ def build_manifest(
             provenance["intranet_url"] = intranet_url
         if not item.eligible:
             provenance["excluded_reason"] = "；".join(item.notes) or "不可检索"
+        if item.parse_report:
+            # 检测事实随 manifest 长期保存：入库之后仍能只凭 manifest 复核
+            # "这份 PDF 当时为什么走 OCR""哪些页没有被索引"。
+            provenance["parse_report"] = item.parse_report
+        if item.notes:
+            provenance["notes"] = list(item.notes)
         entries.append({
             "path": item.relative,
             "raw_sha256": item.raw_sha256,
@@ -243,7 +293,12 @@ def build_manifest(
 
 
 def materialize(plan: CorpusPlan, raw_root: Path) -> list[str]:
-    """把原文复制进raw_data；已存在且Hash相同的文件跳过，冲突则拒绝。"""
+    """把原文复制进raw_data；已存在且Hash相同的文件跳过，冲突则拒绝。
+
+    `raw_root` 是**语料根**（`raw_data/<library>/<version>`），不是 `raw_data`。
+    它和 `retrieve_chunk_counts` / `load_retrieval_documents` 的同名参数不是一回事：
+    那两个接的是 `raw_data` 根，会自己接上 manifest 的 `raw_data_subdir`。
+    """
     import hashlib
 
     written = []

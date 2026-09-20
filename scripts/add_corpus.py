@@ -50,14 +50,20 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def resolve_paths(arguments: argparse.Namespace) -> tuple[Path, Path, Path]:
-    corpus_id = f"{arguments.library}-{arguments.version}"
+def resolve_paths(arguments: argparse.Namespace) -> tuple[str, str, str, Path, Path, Path]:
+    from wenjin.corpus_identity import validate_identifier
+
+    # library/version会进入corpus_id和磁盘路径，必须是安全标识符：
+    # 拒绝绝对路径、分隔符、`..`和平台特殊路径，避免越出语料目录。
+    library = validate_identifier(arguments.library, field="library")
+    version = validate_identifier(arguments.version, field="version")
+    corpus_id = f"{library}-{version}"
     base = ROOT / ("corpora" if arguments.visibility == "public" else "corpora-private")
     manifest_path = base / corpus_id / "source-manifest.json"
-    raw_root = ROOT / "raw_data" / arguments.library / arguments.version
+    raw_root = ROOT / "raw_data" / library / version
     if manifest_path.exists():
         raise SystemExit(f"语料已存在，拒绝覆盖：{manifest_path}")
-    return corpus_id, manifest_path, raw_root
+    return corpus_id, library, version, manifest_path, raw_root
 
 
 def print_plan(plan: intake.CorpusPlan) -> None:
@@ -90,8 +96,13 @@ def ensure_access_policy(corpus_id: str, visibility: str) -> None:
               f"--grant {corpus_id} --client <client_id>")
 
 
-def build_index(manifest_path: Path, arguments: argparse.Namespace, corpus_id: str):
-    """建独立候选索引；不切换active，只打印切换命令。"""
+def build_index(manifest_path: Path, arguments: argparse.Namespace, *,
+                corpus_id: str, library: str, version: str, visibility: str):
+    """建独立候选索引；不切换active，只打印切换命令。
+
+    library/version用校验后的值（validate_identifier会去掉首尾空白），
+    不能用原始参数，否则collection名可能和corpus_id对不上。
+    """
     from qdrant_client import QdrantClient
 
     from wenjin.index_registry import validate_target
@@ -101,7 +112,7 @@ def build_index(manifest_path: Path, arguments: argparse.Namespace, corpus_id: s
     settings = Settings()
     client = QdrantClient(url=settings.qdrant_url, api_key=settings.qdrant_api_key)
     suffix = arguments.strategy.replace("-", "_")
-    collection = f"{arguments.library}_{arguments.version}_dense_{suffix}".replace(".", "_")
+    collection = f"{library}_{version}_dense_{suffix}".replace(".", "_")
     bm25 = ROOT / "data/indexes" / f"{collection}_bm25.sqlite"
     target_id = f"{corpus_id}-{arguments.strategy}"
     try:
@@ -114,7 +125,12 @@ def build_index(manifest_path: Path, arguments: argparse.Namespace, corpus_id: s
         validate_target(target, root=ROOT, qdrant_client=client)
     finally:
         client.close()
-    config_path = ROOT / "configs/indexes" / f"{target_id}.json"
+    # 内部语料的配置写到被忽略的目录：配置里有内部库名和版本，
+    # 放进可提交目录等于绕过 `corpora-private/` 的忽略规则把它泄露出去。
+    from wenjin.catalog import index_config_dir
+
+    config_path = index_config_dir(ROOT, visibility=visibility) / f"{target_id}.json"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
     config_path.write_text(
         json.dumps(asdict(target), ensure_ascii=False, indent=2), encoding="utf-8", newline="\n"
     )
@@ -125,33 +141,62 @@ def build_index(manifest_path: Path, arguments: argparse.Namespace, corpus_id: s
           ' --reason "..."')
 
 
-def main() -> None:
-    arguments = parse_arguments()
-    from wenjin.ingestion.ocr import check_mineru, decide_ocr
+def plan_pdfs(inspections, *, ocr_mode: str, assume_yes: bool):
+    """决定每个PDF的解析安排，并把"哪些页不会被索引"显式说出来。
 
-    source = arguments.source.resolve()
-    corpus_id, manifest_path, raw_root = resolve_paths(arguments)
+    返回 (pdf_plans, excluded)。检测事实随 plan 写进 manifest，
+    入库之后不必重跑检测也能复核当时的选择。
+    """
+    from wenjin.ingestion.ocr import (
+        check_mineru,
+        choose_pdf_parser,
+        decide_ocr,
+        describe_scan_need,
+        skipped_scan_pages,
+    )
 
-    inspections = intake.scan_pdfs(intake.collect_files(source))
-    # 没有扫描件时连探测都不做：普通文件入库不应该依赖MinerU是否在线。
-    if inspections:
+    # 没有扫描页时连探测都不做：普通文件入库不应该依赖MinerU是否在线。
+    if any(item.needs_ocr for item in inspections):
         decision = decide_ocr(
-            inspections,
-            status=check_mineru(),
-            mode=arguments.ocr,
-            assume_yes=arguments.yes,
-            ask=interactive_ask,
+            inspections, status=check_mineru(), mode=ocr_mode,
+            assume_yes=assume_yes, ask=interactive_ask,
         )
     else:
-        decision = decide_ocr([], status=None)
+        decision = decide_ocr(inspections, status=None)
     for message in decision.messages:
         print(message)
 
+    plans = {}
+    for item in inspections:
+        parser = choose_pdf_parser(item, enabled=decision.enabled)
+        skipped = skipped_scan_pages(item, parser)
+        plans[item.path] = intake.PdfPlan(parser=parser, report=item.to_report(),
+                                          skipped_scan_pages=tuple(skipped))
+        if skipped:
+            print(f"注意：{item.path.name} 第 {skipped} 页没有可用文字层且未启用OCR，"
+                  "这些页不会被索引。")
+    # describe_scan_need 在这里再报一次：上面只说了检测事实，这里说清实际执行了什么。
+    if decision.enabled:
+        for line in describe_scan_need(inspections):
+            print(f"OCR目标：{line}")
+    return plans, decision.excluded
+
+
+def main() -> None:
+    arguments = parse_arguments()
+
+    source = arguments.source.resolve()
+    corpus_id, library, version, manifest_path, raw_root = resolve_paths(arguments)
+
+    inspections = intake.scan_pdfs(intake.collect_files(source))
+    pdf_plans, excluded = plan_pdfs(
+        inspections, ocr_mode=arguments.ocr, assume_yes=arguments.yes
+    )
     plan = intake.plan_corpus(
-        source=source, library=arguments.library, version=arguments.version,
+        source=source, library=library, version=version,
         corpus_id=corpus_id,
-        ocr_paths=frozenset(item.path for item in inspections if decision.enabled),
-        excluded=decision.excluded,
+        pdf_plans=pdf_plans,
+        excluded=excluded,
     )
     print_plan(plan)
     manifest = intake.build_manifest(
@@ -184,7 +229,8 @@ def main() -> None:
     if arguments.no_build:
         print("\n--no-build：已跳过索引构建。")
         return
-    build_index(manifest_path, arguments, corpus_id)
+    build_index(manifest_path, arguments, corpus_id=corpus_id,
+                library=library, version=version, visibility=arguments.visibility)
 
 
 if __name__ == "__main__":

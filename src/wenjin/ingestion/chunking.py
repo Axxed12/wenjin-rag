@@ -7,6 +7,7 @@ blocks-split 三种策略。它们用于理解和对照实验，不是最终的 
 from dataclasses import dataclass
 
 from wenjin.content_hashing import sha256_hex
+from wenjin.parser_names import is_ocr_derived
 
 
 @dataclass(frozen=True)
@@ -26,6 +27,13 @@ class Chunk:
     normalization: str | None = None
     page_number: int | None = None
     logical_document_id: str | None = None
+    # 片段真实来自哪套解析。它必须进索引：只写在 manifest 里的话，检索结果本身
+    # 无法说明"这段正文是 OCR 识别来的"，用户会把它当成原文引用。
+    parser: str | None = None
+
+    @property
+    def ocr_derived(self) -> bool:
+        return is_ocr_derived(self.parser)
 
 
 def _make_chunk(
@@ -62,6 +70,7 @@ def _make_chunk(
         normalization=document.get("normalization"),
         page_number=document.get("page_number"),
         logical_document_id=document.get("logical_document_id"),
+        parser=document.get("parser"),
     )
 
 

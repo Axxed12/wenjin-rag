@@ -90,6 +90,10 @@ def evidence_record(result: dict, source_urls: dict[str, str], *, rank: int) -> 
         "end_line": result["end_line"],
         "page_number": result.get("page_number"),
         "logical_document_id": result.get("logical_document_id"),
+        # 证据必须自带来源性质：OCR识别的正文不能和原文文本长得一样。
+        # 旧索引没有这两个字段时为 None，表示未知，而不是"确认是原文"。
+        "parser": result.get("parser"),
+        "ocr_derived": result.get("ocr_derived"),
         "text": result["text"],
         "rrf_score": result.get("rrf_score"),
         "rerank_score": result.get("rerank_score"),

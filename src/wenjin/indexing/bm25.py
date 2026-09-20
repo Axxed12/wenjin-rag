@@ -55,6 +55,8 @@ def build_bm25_index(path: Path, chunks: list) -> None:
                 normalization UNINDEXED,
                 page_number UNINDEXED,
                 logical_document_id UNINDEXED,
+                parser UNINDEXED,
+                ocr_derived UNINDEXED,
                 retrieval_text,
                 raw_text UNINDEXED,
                 tokenize='unicode61'
@@ -75,6 +77,8 @@ def build_bm25_index(path: Path, chunks: list) -> None:
                 chunk.normalization,
                 chunk.page_number,
                 chunk.logical_document_id,
+                chunk.parser,
+                int(chunk.ocr_derived),
                 # 路径也进入检索表示，让类/文件名可以参与关键词召回。
                 f"{chunk.source_path}\n{chunk.text}",
                 chunk.text,
@@ -82,7 +86,7 @@ def build_bm25_index(path: Path, chunks: list) -> None:
             for chunk in chunks
         ]
         database.executemany(
-            "INSERT INTO chunks VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", rows
+            "INSERT INTO chunks VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", rows
         )
         database.execute("INSERT INTO chunks(chunks) VALUES('optimize')")
         database.commit()
@@ -111,12 +115,16 @@ def bm25_query(
             if "logical_document_id" in columns
             else "NULL AS logical_document_id"
         )
+        # 旧索引没有 parser/ocr_derived 列。缺失时返回 None 而不是 False：
+        # "没有这列"和"确认不是 OCR"是两件事，后者不能由缺失推断出来。
+        parser_select = "parser" if "parser" in columns else "NULL AS parser"
+        ocr_select = "ocr_derived" if "ocr_derived" in columns else "NULL AS ocr_derived"
         source_clause = " AND source_path LIKE ?" if source_prefix else ""
         parameters = (expression, source_prefix, top_k) if source_prefix else (expression, top_k)
         rows = database.execute(
             f"""
             SELECT chunk_id, source_path, version, start_line, end_line, strategy,
-                   {page_select}, {logical_select},
+                   {page_select}, {logical_select}, {parser_select}, {ocr_select},
                    raw_text, bm25(chunks) AS raw_bm25
             FROM chunks
             WHERE chunks MATCH ?
@@ -138,6 +146,8 @@ def bm25_query(
             "strategy": row["strategy"],
             "page_number": row["page_number"],
             "logical_document_id": row["logical_document_id"],
+            "parser": row["parser"],
+            "ocr_derived": None if row["ocr_derived"] is None else bool(row["ocr_derived"]),
             "text": row["raw_text"],
             "matched_terms": terms,
         }

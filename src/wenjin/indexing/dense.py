@@ -56,6 +56,9 @@ def create_dense_collection(
                         "normalization": chunk.normalization,
                         "page_number": chunk.page_number,
                         "logical_document_id": chunk.logical_document_id,
+                        # OCR 标记必须随向量一起存：证据要能说明正文是识别来的。
+                        "parser": chunk.parser,
+                        "ocr_derived": chunk.ocr_derived,
                     },
                 )
             )
