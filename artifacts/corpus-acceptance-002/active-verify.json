@@ -1,0 +1,53 @@
+{
+  "route_id": "configs\\indexes\\osg-3.6.5-blocks-dualhash.json",
+  "status": "PASS",
+  "total_chunks": 307,
+  "targets": [
+    {
+      "target_id": "osg-3.6.5-blocks-dualhash-003",
+      "library": "osg",
+      "version": "3.6.5",
+      "strategy": "blocks",
+      "dense_collection": "osg_3_6_5_dense_blocks_dualhash",
+      "bm25_path": "data/indexes/osg_3_6_5_bm25_blocks_dualhash.sqlite",
+      "chunk_count": 307,
+      "vector_dimension": 1024,
+      "collection_status": "green",
+      "bm25_columns": [
+        "chunk_id",
+        "content_sha256",
+        "end_line",
+        "normalization",
+        "raw_text",
+        "retrieval_text",
+        "source_canonical_sha256",
+        "source_path",
+        "source_raw_sha256",
+        "start_line",
+        "strategy",
+        "version"
+      ],
+      "manifest_records": 30,
+      "retrieval_scope_files": 29,
+      "problems": {
+        "duplicate_chunk_ids": [],
+        "duplicate_manifest_paths": [],
+        "empty_chunk_ids": [],
+        "id_sets_differ": [],
+        "legacy_schema_mismatch": [],
+        "text_mismatch": [],
+        "content_hash_mismatch": [],
+        "source_path_unmapped": [],
+        "outside_retrieval_scope": [],
+        "source_hash_mismatch": [],
+        "normalization_mismatch": [],
+        "logical_document_id_mismatch": [],
+        "position_mismatch": [],
+        "version_mismatch": [],
+        "strategy_mismatch": []
+      },
+      "status": "PASS"
+    }
+  ],
+  "boundary": "逐条核验索引与manifest的绑定；未做检索效果评测，不代表检索质量通过。"
+}

@@ -1,0 +1,566 @@
+{
+  "schema_version": 2,
+  "note": "Development evidence coverage only; no query retrieval was executed. Coverage here means 'the evidence entered some chunk', not 'retrieval will find it'. Two bases are reported and are NOT comparable: line_intersection (weak) and evidence_text (strong). The earlier chunk-lab-001-coverage.json report contains only the line_intersection basis and is left untouched.",
+  "strategies": {
+    "fixed": {
+      "question_count": 10,
+      "spans_with_undecidable_lines": 0,
+      "partial_line_chunks_in_hits": 0,
+      "coverage_basis": {
+        "all_evidence_spans_hit": "line_intersection",
+        "all_evidence_spans_in_one_chunk": "line_intersection",
+        "all_evidence_text_covered": "evidence_text"
+      },
+      "all_evidence_spans_hit": 10,
+      "all_evidence_spans_in_one_chunk": 5,
+      "all_evidence_text_covered": 10,
+      "details": [
+        {
+          "id": "osg-dev-001",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": true,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/Geode",
+                "start_line": 42,
+                "end_line": 52
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/Geode:fixed:0001"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-002",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": false,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/Geode",
+                "start_line": 28,
+                "end_line": 28
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/Geode:fixed:0000",
+                "3.6.5:include/osg/Geode:fixed:0001"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            },
+            {
+              "evidence": {
+                "path": "include/osg/Group",
+                "start_line": 45,
+                "end_line": 53
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/Group:fixed:0001"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            },
+            {
+              "evidence": {
+                "path": "src/osg/Geode.cpp",
+                "start_line": 38,
+                "end_line": 41
+              },
+              "chunk_ids": [
+                "3.6.5:src/osg/Geode.cpp:fixed:0000"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-003",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": false,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/Group",
+                "start_line": 25,
+                "end_line": 53
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/Group:fixed:0000",
+                "3.6.5:include/osg/Group:fixed:0001"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-004",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": true,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osgDB/ReadFile",
+                "start_line": 308,
+                "end_line": 325
+              },
+              "chunk_ids": [
+                "3.6.5:include/osgDB/ReadFile:fixed:0013"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-005",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": false,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/StateSet",
+                "start_line": 373,
+                "end_line": 391
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/StateSet:fixed:0016",
+                "3.6.5:include/osg/StateSet:fixed:0017"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-006",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": true,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/MatrixTransform",
+                "start_line": 43,
+                "end_line": 44
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/MatrixTransform:fixed:0001"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-007",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": false,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/Transform",
+                "start_line": 97,
+                "end_line": 122
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/Transform:fixed:0003",
+                "3.6.5:include/osg/Transform:fixed:0004"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-008",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": true,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "examples/osgtexture2D/osgtexture2D.cpp",
+                "start_line": 170,
+                "end_line": 176
+              },
+              "chunk_ids": [
+                "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:fixed:0005",
+                "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:fixed:0006"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-009",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": true,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/Billboard",
+                "start_line": 43,
+                "end_line": 50
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/Billboard:fixed:0001"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-010",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": false,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/ref_ptr",
+                "start_line": 37,
+                "end_line": 41
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/ref_ptr:fixed:0000",
+                "3.6.5:include/osg/ref_ptr:fixed:0001"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        }
+      ]
+    },
+    "blocks": {
+      "question_count": 10,
+      "spans_with_undecidable_lines": 0,
+      "partial_line_chunks_in_hits": 0,
+      "coverage_basis": {
+        "all_evidence_spans_hit": "line_intersection",
+        "all_evidence_spans_in_one_chunk": "line_intersection",
+        "all_evidence_text_covered": "evidence_text"
+      },
+      "all_evidence_spans_hit": 10,
+      "all_evidence_spans_in_one_chunk": 5,
+      "all_evidence_text_covered": 10,
+      "details": [
+        {
+          "id": "osg-dev-001",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": true,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/Geode",
+                "start_line": 42,
+                "end_line": 52
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/Geode:blocks:0001"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-002",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": false,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/Geode",
+                "start_line": 28,
+                "end_line": 28
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/Geode:blocks:0000"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            },
+            {
+              "evidence": {
+                "path": "include/osg/Group",
+                "start_line": 45,
+                "end_line": 53
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/Group:blocks:0001"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            },
+            {
+              "evidence": {
+                "path": "src/osg/Geode.cpp",
+                "start_line": 38,
+                "end_line": 41
+              },
+              "chunk_ids": [
+                "3.6.5:src/osg/Geode.cpp:blocks:0000"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-003",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": false,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/Group",
+                "start_line": 25,
+                "end_line": 53
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/Group:blocks:0000",
+                "3.6.5:include/osg/Group:blocks:0001"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-004",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": false,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osgDB/ReadFile",
+                "start_line": 308,
+                "end_line": 325
+              },
+              "chunk_ids": [
+                "3.6.5:include/osgDB/ReadFile:blocks:0010",
+                "3.6.5:include/osgDB/ReadFile:blocks:0011"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-005",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": true,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/StateSet",
+                "start_line": 373,
+                "end_line": 391
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/StateSet:blocks:0013"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-006",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": true,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/MatrixTransform",
+                "start_line": 43,
+                "end_line": 44
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/MatrixTransform:blocks:0000"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-007",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": false,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/Transform",
+                "start_line": 97,
+                "end_line": 122
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/Transform:blocks:0003",
+                "3.6.5:include/osg/Transform:blocks:0004"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-008",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": true,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "examples/osgtexture2D/osgtexture2D.cpp",
+                "start_line": 170,
+                "end_line": 176
+              },
+              "chunk_ids": [
+                "3.6.5:examples/osgtexture2D/osgtexture2D.cpp:blocks:0004"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-009",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": false,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/Billboard",
+                "start_line": 43,
+                "end_line": 50
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/Billboard:blocks:0000",
+                "3.6.5:include/osg/Billboard:blocks:0001"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        },
+        {
+          "id": "osg-dev-010",
+          "all_evidence_spans_hit": true,
+          "all_evidence_spans_in_one_chunk": true,
+          "all_evidence_text_covered": true,
+          "spans": [
+            {
+              "evidence": {
+                "path": "include/osg/ref_ptr",
+                "start_line": 37,
+                "end_line": 41
+              },
+              "chunk_ids": [
+                "3.6.5:include/osg/ref_ptr:blocks:0000"
+              ],
+              "evidence_text_covered": true,
+              "missing_lines": [],
+              "undecidable_lines": [],
+              "partial_line_chunks": [],
+              "text_range_conflicts": []
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

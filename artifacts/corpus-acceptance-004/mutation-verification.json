@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "restored_byte_identical": true,
+  "mutations": [
+    {
+      "mutation": "D2 表格只读 text 字段（旧行为）",
+      "pytest": "2 failed, 4 passed, 51 deselected in 0.32s"
+    },
+    {
+      "mutation": "D4 去掉缺页检查",
+      "pytest": "1 failed, 1 passed, 55 deselected in 0.32s"
+    },
+    {
+      "mutation": "D4 去掉页码越界检查",
+      "pytest": "1 failed, 56 deselected in 0.33s"
+    },
+    {
+      "mutation": "D1 无文本层的页一律当成扫描页（旧行为）",
+      "pytest": "6 failed, 5 passed, 46 deselected in 0.40s"
+    },
+    {
+      "mutation": "D1b 混合件退回整份 OCR",
+      "pytest": "1 failed, 3 passed, 53 deselected in 0.33s"
+    },
+    {
+      "mutation": "D3 审计完全不核验 OCR 标记",
+      "pytest": "10 failed, 7 passed, 35 deselected in 1.33s"
+    },
+    {
+      "mutation": "D3 标记为空时直接放过（失效开放）",
+      "pytest": "1 failed, 3 passed, 48 deselected in 0.98s"
+    },
+    {
+      "mutation": "P1 只用允许集合判断，不看逐页计划",
+      "pytest": "2 failed, 2 passed, 48 deselected in 0.96s"
+    },
+    {
+      "mutation": "P1 把页级谓词当文件级要求（混合件漏掉强核验）",
+      "pytest": "1 failed, 2 passed, 49 deselected in 0.98s"
+    },
+    {
+      "mutation": "P2 用解析器输出当预期页数（旧行为）",
+      "pytest": "4 failed, 7 passed, 46 deselected in 0.37s"
+    }
+  ]
+}

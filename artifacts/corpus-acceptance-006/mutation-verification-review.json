@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "restored_byte_identical": true,
+  "mutations": [
+    {
+      "mutation": "R1 Git 不再忽略运行时注册表",
+      "pytest": "1 failed, 1 passed, 17 deselected in 0.09s"
+    },
+    {
+      "mutation": "R2 覆盖率退回直接拼接（重叠片段被误判成缺口）",
+      "pytest": "2 failed, 8 deselected in 0.09s"
+    },
+    {
+      "mutation": "R3 缺行不再报出（把缺口抹平）",
+      "pytest": "3 failed, 2 passed, 5 deselected in 0.09s"
+    },
+    {
+      "mutation": "R4 README 恢复 64 个证据区间联合完整覆盖",
+      "pytest": "1 failed, 7 passed, 11 deselected in 0.10s"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "restored_byte_identical": true,
+  "mutations": [
+    {
+      "mutation": "C1 半行片段重新计作整行覆盖",
+      "pytest": "3 failed, 1 passed, 12 deselected in 0.09s"
+    },
+    {
+      "mutation": "C2 子串检查退回互为子串（虚报范围被放过）",
+      "pytest": "4 failed, 1 passed, 11 deselected in 0.10s"
+    },
+    {
+      "mutation": "C3 无法判定的行重新算作覆盖",
+      "pytest": "3 failed, 2 passed, 11 deselected in 0.09s"
+    },
+    {
+      "mutation": "B1 建库入口重新读运行时注册表",
+      "pytest": "2 failed, 1 passed, 21 deselected in 0.98s"
+    },
+    {
+      "mutation": "B2 BM25 入口重新读运行时注册表",
+      "pytest": "2 failed, 1 passed, 21 deselected in 7.75s"
+    },
+    {
+      "mutation": "B3 README 顺序改回先注册表后建库",
+      "pytest": "1 failed, 23 deselected in 0.11s"
+    }
+  ]
+}

@@ -1,7 +1,8 @@
 {
-  "index": "<project-root>\\data\\indexes\\osg_3_6_5_bm25_blocks.sqlite",
+  "index": "<user-home>\\AppData\\Local\\Temp\\pytest-of-Onebiter\\pytest-314\\test_bm25_script_writes_every_0\\fresh\\data\\indexes\\osg_3_6_5_bm25_blocks_dualhash.sqlite",
   "strategy": "blocks",
-  "chunk_count": 313,
-  "seconds": 0.027,
+  "chunk_count": 1,
+  "index_target_id": "osg-3.6.5-blocks-dualhash-003",
+  "seconds": 0.009,
   "note": "FTS5/BM25 keyword baseline; no retrieval quality claim."
 }

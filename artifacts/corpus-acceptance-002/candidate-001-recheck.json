@@ -1,6 +1,5 @@
 {
   "route_id": "multicorpus-candidates-001",
-  "route_path": "configs/indexes/multicorpus-candidates-001.json",
   "status": "PASS",
   "total_chunks": 1496,
   "targets": [
@@ -16,26 +15,19 @@
       "collection_status": "green",
       "bm25_metadata_rows": 42,
       "qdrant_metadata_points": 42,
-      "page_number_chunks": {
-        "bm25": 0,
-        "qdrant": 0
+      "manifest_records": 15,
+      "retrieval_scope_files": 13,
+      "problems": {
+        "id_sets_differ": [],
+        "text_mismatch": [],
+        "content_hash_mismatch": [],
+        "source_path_unmapped": [],
+        "source_hash_mismatch": [],
+        "normalization_mismatch": [],
+        "logical_document_id_mismatch": [],
+        "version_mismatch": [],
+        "strategy_mismatch": []
       },
-      "logical_document_id_chunks": {
-        "bm25": 42,
-        "qdrant": 42
-      },
-      "checks": {
-        "bm25_ids_unique": true,
-        "qdrant_ids_unique": true,
-        "chunk_id_sets_equal": true,
-        "payload_field_mismatches": 0,
-        "text_hash_mismatches": 0,
-        "page_number_matches": true,
-        "logical_document_id_matches": true,
-        "dual_hash_complete": true
-      },
-      "mismatched_fields": [],
-      "text_hash_mismatch_examples": [],
       "status": "PASS"
     },
     {
@@ -50,26 +42,19 @@
       "collection_status": "green",
       "bm25_metadata_rows": 306,
       "qdrant_metadata_points": 306,
-      "page_number_chunks": {
-        "bm25": 0,
-        "qdrant": 0
+      "manifest_records": 17,
+      "retrieval_scope_files": 14,
+      "problems": {
+        "id_sets_differ": [],
+        "text_mismatch": [],
+        "content_hash_mismatch": [],
+        "source_path_unmapped": [],
+        "source_hash_mismatch": [],
+        "normalization_mismatch": [],
+        "logical_document_id_mismatch": [],
+        "version_mismatch": [],
+        "strategy_mismatch": []
       },
-      "logical_document_id_chunks": {
-        "bm25": 306,
-        "qdrant": 306
-      },
-      "checks": {
-        "bm25_ids_unique": true,
-        "qdrant_ids_unique": true,
-        "chunk_id_sets_equal": true,
-        "payload_field_mismatches": 0,
-        "text_hash_mismatches": 0,
-        "page_number_matches": true,
-        "logical_document_id_matches": true,
-        "dual_hash_complete": true
-      },
-      "mismatched_fields": [],
-      "text_hash_mismatch_examples": [],
       "status": "PASS"
     },
     {
@@ -84,26 +69,19 @@
       "collection_status": "green",
       "bm25_metadata_rows": 58,
       "qdrant_metadata_points": 58,
-      "page_number_chunks": {
-        "bm25": 0,
-        "qdrant": 0
+      "manifest_records": 12,
+      "retrieval_scope_files": 9,
+      "problems": {
+        "id_sets_differ": [],
+        "text_mismatch": [],
+        "content_hash_mismatch": [],
+        "source_path_unmapped": [],
+        "source_hash_mismatch": [],
+        "normalization_mismatch": [],
+        "logical_document_id_mismatch": [],
+        "version_mismatch": [],
+        "strategy_mismatch": []
       },
-      "logical_document_id_chunks": {
-        "bm25": 58,
-        "qdrant": 58
-      },
-      "checks": {
-        "bm25_ids_unique": true,
-        "qdrant_ids_unique": true,
-        "chunk_id_sets_equal": true,
-        "payload_field_mismatches": 0,
-        "text_hash_mismatches": 0,
-        "page_number_matches": true,
-        "logical_document_id_matches": true,
-        "dual_hash_complete": true
-      },
-      "mismatched_fields": [],
-      "text_hash_mismatch_examples": [],
       "status": "PASS"
     },
     {
@@ -118,26 +96,19 @@
       "collection_status": "green",
       "bm25_metadata_rows": 888,
       "qdrant_metadata_points": 888,
-      "page_number_chunks": {
-        "bm25": 611,
-        "qdrant": 611
+      "manifest_records": 2,
+      "retrieval_scope_files": 2,
+      "problems": {
+        "id_sets_differ": [],
+        "text_mismatch": [],
+        "content_hash_mismatch": [],
+        "source_path_unmapped": [],
+        "source_hash_mismatch": [],
+        "normalization_mismatch": [],
+        "logical_document_id_mismatch": [],
+        "version_mismatch": [],
+        "strategy_mismatch": []
       },
-      "logical_document_id_chunks": {
-        "bm25": 888,
-        "qdrant": 888
-      },
-      "checks": {
-        "bm25_ids_unique": true,
-        "qdrant_ids_unique": true,
-        "chunk_id_sets_equal": true,
-        "payload_field_mismatches": 0,
-        "text_hash_mismatches": 0,
-        "page_number_matches": true,
-        "logical_document_id_matches": true,
-        "dual_hash_complete": true
-      },
-      "mismatched_fields": [],
-      "text_hash_mismatch_examples": [],
       "status": "PASS"
     },
     {
@@ -152,28 +123,21 @@
       "collection_status": "green",
       "bm25_metadata_rows": 202,
       "qdrant_metadata_points": 202,
-      "page_number_chunks": {
-        "bm25": 194,
-        "qdrant": 194
+      "manifest_records": 2,
+      "retrieval_scope_files": 2,
+      "problems": {
+        "id_sets_differ": [],
+        "text_mismatch": [],
+        "content_hash_mismatch": [],
+        "source_path_unmapped": [],
+        "source_hash_mismatch": [],
+        "normalization_mismatch": [],
+        "logical_document_id_mismatch": [],
+        "version_mismatch": [],
+        "strategy_mismatch": []
       },
-      "logical_document_id_chunks": {
-        "bm25": 202,
-        "qdrant": 202
-      },
-      "checks": {
-        "bm25_ids_unique": true,
-        "qdrant_ids_unique": true,
-        "chunk_id_sets_equal": true,
-        "payload_field_mismatches": 0,
-        "text_hash_mismatches": 0,
-        "page_number_matches": true,
-        "logical_document_id_matches": true,
-        "dual_hash_complete": true
-      },
-      "mismatched_fields": [],
-      "text_hash_mismatch_examples": [],
       "status": "PASS"
     }
   ],
-  "boundary": "只核验索引资产一致性；未做检索效果评测，不代表检索质量通过。"
+  "boundary": "逐条核验索引与manifest的绑定；未做检索效果评测，不代表检索质量通过。"
 }

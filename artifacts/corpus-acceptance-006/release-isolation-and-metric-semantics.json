@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "isolation_rules": {
+    "dockerignore": [
+      ".git",
+      ".venv",
+      ".pytest_cache",
+      ".ruff_cache",
+      "__pycache__",
+      "*.pyc",
+      ".env",
+      "artifacts",
+      "evaluation/ragas/.venv",
+      "data/packages",
+      "data/chunks",
+      "data/parsed",
+      "raw_data",
+      "configs/access",
+      "corpora-private",
+      "configs/indexes-private",
+      "*.md",
+      "data/indexes"
+    ],
+    "gitignore_private_index_configs": [
+      "configs/indexes-private/"
+    ],
+    "image_must_not_contain": [
+      "configs/access",
+      "corpora-private",
+      "configs/indexes-private"
+    ],
+    "verified_by": "tests/test_release_isolation.py（静态检查 Dockerfile 的 COPY 与忽略规则）",
+    "note": "本轮未构建镜像（开发期禁止重建），结论来自读取 Dockerfile 与 .dockerignore。"
+  },
+  "coverage_metric_semantics": {
+    "note": "Development evidence coverage only; no query retrieval was executed. Coverage here means 'the evidence entered some chunk', not 'retrieval will find it'. Two bases are reported and are NOT comparable: line_intersection (weak) and evidence_text (strong). The earlier chunk-lab-001-coverage.json report contains only the line_intersection basis and is left untouched.",
+    "bases": [
+      "line_intersection（弱）",
+      "page_present（弱，按页来源）",
+      "evidence_text（强）"
+    ],
+    "per_strategy": {
+      "fixed": {
+        "line_intersection": 10,
+        "line_intersection_one_chunk": 5,
+        "evidence_text": 6,
+        "question_count": 10
+      },
+      "blocks": {
+        "line_intersection": 10,
+        "line_intersection_one_chunk": 5,
+        "evidence_text": 10,
+        "question_count": 10
+      }
+    },
+    "old_report_left_untouched": "artifacts/runs/chunk-lab-001-coverage.json",
+    "new_report": "artifacts/runs/chunk-lab-002-coverage-line-and-text.json"
+  },
+  "multiformat_report_labels": {
+    "report": "artifacts/corpus-acceptance-002/validation-chunking-comparison.json",
+    "change": "新增 metric_semantics 与逐条 coverage_basis；数值逐字节未变（已核对）"
+  }
+}

@@ -1,0 +1,327 @@
+{
+  "scope": "第一、二批修复的只读验收；未改动任何manifest、索引配置或注册表",
+  "identity": [
+    {
+      "label": "active",
+      "target_id": "osg-3.6.5-blocks-dualhash-003",
+      "explicit_corpus_id": null,
+      "resolved": "osg-3.6.5",
+      "source": "manifest",
+      "directory": "osg-3.6.5"
+    },
+    {
+      "label": "configs/indexes/gdal-3.13.1-blocks-candidate-001.json",
+      "target_id": "gdal-3.13.1-blocks-candidate-001",
+      "explicit_corpus_id": null,
+      "resolved": "gdal-3.13.1",
+      "source": "manifest",
+      "directory": "gdal-3.13.1"
+    },
+    {
+      "label": "configs/indexes/gdal-3.13.1-blocks-split-candidate-002.json",
+      "target_id": "gdal-3.13.1-blocks-split-candidate-002",
+      "explicit_corpus_id": null,
+      "resolved": "gdal-3.13.1",
+      "source": "manifest",
+      "directory": "gdal-3.13.1"
+    },
+    {
+      "label": "configs/indexes/multicorpus-candidates-001.json",
+      "target_id": "osgearth-3.8-blocks-candidate-001",
+      "explicit_corpus_id": null,
+      "resolved": "osgearth-3.8",
+      "source": "manifest",
+      "directory": "osgearth-3.8"
+    },
+    {
+      "label": "configs/indexes/multicorpus-candidates-001.json",
+      "target_id": "gdal-3.13.1-blocks-candidate-001",
+      "explicit_corpus_id": null,
+      "resolved": "gdal-3.13.1",
+      "source": "manifest",
+      "directory": "gdal-3.13.1"
+    },
+    {
+      "label": "configs/indexes/multicorpus-candidates-001.json",
+      "target_id": "proj-9.8.1-blocks-candidate-001",
+      "explicit_corpus_id": null,
+      "resolved": "proj-9.8.1",
+      "source": "manifest",
+      "directory": "proj-9.8.1"
+    },
+    {
+      "label": "configs/indexes/multicorpus-candidates-001.json",
+      "target_id": "ogc-3dtiles-1.1-blocks-candidate-001",
+      "explicit_corpus_id": null,
+      "resolved": "ogc-3dtiles-1.1",
+      "source": "manifest",
+      "directory": "ogc-3dtiles-1.1"
+    },
+    {
+      "label": "configs/indexes/multicorpus-candidates-001.json",
+      "target_id": "ogc-wms-1.3.0-blocks-candidate-001",
+      "explicit_corpus_id": null,
+      "resolved": "ogc-wms-1.3.0",
+      "source": "manifest",
+      "directory": "ogc-wms-1.3.0"
+    },
+    {
+      "label": "configs/indexes/multicorpus-candidates-002.json",
+      "target_id": "osgearth-3.8-blocks-split-candidate-002",
+      "explicit_corpus_id": null,
+      "resolved": "osgearth-3.8",
+      "source": "manifest",
+      "directory": "osgearth-3.8"
+    },
+    {
+      "label": "configs/indexes/multicorpus-candidates-002.json",
+      "target_id": "gdal-3.13.1-blocks-split-candidate-002",
+      "explicit_corpus_id": null,
+      "resolved": "gdal-3.13.1",
+      "source": "manifest",
+      "directory": "gdal-3.13.1"
+    },
+    {
+      "label": "configs/indexes/multicorpus-candidates-002.json",
+      "target_id": "proj-9.8.1-blocks-split-candidate-002",
+      "explicit_corpus_id": null,
+      "resolved": "proj-9.8.1",
+      "source": "manifest",
+      "directory": "proj-9.8.1"
+    },
+    {
+      "label": "configs/indexes/multicorpus-candidates-002.json",
+      "target_id": "ogc-3dtiles-1.1-blocks-split-candidate-002",
+      "explicit_corpus_id": null,
+      "resolved": "ogc-3dtiles-1.1",
+      "source": "manifest",
+      "directory": "ogc-3dtiles-1.1"
+    },
+    {
+      "label": "configs/indexes/multicorpus-candidates-002.json",
+      "target_id": "ogc-wms-1.3.0-blocks-split-candidate-002",
+      "explicit_corpus_id": null,
+      "resolved": "ogc-wms-1.3.0",
+      "source": "manifest",
+      "directory": "ogc-wms-1.3.0"
+    },
+    {
+      "label": "configs/indexes/ogc-3dtiles-1.1-blocks-candidate-001.json",
+      "target_id": "ogc-3dtiles-1.1-blocks-candidate-001",
+      "explicit_corpus_id": null,
+      "resolved": "ogc-3dtiles-1.1",
+      "source": "manifest",
+      "directory": "ogc-3dtiles-1.1"
+    },
+    {
+      "label": "configs/indexes/ogc-3dtiles-1.1-blocks-split-candidate-002.json",
+      "target_id": "ogc-3dtiles-1.1-blocks-split-candidate-002",
+      "explicit_corpus_id": null,
+      "resolved": "ogc-3dtiles-1.1",
+      "source": "manifest",
+      "directory": "ogc-3dtiles-1.1"
+    },
+    {
+      "label": "configs/indexes/ogc-wms-1.3.0-blocks-candidate-001.json",
+      "target_id": "ogc-wms-1.3.0-blocks-candidate-001",
+      "explicit_corpus_id": null,
+      "resolved": "ogc-wms-1.3.0",
+      "source": "manifest",
+      "directory": "ogc-wms-1.3.0"
+    },
+    {
+      "label": "configs/indexes/ogc-wms-1.3.0-blocks-split-candidate-002.json",
+      "target_id": "ogc-wms-1.3.0-blocks-split-candidate-002",
+      "explicit_corpus_id": null,
+      "resolved": "ogc-wms-1.3.0",
+      "source": "manifest",
+      "directory": "ogc-wms-1.3.0"
+    },
+    {
+      "label": "configs/indexes/osg-3.6.5-blocks-dualhash.json",
+      "target_id": "osg-3.6.5-blocks-dualhash-003",
+      "explicit_corpus_id": null,
+      "resolved": "osg-3.6.5",
+      "source": "manifest",
+      "directory": "osg-3.6.5"
+    },
+    {
+      "label": "configs/indexes/osgearth-3.8-blocks-candidate-001.json",
+      "target_id": "osgearth-3.8-blocks-candidate-001",
+      "explicit_corpus_id": null,
+      "resolved": "osgearth-3.8",
+      "source": "manifest",
+      "directory": "osgearth-3.8"
+    },
+    {
+      "label": "configs/indexes/osgearth-3.8-blocks-split-candidate-002.json",
+      "target_id": "osgearth-3.8-blocks-split-candidate-002",
+      "explicit_corpus_id": null,
+      "resolved": "osgearth-3.8",
+      "source": "manifest",
+      "directory": "osgearth-3.8"
+    },
+    {
+      "label": "configs/indexes/proj-9.8.1-blocks-candidate-001.json",
+      "target_id": "proj-9.8.1-blocks-candidate-001",
+      "explicit_corpus_id": null,
+      "resolved": "proj-9.8.1",
+      "source": "manifest",
+      "directory": "proj-9.8.1"
+    },
+    {
+      "label": "configs/indexes/proj-9.8.1-blocks-split-candidate-002.json",
+      "target_id": "proj-9.8.1-blocks-split-candidate-002",
+      "explicit_corpus_id": null,
+      "resolved": "proj-9.8.1",
+      "source": "manifest",
+      "directory": "proj-9.8.1"
+    }
+  ],
+  "chunk_path_cases": [
+    {
+      "corpus_id": "osg-3.6.5",
+      "chunk_source_path": "include/osg/Node",
+      "download_path": "/files/osg-3.6.5/include/osg/Node",
+      "registered": true,
+      "resolved_relative": "include/osg/Node",
+      "bytes": 24307,
+      "raw_sha256_matches": true,
+      "media_type": "text/plain",
+      "inline": true,
+      "error": null
+    },
+    {
+      "corpus_id": "osg-3.6.5",
+      "chunk_source_path": "include/osg/Group",
+      "download_path": "/files/osg-3.6.5/include/osg/Group",
+      "registered": true,
+      "resolved_relative": "include/osg/Group",
+      "bytes": 7306,
+      "raw_sha256_matches": true,
+      "media_type": "text/plain",
+      "inline": true,
+      "error": null
+    },
+    {
+      "corpus_id": "proj-9.8.1",
+      "chunk_source_path": "raw_data/proj/9.8.1/README.md",
+      "download_path": "/files/proj-9.8.1/README.md",
+      "registered": true,
+      "resolved_relative": "README.md",
+      "bytes": 3664,
+      "raw_sha256_matches": true,
+      "media_type": "text/markdown",
+      "inline": true,
+      "error": null
+    },
+    {
+      "corpus_id": "proj-9.8.1",
+      "chunk_source_path": "raw_data/proj/9.8.1/man/man1/projsync.1",
+      "download_path": "/files/proj-9.8.1/man/man1/projsync.1",
+      "registered": true,
+      "resolved_relative": "man/man1/projsync.1",
+      "bytes": 6300,
+      "raw_sha256_matches": true,
+      "media_type": "text/plain",
+      "inline": true,
+      "error": null
+    },
+    {
+      "corpus_id": "ogc-3dtiles-1.1",
+      "chunk_source_path": "raw_data/ogc-3dtiles/1.1/22-025r4.pdf",
+      "download_path": "/files/ogc-3dtiles-1.1/22-025r4.pdf",
+      "registered": true,
+      "resolved_relative": "22-025r4.pdf",
+      "bytes": 51092867,
+      "raw_sha256_matches": true,
+      "media_type": "application/pdf",
+      "inline": true,
+      "error": null
+    },
+    {
+      "corpus_id": "ogc-wms-1.3.0",
+      "chunk_source_path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "download_path": "/files/ogc-wms-1.3.0/06-042.pdf",
+      "registered": true,
+      "resolved_relative": "06-042.pdf",
+      "bytes": 776825,
+      "raw_sha256_matches": true,
+      "media_type": "application/pdf",
+      "inline": true,
+      "error": null
+    },
+    {
+      "corpus_id": "osgearth-3.8",
+      "chunk_source_path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+      "download_path": "/files/osgearth-3.8/docs/source/earthfile.md",
+      "registered": true,
+      "resolved_relative": "docs/source/earthfile.md",
+      "bytes": 4519,
+      "raw_sha256_matches": true,
+      "media_type": "text/markdown",
+      "inline": true,
+      "error": null
+    }
+  ],
+  "negative_cases": [
+    {
+      "case": "未登记文件",
+      "blocked": true,
+      "detail": "文件未登记在manifest中：include/osg/DoesNotExist"
+    },
+    {
+      "case": "跨语料路径",
+      "blocked": true,
+      "detail": "证据来源不属于该语料：raw_data/proj/9.8.1/README.md"
+    },
+    {
+      "case": "目录逃逸",
+      "blocked": true,
+      "detail": "路径不能包含 ..：../README.md"
+    },
+    {
+      "case": "绝对路径",
+      "blocked": true,
+      "detail": "路径不能带盘符或根：/etc/passwd"
+    }
+  ],
+  "archives": {
+    "osgearth-3.8": {
+      "archived_files": 2,
+      "downloadable": 2,
+      "largest_mb": 122.5,
+      "failures": []
+    },
+    "gdal-3.13.1": {
+      "archived_files": 3,
+      "downloadable": 3,
+      "largest_mb": 28.71,
+      "failures": []
+    },
+    "proj-9.8.1": {
+      "archived_files": 3,
+      "downloadable": 3,
+      "largest_mb": 5.7,
+      "failures": []
+    }
+  },
+  "encoding": [
+    {
+      "case": "空格与特殊字符",
+      "input": "docs/a b#c?d/note.md",
+      "download_path": "/files/demo-1.0/docs/a%20b%23c%3Fd/note.md",
+      "expected": "/files/demo-1.0/docs/a%20b%23c%3Fd/note.md",
+      "ok": true
+    },
+    {
+      "case": "中文文件名",
+      "input": "docs/中文 文件.md",
+      "download_path": "/files/demo-1.0/docs/%E4%B8%AD%E6%96%87%20%E6%96%87%E4%BB%B6.md",
+      "expected": "/files/demo-1.0/docs/%E4%B8%AD%E6%96%87%20%E6%96%87%E4%BB%B6.md",
+      "ok": true
+    }
+  ],
+  "status": "PASS",
+  "failures": []
+}

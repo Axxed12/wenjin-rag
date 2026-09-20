@@ -1,0 +1,143 @@
+{
+  "mineru": {
+    "available": true,
+    "detail": "服务在线"
+  },
+  "inspections": {
+    "mixed.pdf": {
+      "pages": 3,
+      "text_pages": 2,
+      "scan_pages": [
+        2
+      ],
+      "no_text_pages": [],
+      "thresholds": {
+        "scan_image_coverage": 0.5
+      }
+    },
+    "normal.pdf": {
+      "pages": 3,
+      "text_pages": 2,
+      "scan_pages": [],
+      "no_text_pages": [
+        2
+      ],
+      "thresholds": {
+        "scan_image_coverage": 0.5
+      }
+    },
+    "scan.pdf": {
+      "pages": 2,
+      "text_pages": 0,
+      "scan_pages": [
+        1,
+        2
+      ],
+      "no_text_pages": [],
+      "thresholds": {
+        "scan_image_coverage": 0.5
+      }
+    }
+  },
+  "pdf_plans": {
+    "mixed.pdf": {
+      "parser": "mixed-text-ocr-page-v1",
+      "status": "mineru_ocr_hybrid",
+      "skipped_scan_pages": [],
+      "report": {
+        "pages": 3,
+        "text_pages": 2,
+        "scan_pages": [
+          2
+        ],
+        "no_text_pages": [],
+        "thresholds": {
+          "scan_image_coverage": 0.5
+        }
+      }
+    },
+    "normal.pdf": {
+      "parser": "pymupdf-page-v1",
+      "status": "pending",
+      "skipped_scan_pages": [],
+      "report": {
+        "pages": 3,
+        "text_pages": 2,
+        "scan_pages": [],
+        "no_text_pages": [
+          2
+        ],
+        "thresholds": {
+          "scan_image_coverage": 0.5
+        }
+      }
+    },
+    "scan.pdf": {
+      "parser": "mineru-ocr-page-v1",
+      "status": "mineru_ocr",
+      "skipped_scan_pages": [],
+      "report": {
+        "pages": 2,
+        "text_pages": 0,
+        "scan_pages": [
+          1,
+          2
+        ],
+        "no_text_pages": [],
+        "thresholds": {
+          "scan_image_coverage": 0.5
+        }
+      }
+    }
+  },
+  "chunk_counts": {
+    "raw_data/scanlab/1.0/mixed.pdf": 3,
+    "raw_data/scanlab/1.0/normal.pdf": 2,
+    "raw_data/scanlab/1.0/scan.pdf": 2
+  },
+  "empty_retrieval_entries": [],
+  "units_by_parser": {
+    "pymupdf-page-v1": 5,
+    "mineru-ocr-page-v1": 3
+  },
+  "units_by_ocr_marker": {
+    "False": 5,
+    "True": 3
+  },
+  "manifest_parse_reports": {
+    "mixed.pdf": {
+      "pages": 3,
+      "text_pages": 2,
+      "scan_pages": [
+        2
+      ],
+      "no_text_pages": [],
+      "thresholds": {
+        "scan_image_coverage": 0.5
+      }
+    },
+    "normal.pdf": {
+      "pages": 3,
+      "text_pages": 2,
+      "scan_pages": [],
+      "no_text_pages": [
+        2
+      ],
+      "thresholds": {
+        "scan_image_coverage": 0.5
+      }
+    },
+    "scan.pdf": {
+      "pages": 2,
+      "text_pages": 0,
+      "scan_pages": [
+        1,
+        2
+      ],
+      "no_text_pages": [],
+      "thresholds": {
+        "scan_image_coverage": 0.5
+      }
+    }
+  }
+}

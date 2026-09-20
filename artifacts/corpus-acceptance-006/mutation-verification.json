@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "restored_byte_identical": true,
+  "mutations": [
+    {
+      "mutation": "I1 镜像不再排除 ACL",
+      "pytest": "1 failed, 5 passed, 5 deselected in 0.11s"
+    },
+    {
+      "mutation": "I2 镜像不再排除非公开语料",
+      "pytest": "1 failed, 5 passed, 5 deselected in 0.10s"
+    },
+    {
+      "mutation": "I3 排除过头：把 Dockerfile 需要的 configs 也排除",
+      "pytest": "1 failed, 10 deselected in 0.10s"
+    },
+    {
+      "mutation": "I4 Git 不再忽略非公开语料的索引配置",
+      "pytest": "1 failed, 10 deselected in 0.13s"
+    },
+    {
+      "mutation": "I5 私有配置写回可提交目录",
+      "pytest": "1 failed, 10 deselected in 0.74s"
+    }
+  ]
+}

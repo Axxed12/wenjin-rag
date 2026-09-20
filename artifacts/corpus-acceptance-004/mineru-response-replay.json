@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "note": "字段名与适配器行为取自真实 MinerU 响应；不声明解析可复现，只声明输入Hash、参数、后端与版本已记录，服务变化时可比对。",
+  "replays": [
+    {
+      "tag": "saved-parse-lab",
+      "raw_response": "artifacts/runs/parse-lab-001/mineru-raw.json",
+      "source_pdf": "data/packages/parse-lab/scan.pdf",
+      "source_pdf_exists": true,
+      "source_pdf_sha256": "920b7d2c25fa8323d9ef0d9518dc85a10a497514b1c29802344e428086c5f7d2",
+      "mineru_backend": "pipeline",
+      "mineru_version": "3.4.5",
+      "request_parameters": {
+        "backend": "pipeline",
+        "parse_method": "ocr",
+        "return_md": "true",
+        "return_content_list": "true",
+        "formula_enable": "false",
+        "table_enable": "true"
+      },
+      "block_type_counts": {
+        "table": 1,
+        "page_number": 1
+      },
+      "block_fields": {
+        "table": [
+          "bbox",
+          "img_path",
+          "page_idx",
+          "table_body",
+          "table_caption",
+          "table_footnote",
+          "type"
+        ],
+        "page_number": [
+          "bbox",
+          "page_idx",
+          "text",
+          "type"
+        ]
+      },
+      "table_blocks": 1,
+      "table_blocks_have_text_field": false,
+      "adapter_output": {
+        "table_text_chars": 4962,
+        "table_text_lines": 34,
+        "old_adapter_would_yield": 0,
+        "first_lines": [
+          "NICS FirearmBackgroundChecksNovember -2015Pre-Pawn                                                       ned/Disposition              Rentals                  Private Sale               Return to Seller - Private SaleState / Territory                                                       Handgun  Long Gun   *Other   Handgun  Long Gun   *Other   Handgun  Long Gun            Handgun  Long Gun  Handgun  Long Gun   *Other   Handgun                        Totals",
+          " | Handgun | Long Gun | *Other | **Multiple | Admin |  | Pre-Pawn |  |  | Redemption |  | Ret | urned/Dispos | tion | Rer | tals |  | Private Sale |  | Return | to Seller - Priy | ate Sale",
+          "Handgun | Long Gun | *Other | Handgun | Long Gun | *Other | Handgun | Long Gun | *Other | Handgun | Long Gun | Handgun | Long Gun | *Other | Handgun | Long Gun | *Other"
+        ]
+      }
+    },
+    {
+      "tag": "live-original",
+      "raw_response": "artifacts/corpus-acceptance-004/mineru-responses/original-ocr.json",
+      "source_pdf": "data/packages/parse-lab/original.pdf",
+      "source_pdf_exists": true,
+      "source_pdf_sha256": "4f0ae6e017b0e97de211da8fd97316e55bd927af5740d6ce95e1b7b1539f9407",
+      "mineru_backend": "pipeline",
+      "mineru_version": "3.4.5",
+      "request_parameters": {
+        "backend": "pipeline",
+        "parse_method": "ocr",
+        "return_md": "false",
+        "return_content_list": "true",
+        "formula_enable": "false",
+        "table_enable": "true",
+        "lang_list": "en"
+      },
+      "block_type_counts": {
+        "table": 1,
+        "page_number": 1
+      },
+      "block_fields": {
+        "table": [
+          "bbox",
+          "img_path",
+          "page_idx",
+          "table_body",
+          "table_caption",
+          "table_footnote",
+          "type"
+        ],
+        "page_number": [
+          "bbox",
+          "page_idx",
+          "text",
+          "type"
+        ]
+      },
+      "table_blocks": 1,
+      "table_blocks_have_text_field": false,
+      "adapter_output": {
+        "table_text_chars": 4718,
+        "table_text_lines": 24,
+        "old_adapter_would_yield": 0,
+        "first_lines": [
+          "NICS FirearmBackgroundChecksNovember -2015Pre-Pawn                                                              ositior               Rentals                                           Return to Seller - Private SaleState / Territory                                                                                                 Long Gun            Handgun                        Handgun                       Long Gun   *Other   Handgun                        Totals",
+          "Permit | Handgun | Long Gun | *Other | **Multiple | Admin | Handgun |  |  |  | Redemption |  | Ret | urned/Dispos | tion | Rer | tals |  | Private Sale |  | Return | to Seller - Priy | ate Sale",
+          "Handgun | Long Gun | *Other | Handgun | Long Gun | *Other | Handgun | Long Gun | Handgun | Long Gun | *Other | Handgun | Long Gun | *Other"
+        ]
+      }
+    },
+    {
+      "tag": "live-wms-text",
+      "raw_response": "artifacts/corpus-acceptance-004/mineru-responses/wms-06-042-ocr.json",
+      "source_pdf": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+      "source_pdf_exists": true,
+      "source_pdf_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116",
+      "mineru_backend": "pipeline",
+      "mineru_version": "3.4.5",
+      "request_parameters": {
+        "backend": "pipeline",
+        "parse_method": "ocr",
+        "return_md": "false",
+        "return_content_list": "true",
+        "formula_enable": "false",
+        "table_enable": "true",
+        "lang_list": "en",
+        "start_page_id": "0",
+        "end_page_id": "5"
+      },
+      "block_type_counts": {
+        "text": 43,
+        "footer": 5,
+        "page_number": 6,
+        "header": 4
+      },
+      "block_fields": {
+        "text": [
+          "bbox",
+          "page_idx",
+          "text",
+          "text_level",
+          "type"
+        ],
+        "footer": [
+          "bbox",
+          "page_idx",
+          "text",
+          "type"
+        ],
+        "page_number": [
+          "bbox",
+          "page_idx",
+          "text",
+          "type"
+        ],
+        "header": [
+          "bbox",
+          "page_idx",
+          "text",
+          "type"
+        ]
+      },
+      "table_blocks": 0,
+      "table_blocks_have_text_field": false,
+      "adapter_output": {}
+    }
+  ]
+}

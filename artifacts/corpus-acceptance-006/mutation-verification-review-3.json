@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "restored_byte_identical": true,
+  "mutations": [
+    {
+      "mutation": "F1 加载器不再传解析器标记",
+      "pytest": "2 failed, 26 deselected, 1 warning in 6.92s"
+    },
+    {
+      "mutation": "F2 加载器不再传逻辑文档 ID",
+      "pytest": "2 failed, 26 deselected, 1 warning in 6.89s"
+    },
+    {
+      "mutation": "F3 BM25 报告写回固定仓库根",
+      "pytest": "1 failed, 27 deselected in 0.36s"
+    },
+    {
+      "mutation": "F4 BM25 报告不再创建父目录",
+      "pytest": "1 failed, 27 deselected in 0.39s"
+    }
+  ]
+}

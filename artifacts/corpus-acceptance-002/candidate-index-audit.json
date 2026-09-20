@@ -1,6 +1,5 @@
 {
   "route_id": "multicorpus-candidates-002",
-  "route_path": "configs/indexes/multicorpus-candidates-002.json",
   "status": "PASS",
   "total_chunks": 1691,
   "targets": [
@@ -14,28 +13,51 @@
       "chunk_count": 44,
       "vector_dimension": 1024,
       "collection_status": "green",
-      "bm25_metadata_rows": 44,
-      "qdrant_metadata_points": 44,
-      "page_number_chunks": {
-        "bm25": 0,
-        "qdrant": 0
+      "bm25_columns": [
+        "chunk_id",
+        "content_sha256",
+        "end_line",
+        "logical_document_id",
+        "normalization",
+        "page_number",
+        "raw_text",
+        "retrieval_text",
+        "source_canonical_sha256",
+        "source_path",
+        "source_raw_sha256",
+        "start_line",
+        "strategy",
+        "version"
+      ],
+      "manifest_records": 15,
+      "retrieval_scope_files": 13,
+      "parser_marker": {
+        "column_present": false,
+        "ocr_sources_in_manifest": [],
+        "ocr_source_chunks": 0,
+        "ocr_marker_verified_chunks": 0,
+        "verifiable": true
       },
-      "logical_document_id_chunks": {
-        "bm25": 44,
-        "qdrant": 44
+      "problems": {
+        "duplicate_chunk_ids": [],
+        "duplicate_manifest_paths": [],
+        "empty_chunk_ids": [],
+        "id_sets_differ": [],
+        "legacy_schema_mismatch": [],
+        "text_mismatch": [],
+        "content_hash_mismatch": [],
+        "source_path_unmapped": [],
+        "outside_retrieval_scope": [],
+        "source_hash_mismatch": [],
+        "normalization_mismatch": [],
+        "logical_document_id_mismatch": [],
+        "source_path_mismatch": [],
+        "position_mismatch": [],
+        "parser_mismatch": [],
+        "ocr_marker_mismatch": [],
+        "version_mismatch": [],
+        "strategy_mismatch": []
       },
-      "checks": {
-        "bm25_ids_unique": true,
-        "qdrant_ids_unique": true,
-        "chunk_id_sets_equal": true,
-        "payload_field_mismatches": 0,
-        "text_hash_mismatches": 0,
-        "page_number_matches": true,
-        "logical_document_id_matches": true,
-        "dual_hash_complete": true
-      },
-      "mismatched_fields": [],
-      "text_hash_mismatch_examples": [],
       "status": "PASS"
     },
     {
@@ -48,28 +70,51 @@
       "chunk_count": 344,
       "vector_dimension": 1024,
       "collection_status": "green",
-      "bm25_metadata_rows": 344,
-      "qdrant_metadata_points": 344,
-      "page_number_chunks": {
-        "bm25": 0,
-        "qdrant": 0
+      "bm25_columns": [
+        "chunk_id",
+        "content_sha256",
+        "end_line",
+        "logical_document_id",
+        "normalization",
+        "page_number",
+        "raw_text",
+        "retrieval_text",
+        "source_canonical_sha256",
+        "source_path",
+        "source_raw_sha256",
+        "start_line",
+        "strategy",
+        "version"
+      ],
+      "manifest_records": 17,
+      "retrieval_scope_files": 14,
+      "parser_marker": {
+        "column_present": false,
+        "ocr_sources_in_manifest": [],
+        "ocr_source_chunks": 0,
+        "ocr_marker_verified_chunks": 0,
+        "verifiable": true
       },
-      "logical_document_id_chunks": {
-        "bm25": 344,
-        "qdrant": 344
+      "problems": {
+        "duplicate_chunk_ids": [],
+        "duplicate_manifest_paths": [],
+        "empty_chunk_ids": [],
+        "id_sets_differ": [],
+        "legacy_schema_mismatch": [],
+        "text_mismatch": [],
+        "content_hash_mismatch": [],
+        "source_path_unmapped": [],
+        "outside_retrieval_scope": [],
+        "source_hash_mismatch": [],
+        "normalization_mismatch": [],
+        "logical_document_id_mismatch": [],
+        "source_path_mismatch": [],
+        "position_mismatch": [],
+        "parser_mismatch": [],
+        "ocr_marker_mismatch": [],
+        "version_mismatch": [],
+        "strategy_mismatch": []
       },
-      "checks": {
-        "bm25_ids_unique": true,
-        "qdrant_ids_unique": true,
-        "chunk_id_sets_equal": true,
-        "payload_field_mismatches": 0,
-        "text_hash_mismatches": 0,
-        "page_number_matches": true,
-        "logical_document_id_matches": true,
-        "dual_hash_complete": true
-      },
-      "mismatched_fields": [],
-      "text_hash_mismatch_examples": [],
       "status": "PASS"
     },
     {
@@ -82,28 +127,51 @@
       "chunk_count": 63,
       "vector_dimension": 1024,
       "collection_status": "green",
-      "bm25_metadata_rows": 63,
-      "qdrant_metadata_points": 63,
-      "page_number_chunks": {
-        "bm25": 0,
-        "qdrant": 0
+      "bm25_columns": [
+        "chunk_id",
+        "content_sha256",
+        "end_line",
+        "logical_document_id",
+        "normalization",
+        "page_number",
+        "raw_text",
+        "retrieval_text",
+        "source_canonical_sha256",
+        "source_path",
+        "source_raw_sha256",
+        "start_line",
+        "strategy",
+        "version"
+      ],
+      "manifest_records": 12,
+      "retrieval_scope_files": 9,
+      "parser_marker": {
+        "column_present": false,
+        "ocr_sources_in_manifest": [],
+        "ocr_source_chunks": 0,
+        "ocr_marker_verified_chunks": 0,
+        "verifiable": true
       },
-      "logical_document_id_chunks": {
-        "bm25": 63,
-        "qdrant": 63
+      "problems": {
+        "duplicate_chunk_ids": [],
+        "duplicate_manifest_paths": [],
+        "empty_chunk_ids": [],
+        "id_sets_differ": [],
+        "legacy_schema_mismatch": [],
+        "text_mismatch": [],
+        "content_hash_mismatch": [],
+        "source_path_unmapped": [],
+        "outside_retrieval_scope": [],
+        "source_hash_mismatch": [],
+        "normalization_mismatch": [],
+        "logical_document_id_mismatch": [],
+        "source_path_mismatch": [],
+        "position_mismatch": [],
+        "parser_mismatch": [],
+        "ocr_marker_mismatch": [],
+        "version_mismatch": [],
+        "strategy_mismatch": []
       },
-      "checks": {
-        "bm25_ids_unique": true,
-        "qdrant_ids_unique": true,
-        "chunk_id_sets_equal": true,
-        "payload_field_mismatches": 0,
-        "text_hash_mismatches": 0,
-        "page_number_matches": true,
-        "logical_document_id_matches": true,
-        "dual_hash_complete": true
-      },
-      "mismatched_fields": [],
-      "text_hash_mismatch_examples": [],
       "status": "PASS"
     },
     {
@@ -116,28 +184,51 @@
       "chunk_count": 1025,
       "vector_dimension": 1024,
       "collection_status": "green",
-      "bm25_metadata_rows": 1025,
-      "qdrant_metadata_points": 1025,
-      "page_number_chunks": {
-        "bm25": 683,
-        "qdrant": 683
+      "bm25_columns": [
+        "chunk_id",
+        "content_sha256",
+        "end_line",
+        "logical_document_id",
+        "normalization",
+        "page_number",
+        "raw_text",
+        "retrieval_text",
+        "source_canonical_sha256",
+        "source_path",
+        "source_raw_sha256",
+        "start_line",
+        "strategy",
+        "version"
+      ],
+      "manifest_records": 2,
+      "retrieval_scope_files": 2,
+      "parser_marker": {
+        "column_present": false,
+        "ocr_sources_in_manifest": [],
+        "ocr_source_chunks": 0,
+        "ocr_marker_verified_chunks": 0,
+        "verifiable": true
       },
-      "logical_document_id_chunks": {
-        "bm25": 1025,
-        "qdrant": 1025
+      "problems": {
+        "duplicate_chunk_ids": [],
+        "duplicate_manifest_paths": [],
+        "empty_chunk_ids": [],
+        "id_sets_differ": [],
+        "legacy_schema_mismatch": [],
+        "text_mismatch": [],
+        "content_hash_mismatch": [],
+        "source_path_unmapped": [],
+        "outside_retrieval_scope": [],
+        "source_hash_mismatch": [],
+        "normalization_mismatch": [],
+        "logical_document_id_mismatch": [],
+        "source_path_mismatch": [],
+        "position_mismatch": [],
+        "parser_mismatch": [],
+        "ocr_marker_mismatch": [],
+        "version_mismatch": [],
+        "strategy_mismatch": []
       },
-      "checks": {
-        "bm25_ids_unique": true,
-        "qdrant_ids_unique": true,
-        "chunk_id_sets_equal": true,
-        "payload_field_mismatches": 0,
-        "text_hash_mismatches": 0,
-        "page_number_matches": true,
-        "logical_document_id_matches": true,
-        "dual_hash_complete": true
-      },
-      "mismatched_fields": [],
-      "text_hash_mismatch_examples": [],
       "status": "PASS"
     },
     {
@@ -150,30 +241,53 @@
       "chunk_count": 215,
       "vector_dimension": 1024,
       "collection_status": "green",
-      "bm25_metadata_rows": 215,
-      "qdrant_metadata_points": 215,
-      "page_number_chunks": {
-        "bm25": 200,
-        "qdrant": 200
+      "bm25_columns": [
+        "chunk_id",
+        "content_sha256",
+        "end_line",
+        "logical_document_id",
+        "normalization",
+        "page_number",
+        "raw_text",
+        "retrieval_text",
+        "source_canonical_sha256",
+        "source_path",
+        "source_raw_sha256",
+        "start_line",
+        "strategy",
+        "version"
+      ],
+      "manifest_records": 2,
+      "retrieval_scope_files": 2,
+      "parser_marker": {
+        "column_present": false,
+        "ocr_sources_in_manifest": [],
+        "ocr_source_chunks": 0,
+        "ocr_marker_verified_chunks": 0,
+        "verifiable": true
       },
-      "logical_document_id_chunks": {
-        "bm25": 215,
-        "qdrant": 215
+      "problems": {
+        "duplicate_chunk_ids": [],
+        "duplicate_manifest_paths": [],
+        "empty_chunk_ids": [],
+        "id_sets_differ": [],
+        "legacy_schema_mismatch": [],
+        "text_mismatch": [],
+        "content_hash_mismatch": [],
+        "source_path_unmapped": [],
+        "outside_retrieval_scope": [],
+        "source_hash_mismatch": [],
+        "normalization_mismatch": [],
+        "logical_document_id_mismatch": [],
+        "source_path_mismatch": [],
+        "position_mismatch": [],
+        "parser_mismatch": [],
+        "ocr_marker_mismatch": [],
+        "version_mismatch": [],
+        "strategy_mismatch": []
       },
-      "checks": {
-        "bm25_ids_unique": true,
-        "qdrant_ids_unique": true,
-        "chunk_id_sets_equal": true,
-        "payload_field_mismatches": 0,
-        "text_hash_mismatches": 0,
-        "page_number_matches": true,
-        "logical_document_id_matches": true,
-        "dual_hash_complete": true
-      },
-      "mismatched_fields": [],
-      "text_hash_mismatch_examples": [],
       "status": "PASS"
     }
   ],
-  "boundary": "只核验索引资产一致性；未做检索效果评测，不代表检索质量通过。"
+  "boundary": "逐条核验索引与manifest的绑定；未做检索效果评测，不代表检索质量通过。"
 }

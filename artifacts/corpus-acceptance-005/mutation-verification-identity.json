@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "restored_byte_identical": true,
+  "mutations": [
+    {
+      "mutation": "D1 构造时不检查 target_id 唯一性",
+      "pytest": "1 failed, 20 deselected in 7.10s"
+    },
+    {
+      "mutation": "D2 同库同版本多目标不再报歧义",
+      "pytest": "1 failed, 20 deselected in 6.64s"
+    },
+    {
+      "mutation": "D3 融合退回裸 chunk_id 做键",
+      "pytest": "1 failed, 1 passed, 19 deselected in 6.61s"
+    },
+    {
+      "mutation": "D4 路由不再传跨目标身份键",
+      "pytest": "1 failed, 20 deselected in 6.90s"
+    },
+    {
+      "mutation": "D5 冲突的重复 target 配置静默取第一份",
+      "pytest": "1 failed, 1 passed, 34 deselected in 0.14s"
+    }
+  ]
+}
