@@ -12,6 +12,11 @@ artifacts/tls/
 *.key
 # 可由脚本重建的本地索引和解析衍生件
 data/indexes/*.sqlite
+# 运行时索引注册表：记录当前 active 目标及其切换历史。
+# 把它当成本地部署状态，不是源码——切到非公开目标后，active/history/events 里会留下
+# 内部 corpus 的 target_id、collection 名和 manifest 路径；即使之后切回公开目标，
+# 那些字段仍留在历史记录里。新克隆用 `manage_indexes.py init` 就地生成。
+data/indexes/index-registry.json
 data/packages/parse-lab/scan.pdf
 data/packages/parse-lab/page-image.png
 artifacts/runs/parse-lab-001/*.png
@@ -23,6 +28,9 @@ models/
 raw_data/
 # 非公开语料：manifest里含内部文件名和目录结构，同样不能进公开仓库。
 corpora-private/
+# 非公开语料的索引目标配置：配置里有内部corpus_id和manifest路径。
+# 只忽略corpora-private/是不够的——配置默认写在configs/indexes/，那条路会绕过忽略规则。
+configs/indexes-private/
 # 访问策略是部署配置：client_id与部署环境绑定，内部语料的corpus_id也会泄露内部命名。
 configs/access/
 # 本轮验收候选包含原始资料副本；仅提交正式manifest和精简验收证据。

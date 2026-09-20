@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 
 from wenjin.content_hashing import TEXT_NEWLINE_LF_V1, hash_content
+from wenjin.ingestion.multiformat import parser_for_path
 
 # __file__ 是当前脚本的位置，不是终端的工作目录。
 # 因此，从其他目录启动这个脚本也能找到默认的来源清单。
@@ -105,6 +106,14 @@ def load_documents(
                 "normalization": hashed.normalization,
                 "encoding": hashed.encoding,
                 "text": text,
+                # 解析器标记必须跟着 chunk 进索引。不传的话新索引会写成
+                # parser=NULL + ocr_derived=False，完整准入判它"来源信息不完整"
+                # （"有ocr_derived标记但缺少parser"）——建库能过、init 过不去。
+                # 这些文件是逐行保留的纯文本，用与 multiformat 同一套后缀映射。
+                "parser": parser_for_path(file_path),
+                # manifest 声明了就必须传下去，否则索引侧为空、与登记值对不上。
+                # 旧 manifest 没有这个字段，取到 None，行为与之前一致。
+                "logical_document_id": entry.get("logical_document_id"),
             }
         )
 

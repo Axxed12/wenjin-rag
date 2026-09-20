@@ -18,6 +18,15 @@ from wenjin.ingestion.multiformat import load_retrieval_documents
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = ROOT / "artifacts/corpus-acceptance-002/validation-chunking-comparison.json"
 MAX_CHARS = 1600
+# 覆盖率有两种判定依据，数值不可互相比较，报告里逐条标出用的是哪一种：
+#   page_present —— 按页来源只登记物理页，只能判"该页有 chunk"（弱）；
+#   evidence_text —— 把命中同一证据的 chunk 拼起来，证据原文确实出现在其中（强）。
+PAGE_BASIS = "page_present"
+TEXT_BASIS = "evidence_text_rebuild"
+METRIC_SEMANTICS = {
+    "page_present": "该物理页有 chunk；不校验证据内容是否落在文本里",
+    "evidence_text_rebuild": "按原文顺序拼接命中 chunk，证据原文必须完整出现",
+}
 HISTOGRAM_BUCKETS = (
     (0, 200),
     (200, 400),
@@ -91,9 +100,11 @@ def evaluate_strategy(documents: list[dict], validation: list[dict], *, split_ov
             }
             if evidence.get("page") is not None:
                 # PDF证据只登记物理页，没有行号或锚点，因此只能判定"该页有chunk"。
+                # 这是**弱口径**：它不说明证据内容真的落在切出来的文本里。
                 hits = [chunk for chunk in chunks if chunk.page_number == evidence["page"]]
                 record.update(
                     level="page",
+                    coverage_basis=PAGE_BASIS,
                     hits=len(hits),
                     contained_in_one_chunk=bool(hits),
                     covered_by_chunk_union=bool(hits),
@@ -115,6 +126,7 @@ def evaluate_strategy(documents: list[dict], validation: list[dict], *, split_ov
                 ]
                 record.update(
                     level="line",
+                    coverage_basis=TEXT_BASIS,
                     hits=len(hits),
                     contained_in_one_chunk=bool(expected) and bool(single),
                     covered_by_chunk_union=bool(expected) and expected in joined,
@@ -191,6 +203,8 @@ def main() -> None:
             "命中同一证据的chunk按原文顺序拼接后必须包含证据原文（折叠空白后比较）；"
             "PDF证据只登记物理页，按页判定并单列"
         ),
+        # 逐条记录都带 coverage_basis；这里再给出全表对照，避免把两种口径混着读。
+        "metric_semantics": METRIC_SEMANTICS,
         "boundary": (
             "只验证切片是否覆盖证据原文，未生成Embedding，也未做任何检索排名；"
             "覆盖不等于检索时能召回"

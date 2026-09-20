@@ -11,3 +11,17 @@ data/packages
 data/chunks
 data/parsed
 raw_data
+
+# 镜像里**不带**访问策略：client_id 与部署环境绑定，内部语料的 corpus_id 也会
+# 泄露内部命名。configs/access/ 缺省为空时判定是"默认拒绝所有人"，容器能启动但
+# 不服务任何语料，直到运行时把它挂载进来（见 compose.yaml）。
+configs/access
+# 非公开语料及其索引配置不进构建上下文。
+corpora-private
+configs/indexes-private
+
+# 文档不进镜像：容器不读文档，而这些文件含本机环境、调试记录和内部说明。
+*.md
+
+# 本地索引与注册表由 compose 挂载进来，不烘进镜像。
+data/indexes

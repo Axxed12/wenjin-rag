@@ -74,11 +74,29 @@ uv run python scripts/verify_corpus_hashes.py
 
 docker compose up -d qdrant
 uv run python scripts/check_environment.py --models
+# 建索引资产。两个入口**不读运行时注册表**，产物名取自已提交的目标配置，
+# 所以新克隆（还没有注册表）也能直接跑。
 uv run python scripts/build_dense_index.py --strategy blocks
 uv run python scripts/build_bm25_index.py --strategy blocks
+
+# 完整校验：确认 manifest、BM25、Qdrant 三份资产对得上。
 uv run python scripts/manage_indexes.py validate configs/indexes/osg-3.6.5-blocks-dualhash.json
+
+# 初始化运行时注册表（记录"当前 active 用哪个索引"）。它不进 Git，属于本机部署状态；
+# 用 init 就地生成，已存在时会拒绝覆盖。必须在索引建好并通过校验之后。
+uv run python scripts/manage_indexes.py init configs/indexes/osg-3.6.5-blocks-dualhash.json `
+    --reason "本机首次初始化"
+
+# 初始化访问策略。它同样不进 Git；少了这一步，检索、列表、下载**全部拒绝**
+# （默认拒绝是设计行为，不是故障）。
+uv run python scripts/manage_access.py --sync
+
 uv run python scripts/search_docs.py "Viewer 的 run() 做什么？" --top-k 2
 ```
+
+顺序不能颠倒：**语料 → 建索引 → 完整校验 → 注册表 → 访问策略 → 查询**。
+建索引需要索引资产、注册表初始化需要索引已通过校验，把注册表放在建索引之前会形成
+"建库要先有注册表、初始化注册表要先有索引"的循环。
 
 启动 MCP 并调用：
 
@@ -128,6 +146,10 @@ uv run python scripts/search_routed.py "WMS 和 osgEarth 的版本约定" --max-
 | RRF | 0.870 | 0.84 | 0.737 |
 | + 0.6B 重排 | **0.970** | **0.96** | **0.917** |
 
+> **"全证据@5" 是混合口径，两列不可互换读**：文本类证据要求命中的 chunk 覆盖到证据
+> **行区间**；PDF 证据只登记物理页、没有行号或锚点，只能判"该页有 chunk"。
+> 一张表里同时含这两种证据，"全证据"不等于每段证据的原文都被完整覆盖。
+
 重排单题延时 0.574 ± 0.125 秒（本机 GPU）。复现：
 
 ```powershell
@@ -149,7 +171,18 @@ uv run python evaluation/run_multicorpus_eval.py
 | `blocks-split` | 同上，但超长块按行、必要时按字符切到硬上限 | 1691 | **0（最长 1600）** |
 
 `blocks-split` 的片段不重叠且连续，保留原始行号/物理页码，单行被硬切时多个片段共享同一
-行号但 chunk ID 唯一。两种策略下 validation 的 64 个证据区间都由 chunk 联合完整覆盖。
+行号但 chunk ID 唯一。
+
+validation 共 64 个证据区间，**按判定依据拆开看**（两种策略都是同样结果）：
+
+| 依据 | 区间数 | 结果 |
+|---|---:|---|
+| 证据文本（按行位置合并，校验文本与范围一致） | 51 | 0 失败 |
+| PDF 物理页（只能判"该页有 chunk"） | 13 | 不是证据原文覆盖 |
+
+所以能说的是：**51 个文本证据区间完整进入 chunk**；13 个 PDF 证据只做到"该页有 chunk"，
+原文是否落在切出来的文本里**没有验证**，不能并进同一个数字里说"64 个全部覆盖"。
+两种依据的定义见 `src/wenjin/coverage.py`。
 
 ## 添加自己的文档
 
@@ -165,9 +198,22 @@ uv run python scripts/add_corpus.py --library mylib --version 1.0 --source ./我
 - 压缩包等容器格式只归档、不参与检索，原因如实写进 manifest。
 - 标为可检索却切不出任何内容的文件会让整次入库**失败并指出文件名**，不会静默丢弃。
 
-**扫描件**：检测到 PDF 页没有文本层时，先确认本机有没有 MinerU 服务，在线才问一次
-「是否启用 OCR」；MinerU 不在则明确告知并把扫描件转为只归档。非交互环境用
-`--ocr always` / `--ocr never` / `--yes`。
+**扫描件**：逐页判定三态——有文字层 / 没有文字层但有整页图像（送 OCR）/ 两者都没有
+（空白页或纯图形页，送 OCR 也没有内容可取）。只有第二类才触发确认，提示语只陈述
+检测到的事实（页数、依据），不替用户下"这是扫描件"的结论。
+
+确认前先探测本机 MinerU：服务不在则明确告知，并把含扫描页的文件转为只归档。
+非交互环境用 `--ocr always` / `--ocr never` / `--yes`。
+
+**当前行为**（与设计意图不同，按实际行为写明）：
+
+- 同意 OCR 时，同类文件里同时有文字层页和扫描页的，**文字层页保留文本层、只有扫描页
+  走 OCR**，不会整份重跑；文件级解析器记为 `mixed-text-ocr-page-v1`；
+- **拒绝 OCR 时整份文件只归档、不参与检索**，包括其中本来完好的文字层页。
+  `decide_ocr()` 会把这个文件整个排除，所以"保留文字层页继续索引"目前**没有实现**；
+  `PdfPlan.text_layer_only` 与 `skipped_scan_pages` 那套分支在拒绝路径上不可达。
+
+切出来的 chunk 带 `parser` / `ocr_derived`，证据会说明正文是不是识别来的。
 
 ```powershell
 # 只想先看看会怎么处理，不写盘
@@ -180,8 +226,13 @@ uv run python scripts/add_corpus.py --library mylib --version 1.0 --source ./doc
 原文档本体**（PDF/HTML 浏览器内联打开），而不是只看抽出来的文本：
 
 ```
-GET /files/{corpus_id}/{raw_data相对路径}    # 复用同一个 Bearer 鉴权
+GET /files/{corpus_id}/{语料内登记路径}    # 复用同一个 Bearer 鉴权
 ```
+
+路径是 **manifest 里登记的文件路径**（也就是 chunk 的 `source_path` 去掉
+`raw_data/<subdir>/` 前缀之后的部分），不是磁盘上的 `raw_data/...` 相对路径。
+两者容易混：OSG 的登记路径形如 `include/osg/Node`，PROJ 的形如 `man/man1/projsync.1`。
+证据里直接给了拼好的 `download_path`，照着用即可。
 
 访问策略默认**拒绝**：没有策略文件的语料，检索、列表、下载全部不放行。
 
@@ -195,8 +246,20 @@ uv run python scripts/manage_access.py --grant mylib-1.0 --client agent-a
 - 内部语料**初始拒绝所有人**，必须显式 `--grant` 才能被读取；
 - 被拒绝时返回 `403`，不伪装成 404。
 
-MCP 另有 `list_corpora` 工具返回知识结构（库、版本、许可、文件数、是否已建索引），
+MCP 另有 `list_corpora` 工具返回知识结构（库、版本、许可、文件数、索引状态），
 **按调用方权限过滤**——没有权限的语料不会出现在列表里。
+
+索引状态分三档，`has_index_config` 只表示"有配置提到它"：
+
+| `index_state` | 含义 |
+|---|---|
+| `no_index_config` | 还没有索引目标引用这份 manifest |
+| `usable` | 预检通过：manifest 字节未变、BM25 可读且行数相符、collection 在且点数相符 |
+| `unusable` | 配置在但索引不可用（原因码见 `index_failures`） |
+
+> **`usable` 是预检结论，不是验收结论**：它只查"能不能服务查询"这四件事，
+> 不查 chunk 内容与位置。完整准入以
+> `scripts/verify_candidate_indexes.py`（内部走 `admit_index`）为准。
 
 > **边界**：本项目只**执行**访问策略，不**产生**策略。系统能识别的是"哪个客户端"
 > （Bearer 密钥映射的 client_id），不是"哪个人"。内网部署应把 `configs/access/` 换成
@@ -213,7 +276,9 @@ MCP 另有 `list_corpora` 工具返回知识结构（库、版本、许可、文
 
 ```powershell
 uv run python -m scripts.build_multicorpus_candidates --generation 002 --strategy blocks-split
-uv run python scripts/verify_candidate_indexes.py
+# 冻结前的只读复验：一次审计 configs/indexes 下的全部目标（含 active）。
+# Qdrant 不可用时会明确报"没连上"并退出码 1，不会伪装成索引不合格或通过。
+uv run python scripts/verify_candidate_indexes.py --all-targets
 uv run python scripts/manage_indexes.py status
 uv run python scripts/manage_indexes.py rollback --reason "..."
 uv run python scripts/demo_content_update.py
@@ -223,10 +288,21 @@ uv run python scripts/demo_modify_delete.py
 ## 安全边界
 
 - `.env`、本地模型、TLS 私钥、审计日志、生成的索引和原始语料都不提交 Git；
+- **运行时注册表 `data/indexes/index-registry.json` 也不提交**。它记录当前 active 目标
+  和切换历史；切到非公开目标后，active/history 里会有内部 manifest 路径与 collection 名，
+  回退后 `events` 仍保留内部 target_id。用 `manage_indexes.py init` 就地生成；
 - 审计默认只保存 Query / Session / 客户端 ID 的 SHA256；
 - 当前 Bearer 是“一把密钥一个客户端 ID”，不是多用户 IAM，也没有吊销中心；
 - 自签名 TLS 不替代企业 CA 或认证反向代理；
 - 数据库过滤不能代替调用方鉴权。
+
+**镜像里不带访问策略，也不带非公开语料**（`.dockerignore` 排除 `configs/access/`、
+`corpora-private/`、`configs/indexes-private/`）。因此：
+
+- `configs/access/` 必须在运行时挂载；不挂载时策略快照为空，判定是"默认拒绝所有人"
+  ——容器能启动，但不服务任何语料，这是设计上的 fail closed，不是故障；
+- **非公开语料不在镜像支持范围内**。要服务它们，需要同时挂载 `corpora-private/` 和
+  `configs/indexes-private/`（镜像不烘焙这两处，也不为它们提供默认路径）。
 
 ## 目录结构
 
@@ -249,7 +325,8 @@ corpora/<corpus-id>/         可提交的 manifest、来源与许可元数据
 corpora-private/<corpus-id>/ 非公开语料（Git 忽略）
 configs/access/              访问策略（Git 忽略，属于部署配置）
 raw_data/<library>/<version> 语料原文（不提交 Git）
-configs/indexes/             索引目标与候选路由清单
+configs/indexes/             公开语料的索引目标与候选路由清单
+configs/indexes-private/     非公开语料的索引目标（Git 忽略；配置含内部 corpus_id）
 artifacts/                   实验输出与验收证据（大文件与第三方副本除外）
 ```
 
