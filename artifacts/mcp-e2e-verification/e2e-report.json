@@ -1,0 +1,1633 @@
+{
+  "report": "问津 MCP 多语料接入端到端实测",
+  "git_revision": "3193ccac10d93f5622e87272f36126b1a31c61ad",
+  "environment": {
+    "host": "Windows 11 Pro 10.0.26200",
+    "python": "3.12.3 (uv 0.11.3)",
+    "fastmcp": "3.4.4",
+    "mcp_protocol": "2025-11-25",
+    "qdrant": "http://127.0.0.1:6333 (1.19.1)",
+    "active_index": "osg-3.6.5-blocks-dualhash-003",
+    "route_manifest": "configs/indexes/multicorpus-candidates-002.json"
+  },
+  "servers_under_test": [
+    {
+      "name": "A",
+      "command": "uv run python -m wenjin.mcp_server",
+      "cwd": "<project-root>",
+      "endpoint": "http://127.0.0.1:8765/mcp",
+      "acl": "仓库自带 configs/access（6 个语料均 public/*）",
+      "bearer": "关闭（.env 未设 WENJIN_MCP_API_KEY）",
+      "note": "独立进程，非进程内构造"
+    },
+    {
+      "name": "B",
+      "command": "uv run python <temp-workdir>/server_b_acl.py",
+      "cwd": "<project-root>",
+      "endpoint": "http://127.0.0.1:8766/mcp",
+      "acl": "注入的受限 AccessRegistry（gdal/ogc-wms/osg 放行；osgearth/proj 有权无授；ogc-3dtiles 缺策略）",
+      "bearer": "关闭",
+      "note": "service 未注入，lifespan 照常建真实 runtime 与真实多语料路由"
+    },
+    {
+      "name": "C",
+      "command": "WENJIN_MCP_API_KEY=... WENJIN_MCP_CLIENT_ID=claude-code WENJIN_MCP_PORT=8767 uv run python -m wenjin.mcp_server",
+      "cwd": "<project-root>",
+      "endpoint": "http://127.0.0.1:8767/mcp",
+      "acl": "仓库自带 configs/access",
+      "bearer": "开启",
+      "note": "走的仍是真实 main()，只有环境变量不同"
+    },
+    {
+      "name": "D",
+      "command": "uv run python <temp-workdir>/server_d_nonascii.py",
+      "cwd": "<project-root>",
+      "endpoint": "http://127.0.0.1:8768/mcp",
+      "acl": "临时根目录 <temp-workdir>/tmp-root/configs/access（真实 load_snapshot 读盘）",
+      "bearer": "关闭",
+      "note": "合成最小语料；真实 6 个语料的 78 个登记路径全是 ASCII，没有中文名可测"
+    }
+  ],
+  "summary": {
+    "required_checks": 64,
+    "required_failed": [],
+    "required_all_passed": true,
+    "extra_probe_checks": 4,
+    "total_checks": 68,
+    "verdict_counts": {
+      "PASS": 67,
+      "FAIL": 1
+    }
+  },
+  "methodology_notes": [
+    "所有服务都是独立进程，客户端通过 streamable-http 连接，不是进程内构造 server 对象。",
+    "证据自洽性（第5节）用 manifest 声明的行映射解析器逐行还原后比较：html-line-v1 走 BeautifulSoup.get_text(' ', strip=True)、man-roff-line-v1 去掉 roff 控制符，text-line-v1 保持原行。第一版直接比原始字节，对 HTML/man 必然不等，已作废（见 superseded_checks）。",
+    "PDF 证据的正文用 PyMuPDF 取该物理页文本做子串比对，页码取索引内记录的 page_number。",
+    "越权是否真的没查库，用 Qdrant 自身 /metrics 的 rest_responses_total{endpoint=/collections/{collection_name}/points/query} 增量判定：4 次被拒检索期间该计数增量为 0，1 次有权检索增量为 1。",
+    "「可用：」列表里的库名集合按逗号切分后与路由清单比对，不靠肉眼。"
+  ],
+  "checks": [
+    {
+      "section": "1 真实服务进程",
+      "item": "A0 独立进程启动并完成 ASGI 启动（lifespan 内已建 runtime 与多语料路由）",
+      "request": {
+        "command": "uv run python -m wenjin.mcp_server",
+        "cwd": "<project-root>",
+        "endpoint": "http://127.0.0.1:8765/mcp",
+        "health_check": "轮询 TCP 127.0.0.1:8765 直到可连接"
+      },
+      "response": {
+        "startup_log_tail": [
+          "[09/21/26 12:00:33] INFO     Starting MCP server 'wenjin-rag'  transport.py:361",
+          "INFO:     Started server process [35868]",
+          "INFO:     Waiting for application startup.",
+          "INFO:     Application startup complete.",
+          "INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)"
+        ]
+      },
+      "verdict": "PASS",
+      "note": "端口就绪后日志出现 Application startup complete；进程非本条会话内构造的 server 对象",
+      "required": true
+    },
+    {
+      "section": "1 真实服务进程",
+      "item": "A1 协议握手与工具列表",
+      "request": {
+        "transport": "streamable-http",
+        "url": "http://127.0.0.1:8765/mcp"
+      },
+      "response": {
+        "session_established": true,
+        "session_id_length": 32,
+        "tools": [
+          "search_docs",
+          "list_corpora"
+        ]
+      },
+      "verdict": "PASS",
+      "note": "tools=['search_docs', 'list_corpora']",
+      "required": true
+    },
+    {
+      "section": "2 多语料检索与默认路径",
+      "item": "A2 list_corpora 目录与索引状态",
+      "request": {
+        "include_files": false
+      },
+      "response": {
+        "count": 6,
+        "usable_count": 6,
+        "corpora": [
+          "gdal-3.13.1",
+          "ogc-3dtiles-1.1",
+          "ogc-wms-1.3.0",
+          "osg-3.6.5",
+          "osgearth-3.8",
+          "proj-9.8.1"
+        ],
+        "index_state": {
+          "gdal-3.13.1": "usable",
+          "ogc-3dtiles-1.1": "usable",
+          "ogc-wms-1.3.0": "usable",
+          "osg-3.6.5": "usable",
+          "osgearth-3.8": "usable",
+          "proj-9.8.1": "usable"
+        }
+      },
+      "verdict": "PASS",
+      "note": "count=6 usable=6 ids=['gdal-3.13.1', 'ogc-3dtiles-1.1', 'ogc-wms-1.3.0', 'osg-3.6.5', 'osgearth-3.8', 'proj-9.8.1']",
+      "required": true
+    },
+    {
+      "section": "2 多语料检索与默认路径",
+      "item": "A3 默认路径仍检索 OSG 3.6.5 且无 routed_libraries",
+      "request": {
+        "query": "osg::Node accept NodeVisitor",
+        "top_k": 3
+      },
+      "response": {
+        "_truncated": true,
+        "_full_length": 1917,
+        "_preview": "{\"query\": \"osg::Node accept NodeVisitor\", \"evidence_count\": 3, \"evidence\": [{\"rank\": 1, \"chunk_id\": \"3.6.5:include/osg/Node:blocks:0001\", \"corpus_id\": \"osg-3.6.5\", \"library\": null, \"index_target_id\": null, \"source_path\": \"include/osg/Node\", \"source_relative_path\": \"include/osg/Node\", \"start_line\": 52, \"end_line\": 82, \"page_number\": null, \"download_path\": \"/files/osg-3.6.5/include/osg/Node\", \"text_head\": \"/** A vector of NodePath, typically used to describe all the paths from a node to the potential root nodes it has.*/\\ntypedef std::vector< Matrix > MatrixList;\\n\\n\", \"text_length\": 1491}, {\"rank\": 2, \"chunk_id\": \"3.6.5:include/osg/Node:blocks:0004\", \"corpus_id\": \"osg-3.6.5\", \"library\": null, \"index_target_id\": null, \"source_path\": \"include/osg/Node\", \"source_relative_path\": \"include/osg/Node\", \"start_line\": 141, \"end_line\": 168, \"page_number\": null, \"download_path\": \"/files/osg-3.6.5/include/osg/Node\", \"text_head\": \"        /** convert 'const this' into a const Switch pointer if Node is a Switch, otherwise return 0.\\n          * Equivalent to dynamic_cast<const Switch*>(this\", \"text_length\": 1509}, {\"rank\": 3, \"chunk_id\": \"3.6.5:examples/osgtext/osgtext.cpp:blocks:0014\", \"corpus_id"
+      },
+      "verdict": "PASS",
+      "note": "无routed_libraries=True 全部corpus_id=osg-3.6.5=True 证据数=3",
+      "required": true
+    },
+    {
+      "section": "2 多语料检索与默认路径",
+      "item": "A4-osgearth 按 library 检索该语料",
+      "request": {
+        "query": "How does osgEarth organize layers in a Map, and what is an Earth File?",
+        "library": "osgearth",
+        "top_k": 2
+      },
+      "response": {
+        "_truncated": true,
+        "_full_length": 1819,
+        "_preview": "{\"query\": \"How does osgEarth organize layers in a Map, and what is an Earth File?\", \"requested\": {\"library\": \"osgearth\", \"version\": null, \"target_id\": null}, \"routed_libraries\": [{\"library\": \"osgearth\", \"version\": \"3.8\", \"target_id\": \"osgearth-3.8-blocks-split-candidate-002\"}], \"evidence_count\": 2, \"evidence\": [{\"rank\": 1, \"chunk_id\": \"3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0000\", \"corpus_id\": \"osgearth-3.8\", \"library\": \"osgearth\", \"index_target_id\": \"osgearth-3.8-blocks-split-candidate-002\", \"source_path\": \"raw_data/osgearth/3.8/docs/source/earthfile.md\", \"source_relative_path\": \"docs/source/earthfile.md\", \"start_line\": 1, \"end_line\": 49, \"page_number\": null, \"download_path\": \"/files/osgearth-3.8/docs/source/earthfile.md\", \"text_head\": \"# The Earth File\\n\\nosgEarth uses the familiar **Map/Layer** paradigm for organizing data. The **Map** is comprised of a collection of **layers**. The renderer dr\", \"text_length\": 1560}, {\"rank\": 2, \"chunk_id\": \"3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0001\", \"corpus_id\": \"osgearth-3.8\", \"library\": \"osgearth\", \"index_target_id\": \"osgearth-3.8-blocks-split-candidate-002\", \"source_path\": \"raw_data/osgea"
+      },
+      "verdict": "PASS",
+      "note": "routed=['osgearth-3.8-blocks-split-candidate-002'] corpus_id全部匹配=True 路径属该语料=True",
+      "required": true
+    },
+    {
+      "section": "2 多语料检索与默认路径",
+      "item": "A5-osgearth target_id 寻址命中同一索引",
+      "request": {
+        "query": "How does osgEarth organize layers in a Map, and what is an Earth File?",
+        "target_id": "osgearth-3.8-blocks-split-candidate-002",
+        "top_k": 2
+      },
+      "response": {
+        "_truncated": true,
+        "_full_length": 1849,
+        "_preview": "{\"query\": \"How does osgEarth organize layers in a Map, and what is an Earth File?\", \"requested\": {\"library\": null, \"version\": null, \"target_id\": \"osgearth-3.8-blocks-split-candidate-002\"}, \"routed_libraries\": [{\"library\": \"osgearth\", \"version\": \"3.8\", \"target_id\": \"osgearth-3.8-blocks-split-candidate-002\"}], \"evidence_count\": 2, \"evidence\": [{\"rank\": 1, \"chunk_id\": \"3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0000\", \"corpus_id\": \"osgearth-3.8\", \"library\": \"osgearth\", \"index_target_id\": \"osgearth-3.8-blocks-split-candidate-002\", \"source_path\": \"raw_data/osgearth/3.8/docs/source/earthfile.md\", \"source_relative_path\": \"docs/source/earthfile.md\", \"start_line\": 1, \"end_line\": 49, \"page_number\": null, \"download_path\": \"/files/osgearth-3.8/docs/source/earthfile.md\", \"text_head\": \"# The Earth File\\n\\nosgEarth uses the familiar **Map/Layer** paradigm for organizing data. The **Map** is comprised of a collection of **layers**. The renderer dr\", \"text_length\": 1560}, {\"rank\": 2, \"chunk_id\": \"3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0001\", \"corpus_id\": \"osgearth-3.8\", \"library\": \"osgearth\", \"index_target_id\": \"osgearth-3.8-blocks-split-candidate-002\","
+      },
+      "verdict": "PASS",
+      "note": "同一索引=True chunk_id序列一致=True",
+      "required": true
+    },
+    {
+      "section": "2 多语料检索与默认路径",
+      "item": "A4-gdal 按 library 检索该语料",
+      "request": {
+        "query": "gdalwarp resampling method -r option and its choices",
+        "library": "gdal",
+        "top_k": 2
+      },
+      "response": {
+        "_truncated": true,
+        "_full_length": 1829,
+        "_preview": "{\"query\": \"gdalwarp resampling method -r option and its choices\", \"requested\": {\"library\": \"gdal\", \"version\": null, \"target_id\": null}, \"routed_libraries\": [{\"library\": \"gdal\", \"version\": \"3.13.1\", \"target_id\": \"gdal-3.13.1-blocks-split-candidate-002\"}], \"evidence_count\": 2, \"evidence\": [{\"rank\": 1, \"chunk_id\": \"3.13.1:raw_data/gdal/3.13.1/gdaldoc/programs/gdalwarp.html:blocks-split:0009\", \"corpus_id\": \"gdal-3.13.1\", \"library\": \"gdal\", \"index_target_id\": \"gdal-3.13.1-blocks-split-candidate-002\", \"source_path\": \"raw_data/gdal/3.13.1/gdaldoc/programs/gdalwarp.html\", \"source_relative_path\": \"gdaldoc/programs/gdalwarp.html\", \"start_line\": 556, \"end_line\": 572, \"page_number\": null, \"download_path\": \"/files/gdal-3.13.1/gdaldoc/programs/gdalwarp.html\", \"text_head\": \"-r <resampling_method> \\nResampling method to use. Available methods are:\\nnear : nearest neighbour resampling (default for non-COG drivers, fastest algorithm, w\", \"text_length\": 1286}, {\"rank\": 2, \"chunk_id\": \"3.13.1:raw_data/gdal/3.13.1/gdaldoc/programs/gdaladdo.html:blocks-split:0002\", \"corpus_id\": \"gdal-3.13.1\", \"library\": \"gdal\", \"index_target_id\": \"gdal-3.13.1-blocks-split-candidate-002\", \"source_path\": \"raw_data/gdal/3"
+      },
+      "verdict": "PASS",
+      "note": "routed=['gdal-3.13.1-blocks-split-candidate-002'] corpus_id全部匹配=True 路径属该语料=True",
+      "required": true
+    },
+    {
+      "section": "2 多语料检索与默认路径",
+      "item": "A5-gdal target_id 寻址命中同一索引",
+      "request": {
+        "query": "gdalwarp resampling method -r option and its choices",
+        "target_id": "gdal-3.13.1-blocks-split-candidate-002",
+        "top_k": 2
+      },
+      "response": {
+        "_truncated": true,
+        "_full_length": 1863,
+        "_preview": "{\"query\": \"gdalwarp resampling method -r option and its choices\", \"requested\": {\"library\": null, \"version\": null, \"target_id\": \"gdal-3.13.1-blocks-split-candidate-002\"}, \"routed_libraries\": [{\"library\": \"gdal\", \"version\": \"3.13.1\", \"target_id\": \"gdal-3.13.1-blocks-split-candidate-002\"}], \"evidence_count\": 2, \"evidence\": [{\"rank\": 1, \"chunk_id\": \"3.13.1:raw_data/gdal/3.13.1/gdaldoc/programs/gdalwarp.html:blocks-split:0009\", \"corpus_id\": \"gdal-3.13.1\", \"library\": \"gdal\", \"index_target_id\": \"gdal-3.13.1-blocks-split-candidate-002\", \"source_path\": \"raw_data/gdal/3.13.1/gdaldoc/programs/gdalwarp.html\", \"source_relative_path\": \"gdaldoc/programs/gdalwarp.html\", \"start_line\": 556, \"end_line\": 572, \"page_number\": null, \"download_path\": \"/files/gdal-3.13.1/gdaldoc/programs/gdalwarp.html\", \"text_head\": \"-r <resampling_method> \\nResampling method to use. Available methods are:\\nnear : nearest neighbour resampling (default for non-COG drivers, fastest algorithm, w\", \"text_length\": 1286}, {\"rank\": 2, \"chunk_id\": \"3.13.1:raw_data/gdal/3.13.1/gdaldoc/programs/gdaladdo.html:blocks-split:0002\", \"corpus_id\": \"gdal-3.13.1\", \"library\": \"gdal\", \"index_target_id\": \"gdal-3.13.1-blocks-split-candidate-002"
+      },
+      "verdict": "PASS",
+      "note": "同一索引=True chunk_id序列一致=True",
+      "required": true
+    },
+    {
+      "section": "2 多语料检索与默认路径",
+      "item": "A4-proj 按 library 检索该语料",
+      "request": {
+        "query": "projinfo command line tool query CRS definition",
+        "library": "proj",
+        "top_k": 2
+      },
+      "response": {
+        "_truncated": true,
+        "_full_length": 1724,
+        "_preview": "{\"query\": \"projinfo command line tool query CRS definition\", \"requested\": {\"library\": \"proj\", \"version\": null, \"target_id\": null}, \"routed_libraries\": [{\"library\": \"proj\", \"version\": \"9.8.1\", \"target_id\": \"proj-9.8.1-blocks-split-candidate-002\"}], \"evidence_count\": 2, \"evidence\": [{\"rank\": 1, \"chunk_id\": \"9.8.1:raw_data/proj/9.8.1/man/man1/projinfo.1:blocks-split:0014\", \"corpus_id\": \"proj-9.8.1\", \"library\": \"proj\", \"index_target_id\": \"proj-9.8.1-blocks-split-candidate-002\", \"source_path\": \"raw_data/proj/9.8.1/man/man1/projinfo.1\", \"source_relative_path\": \"man/man1/projinfo.1\", \"start_line\": 723, \"end_line\": 736, \"page_number\": null, \"download_path\": \"/files/proj-9.8.1/man/man1/projinfo.1\", \"text_head\": \"# Create an auxiliary database with the definition of a custom CRS.\\nprojinfo \\\\(dq+proj=merc +lat_ts=5 +datum=WGS84 +type=crs +title=my_crs\\\\(dq --output-id HOBU:\", \"text_length\": 308}, {\"rank\": 2, \"chunk_id\": \"9.8.1:raw_data/proj/9.8.1/man/man1/projinfo.1:blocks-split:0009\", \"corpus_id\": \"proj-9.8.1\", \"library\": \"proj\", \"index_target_id\": \"proj-9.8.1-blocks-split-candidate-002\", \"source_path\": \"raw_data/proj/9.8.1/man/man1/projinfo.1\", \"source_relative_path\": \"man/man1/projinfo.1\""
+      },
+      "verdict": "PASS",
+      "note": "routed=['proj-9.8.1-blocks-split-candidate-002'] corpus_id全部匹配=True 路径属该语料=True",
+      "required": true
+    },
+    {
+      "section": "2 多语料检索与默认路径",
+      "item": "A5-proj target_id 寻址命中同一索引",
+      "request": {
+        "query": "projinfo command line tool query CRS definition",
+        "target_id": "proj-9.8.1-blocks-split-candidate-002",
+        "top_k": 2
+      },
+      "response": {
+        "_truncated": true,
+        "_full_length": 1757,
+        "_preview": "{\"query\": \"projinfo command line tool query CRS definition\", \"requested\": {\"library\": null, \"version\": null, \"target_id\": \"proj-9.8.1-blocks-split-candidate-002\"}, \"routed_libraries\": [{\"library\": \"proj\", \"version\": \"9.8.1\", \"target_id\": \"proj-9.8.1-blocks-split-candidate-002\"}], \"evidence_count\": 2, \"evidence\": [{\"rank\": 1, \"chunk_id\": \"9.8.1:raw_data/proj/9.8.1/man/man1/projinfo.1:blocks-split:0014\", \"corpus_id\": \"proj-9.8.1\", \"library\": \"proj\", \"index_target_id\": \"proj-9.8.1-blocks-split-candidate-002\", \"source_path\": \"raw_data/proj/9.8.1/man/man1/projinfo.1\", \"source_relative_path\": \"man/man1/projinfo.1\", \"start_line\": 723, \"end_line\": 736, \"page_number\": null, \"download_path\": \"/files/proj-9.8.1/man/man1/projinfo.1\", \"text_head\": \"# Create an auxiliary database with the definition of a custom CRS.\\nprojinfo \\\\(dq+proj=merc +lat_ts=5 +datum=WGS84 +type=crs +title=my_crs\\\\(dq --output-id HOBU:\", \"text_length\": 308}, {\"rank\": 2, \"chunk_id\": \"9.8.1:raw_data/proj/9.8.1/man/man1/projinfo.1:blocks-split:0009\", \"corpus_id\": \"proj-9.8.1\", \"library\": \"proj\", \"index_target_id\": \"proj-9.8.1-blocks-split-candidate-002\", \"source_path\": \"raw_data/proj/9.8.1/man/man1/projinfo.1\", \"source_rela"
+      },
+      "verdict": "PASS",
+      "note": "同一索引=True chunk_id序列一致=True",
+      "required": true
+    },
+    {
+      "section": "2 多语料检索与默认路径",
+      "item": "A4-ogc-3dtiles 按 library 检索该语料",
+      "request": {
+        "query": "3D Tiles bounding volume box region sphere definition",
+        "library": "ogc-3dtiles",
+        "top_k": 2
+      },
+      "response": {
+        "_truncated": true,
+        "_full_length": 1759,
+        "_preview": "{\"query\": \"3D Tiles bounding volume box region sphere definition\", \"requested\": {\"library\": \"ogc-3dtiles\", \"version\": null, \"target_id\": null}, \"routed_libraries\": [{\"library\": \"ogc-3dtiles\", \"version\": \"1.1\", \"target_id\": \"ogc-3dtiles-1.1-blocks-split-candidate-002\"}], \"evidence_count\": 2, \"evidence\": [{\"rank\": 1, \"chunk_id\": \"1.1:raw_data/ogc-3dtiles/1.1/22-025r4.html:blocks-split:0040\", \"corpus_id\": \"ogc-3dtiles-1.1\", \"library\": \"ogc-3dtiles\", \"index_target_id\": \"ogc-3dtiles-1.1-blocks-split-candidate-002\", \"source_path\": \"raw_data/ogc-3dtiles/1.1/22-025r4.html\", \"source_relative_path\": \"22-025r4.html\", \"start_line\": 1773, \"end_line\": 1798, \"page_number\": null, \"download_path\": \"/files/ogc-3dtiles-1.1/22-025r4.html\", \"text_head\": \"The boundingVolume.box property is an array of 12 numbers that define an oriented bounding box in a right-handed 3-axis (x, y, z) Cartesian coordinate system wh\", \"text_length\": 1512}, {\"rank\": 2, \"chunk_id\": \"1.1:raw_data/ogc-3dtiles/1.1/22-025r4.pdf:page-351:blocks-split:0001\", \"corpus_id\": \"ogc-3dtiles-1.1\", \"library\": \"ogc-3dtiles\", \"index_target_id\": \"ogc-3dtiles-1.1-blocks-split-candidate-002\", \"source_path\": \"raw_data/ogc-3dtiles/1.1/22-025r4.pd"
+      },
+      "verdict": "PASS",
+      "note": "routed=['ogc-3dtiles-1.1-blocks-split-candidate-002'] corpus_id全部匹配=True 路径属该语料=True",
+      "required": true
+    },
+    {
+      "section": "2 多语料检索与默认路径",
+      "item": "A5-ogc-3dtiles target_id 寻址命中同一索引",
+      "request": {
+        "query": "3D Tiles bounding volume box region sphere definition",
+        "target_id": "ogc-3dtiles-1.1-blocks-split-candidate-002",
+        "top_k": 2
+      },
+      "response": {
+        "_truncated": true,
+        "_full_length": 1791,
+        "_preview": "{\"query\": \"3D Tiles bounding volume box region sphere definition\", \"requested\": {\"library\": null, \"version\": null, \"target_id\": \"ogc-3dtiles-1.1-blocks-split-candidate-002\"}, \"routed_libraries\": [{\"library\": \"ogc-3dtiles\", \"version\": \"1.1\", \"target_id\": \"ogc-3dtiles-1.1-blocks-split-candidate-002\"}], \"evidence_count\": 2, \"evidence\": [{\"rank\": 1, \"chunk_id\": \"1.1:raw_data/ogc-3dtiles/1.1/22-025r4.html:blocks-split:0040\", \"corpus_id\": \"ogc-3dtiles-1.1\", \"library\": \"ogc-3dtiles\", \"index_target_id\": \"ogc-3dtiles-1.1-blocks-split-candidate-002\", \"source_path\": \"raw_data/ogc-3dtiles/1.1/22-025r4.html\", \"source_relative_path\": \"22-025r4.html\", \"start_line\": 1773, \"end_line\": 1798, \"page_number\": null, \"download_path\": \"/files/ogc-3dtiles-1.1/22-025r4.html\", \"text_head\": \"The boundingVolume.box property is an array of 12 numbers that define an oriented bounding box in a right-handed 3-axis (x, y, z) Cartesian coordinate system wh\", \"text_length\": 1512}, {\"rank\": 2, \"chunk_id\": \"1.1:raw_data/ogc-3dtiles/1.1/22-025r4.pdf:page-351:blocks-split:0001\", \"corpus_id\": \"ogc-3dtiles-1.1\", \"library\": \"ogc-3dtiles\", \"index_target_id\": \"ogc-3dtiles-1.1-blocks-split-candidate-002\", \"source_path\": \"raw_d"
+      },
+      "verdict": "PASS",
+      "note": "同一索引=True chunk_id序列一致=True",
+      "required": true
+    },
+    {
+      "section": "2 多语料检索与默认路径",
+      "item": "A4-ogc-wms 按 library 检索该语料",
+      "request": {
+        "query": "WMS GetCapabilities request VERSION parameter",
+        "library": "ogc-wms",
+        "top_k": 2
+      },
+      "response": {
+        "_truncated": true,
+        "_full_length": 1702,
+        "_preview": "{\"query\": \"WMS GetCapabilities request VERSION parameter\", \"requested\": {\"library\": \"ogc-wms\", \"version\": null, \"target_id\": null}, \"routed_libraries\": [{\"library\": \"ogc-wms\", \"version\": \"1.3.0\", \"target_id\": \"ogc-wms-1.3.0-blocks-split-candidate-002\"}], \"evidence_count\": 2, \"evidence\": [{\"rank\": 1, \"chunk_id\": \"1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-10:blocks-split:0001\", \"corpus_id\": \"ogc-wms-1.3.0\", \"library\": \"ogc-wms\", \"index_target_id\": \"ogc-wms-1.3.0-blocks-split-candidate-002\", \"source_path\": \"raw_data/ogc-wms/1.3.0/06-042.pdf\", \"source_relative_path\": \"06-042.pdf\", \"start_line\": 32, \"end_line\": 53, \"page_number\": 10, \"download_path\": \"/files/ogc-wms-1.3.0/06-042.pdf\", \"text_head\": \"A WMS client may negotiate with a server to determine a mutually agreeable protocol version. Negotiation is\\nperformed using the GetCapabilities operation (descr\", \"text_length\": 1559}, {\"rank\": 2, \"chunk_id\": \"1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-39:blocks-split:0001\", \"corpus_id\": \"ogc-wms-1.3.0\", \"library\": \"ogc-wms\", \"index_target_id\": \"ogc-wms-1.3.0-blocks-split-candidate-002\", \"source_path\": \"raw_data/ogc-wms/1.3.0/06-042.pdf\", \"source_relative_path\": \"06-042.pdf\", \"start_lin"
+      },
+      "verdict": "PASS",
+      "note": "routed=['ogc-wms-1.3.0-blocks-split-candidate-002'] corpus_id全部匹配=True 路径属该语料=True",
+      "required": true
+    },
+    {
+      "section": "2 多语料检索与默认路径",
+      "item": "A5-ogc-wms target_id 寻址命中同一索引",
+      "request": {
+        "query": "WMS GetCapabilities request VERSION parameter",
+        "target_id": "ogc-wms-1.3.0-blocks-split-candidate-002",
+        "top_k": 2
+      },
+      "response": {
+        "_truncated": true,
+        "_full_length": 1735,
+        "_preview": "{\"query\": \"WMS GetCapabilities request VERSION parameter\", \"requested\": {\"library\": null, \"version\": null, \"target_id\": \"ogc-wms-1.3.0-blocks-split-candidate-002\"}, \"routed_libraries\": [{\"library\": \"ogc-wms\", \"version\": \"1.3.0\", \"target_id\": \"ogc-wms-1.3.0-blocks-split-candidate-002\"}], \"evidence_count\": 2, \"evidence\": [{\"rank\": 1, \"chunk_id\": \"1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-10:blocks-split:0001\", \"corpus_id\": \"ogc-wms-1.3.0\", \"library\": \"ogc-wms\", \"index_target_id\": \"ogc-wms-1.3.0-blocks-split-candidate-002\", \"source_path\": \"raw_data/ogc-wms/1.3.0/06-042.pdf\", \"source_relative_path\": \"06-042.pdf\", \"start_line\": 32, \"end_line\": 53, \"page_number\": 10, \"download_path\": \"/files/ogc-wms-1.3.0/06-042.pdf\", \"text_head\": \"A WMS client may negotiate with a server to determine a mutually agreeable protocol version. Negotiation is\\nperformed using the GetCapabilities operation (descr\", \"text_length\": 1559}, {\"rank\": 2, \"chunk_id\": \"1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-39:blocks-split:0001\", \"corpus_id\": \"ogc-wms-1.3.0\", \"library\": \"ogc-wms\", \"index_target_id\": \"ogc-wms-1.3.0-blocks-split-candidate-002\", \"source_path\": \"raw_data/ogc-wms/1.3.0/06-042.pdf\", \"source_relativ"
+      },
+      "verdict": "PASS",
+      "note": "同一索引=True chunk_id序列一致=True",
+      "required": true
+    },
+    {
+      "section": "3 错误与歧义",
+      "item": "A6a 不存在的 library 报 invalid_target 且可用列表只列被授权语料",
+      "request": {
+        "query": "anything",
+        "library": "no-such-library",
+        "top_k": 2
+      },
+      "response": {
+        "error": "invalid_target",
+        "detail": "没有library为 no-such-library 的索引；可用：gdal, ogc-3dtiles, ogc-wms, osgearth, proj"
+      },
+      "verdict": "PASS",
+      "note": "error=invalid_target 可用=gdal, ogc-3dtiles, ogc-wms, osgearth, proj",
+      "required": true
+    },
+    {
+      "section": "3 错误与歧义",
+      "item": "A6b library 与 target_id 同时给出应报冲突",
+      "request": {
+        "query": "anything",
+        "library": "gdal",
+        "target_id": "gdal-3.13.1-blocks-split-candidate-002",
+        "top_k": 2
+      },
+      "response": {
+        "error": "invalid_target",
+        "detail": "target_id 不能与 library/version 同时使用"
+      },
+      "verdict": "PASS",
+      "note": "detail=target_id 不能与 library/version 同时使用",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-osgearth /files 取件字节与 raw_data 原文一致",
+      "request": {
+        "GET": "/files/osgearth-3.8/docs/source/earthfile.md"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "text/markdown",
+        "content_length": "4519",
+        "content_disposition": "inline; filename*=UTF-8''earthfile.md",
+        "csp": null,
+        "served_sha256": "47c2f9fab703dfa9599e4b7ccc0c1e9dff8db40d1328c3aabf9cfb0cde8af6b2",
+        "raw_data_sha256": "47c2f9fab703dfa9599e4b7ccc0c1e9dff8db40d1328c3aabf9cfb0cde8af6b2",
+        "raw_data_file": "<project-root>\\raw_data\\osgearth\\3.8\\docs\\source\\earthfile.md"
+      },
+      "verdict": "PASS",
+      "note": "status=200 type=text/markdown hash一致=True",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-osgearth /files 取件字节与 raw_data 原文一致",
+      "request": {
+        "GET": "/files/osgearth-3.8/docs/source/earthfile.md"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "text/markdown",
+        "content_length": "4519",
+        "content_disposition": "inline; filename*=UTF-8''earthfile.md",
+        "csp": null,
+        "served_sha256": "47c2f9fab703dfa9599e4b7ccc0c1e9dff8db40d1328c3aabf9cfb0cde8af6b2",
+        "raw_data_sha256": "47c2f9fab703dfa9599e4b7ccc0c1e9dff8db40d1328c3aabf9cfb0cde8af6b2",
+        "raw_data_file": "<project-root>\\raw_data\\osgearth\\3.8\\docs\\source\\earthfile.md"
+      },
+      "verdict": "PASS",
+      "note": "status=200 type=text/markdown hash一致=True",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-gdal /files 取件字节与 raw_data 原文一致",
+      "request": {
+        "GET": "/files/gdal-3.13.1/gdaldoc/programs/gdalwarp.html"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "text/html",
+        "content_length": "94452",
+        "content_disposition": "inline; filename*=UTF-8''gdalwarp.html",
+        "csp": "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data:",
+        "served_sha256": "8cba808af6bfd98a26e6a36a191e2a9d7999b1a830c83631e17833a672bf3cfe",
+        "raw_data_sha256": "8cba808af6bfd98a26e6a36a191e2a9d7999b1a830c83631e17833a672bf3cfe",
+        "raw_data_file": "<project-root>\\raw_data\\gdal\\3.13.1\\gdaldoc\\programs\\gdalwarp.html"
+      },
+      "verdict": "PASS",
+      "note": "status=200 type=text/html hash一致=True",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-gdal /files 取件字节与 raw_data 原文一致",
+      "request": {
+        "GET": "/files/gdal-3.13.1/gdaldoc/programs/gdaladdo.html"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "text/html",
+        "content_length": "44841",
+        "content_disposition": "inline; filename*=UTF-8''gdaladdo.html",
+        "csp": "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data:",
+        "served_sha256": "4572c9e1403178c56e76da66108d6b56dc6823883a50397bcc65c49d05288071",
+        "raw_data_sha256": "4572c9e1403178c56e76da66108d6b56dc6823883a50397bcc65c49d05288071",
+        "raw_data_file": "<project-root>\\raw_data\\gdal\\3.13.1\\gdaldoc\\programs\\gdaladdo.html"
+      },
+      "verdict": "PASS",
+      "note": "status=200 type=text/html hash一致=True",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-proj /files 取件字节与 raw_data 原文一致",
+      "request": {
+        "GET": "/files/proj-9.8.1/man/man1/projinfo.1"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "text/plain",
+        "content_length": "28732",
+        "content_disposition": "inline; filename*=UTF-8''projinfo.1",
+        "csp": null,
+        "served_sha256": "3158b7f03908b46a25cef3d11cb367aa0c412acfa400898cb25c74f956442d43",
+        "raw_data_sha256": "3158b7f03908b46a25cef3d11cb367aa0c412acfa400898cb25c74f956442d43",
+        "raw_data_file": "<project-root>\\raw_data\\proj\\9.8.1\\man\\man1\\projinfo.1"
+      },
+      "verdict": "PASS",
+      "note": "status=200 type=text/plain hash一致=True",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-proj /files 取件字节与 raw_data 原文一致",
+      "request": {
+        "GET": "/files/proj-9.8.1/man/man1/projinfo.1"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "text/plain",
+        "content_length": "28732",
+        "content_disposition": "inline; filename*=UTF-8''projinfo.1",
+        "csp": null,
+        "served_sha256": "3158b7f03908b46a25cef3d11cb367aa0c412acfa400898cb25c74f956442d43",
+        "raw_data_sha256": "3158b7f03908b46a25cef3d11cb367aa0c412acfa400898cb25c74f956442d43",
+        "raw_data_file": "<project-root>\\raw_data\\proj\\9.8.1\\man\\man1\\projinfo.1"
+      },
+      "verdict": "PASS",
+      "note": "status=200 type=text/plain hash一致=True",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-ogc-3dtiles /files 取件字节与 raw_data 原文一致",
+      "request": {
+        "GET": "/files/ogc-3dtiles-1.1/22-025r4.html"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "text/html",
+        "content_length": "52897656",
+        "content_disposition": "inline; filename*=UTF-8''22-025r4.html",
+        "csp": "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data:",
+        "served_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+        "raw_data_sha256": "b03a23de8e695858bf1a420f4268928e327d2338d3c4287c1bd01b5b3fe0be67",
+        "raw_data_file": "<project-root>\\raw_data\\ogc-3dtiles\\1.1\\22-025r4.html"
+      },
+      "verdict": "PASS",
+      "note": "status=200 type=text/html hash一致=True",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-ogc-3dtiles /files 取件字节与 raw_data 原文一致",
+      "request": {
+        "GET": "/files/ogc-3dtiles-1.1/22-025r4.pdf"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "application/pdf",
+        "content_length": "51092867",
+        "content_disposition": "inline; filename*=UTF-8''22-025r4.pdf",
+        "csp": null,
+        "served_sha256": "1d349ef636291a9869035f1779dd8278ddcd19df0fd36fe50a9735a4ea5a66a8",
+        "raw_data_sha256": "1d349ef636291a9869035f1779dd8278ddcd19df0fd36fe50a9735a4ea5a66a8",
+        "raw_data_file": "<project-root>\\raw_data\\ogc-3dtiles\\1.1\\22-025r4.pdf"
+      },
+      "verdict": "PASS",
+      "note": "status=200 type=application/pdf hash一致=True",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-ogc-wms /files 取件字节与 raw_data 原文一致",
+      "request": {
+        "GET": "/files/ogc-wms-1.3.0/06-042.pdf"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "application/pdf",
+        "content_length": "776825",
+        "content_disposition": "inline; filename*=UTF-8''06-042.pdf",
+        "csp": null,
+        "served_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116",
+        "raw_data_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116",
+        "raw_data_file": "<project-root>\\raw_data\\ogc-wms\\1.3.0\\06-042.pdf"
+      },
+      "verdict": "PASS",
+      "note": "status=200 type=application/pdf hash一致=True",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-ogc-wms /files 取件字节与 raw_data 原文一致",
+      "request": {
+        "GET": "/files/ogc-wms-1.3.0/06-042.pdf"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "application/pdf",
+        "content_length": "776825",
+        "content_disposition": "inline; filename*=UTF-8''06-042.pdf",
+        "csp": null,
+        "served_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116",
+        "raw_data_sha256": "decb8bf74b67ea2b601612abffaedc10b77b176f6493c3a1eb8c22d5b88b2116",
+        "raw_data_file": "<project-root>\\raw_data\\ogc-wms\\1.3.0\\06-042.pdf"
+      },
+      "verdict": "PASS",
+      "note": "status=200 type=application/pdf hash一致=True",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-neg1 未登记文件路径",
+      "request": {
+        "GET": "/files/gdal-3.13.1/gdaldoc/programs/does-not-exist.html",
+        "raw_url": "http://127.0.0.1:8765/files/gdal-3.13.1/gdaldoc/programs/does-not-exist.html"
+      },
+      "response": {
+        "status": 404,
+        "body": "{\"error\":\"not_found\",\"detail\":\"文件未登记在manifest中：gdaldoc/programs/does-not-exist.html\"}"
+      },
+      "verdict": "PASS",
+      "note": "status=404 body={\"error\":\"not_found\",\"detail\":\"文件未登记在manifest中：gdaldoc/programs/does-not-exist.html\"}",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-neg2 别的语料的文件路径",
+      "request": {
+        "GET": "/files/gdal-3.13.1/README.md",
+        "raw_url": "http://127.0.0.1:8765/files/gdal-3.13.1/README.md"
+      },
+      "response": {
+        "status": 404,
+        "body": "{\"error\":\"not_found\",\"detail\":\"文件未登记在manifest中：README.md\"}"
+      },
+      "verdict": "PASS",
+      "note": "status=404 body={\"error\":\"not_found\",\"detail\":\"文件未登记在manifest中：README.md\"}",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-neg3 不存在的语料",
+      "request": {
+        "GET": "/files/no-such-corpus/README.md",
+        "raw_url": "http://127.0.0.1:8765/files/no-such-corpus/README.md"
+      },
+      "response": {
+        "status": 403,
+        "body": "{\"error\":\"forbidden\",\"detail\":\"没有为语料 no-such-corpus 配置访问策略，默认拒绝\"}"
+      },
+      "verdict": "PASS",
+      "note": "status=403 body={\"error\":\"forbidden\",\"detail\":\"没有为语料 no-such-corpus 配置访问策略，默认拒绝\"}",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-neg4 路径穿越",
+      "request": {
+        "GET": "/files/gdal-3.13.1/%2e%2e%2f%2e%2e%2fproj/9.8.1/README.md",
+        "raw_url": "http://127.0.0.1:8765/files/gdal-3.13.1/%2e%2e%2f%2e%2e%2fproj/9.8.1/README.md"
+      },
+      "response": {
+        "status": 404,
+        "body": "{\"error\":\"not_found\",\"detail\":\"文件未登记在manifest中：../../proj/9.8.1/README.md\"}"
+      },
+      "verdict": "PASS",
+      "note": "status=404 body={\"error\":\"not_found\",\"detail\":\"文件未登记在manifest中：../../proj/9.8.1/README.md\"}",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-enc 百分号编码路径能正确解码",
+      "request": {
+        "GET": "/files/gdal-3.13.1/gdaldoc/programs/gdal%5Ftranslate.html",
+        "control": "/files/gdal-3.13.1/gdaldoc/programs/gdal_translate.html"
+      },
+      "response": {
+        "encoded_status": 200,
+        "plain_status": 200,
+        "same_bytes": true
+      },
+      "verdict": "PASS",
+      "note": "status=200 与明文路径字节相同=True",
+      "required": true
+    },
+    {
+      "section": "4 /files 取件端点",
+      "item": "A7-nonascii 非 ASCII 文件名/路径（真实语料现状）",
+      "request": {
+        "scan": "raw_data/**"
+      },
+      "response": {
+        "special_paths_found": [],
+        "note": "6 个语料共 78 个登记路径全部为 ASCII，无中文/非 ASCII 路径可测；改用独立临时语料在服务D验证编码路径"
+      },
+      "verdict": "PASS",
+      "note": "真实语料无非 ASCII 路径（这是事实陈述，不是通过/失败判定）",
+      "required": true
+    },
+    {
+      "section": "5 证据自洽性（严格复核）",
+      "item": "A8-osgearth-r1 证据区间自洽（严格复核）",
+      "request": {
+        "query": "How does osgEarth organize layers in a Map, and what is an Earth File?",
+        "library": "osgearth",
+        "rank": 1,
+        "source_path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+        "start_line": 1,
+        "end_line": 49,
+        "page_number": null,
+        "manifest_parser": "text-line-v1",
+        "chunk_id": "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0000"
+      },
+      "response": {
+        "kind": "line_window",
+        "file": "<project-root>\\raw_data\\osgearth\\3.8\\docs\\source\\earthfile.md",
+        "start_line": 1,
+        "end_line": 49,
+        "file_line_count": 120,
+        "exact_match_after_documented_parse": true,
+        "returned_head": "# The Earth File osgEarth uses the familiar **Map/Layer** paradigm for organizing data. The **Map** is comprised of a collection of **layers**. The renderer draws each visible layer one after the next",
+        "window_head": "# The Earth File osgEarth uses the familiar **Map/Layer** paradigm for organizing data. The **Map** is comprised of a collection of **layers**. The renderer draws each visible layer one after the next"
+      },
+      "verdict": "PASS",
+      "note": "区间 1-49（共120行，parser=text-line-v1）逐字一致=True",
+      "required": true
+    },
+    {
+      "section": "5 证据自洽性（严格复核）",
+      "item": "A8-osgearth-r2 证据区间自洽（严格复核）",
+      "request": {
+        "query": "How does osgEarth organize layers in a Map, and what is an Earth File?",
+        "library": "osgearth",
+        "rank": 2,
+        "source_path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+        "start_line": 50,
+        "end_line": 85,
+        "page_number": null,
+        "manifest_parser": "text-line-v1",
+        "chunk_id": "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0001"
+      },
+      "response": {
+        "kind": "line_window",
+        "file": "<project-root>\\raw_data\\osgearth\\3.8\\docs\\source\\earthfile.md",
+        "start_line": 50,
+        "end_line": 85,
+        "file_line_count": 120,
+        "exact_match_after_documented_parse": true,
+        "returned_head": "In this case, osgEarth will draw the \"World\" layer first, followed by \"Boston\" and finally \"New York\" on top. We also interspersed some XML comments in there. ### Adding Terrain Elevation Data Now let",
+        "window_head": "In this case, osgEarth will draw the \"World\" layer first, followed by \"Boston\" and finally \"New York\" on top. We also interspersed some XML comments in there. ### Adding Terrain Elevation Data Now let"
+      },
+      "verdict": "PASS",
+      "note": "区间 50-85（共120行，parser=text-line-v1）逐字一致=True",
+      "required": true
+    },
+    {
+      "section": "5 证据自洽性（严格复核）",
+      "item": "A8-gdal-r1 证据区间自洽（严格复核）",
+      "request": {
+        "query": "gdalwarp resampling method -r option and its choices",
+        "library": "gdal",
+        "rank": 1,
+        "source_path": "raw_data/gdal/3.13.1/gdaldoc/programs/gdalwarp.html",
+        "start_line": 556,
+        "end_line": 572,
+        "page_number": null,
+        "manifest_parser": "html-line-v1",
+        "chunk_id": "3.13.1:raw_data/gdal/3.13.1/gdaldoc/programs/gdalwarp.html:blocks-split:0009"
+      },
+      "response": {
+        "kind": "line_window",
+        "file": "<project-root>\\raw_data\\gdal\\3.13.1\\gdaldoc\\programs\\gdalwarp.html",
+        "start_line": 556,
+        "end_line": 572,
+        "file_line_count": 1168,
+        "exact_match_after_documented_parse": true,
+        "returned_head": "-r <resampling_method>  Resampling method to use. Available methods are: near : nearest neighbour resampling (default for non-COG drivers, fastest algorithm, worst interpolation quality). bilinear : ",
+        "window_head": "-r <resampling_method>  Resampling method to use. Available methods are: near : nearest neighbour resampling (default for non-COG drivers, fastest algorithm, worst interpolation quality). bilinear : "
+      },
+      "verdict": "PASS",
+      "note": "区间 556-572（共1168行，parser=html-line-v1）逐字一致=True",
+      "required": true
+    },
+    {
+      "section": "5 证据自洽性（严格复核）",
+      "item": "A8-gdal-r2 证据区间自洽（严格复核）",
+      "request": {
+        "query": "gdalwarp resampling method -r option and its choices",
+        "library": "gdal",
+        "rank": 2,
+        "source_path": "raw_data/gdal/3.13.1/gdaldoc/programs/gdaladdo.html",
+        "start_line": 231,
+        "end_line": 251,
+        "page_number": null,
+        "manifest_parser": "html-line-v1",
+        "chunk_id": "3.13.1:raw_data/gdal/3.13.1/gdaldoc/programs/gdaladdo.html:blocks-split:0002"
+      },
+      "response": {
+        "kind": "line_window",
+        "file": "<project-root>\\raw_data\\gdal\\3.13.1\\gdaldoc\\programs\\gdaladdo.html",
+        "start_line": 231,
+        "end_line": 251,
+        "file_line_count": 590,
+        "exact_match_after_documented_parse": true,
+        "returned_head": "-r {nearest|average|rms|gauss|bilinear|cubic|cubicspline|lanczos|average_magphase|mode}  Select a resampling algorithm. The default is nearest , which is generally not appropriate if sub-pixel accura",
+        "window_head": "-r {nearest|average|rms|gauss|bilinear|cubic|cubicspline|lanczos|average_magphase|mode}  Select a resampling algorithm. The default is nearest , which is generally not appropriate if sub-pixel accura"
+      },
+      "verdict": "PASS",
+      "note": "区间 231-251（共590行，parser=html-line-v1）逐字一致=True",
+      "required": true
+    },
+    {
+      "section": "5 证据自洽性（严格复核）",
+      "item": "A8-proj-r1 证据区间自洽（严格复核）",
+      "request": {
+        "query": "projinfo command line tool query CRS definition",
+        "library": "proj",
+        "rank": 1,
+        "source_path": "raw_data/proj/9.8.1/man/man1/projinfo.1",
+        "start_line": 723,
+        "end_line": 736,
+        "page_number": null,
+        "manifest_parser": "man-roff-line-v1",
+        "chunk_id": "9.8.1:raw_data/proj/9.8.1/man/man1/projinfo.1:blocks-split:0014"
+      },
+      "response": {
+        "kind": "line_window",
+        "file": "<project-root>\\raw_data\\proj\\9.8.1\\man\\man1\\projinfo.1",
+        "start_line": 723,
+        "end_line": 736,
+        "file_line_count": 832,
+        "exact_match_after_documented_parse": true,
+        "returned_head": "# Create an auxiliary database with the definition of a custom CRS. projinfo \\(dq+proj=merc +lat_ts=5 +datum=WGS84 +type=crs +title=my_crs\\(dq --output-id HOBU:MY_CRS --dump-db-structure | sqlite3 aux",
+        "window_head": "# Create an auxiliary database with the definition of a custom CRS. projinfo \\(dq+proj=merc +lat_ts=5 +datum=WGS84 +type=crs +title=my_crs\\(dq --output-id HOBU:MY_CRS --dump-db-structure | sqlite3 aux"
+      },
+      "verdict": "PASS",
+      "note": "区间 723-736（共832行，parser=man-roff-line-v1）逐字一致=True",
+      "required": true
+    },
+    {
+      "section": "5 证据自洽性（严格复核）",
+      "item": "A8-proj-r2 证据区间自洽（严格复核）",
+      "request": {
+        "query": "projinfo command line tool query CRS definition",
+        "library": "proj",
+        "rank": 2,
+        "source_path": "raw_data/proj/9.8.1/man/man1/projinfo.1",
+        "start_line": 402,
+        "end_line": 441,
+        "page_number": null,
+        "manifest_parser": "man-roff-line-v1",
+        "chunk_id": "9.8.1:raw_data/proj/9.8.1/man/man1/projinfo.1:blocks-split:0009"
+      },
+      "response": {
+        "kind": "line_window",
+        "file": "<project-root>\\raw_data\\proj\\9.8.1\\man\\man1\\projinfo.1",
+        "start_line": 402,
+        "end_line": 441,
+        "file_line_count": 832,
+        "exact_match_after_documented_parse": true,
+        "returned_head": "--identify When used with an object definition, this queries the PROJ database to find known objects, typically CRS, that are close or identical to the object. Each candidate object is associated with",
+        "window_head": "--identify When used with an object definition, this queries the PROJ database to find known objects, typically CRS, that are close or identical to the object. Each candidate object is associated with"
+      },
+      "verdict": "PASS",
+      "note": "区间 402-441（共832行，parser=man-roff-line-v1）逐字一致=True",
+      "required": true
+    },
+    {
+      "section": "5 证据自洽性（严格复核）",
+      "item": "A8-ogc-3dtiles-r1 证据区间自洽（严格复核）",
+      "request": {
+        "query": "3D Tiles bounding volume box region sphere definition",
+        "library": "ogc-3dtiles",
+        "rank": 1,
+        "source_path": "raw_data/ogc-3dtiles/1.1/22-025r4.html",
+        "start_line": 1773,
+        "end_line": 1798,
+        "page_number": null,
+        "manifest_parser": "html-line-v1",
+        "chunk_id": "1.1:raw_data/ogc-3dtiles/1.1/22-025r4.html:blocks-split:0040"
+      },
+      "response": {
+        "kind": "line_window",
+        "file": "<project-root>\\raw_data\\ogc-3dtiles\\1.1\\22-025r4.html",
+        "start_line": 1773,
+        "end_line": 1798,
+        "file_line_count": 10027,
+        "exact_match_after_documented_parse": true,
+        "returned_head": "The boundingVolume.box property is an array of 12 numbers that define an oriented bounding box in a right-handed 3-axis (x, y, z) Cartesian coordinate system where the z -axis is up. The first three e",
+        "window_head": "The boundingVolume.box property is an array of 12 numbers that define an oriented bounding box in a right-handed 3-axis (x, y, z) Cartesian coordinate system where the z -axis is up. The first three e"
+      },
+      "verdict": "PASS",
+      "note": "区间 1773-1798（共10027行，parser=html-line-v1）逐字一致=True",
+      "required": true
+    },
+    {
+      "section": "5 证据自洽性（严格复核）",
+      "item": "A8-ogc-3dtiles-r2 证据区间自洽（严格复核）",
+      "request": {
+        "query": "3D Tiles bounding volume box region sphere definition",
+        "library": "ogc-3dtiles",
+        "rank": 2,
+        "source_path": "raw_data/ogc-3dtiles/1.1/22-025r4.pdf",
+        "start_line": 27,
+        "end_line": 42,
+        "page_number": 351,
+        "manifest_parser": "pymupdf-page-v1",
+        "chunk_id": "1.1:raw_data/ogc-3dtiles/1.1/22-025r4.pdf:page-351:blocks-split:0001"
+      },
+      "response": {
+        "kind": "pdf_page",
+        "file": "<project-root>\\raw_data\\ogc-3dtiles\\1.1\\22-025r4.pdf",
+        "page_number": 351,
+        "page_count": 359,
+        "text_contained_in_page": true,
+        "returned_head": "                                   •  Type: SCALAR\n                                   •  Component type:\n                                      FLOAT32 or       ",
+        "page_head": "F.3.3. Tile F.3.3.1. Overview TILE_* semantics provide meaning for properties associated with a particular tile, and should take precedence over equivalent meta"
+      },
+      "verdict": "PASS",
+      "note": "page_number=351/359 返回正文是该页正文的子串=True",
+      "required": true
+    },
+    {
+      "section": "5 证据自洽性（严格复核）",
+      "item": "A8-ogc-wms-r1 证据区间自洽（严格复核）",
+      "request": {
+        "query": "WMS GetCapabilities request VERSION parameter",
+        "library": "ogc-wms",
+        "rank": 1,
+        "source_path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+        "start_line": 32,
+        "end_line": 53,
+        "page_number": 10,
+        "manifest_parser": "pymupdf-page-v1",
+        "chunk_id": "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-10:blocks-split:0001"
+      },
+      "response": {
+        "kind": "pdf_page",
+        "file": "<project-root>\\raw_data\\ogc-wms\\1.3.0\\06-042.pdf",
+        "page_number": 10,
+        "page_count": 85,
+        "text_contained_in_page": true,
+        "returned_head": "A WMS client may negotiate with a server to determine a mutually agreeable protocol version. Negotiation is\nperformed using the GetCapabilities operation (descr",
+        "page_head": "OGC 06-042 6.2 Version numbering and negotiation 6.2.1 Version number form and value The Web Map Service (WMS) defines a protocol version number. The version nu"
+      },
+      "verdict": "PASS",
+      "note": "page_number=10/85 返回正文是该页正文的子串=True",
+      "required": true
+    },
+    {
+      "section": "5 证据自洽性（严格复核）",
+      "item": "A8-ogc-wms-r2 证据区间自洽（严格复核）",
+      "request": {
+        "query": "WMS GetCapabilities request VERSION parameter",
+        "library": "ogc-wms",
+        "rank": 2,
+        "source_path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+        "start_line": 42,
+        "end_line": 68,
+        "page_number": 39,
+        "manifest_parser": "pymupdf-page-v1",
+        "chunk_id": "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-39:blocks-split:0001"
+      },
+      "response": {
+        "kind": "pdf_page",
+        "file": "<project-root>\\raw_data\\ogc-wms\\1.3.0\\06-042.pdf",
+        "page_number": 39,
+        "page_count": 85,
+        "text_contained_in_page": true,
+        "returned_head": "The mandatory VERSION parameter is defined in 6.9.1. The value “1.3.0” shall be used for GetFeatureInfo\nrequests that comply with this International Standard.\n\n",
+        "page_head": "OGC 06-042 7.4.2 GetFeatureInfo request overview The parameters of a GetFeatureInfo request are listed in Table 9. Table 9 — The Parameters of a GetFeatureInfo "
+      },
+      "verdict": "PASS",
+      "note": "page_number=39/85 返回正文是该页正文的子串=True",
+      "required": true
+    },
+    {
+      "section": "6 越权拒绝（受限 ACL，独立进程）",
+      "item": "B1 受限服务协议握手",
+      "request": {
+        "url": "http://127.0.0.1:8766/mcp"
+      },
+      "response": {
+        "tools": [
+          "search_docs",
+          "list_corpora"
+        ]
+      },
+      "verdict": "PASS",
+      "note": "tools=['search_docs', 'list_corpora']",
+      "required": true
+    },
+    {
+      "section": "6 越权拒绝（受限 ACL，独立进程）",
+      "item": "B2 无权语料不出现在 list_corpora",
+      "request": {
+        "include_files": false
+      },
+      "response": {
+        "visible": [
+          "gdal-3.13.1",
+          "ogc-wms-1.3.0",
+          "osg-3.6.5"
+        ],
+        "count": 3
+      },
+      "verdict": "PASS",
+      "note": "可见=['gdal-3.13.1', 'ogc-wms-1.3.0', 'osg-3.6.5']",
+      "required": true
+    },
+    {
+      "section": "6 越权拒绝（受限 ACL，独立进程）",
+      "item": "B3 受限策略下默认 OSG 路径仍放行",
+      "request": {
+        "query": "osg::Node accept NodeVisitor",
+        "top_k": 2
+      },
+      "response": {
+        "evidence_count": 2,
+        "evidence": [
+          {
+            "chunk_id": "3.6.5:include/osg/Node:blocks:0001",
+            "corpus_id": "osg-3.6.5",
+            "source_path": "include/osg/Node",
+            "download_path": "/files/osg-3.6.5/include/osg/Node",
+            "start_line": 52,
+            "end_line": 82
+          },
+          {
+            "chunk_id": "3.6.5:include/osg/Node:blocks:0004",
+            "corpus_id": "osg-3.6.5",
+            "source_path": "include/osg/Node",
+            "download_path": "/files/osg-3.6.5/include/osg/Node",
+            "start_line": 141,
+            "end_line": 168
+          }
+        ],
+        "evidence_status": "unverified",
+        "_client_elapsed_seconds": 0.827
+      },
+      "verdict": "PASS",
+      "note": "证据数=2",
+      "required": true
+    },
+    {
+      "section": "6 越权拒绝（受限 ACL，独立进程）",
+      "item": "B4-proj 报错（有策略但未授权）",
+      "request": {
+        "query": "3D Tiles bounding volume",
+        "library": "proj",
+        "top_k": 2
+      },
+      "response": {
+        "error": "invalid_target",
+        "detail": "没有library为 proj 的索引；可用：gdal, ogc-wms",
+        "evidence_count": 0,
+        "evidence": [],
+        "evidence_status": "not_retrieved",
+        "_client_elapsed_seconds": 0.005
+      },
+      "verdict": "PASS",
+      "note": "error=invalid_target detail=没有library为 proj 的索引；可用：gdal, ogc-wms elapsed=0.005s",
+      "required": true
+    },
+    {
+      "section": "6 越权拒绝（受限 ACL，独立进程）",
+      "item": "B4-osgearth 报错（有策略但未授权）",
+      "request": {
+        "query": "3D Tiles bounding volume",
+        "library": "osgearth",
+        "top_k": 2
+      },
+      "response": {
+        "error": "invalid_target",
+        "detail": "没有library为 osgearth 的索引；可用：gdal, ogc-wms",
+        "evidence_count": 0,
+        "evidence": [],
+        "evidence_status": "not_retrieved",
+        "_client_elapsed_seconds": 0.005
+      },
+      "verdict": "PASS",
+      "note": "error=invalid_target detail=没有library为 osgearth 的索引；可用：gdal, ogc-wms elapsed=0.005s",
+      "required": true
+    },
+    {
+      "section": "6 越权拒绝（受限 ACL，独立进程）",
+      "item": "B4-ogc-3dtiles 报错（策略文件不存在）",
+      "request": {
+        "query": "3D Tiles bounding volume",
+        "library": "ogc-3dtiles",
+        "top_k": 2
+      },
+      "response": {
+        "error": "invalid_target",
+        "detail": "没有library为 ogc-3dtiles 的索引；可用：gdal, ogc-wms",
+        "evidence_count": 0,
+        "evidence": [],
+        "evidence_status": "not_retrieved",
+        "_client_elapsed_seconds": 0.004
+      },
+      "verdict": "PASS",
+      "note": "error=invalid_target detail=没有library为 ogc-3dtiles 的索引；可用：gdal, ogc-wms elapsed=0.004s",
+      "required": true
+    },
+    {
+      "section": "6 越权拒绝（受限 ACL，独立进程）",
+      "item": "B4-no-such-library 报错（库名根本不存在）",
+      "request": {
+        "query": "3D Tiles bounding volume",
+        "library": "no-such-library",
+        "top_k": 2
+      },
+      "response": {
+        "error": "invalid_target",
+        "detail": "没有library为 no-such-library 的索引；可用：gdal, ogc-wms",
+        "evidence_count": 0,
+        "evidence": [],
+        "evidence_status": "not_retrieved",
+        "_client_elapsed_seconds": 0.004
+      },
+      "verdict": "PASS",
+      "note": "error=invalid_target detail=没有library为 no-such-library 的索引；可用：gdal, ogc-wms elapsed=0.004s",
+      "required": true
+    },
+    {
+      "section": "6 越权拒绝（受限 ACL，独立进程）",
+      "item": "B5 无权语料与不存在语料的报错形态完全相同",
+      "request": {
+        "cases": [
+          "proj",
+          "osgearth",
+          "ogc-3dtiles",
+          "no-such-library"
+        ],
+        "normalization": "把调用方传入的库名替换为 <LIB>"
+      },
+      "response": {
+        "normalized_details": {
+          "proj": "没有library为 <LIB> 的索引；可用：gdal, ogc-wms",
+          "osgearth": "没有library为 <LIB> 的索引；可用：gdal, ogc-wms",
+          "ogc-3dtiles": "没有library为 <LIB> 的索引；可用：gdal, ogc-wms",
+          "no-such-library": "没有library为 <LIB> 的索引；可用：gdal, ogc-wms"
+        },
+        "distinct_count": 1,
+        "available_list": "gdal, ogc-wms"
+      },
+      "verdict": "PASS",
+      "note": "归一化后 1 种形态（应为1）；可用=gdal, ogc-wms",
+      "minimal_repro": "search_docs(query=\"3D Tiles bounding volume\", library=\"proj\") 与 library=\"no-such-library\" 的 detail 去掉库名后逐字相同",
+      "required": true
+    },
+    {
+      "section": "6 越权拒绝（受限 ACL，独立进程）",
+      "item": "B6 可用列表不含无权语料",
+      "request": {
+        "available_expected": [
+          "gdal",
+          "ogc-wms"
+        ]
+      },
+      "response": {
+        "available_list": "gdal, ogc-wms"
+      },
+      "verdict": "PASS",
+      "note": "可用=gdal, ogc-wms（osgearth/proj/ogc-3dtiles 均不出现）",
+      "required": true
+    },
+    {
+      "section": "6 越权拒绝（受限 ACL，独立进程）",
+      "item": "B7 无权语料未被实际查询（Qdrant /points/query 计数增量）",
+      "request": {
+        "metric": "rest_responses_total{method=\"POST\",endpoint=\"/collections/{collection_name}/points/query\",status=\"200\"}",
+        "sequence": "4 次无权/不存在检索 → 1 次有权检索"
+      },
+      "response": {
+        "counter_before_all_denied": 158,
+        "counter_after_4_denied": 158,
+        "delta_denied_requests": 0,
+        "counter_after_allowed": 159,
+        "delta_allowed_request": 1,
+        "denied_wall_clock": [
+          [
+            "proj",
+            0.005,
+            "没有library为 proj 的索引；可用：gdal, ogc-wms"
+          ],
+          [
+            "osgearth",
+            0.005,
+            "没有library为 osgearth 的索引；可用：gdal, ogc-wms"
+          ],
+          [
+            "ogc-3dtiles",
+            0.004,
+            "没有library为 ogc-3dtiles 的索引；可用：gdal, ogc-wms"
+          ],
+          [
+            "no-such-library",
+            0.004,
+            "没有library为 no-such-library 的索引；可用：gdal, ogc-wms"
+          ]
+        ],
+        "allowed_wall_clock_seconds": 0.833
+      },
+      "verdict": "PASS",
+      "note": "4 次被拒检索的 Qdrant 查询增量=0（应为0）；1 次有权检索增量=1（应>0）；耗时 被拒0.004s vs 有权0.833s",
+      "required": true
+    },
+    {
+      "section": "6 越权拒绝（受限 ACL，独立进程）",
+      "item": "B8 取件端点同样执行受限策略",
+      "request": {
+        "GET": "/files/proj-9.8.1/README.md（无权）",
+        "GET_control": "/files/gdal-3.13.1/gdaldoc/programs/gdal_translate.html（有权）"
+      },
+      "response": {
+        "denied": {
+          "status": 403,
+          "body": "{\"error\":\"forbidden\",\"detail\":\"客户端无权读取语料 proj-9.8.1\"}"
+        },
+        "allowed": {
+          "status": 200,
+          "bytes": 69549
+        }
+      },
+      "verdict": "PASS",
+      "note": "无权=403 有权=200",
+      "required": true
+    },
+    {
+      "section": "7 Bearer 鉴权",
+      "item": "C1 未带 Bearer 的请求被拒",
+      "request": {
+        "POST": "http://127.0.0.1:8767/mcp",
+        "Authorization": null
+      },
+      "response": {
+        "status": 401,
+        "www_authenticate": "Bearer",
+        "body": "{\"error\":\"unauthorized\"}"
+      },
+      "verdict": "PASS",
+      "note": "status=401 body={\"error\":\"unauthorized\"}",
+      "required": true
+    },
+    {
+      "section": "7 Bearer 鉴权",
+      "item": "C2 错误 Bearer 密钥被拒",
+      "request": {
+        "Authorization": "Bearer wrong-key-..."
+      },
+      "response": {
+        "status": 401,
+        "mcp_session_id": null,
+        "negotiated_protocol_version": null,
+        "body_head": "{\"error\":\"unauthorized\"}"
+      },
+      "verdict": "PASS",
+      "note": "status=401",
+      "required": true
+    },
+    {
+      "section": "7 Bearer 鉴权",
+      "item": "C3 仅伪造 x-wenjin-authenticated-client 不能绕过鉴权",
+      "request": {
+        "header": "x-wenjin-authenticated-client: root",
+        "Authorization": null
+      },
+      "response": {
+        "status": 401,
+        "mcp_session_id": null,
+        "negotiated_protocol_version": null,
+        "body_head": "{\"error\":\"unauthorized\"}"
+      },
+      "verdict": "PASS",
+      "note": "status=401",
+      "required": true
+    },
+    {
+      "section": "7 Bearer 鉴权",
+      "item": "C4 正确密钥完成握手并协商协议版本",
+      "request": {
+        "Authorization": "Bearer <key>",
+        "client_protocolVersion": "2025-11-25"
+      },
+      "response": {
+        "status": 200,
+        "mcp_session_id": "b1b9d3e457ff455cbc9ed2e9dc0fc676",
+        "negotiated_protocol_version": "2025-11-25",
+        "body_head": "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{\"experimental\":{},\"logging\":{},\"prompts\":{\"listChanged\":true},\"resources\":{\"subscribe\":false,\"listChanged\":true},\"tools\":{\"listChanged\":true},\"extensions\":{\"io.modelcontextprotocol/ui\":{}}},\"server"
+      },
+      "verdict": "PASS",
+      "note": "status=200 session=True protocol=2025-11-25",
+      "required": true
+    },
+    {
+      "section": "7 Bearer 鉴权",
+      "item": "C5 Bearer 下的工具列表与多语料检索",
+      "request": {
+        "tools/list": {},
+        "search_docs": {
+          "query": "gdalwarp resampling method",
+          "library": "gdal",
+          "top_k": 1
+        }
+      },
+      "response": {
+        "tools": [
+          "search_docs",
+          "list_corpora"
+        ],
+        "routed_libraries": [
+          {
+            "library": "gdal",
+            "version": "3.13.1",
+            "target_id": "gdal-3.13.1-blocks-split-candidate-002"
+          }
+        ],
+        "evidence": [
+          {
+            "chunk_id": "3.13.1:raw_data/gdal/3.13.1/gdaldoc/programs/gdalwarp.html:blocks-split:0009",
+            "corpus_id": "gdal-3.13.1",
+            "download_path": "/files/gdal-3.13.1/gdaldoc/programs/gdalwarp.html"
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "note": "tools=['search_docs', 'list_corpora'] 证据数=1",
+      "required": true
+    },
+    {
+      "section": "7 Bearer 鉴权",
+      "item": "C6 /files 取件在 Bearer 下的鉴权",
+      "request": {
+        "GET": "/files/gdal-3.13.1/gdaldoc/programs/gdalwarp.html",
+        "with_token": true,
+        "without_token": true
+      },
+      "response": {
+        "without_token": {
+          "status": 401,
+          "body": "{\"error\":\"unauthorized\"}"
+        },
+        "with_token": {
+          "status": 200,
+          "bytes": 94452,
+          "content_type": "text/html"
+        }
+      },
+      "verdict": "PASS",
+      "note": "无密钥=401 有密钥=200",
+      "required": true
+    },
+    {
+      "section": "8 非 ASCII / 特殊字符路径取件",
+      "item": "D-文档/中文文件名.md",
+      "request": {
+        "GET": "http://127.0.0.1:8768/files/demo-1.0/%E6%96%87%E6%A1%A3/%E4%B8%AD%E6%96%87%E6%96%87%E4%BB%B6%E5%90%8D.md",
+        "raw_path_field": "/files/demo-1.0/%E6%96%87%E6%A1%A3/%E4%B8%AD%E6%96%87%E6%96%87%E4%BB%B6%E5%90%8D.md"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "text/markdown",
+        "content_disposition": "inline; filename*=UTF-8''%E4%B8%AD%E6%96%87%E6%96%87%E4%BB%B6%E5%90%8D.md",
+        "served_sha256": "2ac1902f96ceaf2c89d8c4531dfc26eb69cc016fd0d399350ff960d40235aa60",
+        "disk_sha256": "2ac1902f96ceaf2c89d8c4531dfc26eb69cc016fd0d399350ff960d40235aa60",
+        "body_head": "# 文档/中文文件名.md\n合成语料，仅用于验证 /files 的路径编码。\n"
+      },
+      "verdict": "PASS",
+      "note": "status=200 字节与磁盘原文一致=True",
+      "required": true
+    },
+    {
+      "section": "8 非 ASCII / 特殊字符路径取件",
+      "item": "D-note with space.md",
+      "request": {
+        "GET": "http://127.0.0.1:8768/files/demo-1.0/note%20with%20space.md",
+        "raw_path_field": "/files/demo-1.0/note%20with%20space.md"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "text/markdown",
+        "content_disposition": "inline; filename*=UTF-8''note%20with%20space.md",
+        "served_sha256": "54ef48f5545f0a227be2de0b2f24542b872e27ecd36b21f9eacdc659409a01f2",
+        "disk_sha256": "54ef48f5545f0a227be2de0b2f24542b872e27ecd36b21f9eacdc659409a01f2",
+        "body_head": "# note with space.md\n合成语料，仅用于验证 /files 的路径编码。\n"
+      },
+      "verdict": "PASS",
+      "note": "status=200 字节与磁盘原文一致=True",
+      "required": true
+    },
+    {
+      "section": "8 非 ASCII / 特殊字符路径取件",
+      "item": "D-plus+amp&hash#d.md",
+      "request": {
+        "GET": "http://127.0.0.1:8768/files/demo-1.0/plus%2Bamp%26hash%23d.md",
+        "raw_path_field": "/files/demo-1.0/plus%2Bamp%26hash%23d.md"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "text/markdown",
+        "content_disposition": "inline; filename*=UTF-8''plus%2Bamp%26hash%23d.md",
+        "served_sha256": "6aedaa1d1df2e08efa07417d56c70e1d63ba940fe985a4ed0efb3507bc974887",
+        "disk_sha256": "6aedaa1d1df2e08efa07417d56c70e1d63ba940fe985a4ed0efb3507bc974887",
+        "body_head": "# plus+amp&hash#d.md\n合成语料，仅用于验证 /files 的路径编码。\n"
+      },
+      "verdict": "PASS",
+      "note": "status=200 字节与磁盘原文一致=True",
+      "required": true
+    },
+    {
+      "section": "8 非 ASCII / 特殊字符路径取件",
+      "item": "D-manual 手工百分号编码 URL",
+      "request": {
+        "GET": "http://127.0.0.1:8768/files/demo-1.0/%E6%96%87%E6%A1%A3/%E4%B8%AD%E6%96%87%E6%96%87%E4%BB%B6%E5%90%8D.md"
+      },
+      "response": {
+        "status": 200,
+        "content_type": "text/markdown",
+        "body_head": "# 文档/中文文件名.md\n合成语料，仅用于验证 /files 的路径编码。\n"
+      },
+      "verdict": "PASS",
+      "note": "status=200",
+      "required": true
+    },
+    {
+      "section": "8 非 ASCII / 特殊字符路径取件",
+      "item": "D-neg 非 ASCII 目录下的相对路径穿越",
+      "request": {
+        "GET": "http://127.0.0.1:8768/files/demo-1.0/%E6%96%87%E6%A1%A3/../%E4%B8%AD%E6%96%87%E6%96%87%E4%BB%B6%E5%90%8D.md"
+      },
+      "response": {
+        "status": 404,
+        "body": "{\"error\":\"not_found\",\"detail\":\"文件未登记在manifest中：中文文件名.md\"}"
+      },
+      "verdict": "PASS",
+      "note": "status=404",
+      "required": true
+    },
+    {
+      "section": "9 补充探针（超出必验清单）",
+      "item": "E1 library+version 显式寻址",
+      "request": {
+        "query": "osgEarth earth file layers",
+        "library": "osgearth",
+        "version": "3.8",
+        "top_k": 1
+      },
+      "response": {
+        "routed_libraries": [
+          {
+            "library": "osgearth",
+            "version": "3.8",
+            "target_id": "osgearth-3.8-blocks-split-candidate-002"
+          }
+        ],
+        "requested": {
+          "library": "osgearth",
+          "version": "3.8",
+          "target_id": null
+        },
+        "evidence": [
+          {
+            "chunk_id": "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0000",
+            "corpus_id": "osgearth-3.8"
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "note": "{\"routed_libraries\": [{\"library\": \"osgearth\", \"version\": \"3.8\", \"target_id\": \"osgearth-3.8-blocks-split-candidate-002\"}], \"requested\": {\"library\": \"osgearth\", \"version\": \"3.8\", \"target_id\": null}, \"ev",
+      "required": false
+    },
+    {
+      "section": "9 补充探针（超出必验清单）",
+      "item": "E2 版本不存在",
+      "request": {
+        "query": "anything",
+        "library": "gdal",
+        "version": "9.9.9",
+        "top_k": 1
+      },
+      "response": {
+        "error": "invalid_target",
+        "detail": "library gdal 没有版本 9.9.9；可用：3.13.1"
+      },
+      "verdict": "PASS",
+      "note": "{\"error\": \"invalid_target\", \"detail\": \"library gdal 没有版本 9.9.9；可用：3.13.1\"}",
+      "required": false
+    },
+    {
+      "section": "9 补充探针（超出必验清单）",
+      "item": "E3 target_id 不存在",
+      "request": {
+        "query": "anything",
+        "target_id": "no-such-target-002",
+        "top_k": 1
+      },
+      "response": {
+        "error": "invalid_target",
+        "detail": "没有target_id为 no-such-target-002 的索引；可用：gdal-3.13.1-blocks-split-candidate-002, ogc-3dtiles-1.1-blocks-split-candidate-002, ogc-wms-1.3.0-blocks-split-candidate-002, osgearth-3.8-blocks-split-candidate-002, proj-9.8.1-blocks-split-candidate-002"
+      },
+      "verdict": "PASS",
+      "note": "{\"error\": \"invalid_target\", \"detail\": \"没有target_id为 no-such-target-002 的索引；可用：gdal-3.13.1-blocks-split-candidate-002, ogc-3dtiles-1.1-blocks-split-candidate-002, ogc-wms-1.3.0-blocks-split-candidate-0",
+      "required": false
+    },
+    {
+      "section": "9 补充探针（超出必验清单）",
+      "item": "E4 只给 version 不给 library",
+      "request": {
+        "query": "anything",
+        "version": "3.13.1",
+        "top_k": 1
+      },
+      "response": {
+        "client_exception": "ToolError: Error calling tool 'search_docs'"
+      },
+      "verdict": "FAIL",
+      "note": "工具调用在协议层失败（服务端 mask_error_details=True，客户端只看到通用消息）",
+      "required": false
+    }
+  ],
+  "findings_not_in_checklist": [
+    {
+      "id": "F1",
+      "title": "路由路径的 evidence_dropped 是内部明细列表，默认路径是摘要 dict——同名字段两种类型",
+      "severity": "潜在信息泄露 + 客户端契约不一致",
+      "evidence": [
+        {
+          "call": "search_docs(query='osg::Node accept NodeVisitor', top_k=2)  # 默认路径",
+          "evidence_dropped": {
+            "count": 0,
+            "reasons": {}
+          },
+          "type": "dict"
+        },
+        {
+          "call": "search_docs(query='gdalwarp resampling', library='gdal', top_k=2)  # 路由路径",
+          "evidence_dropped": [],
+          "type": "list"
+        }
+      ],
+      "why_it_matters": "src/wenjin/serving.py 的 docstring 明确要求：给客户端只能用 dropped_summary()（只有数量与原因码），因为明细含 corpus_id、source_path 和中文 reason，「某个私有语料里有个叫 X 的文件」本身就是机密。默认路径遵守了这条；router.search() 把 attach_download_paths 的 dropped 原始列表直接放进 evidence_dropped，MCP 层（_search_routed）原样返回给客户端。",
+      "status": "已确证字段类型不一致（实测）；非空明细未实测到——需要索引与 manifest 漂移（chunk 的 source_path 映射不到 manifest）才会触发，本次没有构造这种资产。",
+      "code_pointers": [
+        "src/wenjin/mcp_server.py:629 result['evidence_dropped'] = attachment.dropped_summary()",
+        "src/wenjin/retrieval/router.py:'evidence_dropped': dropped_evidence",
+        "src/wenjin/serving.py:AttachmentResult.dropped_summary()"
+      ]
+    },
+    {
+      "id": "F2",
+      "title": "只给 version 不给 library 会落到 OSG 默认路径，失败对客户端不透明",
+      "severity": "可用性/可观测性",
+      "evidence": {
+        "call": "search_docs(query='anything', version='3.13.1', top_k=1)",
+        "client_sees": "fastmcp.exceptions.ToolError: Error calling tool 'search_docs'",
+        "server_side": "ValueError: 当前active索引只包含 3.6.5",
+        "server_audit": "status=error error_type=ValueError version=3.13.1"
+      },
+      "why_it_matters": "MCP 服务开了 mask_error_details=True，这条路径抛出的 ValueError 只会变成通用的「Error calling tool」，调用方无法区分是自己参数写错还是服务坏了。多语料路由只在传了 library 或 target_id 时才启用，单独传 version 不会触发路由。",
+      "status": "实测复现；是否为预期行为需要产品侧确认（默认路径保持 OSG 语义是明写的设计）。"
+    },
+    {
+      "id": "F3",
+      "title": "corpus_id 被限制为 [A-Za-z0-9._-]，但一个坏 corpus_id 会让 /files 对所有语料 503",
+      "severity": "故障半径",
+      "evidence": {
+        "fixture": "临时根目录里放了 corpora/中文语料-1.0/（目录名与 manifest 声明一致的中文名）",
+        "observed": "GET /files/demo-1.0/note%20with%20space.md -> 503 {\"error\":\"unavailable\",\"detail\":\"语料配置无效，请联系管理员\"}",
+        "server_side": "wenjin.corpus_identity.CorpusIdentityError: corpus_id只能由字母数字和和._-组成且不以符号开头，实际为：'中文语料-1.0'",
+        "after_fix": "去掉该夹具后同一请求返回 200 且字节校验通过"
+      },
+      "why_it_matters": "corpus_catalog() 是按设计 fail closed 的（身份冲突就拒绝整份列表），但 find_corpus() 走的也是它，于是**任何**一份坏 manifest 都会让所有语料的取件返回 503，而不是只影响那一份。内网多语料并存时，这个半径值得知道。",
+      "status": "实测复现（临时夹具，未改动仓库任何真实资产）。"
+    }
+  ],
+  "superseded_checks": [
+    {
+      "why": "第一版 A8 用 raw_data 原始字节与返回 text 逐字比较，口径错误：html-line-v1 / man-roff-line-v1 是行映射解析器，会逐行改写正文（去标签、去 roff 转义），二者本来就不应相同。",
+      "replacement": "第5节 a8_consistency 的严格复核",
+      "items": [
+        {
+          "item": "A8-gdal 证据 start_line-end_line 与原文一致",
+          "request": {
+            "source_path": "raw_data/gdal/3.13.1/gdaldoc/programs/gdalwarp.html",
+            "start_line": 556,
+            "end_line": 572,
+            "download_path": "/files/gdal-3.13.1/gdaldoc/programs/gdalwarp.html"
+          },
+          "response": {
+            "kind": "text_lines",
+            "file": "<project-root>\\raw_data\\gdal\\3.13.1\\gdaldoc\\programs\\gdalwarp.html",
+            "start_line": 556,
+            "end_line": 572,
+            "returned": "-r <resampling_method>  Resampling method to use. Available methods are: near : nearest neighbour resampling (default for non-COG drivers, fastest algorithm, worst interpolation quality). bilinear : ",
+            "actual": "<span class=\"sig-name descname\"><span class=\"pre\">-r</span></span><span class=\"sig-prename descclassname\"> <span class=\"pre\">&lt;resampling_method&gt;</span></span><a class=\"headerlink\" href=\"#cmdopti"
+          },
+          "verdict": "FAIL",
+          "note": "区间 556-572 内容与返回 text 一致=False"
+        },
+        {
+          "item": "A8-proj 证据 start_line-end_line 与原文一致",
+          "request": {
+            "source_path": "raw_data/proj/9.8.1/man/man1/projinfo.1",
+            "start_line": 723,
+            "end_line": 736,
+            "download_path": "/files/proj-9.8.1/man/man1/projinfo.1"
+          },
+          "response": {
+            "kind": "text_lines",
+            "file": "<project-root>\\raw_data\\proj\\9.8.1\\man\\man1\\projinfo.1",
+            "start_line": 723,
+            "end_line": 736,
+            "returned": "# Create an auxiliary database with the definition of a custom CRS. projinfo \\(dq+proj=merc +lat_ts=5 +datum=WGS84 +type=crs +title=my_crs\\(dq --output-id HOBU:MY_CRS --dump-db-structure | sqlite3 aux",
+            "actual": "# Create an auxiliary database with the definition of a custom CRS. projinfo \\(dq+proj=merc +lat_ts=5 +datum=WGS84 +type=crs +title=my_crs\\(dq \\-\\-output\\-id HOBU:MY_CRS \\-\\-dump\\-db\\-structure | sqli"
+          },
+          "verdict": "FAIL",
+          "note": "区间 723-736 内容与返回 text 一致=False"
+        },
+        {
+          "item": "A8-ogc-3dtiles 证据 start_line-end_line 与原文一致",
+          "request": {
+            "source_path": "raw_data/ogc-3dtiles/1.1/22-025r4.html",
+            "start_line": 1773,
+            "end_line": 1798,
+            "download_path": "/files/ogc-3dtiles-1.1/22-025r4.html"
+          },
+          "response": {
+            "kind": "text_lines",
+            "file": "<project-root>\\raw_data\\ogc-3dtiles\\1.1\\22-025r4.html",
+            "start_line": 1773,
+            "end_line": 1798,
+            "returned": "The boundingVolume.box property is an array of 12 numbers that define an oriented bounding box in a right-handed 3-axis (x, y, z) Cartesian coordinate system where the z -axis is up. The first three e",
+            "actual": "<p id=\"_39a28f8d-f044-dccc-2391-6596494e0c40\">The <tt>boundingVolume.box</tt> property is an array of 12 numbers that define an oriented bounding box in a right-handed 3-axis (x, y, z) Cartesian coord"
+          },
+          "verdict": "FAIL",
+          "note": "区间 1773-1798 内容与返回 text 一致=False"
+        },
+        {
+          "item": "A8-ogc-wms 证据 start_line-end_line 与原文一致",
+          "request": {
+            "source_path": "raw_data/ogc-wms/1.3.0/06-042.pdf",
+            "start_line": 32,
+            "end_line": 53,
+            "download_path": "/files/ogc-wms-1.3.0/06-042.pdf"
+          },
+          "response": {
+            "kind": "pdf_page",
+            "page_number": 10,
+            "file": "<project-root>\\raw_data\\ogc-wms\\1.3.0\\06-042.pdf"
+          },
+          "verdict": "PASS",
+          "note": "PDF 证据：page_number=10，按页抽查不做行比对"
+        },
+        {
+          "item": "A8-osgearth 证据 start_line-end_line 与原文一致",
+          "request": {
+            "source_path": "raw_data/osgearth/3.8/docs/source/earthfile.md",
+            "start_line": 1,
+            "end_line": 49,
+            "download_path": "/files/osgearth-3.8/docs/source/earthfile.md"
+          },
+          "response": {
+            "kind": "text_lines",
+            "file": "<project-root>\\raw_data\\osgearth\\3.8\\docs\\source\\earthfile.md",
+            "start_line": 1,
+            "end_line": 49,
+            "returned": "# The Earth File osgEarth uses the familiar **Map/Layer** paradigm for organizing data. The **Map** is comprised of a collection of **layers**. The renderer draws each visible layer one after the next",
+            "actual": "# The Earth File osgEarth uses the familiar **Map/Layer** paradigm for organizing data. The **Map** is comprised of a collection of **layers**. The renderer draws each visible layer one after the next"
+          },
+          "verdict": "PASS",
+          "note": "区间 1-49 内容与返回 text 一致=True"
+        }
+      ]
+    }
+  ],
+  "known_limitations": [
+    "6 个真实语料没有任何非 ASCII 文件名或路径，非 ASCII 编码只用临时合成语料验证（服务D）。",
+    "corpus_id 被 validate_identifier 限制为 [A-Za-z0-9._-]，中文语料名在语料层就被拒绝；实测中把中文名当 corpus_id 会让 corpus_catalog 整体抛错（fail closed），/files 全部返回 503「语料配置无效」。",
+    "服务 C 的 6 个语料都是 public/*，因此 Bearer 的 client_id 对可见语料集合没有可观测影响；本次只验证了 401/放行与伪造身份头无效，没验证「不同 client 看到不同语料」。",
+    "多轮会话未单独构造新会话：服务 A 的 20+ 次工具调用在同一 MCP 会话内连续成功，会话ID非空；未测会话过期后的重连行为。"
+  ]
+}
