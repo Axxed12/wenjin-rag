@@ -1,0 +1,848 @@
+{
+  "task": "中文分词检索（jieba）",
+  "date": "2026-09-21",
+  "paths_are_placeholders": true,
+  "what_changed": {
+    "new_module": "src/wenjin/indexing/zh.py",
+    "modified": [
+      "src/wenjin/indexing/bm25.py",
+      "src/wenjin/mcp_server.py",
+      "src/wenjin/retrieval/service.py (仅测试断言，源码未改)",
+      "pyproject.toml / uv.lock (jieba>=0.42.1)",
+      "Dockerfile",
+      "README.md / code.md",
+      "tests/test_bm25.py / tests/test_zh_segmentation.py / tests/test_retrieval_service.py"
+    ],
+    "table_schema_unchanged": true,
+    "evidence_text_unchanged": "raw_text 仍写未切分的 chunk.text，bm25_query 返回的 text 仍取 raw_text",
+    "lazy_loading": "jieba 只在 segment_cjk/cjk_terms 遇到 CJK 时 import；实测 import wenjin.mcp_server 后 'jieba' in sys.modules 为 False",
+    "prewarm": "mcp_server.create_runtime 启动时调 prewarm_zh()",
+    "new_contract": "索引与查询必须使用同一版 jieba；换版本必须重建 BM25 索引，否则词元对不上，中文检索静默返回空结果（不报错）",
+    "scope_correction": "**不要把本次修复说成「混合检索退化成单路向量召回」。** 冻结 test 的 40 题全是中文查询，但每题都内嵌英文标识符（gdal_translate/ogr2ogr/GeoTransform/b3dm…），平均 3.90 个英文检索词，没有一题提取不到检索词——BM25 对这些题本来就在出力。本次修复真正解决的是**一个英文都不带**的纯中文查询（query_terms 返回空列表）和**纯中文文档**（整段中文变成一个词元），即国内内网资料的常见形态。"
+  },
+  "callers_audited": {
+    "src/wenjin/retrieval/service.py:161": "query_terms 只作分路开关（terms 为空则 keyword=[]），随后把原 query 交给 bm25_query 重新提词。中文词进来后开关打开，链路自洽。",
+    "src/wenjin/retrieval/router.py:312": "同上，逐库分路，同样自洽。",
+    "evaluation/run_retrieval_eval.py": "同上；identifiers 支路用 code_identifier_terms 过滤。",
+    "evaluation/run_reranker_eval.py": "同上。",
+    "evaluation/inspect_misses.py": "只把 terms 写进报告的 bm25_terms 字段，无逻辑分支。",
+    "evaluation/run_query_rewrite_eval.py": "routed_bm25 把完整 terms 作 terms_override 传下去；中文词与切分后的索引同词元空间，正确。",
+    "evaluation/run_multicorpus_eval.py": "同 service.py 的开关用法。",
+    "code_identifier_terms()": "过滤条件是 '_' in term 或 re.search('[a-z][A-Z]', term)。中文词两者都不满足，被自然过滤掉——已确认，不需要额外处理。副作用：中文查询不会污染 include/% 头文件支路。",
+    "expand_query()": "按短语命中追加英文别名，不消费 query_terms；中文不受影响。扩展后的 query 会同时给出中文词（原问题）和英文词（追加），正是想要的行为。",
+    "source_routes()": "只看中文短语决定来源前缀，与 query_terms 无关，未受影响。",
+    "术语空间提醒": "bm25_query(terms_override=...) 不会对 override 再切分；调用方必须传已切分的词（query_terms 或 code_identifier_terms 的输出）。已在 docstring 注明，当前全部调用方符合。"
+  },
+  "verification": {
+    "active_bm25": "data/indexes/osg_3_6_5_bm25_blocks_dualhash.sqlite",
+    "fixture_links": [],
+    "candidate_copy": "artifacts/chinese-bm25/candidate-bm25-osg-3.6.5-blocks.sqlite",
+    "chunk_ids": {
+      "active": 307,
+      "candidate": 307,
+      "sequence_identical": true,
+      "set_identical": true
+    },
+    "non_retrieval_columns_identical": true,
+    "retrieval_text": {
+      "total_chunks": 307,
+      "changed_vs_active": 0,
+      "baseline_equals_active": true
+    },
+    "corpus_cjk_chunks": 0,
+    "english_queries": {
+      "addChild": {
+        "hits": 10,
+        "scores": [
+          4.9142074484,
+          4.8389171204,
+          4.7751078405,
+          4.3554750486,
+          4.3262299907,
+          4.0136144282,
+          3.9980708637,
+          3.8476547096,
+          3.7274533393,
+          3.6764081836
+        ],
+        "scores_bit_identical_to_active": true,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser"
+        ]
+      },
+      "Drawable": {
+        "hits": 10,
+        "scores": [
+          3.0342826623,
+          2.9784580941,
+          2.9771565012,
+          2.9459049982,
+          2.9241781614,
+          2.9198189235,
+          2.9120049604,
+          2.8930955065,
+          2.886956002,
+          2.874480012
+        ],
+        "scores_bit_identical_to_active": true,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser"
+        ]
+      },
+      "ref_ptr": {
+        "hits": 10,
+        "scores": [
+          2.0041749495,
+          1.9795961245,
+          1.9575631008,
+          1.9484154752,
+          1.9418147077,
+          1.9412074451,
+          1.9188723299,
+          1.8759564996,
+          1.8421231068,
+          1.8335198128
+        ],
+        "scores_bit_identical_to_active": true,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser"
+        ]
+      },
+      "osg::Geode": {
+        "hits": 10,
+        "scores": [
+          3.0334416265,
+          3.0311607244,
+          2.950648276,
+          2.9236592522,
+          2.9025707092,
+          2.8057026016,
+          2.8028695303,
+          2.7541863254,
+          2.7390897697,
+          2.7031063002
+        ],
+        "scores_bit_identical_to_active": true,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser"
+        ]
+      },
+      "Texture2D": {
+        "hits": 10,
+        "scores": [
+          4.8162816534,
+          4.7141063429,
+          4.570262136,
+          4.5198440513,
+          4.4275701447,
+          4.3223016781,
+          4.3105415581,
+          3.7476622224,
+          3.7166791518,
+          3.3183777314
+        ],
+        "scores_bit_identical_to_active": true,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser"
+        ]
+      },
+      "addDrawable": {
+        "hits": 10,
+        "scores": [
+          3.5569119837,
+          3.4668456671,
+          3.3536123207,
+          3.3126130307,
+          3.2494857049,
+          3.2275193745,
+          3.113852308,
+          2.952124045,
+          2.7765959724,
+          2.7669412919
+        ],
+        "scores_bit_identical_to_active": true,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser"
+        ]
+      },
+      "Node Visitor": {
+        "hits": 10,
+        "scores": [
+          6.6822406948,
+          5.380653863,
+          2.4785264693,
+          2.4508408571,
+          2.4449439312,
+          2.3910618945,
+          2.373811375,
+          2.3711354051,
+          2.3418142546,
+          2.3417445662
+        ],
+        "scores_bit_identical_to_active": true,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser"
+        ]
+      },
+      "readRefImageFile": {
+        "hits": 10,
+        "scores": [
+          4.7070753127,
+          4.3662602241,
+          4.1367726992,
+          3.9576774982,
+          3.1822394328,
+          3.1742780858,
+          3.1119932486,
+          3.1043790864,
+          2.9187067151,
+          2.8276416927
+        ],
+        "scores_bit_identical_to_active": true,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser"
+        ]
+      },
+      "Group setReferenceFrame": {
+        "hits": 10,
+        "scores": [
+          7.9043505545,
+          4.4387143038,
+          3.2019754878,
+          3.1365660827,
+          3.101823008,
+          3.0888753045,
+          3.0803267088,
+          2.868686228,
+          2.8457392268,
+          2.8452490734
+        ],
+        "scores_bit_identical_to_active": true,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser"
+        ]
+      }
+    },
+    "english_scores_all_bit_identical_to_active": true,
+    "chinese_queries_on_real_corpus": {
+      "接口": {
+        "active_hits": 0,
+        "candidate_hits": 0,
+        "candidate_terms": [],
+        "candidate_top": [],
+        "unsegmented_baseline_hits": 0
+      },
+      "用户信息": {
+        "active_hits": 0,
+        "candidate_hits": 0,
+        "candidate_terms": [],
+        "candidate_top": [],
+        "unsegmented_baseline_hits": 0
+      },
+      "查询用户信息": {
+        "active_hits": 0,
+        "candidate_hits": 0,
+        "candidate_terms": [],
+        "candidate_top": [],
+        "unsegmented_baseline_hits": 0
+      },
+      "如何添加对象": {
+        "active_hits": 0,
+        "candidate_hits": 0,
+        "candidate_terms": [],
+        "candidate_top": [],
+        "unsegmented_baseline_hits": 0
+      },
+      "节点遍历": {
+        "active_hits": 0,
+        "candidate_hits": 0,
+        "candidate_terms": [],
+        "candidate_top": [],
+        "unsegmented_baseline_hits": 0
+      },
+      "纹理单元": {
+        "active_hits": 0,
+        "candidate_hits": 0,
+        "candidate_terms": [],
+        "candidate_top": [],
+        "unsegmented_baseline_hits": 0
+      },
+      "图片加载": {
+        "active_hits": 0,
+        "candidate_hits": 0,
+        "candidate_terms": [],
+        "candidate_top": [],
+        "unsegmented_baseline_hits": 0
+      },
+      "示例代码": {
+        "active_hits": 0,
+        "candidate_hits": 0,
+        "candidate_terms": [],
+        "candidate_top": [],
+        "unsegmented_baseline_hits": 0
+      }
+    },
+    "real_corpus_admission": {
+      "status": "FAIL",
+      "nonempty_problems": {
+        "parser_mismatch": 20,
+        "ocr_marker_mismatch": 20
+      }
+    },
+    "real_corpus_baseline_admission": {
+      "status": "FAIL",
+      "nonempty_problems": {
+        "parser_mismatch": 20,
+        "ocr_marker_mismatch": 20
+      }
+    },
+    "active_admission": {
+      "status": "PASS",
+      "nonempty_problems": {}
+    },
+    "synthetic_documents": {
+      "note": "合成语料，不是上游资料；只加在临时根的 manifest 副本里",
+      "paths": [
+        "docs-zh/api-guide.md",
+        "docs-zh/traversal.md",
+        "docs-zh/faq.md"
+      ]
+    },
+    "augmented_chunk_ids": {
+      "total": 310,
+      "active_prefix_preserved": true,
+      "extra": 3
+    },
+    "augmented_english_queries": {
+      "addChild": {
+        "hits": 10,
+        "scores": [
+          4.92736583,
+          4.8513832678,
+          4.788158063,
+          4.364825132,
+          4.3353406535,
+          4.0203158395,
+          4.0056733154,
+          3.8541269699,
+          3.7330701389,
+          3.6816745134
+        ],
+        "scores_bit_identical_to_active": false,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser",
+          "raw_bm25",
+          "score"
+        ]
+      },
+      "Drawable": {
+        "hits": 10,
+        "scores": [
+          3.0577417396,
+          3.0011616174,
+          3.000180821,
+          2.9680710176,
+          2.9463238854,
+          2.9420940928,
+          2.934510992,
+          2.9147839937,
+          2.9093839469,
+          2.8958312171
+        ],
+        "scores_bit_identical_to_active": false,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser",
+          "raw_bm25",
+          "score"
+        ]
+      },
+      "ref_ptr": {
+        "hits": 10,
+        "scores": [
+          2.029334572,
+          2.0048234142,
+          1.9828875192,
+          1.9725829905,
+          1.9661549857,
+          1.9652050367,
+          1.9425042401,
+          1.8988100442,
+          1.864656025,
+          1.8558888213
+        ],
+        "scores_bit_identical_to_active": false,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser",
+          "raw_bm25",
+          "score"
+        ]
+      },
+      "osg::Geode": {
+        "hits": 10,
+        "scores": [
+          3.0561163973,
+          3.0539192803,
+          2.9723164448,
+          2.9448928667,
+          2.9235486342,
+          2.8256123805,
+          2.8226407944,
+          2.7735100424,
+          2.7582055009,
+          2.7217308561
+        ],
+        "scores_bit_identical_to_active": false,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser",
+          "raw_bm25",
+          "score"
+        ]
+      },
+      "Texture2D": {
+        "hits": 10,
+        "scores": [
+          4.8339622018,
+          4.7307913021,
+          4.5860673749,
+          4.5351331084,
+          4.4422143466,
+          4.3356422392,
+          4.3244330696,
+          3.7580064965,
+          3.7257639514,
+          3.3252015259
+        ],
+        "scores_bit_identical_to_active": false,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser",
+          "raw_bm25",
+          "score"
+        ]
+      },
+      "addDrawable": {
+        "hits": 10,
+        "scores": [
+          3.5716576489,
+          3.4809592402,
+          3.3665642944,
+          3.3256268884,
+          3.2618643665,
+          3.2396805573,
+          3.1249173906,
+          2.9617140708,
+          2.7853576557,
+          2.7756198694
+        ],
+        "scores_bit_identical_to_active": false,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser",
+          "raw_bm25",
+          "score"
+        ]
+      },
+      "Node Visitor": {
+        "hits": 10,
+        "scores": [
+          6.6966976003,
+          5.3776271383,
+          2.5030322126,
+          2.4749463449,
+          2.4689487799,
+          2.414239623,
+          2.3967373443,
+          2.3939796023,
+          2.3642998088,
+          2.3642514545
+        ],
+        "scores_bit_identical_to_active": false,
+        "rank_identical_to_active": false,
+        "result_dict_diff_fields": [
+          "chunk_id",
+          "end_line",
+          "ocr_derived",
+          "parser",
+          "raw_bm25",
+          "score",
+          "start_line",
+          "text"
+        ]
+      },
+      "readRefImageFile": {
+        "hits": 10,
+        "scores": [
+          4.7116837972,
+          4.3698019518,
+          4.1417103914,
+          3.9588951899,
+          3.1818067676,
+          3.1738113494,
+          3.1112660718,
+          3.1036208149,
+          2.9172403097,
+          2.8258631524
+        ],
+        "scores_bit_identical_to_active": false,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser",
+          "raw_bm25",
+          "score"
+        ]
+      },
+      "Group setReferenceFrame": {
+        "hits": 10,
+        "scores": [
+          7.9187374505,
+          4.4322871918,
+          3.2233330089,
+          3.1571548877,
+          3.1219991315,
+          3.1089466857,
+          3.1004805817,
+          2.8863802027,
+          2.8634058024,
+          2.8626441064
+        ],
+        "scores_bit_identical_to_active": false,
+        "rank_identical_to_active": true,
+        "result_dict_diff_fields": [
+          "ocr_derived",
+          "parser",
+          "raw_bm25",
+          "score"
+        ]
+      }
+    },
+    "augmented_english_scores_all_bit_identical_to_active": false,
+    "augmented_english_ranks_all_identical_to_active": false,
+    "chinese_queries_on_augmented_corpus": {
+      "接口": {
+        "active_hits": 0,
+        "candidate_hits": 2,
+        "candidate_terms": [
+          "接口"
+        ],
+        "candidate_top": [
+          {
+            "chunk_id": "3.6.5:docs-zh/faq.md:blocks:0000",
+            "source_path": "docs-zh/faq.md",
+            "score": 8.656502,
+            "start_line": 1,
+            "end_line": 4,
+            "text_head": "# 常见问题\n\n如何添加对象？调用添加子节点的接口即可。\n查询用户信息请使用本接"
+          },
+          {
+            "chunk_id": "3.6.5:docs-zh/api-guide.md:blocks:0000",
+            "source_path": "docs-zh/api-guide.md",
+            "score": 8.309526,
+            "start_line": 1,
+            "end_line": 8,
+            "text_head": "# 接口说明\n\n本接口用于查询用户信息，返回当前场景里的节点数量。\n调用方需要先"
+          }
+        ],
+        "unsegmented_baseline_hits": 0
+      },
+      "用户信息": {
+        "active_hits": 0,
+        "candidate_hits": 2,
+        "candidate_terms": [
+          "用户",
+          "信息"
+        ],
+        "candidate_top": [
+          {
+            "chunk_id": "3.6.5:docs-zh/faq.md:blocks:0000",
+            "source_path": "docs-zh/faq.md",
+            "score": 14.636285,
+            "start_line": 1,
+            "end_line": 4,
+            "text_head": "# 常见问题\n\n如何添加对象？调用添加子节点的接口即可。\n查询用户信息请使用本接"
+          },
+          {
+            "chunk_id": "3.6.5:docs-zh/api-guide.md:blocks:0000",
+            "source_path": "docs-zh/api-guide.md",
+            "score": 13.671092,
+            "start_line": 1,
+            "end_line": 8,
+            "text_head": "# 接口说明\n\n本接口用于查询用户信息，返回当前场景里的节点数量。\n调用方需要先"
+          }
+        ],
+        "unsegmented_baseline_hits": 0
+      },
+      "查询用户信息": {
+        "active_hits": 0,
+        "candidate_hits": 2,
+        "candidate_terms": [
+          "查询",
+          "用户",
+          "信息"
+        ],
+        "candidate_top": [
+          {
+            "chunk_id": "3.6.5:docs-zh/faq.md:blocks:0000",
+            "source_path": "docs-zh/faq.md",
+            "score": 21.954428,
+            "start_line": 1,
+            "end_line": 4,
+            "text_head": "# 常见问题\n\n如何添加对象？调用添加子节点的接口即可。\n查询用户信息请使用本接"
+          },
+          {
+            "chunk_id": "3.6.5:docs-zh/api-guide.md:blocks:0000",
+            "source_path": "docs-zh/api-guide.md",
+            "score": 20.506638,
+            "start_line": 1,
+            "end_line": 8,
+            "text_head": "# 接口说明\n\n本接口用于查询用户信息，返回当前场景里的节点数量。\n调用方需要先"
+          }
+        ],
+        "unsegmented_baseline_hits": 0
+      },
+      "如何添加对象": {
+        "active_hits": 0,
+        "candidate_hits": 2,
+        "candidate_terms": [
+          "如何",
+          "添加",
+          "对象"
+        ],
+        "candidate_top": [
+          {
+            "chunk_id": "3.6.5:docs-zh/faq.md:blocks:0000",
+            "source_path": "docs-zh/faq.md",
+            "score": 23.292787,
+            "start_line": 1,
+            "end_line": 4,
+            "text_head": "# 常见问题\n\n如何添加对象？调用添加子节点的接口即可。\n查询用户信息请使用本接"
+          },
+          {
+            "chunk_id": "3.6.5:docs-zh/api-guide.md:blocks:0000",
+            "source_path": "docs-zh/api-guide.md",
+            "score": 20.506638,
+            "start_line": 1,
+            "end_line": 8,
+            "text_head": "# 接口说明\n\n本接口用于查询用户信息，返回当前场景里的节点数量。\n调用方需要先"
+          }
+        ],
+        "unsegmented_baseline_hits": 0
+      },
+      "节点遍历": {
+        "active_hits": 0,
+        "candidate_hits": 3,
+        "candidate_terms": [
+          "节点",
+          "遍历"
+        ],
+        "candidate_top": [
+          {
+            "chunk_id": "3.6.5:docs-zh/traversal.md:blocks:0000",
+            "source_path": "docs-zh/traversal.md",
+            "score": 18.58702,
+            "start_line": 1,
+            "end_line": 4,
+            "text_head": "# 节点遍历\n\n节点遍历使用访问者模式，遍历时会依次访问每个子节点。\n如果想要加"
+          },
+          {
+            "chunk_id": "3.6.5:docs-zh/faq.md:blocks:0000",
+            "source_path": "docs-zh/faq.md",
+            "score": 6.801862,
+            "start_line": 1,
+            "end_line": 4,
+            "text_head": "# 常见问题\n\n如何添加对象？调用添加子节点的接口即可。\n查询用户信息请使用本接"
+          },
+          {
+            "chunk_id": "3.6.5:docs-zh/api-guide.md:blocks:0000",
+            "source_path": "docs-zh/api-guide.md",
+            "score": 6.353312,
+            "start_line": 1,
+            "end_line": 8,
+            "text_head": "# 接口说明\n\n本接口用于查询用户信息，返回当前场景里的节点数量。\n调用方需要先"
+          }
+        ],
+        "unsegmented_baseline_hits": 0
+      },
+      "纹理单元": {
+        "active_hits": 0,
+        "candidate_hits": 2,
+        "candidate_terms": [
+          "纹理",
+          "单元"
+        ],
+        "candidate_top": [
+          {
+            "chunk_id": "3.6.5:docs-zh/api-guide.md:blocks:0000",
+            "source_path": "docs-zh/api-guide.md",
+            "score": 15.145072,
+            "start_line": 1,
+            "end_line": 8,
+            "text_head": "# 接口说明\n\n本接口用于查询用户信息，返回当前场景里的节点数量。\n调用方需要先"
+          },
+          {
+            "chunk_id": "3.6.5:docs-zh/traversal.md:blocks:0000",
+            "source_path": "docs-zh/traversal.md",
+            "score": 14.299759,
+            "start_line": 1,
+            "end_line": 4,
+            "text_head": "# 节点遍历\n\n节点遍历使用访问者模式，遍历时会依次访问每个子节点。\n如果想要加"
+          }
+        ],
+        "unsegmented_baseline_hits": 0
+      },
+      "图片加载": {
+        "active_hits": 0,
+        "candidate_hits": 1,
+        "candidate_terms": [
+          "图片",
+          "加载"
+        ],
+        "candidate_top": [
+          {
+            "chunk_id": "3.6.5:docs-zh/traversal.md:blocks:0000",
+            "source_path": "docs-zh/traversal.md",
+            "score": 17.362241,
+            "start_line": 1,
+            "end_line": 4,
+            "text_head": "# 节点遍历\n\n节点遍历使用访问者模式，遍历时会依次访问每个子节点。\n如果想要加"
+          }
+        ],
+        "unsegmented_baseline_hits": 0
+      },
+      "示例代码": {
+        "active_hits": 0,
+        "candidate_hits": 1,
+        "candidate_terms": [
+          "示例",
+          "代码"
+        ],
+        "candidate_top": [
+          {
+            "chunk_id": "3.6.5:docs-zh/api-guide.md:blocks:0000",
+            "source_path": "docs-zh/api-guide.md",
+            "score": 18.393187,
+            "start_line": 1,
+            "end_line": 8,
+            "text_head": "# 接口说明\n\n本接口用于查询用户信息，返回当前场景里的节点数量。\n调用方需要先"
+          }
+        ],
+        "unsegmented_baseline_hits": 0
+      }
+    },
+    "leftover_temp_dirs": []
+  },
+  "verification_notes": {
+    "real_corpus_has_no_chinese": "实测现役 OSG 索引 307 个 chunk 的 raw_text 与 source_path 含 CJK 的个数均为 0。因此 (a) retrieval_text 变化的 chunk 数为 0，(b) 真实语料上中文查询在现役索引与候选索引上都返回 0——不是分词没生效，而是语料里根本没有中文可匹配。任何'候选能召回中文'的结论都只能来自合成语料，本报告分开呈现。",
+    "english_equality_caveat": "英文得分逐位一致只在**文档集合相同**时成立。合成语料候选多了 3 份文档，BM25 的 IDF 随总数 N(307→310) 变化，9 个英文查询得分全部整体平移；其中 'Node Visitor' 的第 9/10 名本已相差约 5e-5，平移后互换。这是 BM25 的预期行为，不是切分引入的缺陷。",
+    "admission_is_preexisting_drift": "候选索引准入 FAIL（parser_mismatch 20 / ocr_marker_mismatch 20），但把 segment_cjk 换成恒等函数的**不切分基线失败完全相同**（同样 20/20）。根因是现役 Qdrant collection 的 payload 没有 parser/ocr_derived 字段（读到 None），而当前代码建出的 BM25 有 parser='text-line-v1'；现役索引因两侧都缺该列而 PASS。与中文切分无关，本轮未修（不切 active 索引、不重建 collection）。",
+    "audit_does_not_read_retrieval_text": "index_audit.read_bm25_rows 只 SELECT raw_text 等列，不读 retrieval_text。所以准入通过**不构成**中文召回正确的证据，反之准入失败也不说明切分有问题。"
+  },
+  "test_results": {
+    "pytest": "449 passed（本轮开始前基线 428 passed，新增 21 项）",
+    "ruff": "ruff check src/ scripts/ tests/ 全部通过"
+  },
+  "risks_and_open_questions": [
+    "本轮实测该改动在**纯英文语料上完全惰性**（查询侧 10 条查询得分逐位相同，索引侧重建后 retrieval_text 零变化）。它的收益只在含中文文本的语料上兑现，而这一点本轮只用合成语料验证过，**手头没有真实中文语料可验证**。",
+    "jieba 0.42.1 发布于 2020-01-20，此后再无发版；import 经 pkg_resources 打一条 UserWarning（setuptools 计划移除该 API）。属已知运维风险。",
+    "jieba 初始化日志走 stderr（logging.StreamHandler(sys.stderr)），已用子进程测试锁住 stdout 不被污染；但这是对 jieba 内部实现的依赖，换版本可能失效（测试会失败提醒）。",
+    "jieba 词表默认词典，未加领域自定义词典；本轮**没有任何中文检索质量结论**，只证明中文查询重新走通了 BM25 分路。",
+    "CJK 正则不含假名（平假名/片假名），日文正文不走这条分路；本轮未处理。",
+    "临时目录不可写时 jieba 只记 'Dump cache file failed.' 并继续，不崩，但每次启动重建词典。Dockerfile 已钉 TMPDIR=/tmp；/tmp 在容器里对 uid 10001 可写（HF_HOME 等已依赖它），**未在容器内实测**，因为约束禁止重建镜像。",
+    "uv add jieba 顺带在 pyproject.toml 里写入了一条 [[tool.uv.index]] default=true 指向清华源。这不是我主动要加的：uv.lock 里 175/176 个包原本就来自清华源，该条只是把已生效的索引显式化。**需要人工确认是否保留**。",
+    "现役索引是旧 schema（无 page_number/logical_document_id/parser/ocr_derived 列），而当前代码建出的索引有这些列。这个漂移在本轮之前就存在，本轮未处理。",
+    "未评估中文切分对**向量**路径的影响：本轮只动 BM25，dense 路径一个字未改，但中文 query 现在会多出一条 BM25 候选进入 RRF，对最终排序的影响未做端到端评测。",
+    "冻结测试集 evaluation/datasets/rag-test-001.jsonl 按约束**未运行、未用于调参**。",
+    "code.md 第 1 节与第 10 节的 '363项pytest通过' 在本轮之前就已过期（本轮开始时基线已是428）。未改动这两处，以免与其他并发 agent 的编辑冲突——需要一次统一订正。",
+    "indexing/zh.py 的 docstring 与本报告都写了「换 jieba 版本必须重建索引」。但对纯英文语料，重建与否都不改变结果，所以这条契约**只在含中文的语料上有实际约束力**；没有机制强制它，只能靠文档与 review。"
+  ],
+  "cleanup": {
+    "temp_dirs_removed": true,
+    "leftover_temp_dirs": [],
+    "links_created_into_real_repo": false,
+    "fixture_link_count": 0,
+    "note": "临时根全部用 shutil.copytree 真拷贝，建完夹具即断言 rglob 内每个文件 st_nlink==1 且无 reparse point；未创建任何指向真实仓库的链接。真实 corpora/、data/indexes/、manifest、注册表均只读。"
+  },
+  "artifacts": {
+    "candidate_index": "artifacts/chinese-bm25/candidate-bm25-osg-3.6.5-blocks.sqlite",
+    "verification_script": "artifacts/chinese-bm25/verify_candidate.py"
+  },
+  "impact_on_published_english_eval_numbers": {
+    "question": "这个改动对现有英文语料的评测数字有没有影响？",
+    "answer": "没有。两条独立证据。",
+    "evidence_1_index_side": "用当前代码在真拷贝临时根里重建 OSG 的 BM25 索引，与现役索引对比：chunk_id 序列逐条一致（顺序与集合）、除 retrieval_text 外所有列逐条一致、9 个英文查询得分逐位相同（差值 0.0）。OSG 语料 307 个 chunk 含中文数为 0，所以 retrieval_text 变化的 chunk 数也是 0——对这个语料，重建索引是逐字节无操作。",
+    "evidence_2_query_side": "对同一个索引，分别跑「改造前的词表（只取 ASCII 标识符）」与「改造后的词表（ASCII + 中文）」，逐条比对返回行与得分。10 条自造查询，在现役索引与重建后的候选索引两种情形下：返回行与得分全部逐位相同，唯一差异是 matched_terms 记录字段。其中 9 条查询的词表确实变了（多了中文词），结果一条都没变。",
+    "why": "FTS5 的 bm25() 按词项分别计算贡献：idf 只取决于该词项自身的命中行数与全表行数，avgdl 只取决于整表，都与查询里有没有别的词项无关。匹配不到的 OR 词项不贡献任何行、也不改变其他词项的得分，所以在纯英文语料里加上匹配不到的中文词，不改变任何返回行或分数。",
+    "conclusion": "只要不重建索引，已发布的英文评测数字不变；**即使重建，对 OSG 这个纯英文语料也不变**。真正的风险落在**含中文文本的语料**上：那里重建会改变 retrieval_text，从而改变中文 chunk 的 BM25 得分，英文查询也可能因文档数与词频统计变化受 IDF 影响。",
+    "caveat_recorded_fields": "数值指标不变，但**重新生成的产物 JSON 内容会变**：service.py / router.py / run_retrieval_eval.py / inspect_misses.py / run_multicorpus_eval.py / run_query_rewrite_eval.py 都把 bm25_terms 或 matched_terms 写进报告，该列表现在会多出中文词。它是记录字段不是评分输入（fusion.py:32 显式将其排除在 RRF 之外），但若与已归档 JSON 逐字节比对会看到差异。",
+    "frozen_set": "按约束未运行、未用于调参；上面的查询全部是自造的，不取自冻结集。",
+    "detail_file": "artifacts/chinese-bm25/query-invariance.json"
+  },
+  "query_invariance_detail": {
+    "active_not_rebuilt": {
+      "queries": 10,
+      "rows_identical_ignoring_matched_terms": true,
+      "scores_bit_identical": true,
+      "queries_where_bm25_was_skipped_before": [
+        "节点如何遍历"
+      ],
+      "queries_whose_terms_changed": [
+        "如何使用 addChild 添加子节点",
+        "GeoTransform 的仿射变换参数是什么",
+        "osg::Geode 和 Drawable 有什么区别",
+        "readRefImageFile 如何加载图片",
+        "setTextureAttributeAndModes 怎么绑定纹理单元",
+        "ref_ptr 是什么，如何管理节点生命周期",
+        "Group 的 setReferenceFrame 设置的是什么",
+        "addDrawable 和 addChild 有什么区别",
+        "节点如何遍历"
+      ]
+    },
+    "candidate_rebuilt": {
+      "queries": 10,
+      "rows_identical_ignoring_matched_terms": true,
+      "scores_bit_identical": true,
+      "queries_where_bm25_was_skipped_before": [
+        "节点如何遍历"
+      ],
+      "queries_whose_terms_changed": [
+        "如何使用 addChild 添加子节点",
+        "GeoTransform 的仿射变换参数是什么",
+        "osg::Geode 和 Drawable 有什么区别",
+        "readRefImageFile 如何加载图片",
+        "setTextureAttributeAndModes 怎么绑定纹理单元",
+        "ref_ptr 是什么，如何管理节点生命周期",
+        "Group 的 setReferenceFrame 设置的是什么",
+        "addDrawable 和 addChild 有什么区别",
+        "节点如何遍历"
+      ]
+    }
+  }
+}

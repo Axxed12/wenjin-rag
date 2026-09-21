@@ -1,7 +1,10 @@
 """SQLite FTS5 关键词索引与 BM25 查询。
 
-当前是可解释的英文/代码标识符基线。中文 query 中的英文类名、方法名会参与检索；
-中文语义本身主要交给 dense 路径，后续再评估是否需要中文分词或查询改写。
+可解释的英文/代码标识符 + 中文词基线。unicode61 会把整段连续中文当成一个词元，
+所以写入 `retrieval_text` 与提取查询词都用 `wenjin.indexing.zh` 做同一次中文切分；
+占用同一套词元空间的 `terms_override` 也必须已经切分过。
+
+**索引与查询必须使用同一版 jieba**，换版本必须重建索引，否则中文检索静默失效。
 """
 
 import re
@@ -9,17 +12,27 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
+from wenjin.indexing.zh import cjk_terms, segment_cjk
+
 ASCII_TERM = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
 
 def query_terms(query: str) -> list[str]:
-    """提取适合当前 OSG 英文源码的检索词，并保持出现顺序去重。"""
+    """提取检索词：ASCII 标识符在前、中文词在后，各自保持出现顺序去重。
+
+    中文词不是补充项而是必需项：没有它，纯中文 query 提取不到任何词，
+    `bm25_query` 直接抛错，混合检索退化成单路向量召回。
+    """
     terms = []
     seen = set()
     for term in ASCII_TERM.findall(query):
         lowered = term.lower()
         if lowered not in seen:
             seen.add(lowered)
+            terms.append(term)
+    for term in cjk_terms(query):
+        if term not in seen:
+            seen.add(term)
             terms.append(term)
     return terms
 
@@ -28,7 +41,7 @@ def fts_query(query: str) -> str:
     """构造 OR 查询以保留召回；每个词用双引号避免被当成 FTS 语法。"""
     terms = query_terms(query)
     if not terms:
-        raise ValueError("当前 BM25 基线没有从 query 中提取到英文或代码标识符")
+        raise ValueError("当前 BM25 基线没有从 query 中提取到英文、代码标识符或中文词")
     return " OR ".join(f'"{term.replace(chr(34), chr(34) * 2)}"' for term in terms)
 
 
@@ -80,7 +93,8 @@ def build_bm25_index(path: Path, chunks: list) -> None:
                 chunk.parser,
                 int(chunk.ocr_derived),
                 # 路径也进入检索表示，让类/文件名可以参与关键词召回。
-                f"{chunk.source_path}\n{chunk.text}",
+                # 只有这列被索引，所以中文切分只作用在这里，表结构和 raw_text 都不动。
+                segment_cjk(f"{chunk.source_path}\n{chunk.text}"),
                 chunk.text,
             )
             for chunk in chunks
@@ -101,10 +115,14 @@ def bm25_query(
     terms_override: list[str] | None = None,
     source_prefix: str | None = None,
 ) -> list[dict]:
-    """返回关键词候选；SQLite 原生 bm25 越小越好，展示时转为 higher-is-better。"""
+    """返回关键词候选；SQLite 原生 bm25 越小越好，展示时转为 higher-is-better。
+
+    `terms_override` 应当是已经切分过的词（`query_terms` 或
+    `code_identifier_terms` 的输出）：它直接进 FTS 表达式，这里不再切分。
+    """
     terms = query_terms(query) if terms_override is None else terms_override
     if not terms:
-        raise ValueError("当前 BM25 基线没有从 query 中提取到英文或代码标识符")
+        raise ValueError("当前 BM25 基线没有从 query 中提取到英文、代码标识符或中文词")
     expression = " OR ".join(f'"{term.replace(chr(34), chr(34) * 2)}"' for term in terms)
     with closing(sqlite3.connect(path)) as database:
         database.row_factory = sqlite3.Row

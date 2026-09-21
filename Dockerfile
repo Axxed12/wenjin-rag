@@ -11,7 +11,14 @@ ENV PYTHONUNBUFFERED=1 \
     HF_HUB_OFFLINE=1 \
     TRANSFORMERS_OFFLINE=1 \
     HF_HOME=/tmp/huggingface \
-    LLAMA_INDEX_CACHE_DIR=/tmp/llama_index
+    LLAMA_INDEX_CACHE_DIR=/tmp/llama_index \
+    TMPDIR=/tmp
+
+# 中文分词的 jieba 由 `uv sync` 从 pyproject/uv.lock 装上（jieba>=0.42.1），不单独装。
+# 它会在 `tempfile.gettempdir()` 下写 `jieba.cache`；这里显式钉住 TMPDIR=/tmp，
+# 该目录在本镜像里对 uid 10001 可写（HF_HOME/LLAMA_INDEX_CACHE_DIR 本来就依赖它）。
+# 若临时目录不可写，jieba 只记一条 "Dump cache file failed." 后继续，不会崩，
+# 但**每次启动都要重建前缀词典**（约 0.3–0.5 s），启动慢且日志有噪声。
 
 RUN groupadd --gid 10001 wenjin && useradd --uid 10001 --gid 10001 --create-home wenjin
 WORKDIR /app

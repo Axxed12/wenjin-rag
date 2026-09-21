@@ -1,0 +1,536 @@
+{
+  "purpose": "加中文词是否改变英文语料上的 BM25 返回行与得分",
+  "queries_are_self_authored": true,
+  "frozen_set_used": false,
+  "indexes": {
+    "active_not_rebuilt": {
+      "如何使用 addChild 添加子节点": {
+        "old_terms": [
+          "addChild"
+        ],
+        "new_terms": [
+          "addChild",
+          "如何",
+          "使用",
+          "添加",
+          "子",
+          "节点"
+        ],
+        "added_by_cjk": [
+          "如何",
+          "使用",
+          "添加",
+          "子",
+          "节点"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 18,
+        "new_hits": 18,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "GeoTransform 的仿射变换参数是什么": {
+        "old_terms": [
+          "GeoTransform"
+        ],
+        "new_terms": [
+          "GeoTransform",
+          "的",
+          "仿射变换",
+          "参数",
+          "是",
+          "什么"
+        ],
+        "added_by_cjk": [
+          "的",
+          "仿射变换",
+          "参数",
+          "是",
+          "什么"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 0,
+        "new_hits": 0,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": false
+      },
+      "osg::Geode 和 Drawable 有什么区别": {
+        "old_terms": [
+          "osg",
+          "Geode",
+          "Drawable"
+        ],
+        "new_terms": [
+          "osg",
+          "Geode",
+          "Drawable",
+          "和",
+          "有",
+          "什么",
+          "区别"
+        ],
+        "added_by_cjk": [
+          "和",
+          "有",
+          "什么",
+          "区别"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 20,
+        "new_hits": 20,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "readRefImageFile 如何加载图片": {
+        "old_terms": [
+          "readRefImageFile"
+        ],
+        "new_terms": [
+          "readRefImageFile",
+          "如何",
+          "加载",
+          "图片"
+        ],
+        "added_by_cjk": [
+          "如何",
+          "加载",
+          "图片"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 11,
+        "new_hits": 11,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "setTextureAttributeAndModes 怎么绑定纹理单元": {
+        "old_terms": [
+          "setTextureAttributeAndModes"
+        ],
+        "new_terms": [
+          "setTextureAttributeAndModes",
+          "怎么",
+          "绑定",
+          "纹理",
+          "单元"
+        ],
+        "added_by_cjk": [
+          "怎么",
+          "绑定",
+          "纹理",
+          "单元"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 8,
+        "new_hits": 8,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "ref_ptr 是什么，如何管理节点生命周期": {
+        "old_terms": [
+          "ref_ptr"
+        ],
+        "new_terms": [
+          "ref_ptr",
+          "是",
+          "什么",
+          "如何",
+          "管理",
+          "节点",
+          "生命周期"
+        ],
+        "added_by_cjk": [
+          "是",
+          "什么",
+          "如何",
+          "管理",
+          "节点",
+          "生命周期"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 20,
+        "new_hits": 20,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "Group 的 setReferenceFrame 设置的是什么": {
+        "old_terms": [
+          "Group",
+          "setReferenceFrame"
+        ],
+        "new_terms": [
+          "Group",
+          "setReferenceFrame",
+          "的",
+          "设置",
+          "是",
+          "什么"
+        ],
+        "added_by_cjk": [
+          "的",
+          "设置",
+          "是",
+          "什么"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 20,
+        "new_hits": 20,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "addDrawable 和 addChild 有什么区别": {
+        "old_terms": [
+          "addDrawable",
+          "addChild"
+        ],
+        "new_terms": [
+          "addDrawable",
+          "addChild",
+          "和",
+          "有",
+          "什么",
+          "区别"
+        ],
+        "added_by_cjk": [
+          "和",
+          "有",
+          "什么",
+          "区别"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 20,
+        "new_hits": 20,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "Node Visitor": {
+        "old_terms": [
+          "Node",
+          "Visitor"
+        ],
+        "new_terms": [
+          "Node",
+          "Visitor"
+        ],
+        "added_by_cjk": [],
+        "old_skipped_bm25": null,
+        "old_hits": 20,
+        "new_hits": 20,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": false
+      },
+      "节点如何遍历": {
+        "old_terms": [],
+        "new_terms": [
+          "节点",
+          "如何",
+          "遍历"
+        ],
+        "added_by_cjk": [
+          "节点",
+          "如何",
+          "遍历"
+        ],
+        "old_skipped_bm25": "ValueError: 没有从 query 中提取到英文或代码标识符",
+        "old_hits": 0,
+        "new_hits": 0,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": false
+      }
+    },
+    "candidate_rebuilt": {
+      "如何使用 addChild 添加子节点": {
+        "old_terms": [
+          "addChild"
+        ],
+        "new_terms": [
+          "addChild",
+          "如何",
+          "使用",
+          "添加",
+          "子",
+          "节点"
+        ],
+        "added_by_cjk": [
+          "如何",
+          "使用",
+          "添加",
+          "子",
+          "节点"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 18,
+        "new_hits": 18,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "GeoTransform 的仿射变换参数是什么": {
+        "old_terms": [
+          "GeoTransform"
+        ],
+        "new_terms": [
+          "GeoTransform",
+          "的",
+          "仿射变换",
+          "参数",
+          "是",
+          "什么"
+        ],
+        "added_by_cjk": [
+          "的",
+          "仿射变换",
+          "参数",
+          "是",
+          "什么"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 0,
+        "new_hits": 0,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": false
+      },
+      "osg::Geode 和 Drawable 有什么区别": {
+        "old_terms": [
+          "osg",
+          "Geode",
+          "Drawable"
+        ],
+        "new_terms": [
+          "osg",
+          "Geode",
+          "Drawable",
+          "和",
+          "有",
+          "什么",
+          "区别"
+        ],
+        "added_by_cjk": [
+          "和",
+          "有",
+          "什么",
+          "区别"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 20,
+        "new_hits": 20,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "readRefImageFile 如何加载图片": {
+        "old_terms": [
+          "readRefImageFile"
+        ],
+        "new_terms": [
+          "readRefImageFile",
+          "如何",
+          "加载",
+          "图片"
+        ],
+        "added_by_cjk": [
+          "如何",
+          "加载",
+          "图片"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 11,
+        "new_hits": 11,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "setTextureAttributeAndModes 怎么绑定纹理单元": {
+        "old_terms": [
+          "setTextureAttributeAndModes"
+        ],
+        "new_terms": [
+          "setTextureAttributeAndModes",
+          "怎么",
+          "绑定",
+          "纹理",
+          "单元"
+        ],
+        "added_by_cjk": [
+          "怎么",
+          "绑定",
+          "纹理",
+          "单元"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 8,
+        "new_hits": 8,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "ref_ptr 是什么，如何管理节点生命周期": {
+        "old_terms": [
+          "ref_ptr"
+        ],
+        "new_terms": [
+          "ref_ptr",
+          "是",
+          "什么",
+          "如何",
+          "管理",
+          "节点",
+          "生命周期"
+        ],
+        "added_by_cjk": [
+          "是",
+          "什么",
+          "如何",
+          "管理",
+          "节点",
+          "生命周期"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 20,
+        "new_hits": 20,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "Group 的 setReferenceFrame 设置的是什么": {
+        "old_terms": [
+          "Group",
+          "setReferenceFrame"
+        ],
+        "new_terms": [
+          "Group",
+          "setReferenceFrame",
+          "的",
+          "设置",
+          "是",
+          "什么"
+        ],
+        "added_by_cjk": [
+          "的",
+          "设置",
+          "是",
+          "什么"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 20,
+        "new_hits": 20,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "addDrawable 和 addChild 有什么区别": {
+        "old_terms": [
+          "addDrawable",
+          "addChild"
+        ],
+        "new_terms": [
+          "addDrawable",
+          "addChild",
+          "和",
+          "有",
+          "什么",
+          "区别"
+        ],
+        "added_by_cjk": [
+          "和",
+          "有",
+          "什么",
+          "区别"
+        ],
+        "old_skipped_bm25": null,
+        "old_hits": 20,
+        "new_hits": 20,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": true
+      },
+      "Node Visitor": {
+        "old_terms": [
+          "Node",
+          "Visitor"
+        ],
+        "new_terms": [
+          "Node",
+          "Visitor"
+        ],
+        "added_by_cjk": [],
+        "old_skipped_bm25": null,
+        "old_hits": 20,
+        "new_hits": 20,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": false
+      },
+      "节点如何遍历": {
+        "old_terms": [],
+        "new_terms": [
+          "节点",
+          "如何",
+          "遍历"
+        ],
+        "added_by_cjk": [
+          "节点",
+          "如何",
+          "遍历"
+        ],
+        "old_skipped_bm25": "ValueError: 没有从 query 中提取到英文或代码标识符",
+        "old_hits": 0,
+        "new_hits": 0,
+        "rows_identical_ignoring_matched_terms": true,
+        "scores_bit_identical": true,
+        "matched_terms_is_the_only_diff": false
+      }
+    }
+  },
+  "summary": {
+    "active_not_rebuilt": {
+      "queries": 10,
+      "rows_identical_ignoring_matched_terms": true,
+      "scores_bit_identical": true,
+      "queries_where_bm25_was_skipped_before": [
+        "节点如何遍历"
+      ],
+      "queries_whose_terms_changed": [
+        "如何使用 addChild 添加子节点",
+        "GeoTransform 的仿射变换参数是什么",
+        "osg::Geode 和 Drawable 有什么区别",
+        "readRefImageFile 如何加载图片",
+        "setTextureAttributeAndModes 怎么绑定纹理单元",
+        "ref_ptr 是什么，如何管理节点生命周期",
+        "Group 的 setReferenceFrame 设置的是什么",
+        "addDrawable 和 addChild 有什么区别",
+        "节点如何遍历"
+      ]
+    },
+    "candidate_rebuilt": {
+      "queries": 10,
+      "rows_identical_ignoring_matched_terms": true,
+      "scores_bit_identical": true,
+      "queries_where_bm25_was_skipped_before": [
+        "节点如何遍历"
+      ],
+      "queries_whose_terms_changed": [
+        "如何使用 addChild 添加子节点",
+        "GeoTransform 的仿射变换参数是什么",
+        "osg::Geode 和 Drawable 有什么区别",
+        "readRefImageFile 如何加载图片",
+        "setTextureAttributeAndModes 怎么绑定纹理单元",
+        "ref_ptr 是什么，如何管理节点生命周期",
+        "Group 的 setReferenceFrame 设置的是什么",
+        "addDrawable 和 addChild 有什么区别",
+        "节点如何遍历"
+      ]
+    }
+  },
+  "active_chunk_count": 307
+}

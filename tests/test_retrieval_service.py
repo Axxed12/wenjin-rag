@@ -57,7 +57,11 @@ def test_search_returns_traceable_evidence_without_generating_answer(tmp_path):
     assert result["answer_status"] == "not_generated"
     assert result["evidence_status"] == "unverified"
     assert result["retrieval"]["bm25_returned"] == 0
-    assert keyword_calls == []  # 纯中文query没有英文词项时，BM25分路安全返回空。
+    # 纯中文 query 现在**会**走 BM25 分路：原先 `query_terms` 返回空，`if terms` 为假，
+    # 这条分路被整条跳过。这条断言随之从 `keyword_calls == []` 改成"确实调用了、
+    # 且用的是原 query"。假检索器返回空，故 bm25_returned 仍是 0。
+    # （带英文标识符的中文 query 旧行为下本来就提得到词，不受本次改动影响。）
+    assert [call[0][1] for call in keyword_calls] == ["节点怎样遍历？"]
     assert result["evidence"][0]["source_url"] == "https://example.invalid/node"
 
 

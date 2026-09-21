@@ -27,7 +27,7 @@ RAG 的难点通常不在“能不能检索到”，而在**检索到的东西�
   → 按组织流程摆渡入内网
   → 多格式解析（保持原始行号与 PDF 物理页）
   → 切片（fixed / blocks / blocks-split）
-  → Qdrant dense + SQLite FTS5 BM25
+  → Qdrant dense + SQLite FTS5 BM25（中文经 jieba 切分，见"中文检索"）
   → RRF 融合
   → 本地 Qwen3-Reranker-0.6B
   → Top-K 原文证据（来源 / 行号或页码 / 版本）
@@ -63,6 +63,10 @@ manifest（已实测自动下载 30/30）。其余 5 个语料需要按 manifest
 
 要求：Python 3.12、uv、Docker、NVIDIA GPU，以及本地 Qwen3-Embedding-0.6B 与
 Qwen3-Reranker-0.6B 模型目录。
+
+依赖解析默认走清华源（`pyproject.toml` 里的 `[[tool.uv.index]]`，`uv.lock` 中锁定的
+也就是这套源）。这是为此项目在国内网络下的可复现安装设的；在境外网络下若解析缓慢，
+把该条删掉或改用官方源重新 `uv lock` 即可。
 
 ```powershell
 Copy-Item .env.example .env      # 填 Qdrant 密钥和本地模型路径
@@ -310,6 +314,42 @@ validation 共 64 个证据区间，**按判定依据拆开看**（两种策略�
 所以能说的是：**51 个文本证据区间完整进入 chunk**；13 个 PDF 证据只做到"该页有 chunk"，
 原文是否落在切出来的文本里**没有验证**，不能并进同一个数字里说"64 个全部覆盖"。
 两种依据的定义见 `src/wenjin/coverage.py`。
+
+## 中文检索
+
+FTS5 默认的 `unicode61` 分词器把**一整段连续中文当成一个词元**：`本接口用于查询用户信息`
+只索引出这一个词元，于是查 `接口` 命中 0 条。更糟的是**一个英文标识符都不带的**纯中文
+query 提取不到任何词，`bm25_query`/`fts_query` 直接抛错，`service.py`/`router.py` 里的
+`if terms` 开关把 BM25 分路整条跳过。
+
+**适用范围要说清**：带英文标识符的中文查询（"GeoTransform 怎么用"、"addChild 添加子节点"）
+旧行为下本来就能提取到英文词，BM25 一直在出力，**不受本次改动影响**。修复解决的是纯中文
+查询与纯中文文档——国内内网资料最常见的形态。
+
+现在索引与查询两侧都用 `src/wenjin/indexing/zh.py` 做同一次 jieba 切分：
+
+- 写入：`retrieval_text` 存 `segment_cjk(路径 + 正文)`，中文段变成空格分隔的词。
+- 查询：`query_terms()` 在 ASCII 标识符之后追加中文词。ASCII 仍在前。
+- **表结构不变**（仍是 `tokenize='unicode61'`，仍只有 `retrieval_text` 被索引），
+  `raw_text` 存的仍是未切分原文，`bm25_query` 返回的 `text` 取自 `raw_text`——
+  引用给用户的证据原文一个字节都没变。
+- 无中文的文本 `segment_cjk` 逐字节原样返回，且不加载 jieba，纯英文语料不受影响。
+
+### 索引与查询必须用同一版 jieba
+
+**换 jieba 版本必须重建 BM25 索引。** 两边切分一旦不一致，索引里的词元和查询词元就
+对不上，中文检索会**静默返回空结果**（不报错、不告警），只有向量一路在干活——和没做
+这次改动一样难发现。`uv.lock` 锁死了版本，升级时请连同重建索引一起做。
+
+jieba 是重依赖（import + 建前缀词典约 0.5 s），因此是**惰性加载**的：任何模块的顶层
+import 都不会把它带进来（`import wenjin.mcp_server` 实测不加载 jieba）。服务在
+`create_runtime()` 里调一次 `prewarm()`，避免首个检索请求吃掉这半秒，也避开线程池里
+两个请求同时首次初始化。
+
+已知运维风险，不粉饰：jieba 0.42.1 自 2020-01-20 起未再发版；import 时会经
+`pkg_resources` 打一条弃用告警（`setuptools` 已计划移除该 API）；初始化日志走 stderr
+（已用测试锁住，MCP 的 stdio stdout 不被污染）；临时目录不可写时词典每次启动重建
+（不崩，只记一条 `Dump cache file failed.`）。
 
 ## 添加自己的文档
 

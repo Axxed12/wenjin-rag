@@ -49,6 +49,7 @@ from wenjin.index_registry import (
     resolve_corpus_identity,
     resolve_project_path,
 )
+from wenjin.indexing.zh import prewarm as prewarm_zh
 from wenjin.retrieval.service import RetrievalService, SearchConfig, load_source_urls
 from wenjin.serving import (
     DOWNLOAD_PREFIX,
@@ -191,6 +192,10 @@ def create_runtime(
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
     project_root = root or ROOT
     settings = Settings()
+    # 中文分词器要在启动时预热：jieba 建前缀词典约 0.5 s，落在请求路径上就是首个
+    # 检索请求凭空慢半秒；而服务用线程池跑工具，两个请求同时首次初始化还会重复建词典
+    # （prewarm 内部已加锁，这里在装配阶段单线程调一次更省事）。
+    prewarm_zh()
     target = IndexRegistryStore(project_root / "data/indexes/index-registry.json").active()
     identity = RuntimeIdentity(
         corpus_id=resolve_corpus_identity(target, root=project_root).corpus_id,

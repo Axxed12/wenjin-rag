@@ -42,6 +42,9 @@ artifacts/corpus-acceptance-001/wms-page-3.png
 artifacts/corpus-acceptance-001/wms-upstream.xsd
 artifacts/corpus-acceptance-001/proj-about-core-pinned.rst
 artifacts/corpus-acceptance-001/proj-index-pinned.rst
+# 候选索引是派生数据，与 data/indexes/*.sqlite 同理不进仓库：
+# artifacts/chinese-bm25/verify_candidate.py 可原地重建它，验证结论记在 report.json。
+artifacts/*/*.sqlite
 # 忽略所有目录中的 Markdown 文档
 *.md
 # 保留适合仓库公开展示的文档
