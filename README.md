@@ -68,6 +68,11 @@ Qwen3-Reranker-0.6B 模型目录。
 也就是这套源）。这是为此项目在国内网络下的可复现安装设的；在境外网络下若解析缓慢，
 把该条删掉或改用官方源重新 `uv lock` 即可。
 
+**这是一个有意识接受的供应链取舍**：`default = true` 意味着全部依赖的解析都经过第三方
+镜像，而不只是某一个包。当前的缓解手段是安装一律以 `uv.lock` 为准（CI 与文档都用
+`uv sync --locked`），锁定的是具体版本与该源；若你的环境要求只走官方源，删掉这条并
+重新 `uv lock` 即可，代码本身不依赖这个源。
+
 ```powershell
 Copy-Item .env.example .env      # 填 Qdrant 密钥和本地模型路径
 uv sync --locked

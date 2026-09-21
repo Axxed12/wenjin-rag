@@ -1,5 +1,5 @@
 {
-  "index": "<user-home>\\AppData\\Local\\Temp\\pytest-of-Onebiter\\pytest-314\\test_bm25_script_writes_every_0\\fresh\\data\\indexes\\osg_3_6_5_bm25_blocks_dualhash.sqlite",
+  "index": "<user-home>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-314\\test_bm25_script_writes_every_0\\fresh\\data\\indexes\\osg_3_6_5_bm25_blocks_dualhash.sqlite",
   "strategy": "blocks",
   "chunk_count": 1,
   "index_target_id": "osg-3.6.5-blocks-dualhash-003",
