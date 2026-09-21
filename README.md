@@ -129,7 +129,24 @@ uv run python scripts/search_routed.py "WMS 和 osgEarth 的版本约定" --max-
   并受 `max_libraries` 限制，被跳过的库会在响应里显式列出。
 - 路由在构造时**逐库校验**（manifest 指纹、BM25 行数、Qdrant 点数、维度、双 Hash 元数据），
   任一候选不合格就整体不建立。
-- **尚未接入 MCP**：`search_docs` 目前仍只服务 OSG active 索引。
+
+### 通过 MCP 检索多语料
+
+`search_docs` 支持指定语料；**不带参数时行为不变**，仍走 OSG active 单库：
+
+```jsonc
+{"query": "gdal_translate 支持哪些重采样方法", "library": "gdal"}   // 或 "target_id"
+{"query": "Viewer 的 run() 做什么"}                                  // 仍是 OSG
+```
+
+- 同一个库有多个版本时只给 `library` 会报错并列出可选版本，再用 `version` 或
+  `target_id` 指定；
+- **按权限过滤发生在解析目标之前**：无权读取的语料不会出现在候选里，也不会被实际查询，
+  且"无权"与"不存在"对外给出**完全相同**的报错——否则报错差异本身就说明了语料存在；
+- 证据带自己的 `corpus_id` / `index_target_id` / `download_path`，不会被重标成别的语料；
+- 未配置多语料候选清单时，指定 `library` 会明确报"未配置"，不会悄悄去查 OSG 索引。
+
+先用 `list_corpora` 看有哪些库、哪些 `index_state=usable`。
 
 ## 评测结果
 
@@ -442,7 +459,6 @@ artifacts/                   实验输出与验收证据（大文件与第三方
 
 ## 尚未完成
 
-- 多语料路由接入 MCP（`search_docs` 目前仍只服务 OSG active）；
 - 新语料的自动化获取脚本（`fetch_corpus.py` 只支持 OSG 风格 manifest）；
 - 扫描件 OCR 的表格/版式质量提升（正文相似度 0.98，表格页仅 0.69~0.78）；
 - 访问策略对接内网 IAM（当前为静态 ACL，且不提供身份认证）；

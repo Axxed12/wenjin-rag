@@ -217,6 +217,38 @@ def create_default_service(
     return create_runtime(use_reranker=use_reranker, root=root)[0]
 
 
+def create_router(
+    *,
+    root: Path,
+    qdrant_client: Any,
+    embedder: Any,
+    reranker: Any | None = None,
+) -> Any | None:
+    """为多语料候选建路由；没配置候选清单时返回 None。
+
+    **复用调用方已有的 Qdrant 客户端与两个模型**：`create_runtime` 已经加载过它们，
+    这里再建一份会让显存和启动时间都翻倍。
+
+    建路由会对每个候选跑**完整准入**（实测 5 个候选约 2.8 秒）。放在启动而不是
+    第一次调用：坏资产要在启动时就拦住，而不是等某个客户端恰好查到那个库才炸。
+
+    `reranker` 与 `RetrievalService` 共用同一个实例，因此本函数返回的路由
+    **不能**再 `close()`——释放由 service 负责，重复关闭会把共用的模型一起关掉。
+    """
+    from wenjin.retrieval.router import MultiCorpusRouter
+
+    route_path = root / "configs/indexes/multicorpus-candidates-002.json"
+    if not route_path.is_file():
+        return None
+    return MultiCorpusRouter.from_route_file(
+        route_path,
+        root=root,
+        qdrant_client=qdrant_client,
+        embedder=embedder,
+        reranker=reranker,
+    )
+
+
 def identity_from_registry(root: Path) -> RuntimeIdentity | None:
     """按需构造身份时用一次；无法确定就返回None，由调用方按拒绝处理。"""
     registry = root / "data/indexes/index-registry.json"
@@ -255,11 +287,15 @@ def build_mcp_server(
     project_root: Path | None = None,
     bearer_enabled: bool = False,
     identity: RuntimeIdentity | None = None,
+    corpus_router: Any | None = None,
 ) -> FastMCP:
     """创建只读的MCP服务（检索、语料目录、原文取件）。
 
     根目录、审计、访问策略和索引身份都可注入：测试用临时目录，部署用项目目录，
     模块里不写死。注入`service`时若没给`identity`，会**在构造时读一次**注册表。
+
+    `corpus_router` 是多语料候选的路由（见 `create_router`）。不给它时
+    `search_docs` 只能查 OSG active，指定 library 会明确报"未配置"而不是悄悄查错库。
     """
     if LATEST_PROTOCOL_VERSION != EXPECTED_PROTOCOL_VERSION:
         raise RuntimeError(
@@ -300,6 +336,14 @@ def build_mcp_server(
                 raise RuntimeError("MCP Context不可用")
             runtime = ctx.lifespan_context["retrieval_service"]
         return runtime
+
+    def current_router(ctx: Context | None):
+        """本次请求的多语料路由；未配置时返回 None。"""
+        if corpus_router is not None:
+            return corpus_router
+        if ctx is None:
+            return None
+        return ctx.lifespan_context.get("corpus_router")
 
     def _index_state(entry, *, ctx: Context | None) -> dict:
         """这份语料的索引现在能不能用。
@@ -353,8 +397,20 @@ def build_mcp_server(
         async def lifespan(server: FastMCP) -> AsyncIterator[dict[str, Any]]:
             runtime, runtime_identity = create_runtime(root=root)
             try:
-                yield {"retrieval_service": runtime, "identity": runtime_identity}
+                # 复用 service 已加载的客户端与模型，不重复加载。
+                router = create_router(
+                    root=root,
+                    qdrant_client=runtime.qdrant_client,
+                    embedder=runtime.embedder,
+                    reranker=runtime.reranker,
+                )
+                yield {
+                    "retrieval_service": runtime,
+                    "identity": runtime_identity,
+                    "corpus_router": router,
+                }
             finally:
+                # router 与 service 共用模型，只由 service 释放。
                 runtime.close()
                 audit.close()
 
@@ -393,11 +449,101 @@ def build_mcp_server(
             payload["query"] = query
         return payload
 
+    def _search_routed(
+        *, query: str, library: str | None, version: str | None, target_id: str | None,
+        top_k: int, context_char_budget: int, ctx: Context | None,
+        client_id: str | None, session_id: str | None, started: float,
+    ) -> dict:
+        """多语料检索：按 library(+version) 或唯一 target_id 寻址，并按权限过滤。
+
+        **先按权限过滤、再解析目标**。顺序反过来会有两处问题：一是会去实际查询无权读取
+        的索引（既浪费又在时序上泄露信息），二是"无权"和"不存在"会给出不同的报错，
+        等于告诉调用方"这个语料存在但你读不了"。过滤之后两者都表现为同一个解析失败。
+        """
+        from wenjin.retrieval.router import MultiCorpusRouter, RouteConfig
+
+        def denied(detail: str) -> dict:
+            audit.record(
+                query=query, version=version or "routed", top_k=top_k,
+                context_char_budget=context_char_budget, session_id=session_id,
+                client_id=client_id, elapsed_seconds=time.perf_counter() - started,
+                error=AccessDenied(detail),
+            )
+            return forbidden(detail, corpus_id=None, query=query)
+
+        router = current_router(ctx)
+        if router is None:
+            return denied("本服务未配置多语料索引，只能用默认的 OSG 索引检索")
+
+        try:
+            registry = current_access()
+        except AccessSnapshotError as exc:
+            return denied(f"访问策略不可用：{exc}")
+
+        allowed = [
+            index for index in router.indices
+            if registry.check(index.corpus_identity, client_id)
+        ]
+        # 被权限挡掉的数量只进服务端审计：语料名本身就不该给无权方看到。
+        if len(allowed) != len(router.indices):
+            audit.record_dropped_evidence_details(
+                query=query,
+                dropped=[{"code": "not_authorized",
+                          "corpus_id": index.corpus_identity} for index in router.indices
+                         if index not in allowed],
+                client_id=client_id,
+            )
+        if not allowed:
+            return denied("没有可检索的语料")
+
+        # 只带授权子集的路由视图：构造本身无 I/O，共用同一套客户端与模型。
+        scoped = MultiCorpusRouter(
+            qdrant_client=router.qdrant_client,
+            embedder=router.embedder,
+            indices=allowed,
+            reranker=router.reranker,
+            dense_search=router.dense_search,
+            keyword_search=router.keyword_search,
+        )
+        try:
+            result = scoped.search(
+                query, library=library, version=version, target_id=target_id,
+                config=RouteConfig(
+                    candidate_k=20, top_k=top_k,
+                    context_char_budget=context_char_budget,
+                ),
+            )
+        except ValueError as exc:
+            # 目标解析失败（库/版本不存在、版本有歧义、target 不存在）：这是调用方
+            # 用法问题，如实回报。因为已按权限过滤过，这里不会泄露无权语料的存在。
+            return {
+                "error": "invalid_target",
+                "detail": str(exc),
+                "query": query,
+                "evidence": [],
+                "evidence_status": "not_retrieved",
+                "answer_status": "not_generated",
+                "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
+            }
+
+        request_id = audit.record(
+            query=query, version=version or "routed", top_k=top_k,
+            context_char_budget=context_char_budget, session_id=session_id,
+            client_id=client_id, elapsed_seconds=time.perf_counter() - started,
+            result=result,
+        )
+        result["request_id"] = request_id
+        result["mcp_protocol"] = EXPECTED_PROTOCOL_VERSION
+        return result
+
     @mcp.tool(
         name="search_docs",
         description=(
-            "Search OSG 3.6.5 source documentation and return ranked evidence with file paths, "
-            "line ranges, upstream URLs, and raw text. This tool does not generate an answer."
+            "Search the knowledge base and return ranked evidence with file paths, line ranges "
+            "(or PDF page numbers), upstream URLs, and raw text. This tool does not generate an "
+            "answer. By default it searches the OSG 3.6.5 active index; pass `library` (and "
+            "`version` if that library has several) or `target_id` to search another corpus — "
+            "call list_corpora first to see what is indexed and usable."
         ),
         run_in_thread=True,
     )
@@ -405,10 +551,18 @@ def build_mcp_server(
         query: str,
         top_k: int = 5,
         context_char_budget: int = 8000,
-        version: str = "3.6.5",
+        version: str | None = None,
+        library: str | None = None,
+        target_id: str | None = None,
         ctx: Context | None = None,
     ) -> dict:
-        """检索证据；ctx只用于取得服务生命周期对象，不充当每请求协议身份。"""
+        """检索证据；ctx只用于取得服务生命周期对象，不充当每请求协议身份。
+
+        两条路径：
+        - **不指定 library/target_id**：走 OSG active 的单库服务，行为与之前完全一致；
+        - **指定了**：走多语料路由，按 library(+version) 或唯一 target_id 寻址，
+          并且**只搜索调用方有权读取的语料**。
+        """
         runtime = service
         if runtime is None:
             if ctx is None:
@@ -420,6 +574,16 @@ def build_mcp_server(
         except RuntimeError:
             session_id = None
         client_id = client_identity(bearer_enabled=bearer_enabled)
+
+        if library is not None or target_id is not None:
+            return _search_routed(
+                query=query, library=library, version=version, target_id=target_id,
+                top_k=top_k, context_char_budget=context_char_budget,
+                ctx=ctx, client_id=client_id, session_id=session_id, started=started,
+            )
+
+        # 未指定 library 时保持 OSG active 的原有语义（含默认版本）。
+        version = version or "3.6.5"
         current = request_identity(ctx)
         corpus_id = current.corpus_id if current else None
 
