@@ -1,0 +1,366 @@
+{
+  "report": "语料目录故障半径（F3）修复验证",
+  "code": "F3",
+  "date": "2026-09-21",
+  "git_revision_before": "26d52c4bb5f293570872d38f97e4df956371a543",
+  "environment": {
+    "host": "Windows 11 Pro 10.0.26200",
+    "python": "3.12.3",
+    "note": "所有 Python 命令均走 uv run"
+  },
+  "defect": {
+    "symptom": "corpora/ 下任意一个身份不合法的语料目录，让整个语料目录功能失效：corpus_catalog 整体抛错、find_corpus 查正常语料也抛错、/files/... 取件全部 503、list_corpora 整体失败。search_docs 不受影响。",
+    "root_cause": "find_corpus(corpus_id) 调 corpus_catalog(root)，后者扫遍 corpora/ 与 corpora-private/ 下每个目录并逐个做身份校验，任一失败即整体抛出。查一个语料被迫读了全馆的卡。",
+    "reproduction": {
+      "fixture": "临时目录里一个合法语料 gdal-3.13.1 + 一个中文名目录 我的文档",
+      "before": {
+        "note": "catalog.py 取自 git HEAD（真实旧版，非注入变异）",
+        "catalog_file": "<temp-workdir>\\before-src\\wenjin\\catalog.py",
+        "observations": {
+          "corpus_catalog": {
+            "ok": false,
+            "exc": "CorpusIdentityError",
+            "detail": "corpus_id只能由字母数字和._-组成且不以符号开头，实际为：'我的文档'"
+          },
+          "corpus_catalog_report.entries": {
+            "ok": true,
+            "value": "（旧版没有这个入口）"
+          },
+          "corpus_catalog_report.problems": {
+            "ok": true,
+            "value": "（旧版没有这个入口）"
+          },
+          "find_corpus('gdal-3.13.1')": {
+            "ok": false,
+            "exc": "CorpusIdentityError",
+            "detail": "corpus_id只能由字母数字和._-组成且不以符号开头，实际为：'我的文档'"
+          },
+          "find_corpus('我的文档')": {
+            "ok": false,
+            "exc": "CorpusIdentityError",
+            "detail": "corpus_id只能由字母数字和._-组成且不以符号开头，实际为：'我的文档'"
+          }
+        }
+      },
+      "after": {
+        "catalog_file": "<project-root>\\src\\wenjin\\catalog.py",
+        "observations": {
+          "corpus_catalog": {
+            "ok": true,
+            "value": [
+              "gdal-3.13.1"
+            ]
+          },
+          "corpus_catalog_report.entries": {
+            "ok": true,
+            "value": [
+              "gdal-3.13.1"
+            ]
+          },
+          "corpus_catalog_report.problems": {
+            "ok": true,
+            "value": [
+              "directory_name_invalid"
+            ]
+          },
+          "find_corpus('gdal-3.13.1')": {
+            "ok": true,
+            "value": "gdal-3.13.1"
+          },
+          "find_corpus('我的文档')": {
+            "ok": false,
+            "exc": "CorpusIdentityError",
+            "detail": "语料 我的文档 的身份无法确定（directory_name_invalid）：语料目录名含不允许的字符（只允许字母数字与 . _ -，且不以符号开头）（corpora/我的文档/source-manifest.json）"
+          }
+        }
+      }
+    },
+    "files": {
+      "module": "src/wenjin/catalog.py",
+      "identity": "src/wenjin/corpus_identity.py",
+      "callers": [
+        "src/wenjin/mcp_server.py",
+        "scripts/manage_access.py"
+      ]
+    }
+  },
+  "change": {
+    "summary": "把「整份目录一起失败」改成「出问题的那一份被隔离并可报告」，同时保持「身份可疑的语料永远不能被当作正常语料服务」这条安全属性不变。",
+    "api": {
+      "new": {
+        "corpus_catalog_report(root) -> CorpusCatalog": "一次扫描的结果，分 entries（可正常服务）与 problems（被隔离）两半",
+        "CorpusProblem": "directory / location / visibility / reason / detail / declared_id；to_dict 只出 directory+reason+detail",
+        "CorpusCatalog.problems_payload()": "给 list_corpora 用的序列化"
+      },
+      "unchanged": "corpus_catalog(root) -> list[CorpusEntry] 签名与返回内容不变，既有调用方（CLI、旧测试）无需改动"
+    },
+    "reason_codes": [
+      "directory_name_invalid",
+      "declared_id_invalid",
+      "identity_conflict",
+      "duplicate_corpus_id",
+      "manifest_unreadable",
+      "manifest_invalid"
+    ],
+    "behaviour": {
+      "corpus_catalog_report": "不再抛错；坏目录进 problems，不进 entries",
+      "corpus_catalog": "只返回 entries（向后兼容入口）",
+      "find_corpus": "只在请求的 id 正好是某个被隔离的目录名时抛 CorpusIdentityError；其余照常返回",
+      "list_corpora": "**不输出**任何问题目录明细；改由服务端日志（logger wenjin.catalog）记录 location/reason/detail",
+      "serve_download": "正常语料 200；坏目录 503（沿用既有 CorpusIdentityError→503 映射），正文只有固定文案",
+      "manage_access --list/--sync": "末尾打印被隔离的目录、原因码与位置（本地运维面）"
+    },
+    "leak_hardening": {
+      "finding": "第一版把 report.problems_payload() 直接挂到 list_corpora 返回值上，等于绕过权限过滤外发原始目录名（含 corpora-private/ 底下的），任何客户端都能读到「内网有一份被隔离的目录叫什么」。",
+      "fix": "网络入口不再输出明细；CorpusProblem.to_dict 与 CorpusCatalog.problems_payload 一并删除，不留一个『谁都可以调、调了就泄露』的方法。可见性改走两条运维面：服务端日志（catalog_logger，带路径）+ 本地 CLI scripts/manage_access.py --list。按 ACL 过滤在这里救不了场：隔离目录没有策略，registry.check 必然 default-deny，过滤后永远是空的，反而给出『一切正常』的假信号。",
+      "tests": [
+        "test_list_corpora_does_not_leak_quarantined_directory_names（对**整个响应** json.dumps 做全量字符串断言，5 种坏法各一遍；原因码这类受控分类允许出现，明细一律不行；同时断言运维日志拿得到）",
+        "test_problem_records_are_server_side_only（断言 CorpusProblem 没有 to_dict/to_json/as_dict/payload，防止有人顺手加回来）",
+        "test_download_503_body_carries_no_directory_name_or_declared_id（503 正文逐字等于固定文案）",
+        "test_a_broken_log_handler_cannot_fail_the_tool（emit 必抛的 handler 在场时，list_corpora 仍返回正常结果；对应变异 G 被 ×5 杀死）"
+      ],
+      "residual_leak_note": "search_docs 里 sources_for 抛出的 CorpusIdentityError 不在 try 内，会走 FastMCP 的工具错误通道。实测该通道把消息掩成固定的 \"Error calling tool '...'\"（变异服务端实测：抛 CorpusIdentityError('MUTANT: …') 时客户端只看到这句话），不泄露明细。"
+    },
+    "deliberate_boundaries": [
+      {
+        "choice": "find_corpus 的判定只看**目录名**，不看问题 manifest 自称的 corpus_id",
+        "why": "采信声明值正是 P1-1 要防的事。若按声称值判定，任何一份放在非法目录名下的 manifest 只要写上 osg-3.6.5，就能让真正的 osg-3.6.5 停止服务——那是把故障半径反向扩大。坏目录自己也仍然取不到（它不在 entries 里）。",
+        "test": "test_bad_directory_claiming_a_live_corpus_id_does_not_hijack_it"
+      },
+      {
+        "choice": "重复 corpus_id 时两份**都**隔离，并把先收下的那份撤回来；再加 quarantined 集合兜住第三份同名目录",
+        "why": "留任何一份在 entries 里，都等于让「请求落到哪一份」取决于遍历顺序。加固那半条：发现重复时会从 owners pop，pop 之后 `in owners` 判定失效，**第三份**同名目录会被当成正主收下——那份一旦被服务，攻击者凑够三份同名目录就能让自己的那份顶着该身份被授权放行。当前 _manifest_paths 只扫一层、同名目录最多两份，所以还走不到；但那是**另一个函数**的属性，这里的正确性不能寄托在它身上。",
+        "test": "test_duplicate_corpus_id_quarantines_both_copies / test_a_third_directory_claiming_a_quarantined_id_is_never_served"
+      },
+      {
+        "choice": "problem.to_dict 不输出 declared_id，也不输出路径",
+        "why": "问题条目不做权限过滤（身份未知，无法判定），对外报出声明值等于绕过 list_corpora 的权限过滤泄露一个身份名",
+        "test": "test_problems_do_not_carry_the_suspect_manifest_content"
+      },
+      {
+        "choice": "顺带隔离 manifest 读不出/结构不合法/corpus_id 非字符串",
+        "why": "同一类故障：旧实现里坏 JSON 会抛 JSONDecodeError、非字符串 corpus_id 会在 .strip() 上抛 AttributeError（不是 ValueError，取件端点会当 500）。都在同一个扫描循环里，一并隔离。",
+        "test": "test_unreadable_and_structurally_invalid_manifests_are_quarantined"
+      }
+    ],
+    "not_changed": [
+      "IDENTIFIER_PATTERN 字符集（「是否允许中文目录名」是另一个议题）",
+      "身份三方一致性判定 resolve_identity",
+      "corpora/ configs/ data/indexes/ raw_data/ 下任何真实文件",
+      "active 索引与索引注册表"
+    ],
+    "diffstat": "scripts/manage_access.py   |  19 +++-\n src/wenjin/catalog.py      | 245 +++++++++++++++++++++++++++++++++++++++++----\n src/wenjin/mcp_server.py   |  41 +++++++-\n tests/test_review_fixes.py |  33 ++++--\n 4 files changed, 307 insertions(+), 31 deletions(-)",
+    "logging_guard": {
+      "what": "log_identity_problems 逐条把 catalog_logger.warning 包进 try/except Exception。",
+      "why": "运维日志不该有能力把一次成功的工具调用变成工具错误。实测过：一个 emit 里写错的 handler（多做了一次 % 格式化）会让 list_corpora 整个变成 `Error calling tool 'list_corpora'`——logging 只在 handler 自己调 handleError 时才吞异常，自定义 handler 的异常会一路抛到工具层。",
+      "why_broad_except": "handler 的错误类型不可穷举（格式化、编码、I/O 都可能），这段代码的契约就是「绝不向外抛」，所以用宽泛的 except Exception 而不是列举类型。"
+    }
+  },
+  "tests": {
+    "suite": "428 passed（基线 387 → 新增 41）",
+    "baseline_before_change": "387 passed",
+    "new_file": "tests/test_catalog_fault_isolation.py",
+    "modified_old_behaviour_tests": {
+      "tests/test_review_fixes.py": "test_p1_1_catalog_rejects_directory_that_lies_about_its_id 与 test_p1_1_rejects_duplicate_corpus_id_across_directories 原先断言「corpus_catalog 整体抛错」，改为断言隔离：entries 为空 + problems 带原因码 + 查该 id 仍失败。安全意图（不顶着公开身份被列出/被服务）原样保留并加强——旧断言只证明列表失败，新断言同时证明「不进正常条目」且「查不到」。"
+    },
+    "coverage": [
+      "非法字符目录名：中文 / 带空格 / 以符号开头",
+      "目录名与 manifest 声明不一致",
+      "两个目录声明同一 corpus_id（跨 corpora 与 corpora-private）",
+      "三份同名目录（注入 _manifest_paths 绕开「当前扫不到」这个前提，验证加固本身）",
+      "manifest 读不出 / 结构不合法 / corpus_id 非字符串",
+      "find_corpus 查正常语料成功、查坏目录名明确失败、查真正不存在的 id 返回 None",
+      "取件：正常语料 200（且坏身份都显式配了放行策略，确保拦截来自身份判定而非缺策略）",
+      "取件：坏目录 503、其自称的 id 取不到内容、503 正文逐字等于固定文案",
+      "list_corpora：corpora 只含正常语料；**整个响应**里不出现任何被隔离目录的名/自称值/路径",
+      "list_corpora：隔离明细进服务端日志（断言日志里有 directory 与 reason=）",
+      "CorpusProblem 没有任何序列化入口（to_dict/to_json/as_dict/payload 都不存在）",
+      "日志 handler 抛异常时 list_corpora 仍返回正常结果（塞一个 emit 必抛的 handler）",
+      "把问题目录明细重新挂回响应（变异 H）会被泄露测试 ×5 杀死"
+    ],
+    "mutation_verification": {
+      "method": "逐条把隔离改回旧行为、改成过度放行、或去掉防护（每次只改一处，跑完立即还原并逐文件校验字节一致），对应测试必须失败。",
+      "restored_identical": true,
+      "results": {
+        "A_整体抛错（旧故障半径）": {
+          "killed": true,
+          "summary": "38 failed, 30 passed in 13.46s",
+          "failed_count": 38
+        },
+        "B_采信manifest声明值（P1-1漏洞）": {
+          "killed": true,
+          "summary": "8 failed, 60 passed in 12.19s",
+          "failed_count": 8
+        },
+        "C_重复身份不撤回已收下的那份": {
+          "killed": true,
+          "summary": "3 failed, 65 passed in 12.18s",
+          "failed_count": 3
+        },
+        "D_find_corpus忽略问题条目": {
+          "killed": true,
+          "summary": "22 failed, 46 passed in 12.35s",
+          "failed_count": 22
+        },
+        "E_采信问题目录自称的id（故障半径反向扩大）": {
+          "killed": true,
+          "summary": "2 failed, 66 passed in 12.37s",
+          "failed_count": 2
+        },
+        "F_去掉重复身份的加固（第三份同名目录被当正主）": {
+          "killed": true,
+          "summary": "1 failed, 67 passed in 12.28s",
+          "failed_count": 1
+        },
+        "G_日志防护收窄（handler 异常打穿工具调用）": {
+          "killed": true,
+          "summary": "5 failed, 63 passed in 12.84s",
+          "failed_count": 5
+        },
+        "H_问题目录明细外发（回归泄露）": {
+          "killed": true,
+          "summary": "5 failed, 63 passed in 12.39s",
+          "failed_count": 5
+        }
+      },
+      "all_killed": true
+    }
+  },
+  "end_to_end": {
+    "method": "起真实 MCP 服务（同一份 mcp_server.main()，streamable-http），项目根指向临时根：corpora/configs/raw_data/data 用 **shutil.copytree 真拷贝**（junction 会被 resolve_project_path 的 .resolve() 判为越界；hardlink 与原文件是同一 inode，往夹具写就是往真实文件写，两者都不能冒充临时根），再放两个坏夹具。真实仓库的 corpora/ 未放任何坏目录。坏身份都配了显式放行策略，确保非 200 来自身份判定而不是缺策略。夹具建好后断言过「夹具内链接数 == 0」，跑完连同服务进程一并删除。",
+    "reproduction_commands": [
+      "python build_fixture.py  # copytree 真实资产 + 写坏夹具与放行策略",
+      "F3_TMP_ROOT=<tmp-root> uv run python server_f3.py --port 8765  # 同一份 main()，只把 module.ROOT / settings.ROOT 指向临时根",
+      "uv run python client_f3.py 8765 fixed  # fastmcp Client 调 list_corpora + httpx GET /files/<id>/LICENSE.TXT"
+    ],
+    "fixture_root": "<temp-workdir>\\root3（真拷贝；已删除，证据见本文件）",
+    "fixtures": {
+      "corpora/我的文档/source-manifest.json": "中文目录名，manifest 自称同一个非法值",
+      "corpora-private/private-1/source-manifest.json": "目录名与声明不一致（自称公开 id public-1）"
+    },
+    "probe": "fastmcp Client 调 list_corpora + httpx GET /files/<id>/LICENSE.TXT",
+    "fixed": {
+      "label": "fixed",
+      "endpoint": "http://127.0.0.1:8765/mcp",
+      "list_corpora_ok": true,
+      "corpora": [
+        "gdal-3.13.1",
+        "ogc-3dtiles-1.1",
+        "ogc-wms-1.3.0",
+        "osg-3.6.5",
+        "osgearth-3.8",
+        "proj-9.8.1"
+      ],
+      "count": 6,
+      "response_keys": [
+        "corpora",
+        "count",
+        "index_state_note",
+        "mcp_protocol",
+        "note",
+        "usable_count"
+      ],
+      "response_mentions_quarantined": {
+        "我的文档": false,
+        "private-1": false,
+        "public-1": false,
+        "corpora-private": false,
+        "source-manifest": false,
+        "identity_problems": false
+      },
+      "download_good": {
+        "corpus_id": "gdal-3.13.1",
+        "status": 200,
+        "bytes": 21841,
+        "body": "\nGDAL/OGR Licensing\n==================\n\nThis file attempts to include all licenses that apply within the GDAL/OGR\nsource tree, in particular any that are supposed to be exposed to the end user\nfor cre"
+      },
+      "download_bad_dir": {
+        "corpus_id": "我的文档",
+        "status": 503,
+        "bytes": 74,
+        "body": "{\"error\":\"unavailable\",\"detail\":\"语料配置无效，请联系管理员\"}"
+      },
+      "download_bad_mismatch": {
+        "corpus_id": "private-1",
+        "status": 503,
+        "bytes": 74,
+        "body": "{\"error\":\"unavailable\",\"detail\":\"语料配置无效，请联系管理员\"}"
+      }
+    },
+    "mutant_same_fixture": {
+      "label": "mutant",
+      "endpoint": "http://127.0.0.1:8766/mcp",
+      "list_corpora_ok": false,
+      "list_corpora_error": "ToolError: Error calling tool 'list_corpora'",
+      "download_good": {
+        "corpus_id": "gdal-3.13.1",
+        "status": 503,
+        "bytes": 74,
+        "body_error": "unavailable"
+      },
+      "download_bad_dir": {
+        "corpus_id": "我的文档",
+        "status": 503,
+        "bytes": 74,
+        "body_error": "unavailable"
+      },
+      "download_bad_mismatch": {
+        "corpus_id": "private-1",
+        "status": 503,
+        "bytes": 74,
+        "body_error": "unavailable"
+      }
+    },
+    "mutant_definition": "把 corpus_catalog_report 改回「有任何 problems 就 raise」，用 src/wenjin 的副本经 PYTHONPATH 加载，其余完全相同",
+    "conclusion": "同一夹具下：修复后 list_corpora 返回 6 个正常语料、响应里不含任何被隔离目录的名字/自称值/路径（identity_problems 键本身也不存在），gdal-3.13.1 取件 200（21841 字节），两个坏目录 503 且正文只有固定文案；服务端日志拿到两行完整明细。变异回旧行为后 list_corpora 整体失败、连 gdal-3.13.1 也变 503。"
+  },
+  "incident_disclosure": [
+    {
+      "what": "搭建临时根时，一条经 Bash 工具转发的 PowerShell 命令被 $ 展开破坏，误把临时根的 corpora/ 建成了指向真实 corpora/ 的 junction，于是在真实仓库里多出一个目录 corpora/gdal-3.13.1/我的文档/，内含一份 gdal manifest 的副本。",
+      "impact": "仅新增了一个未跟踪目录，未修改任何已跟踪文件。副本 SHA256 与真实 corpora/gdal-3.13.1/source-manifest.json 完全一致（2D5F7B27…F22B），即写入的是同一份内容，无内容被覆盖或丢失。",
+      "remediation": "已删除该目录。"
+    },
+    {
+      "what": "同一批命令还留下了一个**活的**危险：<temp-workdir>\\tmp-root 连同 9 个指向真实仓库的 junction（configs / data / raw_data 与 6 个语料目录）没有删。只要还有东西往 tmp-root\\data\\ 写，改的就是真实索引注册表；而将来对 <temp-workdir> 做递归删除会跟着 junction 删掉真实仓库。",
+      "impact": "未发生实际写入；真实仓库各目录完好。",
+      "remediation": "已用 `cmd /c rmdir`（不带 /s，只摘链接不碰目标）逐个摘除 9 个 junction，确认 <temp-workdir> 下再无 Junction / Symlink，再删除 tmp-root。删除后逐一验证 configs / data / raw_data / corpora\\osg-3.6.5 / corpora\\gdal-3.13.1 仍然存在。"
+    },
+    {
+      "what": "第一版 e2e 夹具用 hardlink 复刻真实资产，并把它说成「只读」。硬链接与原文件是**同一个 inode**，往夹具路径写就是往真实文件写，「只读」只是约定、不是保护——换成写一份改过的 manifest 就会静默改掉真实语料。",
+      "impact": "**内容零损失，且实测表明时间戳与夹具无关。** 复核证据：(1) 我建了 126 个硬链接，其中 125 个目标的 mtime/ctime 都不是今天，只有 corpora/osg-3.6.5/README.md 一个是——若建硬链接会改 mtime，126 个都会改；(2) 同一秒（12:04:32）的时间戳遍布全仓约 90 个文件，包括 .gitignore、Dockerfile、src/wenjin/auth.py、evaluation/run_ragas_eval.py 等我的夹具从未覆盖的路径，且我的硬链接只覆盖 corpora/configs/raw_data/data 四个目录；(3) 我的工作目录 <temp-workdir> 建于 12:35:45，比 12:04:32 晚 31 分钟；(4) corpora/osg-3.6.5/README.md 的工作区 blob 哈希与 HEAD 完全一致（9e3ecba5e7dc5e66fe0de2c1eda012a04a2a4dbb）。结论：12:04:32 是一次**全仓范围**的改写事件（本会话全程只读，成因不在我的夹具；同一仓库另有队友在并行工作），与硬链接无关；所有受影响文件内容均与 HEAD 一致。",
+      "remediation": "无论成因如何，**「硬链接只读」这个说法是我的错误，已撤回**：硬链接与原文件是同一 inode，往夹具路径写就是往真实文件写，换一份改过的 manifest 就会静默改掉真实语料。后续夹具一律 shutil.copytree 真拷贝，并在建好后断言「夹具内链接数 == 0」（实测该断言为 0）。e2e 已用真拷贝夹具（root3）重跑一遍，结果与硬链接夹具那次逐字段一致。两套夹具、服务进程与 <temp-workdir> 整个目录均已删除；删除后 fsutil 复核corpora/osg-3.6.5/README.md、data/indexes/index-registry.json、raw_data/gdal/3.13.1/LICENSE.TXT 的硬链接计数均回到 1。"
+    }
+  ],
+  "evidence_limits": {
+    "git_status_is_not_proof_for_untracked_assets": "`git diff --stat` 对 `data/indexes/index-registry.json` 永远是空的——该文件被 git rm --cached 移出了跟踪。所以「git 干净」证明不了它没被动。本轮它是靠 mtime（停在 09-18 17:08:18）判断未改动的，不是靠 git。`corpora/` 的 6 份 manifest 受跟踪，git diff 为空对它们才是有效证据。",
+    "mtimes_are_repo_wide_as_of_2026_09_21_1204": "全仓约 90 个文件（含 .gitignore、Dockerfile、src/wenjin/auth.py、evaluation/** 等）的 mtime/ctime 都是 2026-09-21 12:04:32，成因不在本次改动。因此**不能用 mtime 判断真实资产是否被本次工作碰过**——能作准的是内容比对：corpora/configs/raw_data/data 下受跟踪文件 git diff 全空，6 份 manifest 与 index-registry.json 的 mtime 仍停在 09-18。"
+  },
+  "cleanup": {
+    "junctions_removed": "<temp-workdir>\\tmp-root 下 9 个指向真实仓库的 junction（configs / data / raw_data + 6 个语料目录）用 `cmd /c rmdir`（不带 /s，只摘链接不碰目标）逐个摘除，确认后删除 tmp-root；删除后逐一验证 configs / data / raw_data / corpora\\osg-3.6.5 / corpora\\gdal-3.13.1 仍然存在。",
+    "temp_roots_deleted": "<temp-workdir> 整个目录（含 root2 硬链接夹具、root3 真拷贝夹具）已删除。",
+    "hardlink_check": "fsutil hardlink list 抽查 corpora/osg-3.6.5/README.md、corpora/osg-3.6.5/verify.ps1、data/indexes/index-registry.json、raw_data/gdal/3.13.1/LICENSE.TXT：每个都只剩真实仓库里那一条路径，临时根里的 126 条硬链接已随 root2 一起消失。",
+    "verification": "<temp-dir> 下复查无任何 Junction / SymbolicLink；仓库内受跟踪资产 git diff 为空；无残留 MCP 服务进程（8765/8766 均已释放）。残留 <temp-workdir> 仅为变异/复现脚本与 2 个合成 manifest（合计 397 字节），无任何链接、无真实语料副本。"
+  },
+  "decisions": [
+    {
+      "item": "隔离日志每次 list_corpora 都重打，是否跨请求去重",
+      "decision": "不去重，保持现状",
+      "reason": "去重需要跨请求状态，引入一致性与过期问题；目前没有实测噪声证据表明它是问题。若将来 agent 循环调用造成日志噪声，再按实测数据决定。"
+    },
+    {
+      "item": "取件 503 的审计记录不含根因，是否改 serve_download 的审计形状",
+      "decision": "不改，保持现状",
+      "reason": "可见性已经由服务端日志（list_corpora 路径）补上，够用。改审计形状是另一个话题，不混进本次故障半径修复。"
+    },
+    {
+      "item": "find_corpus 只看目录名、不看问题 manifest 自称的 corpus_id",
+      "decision": "维持（团队确认）",
+      "reason": "采信自称值会让任何一份放在非法目录名下的 manifest 只要写上 osg-3.6.5 就把真的 osg-3.6.5 停掉，是把故障半径反向扩大。代价是查 public-1 返回 404 而不是 503——public-1 确实不存在（它只是个自称），404 是诚实的。"
+    },
+    {
+      "item": "顺带隔离坏 manifest（读不出 / 结构不合法 / corpus_id 非字符串）",
+      "decision": "保留（团队确认）",
+      "reason": "非字符串 corpus_id 会在 .strip() 上抛 AttributeError，那不是 ValueError，取件端点会当成 500，属同一类故障。"
+    }
+  ]
+}

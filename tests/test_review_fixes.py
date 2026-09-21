@@ -20,7 +20,7 @@ from types import SimpleNamespace
 import pytest
 from starlette.responses import PlainTextResponse
 
-from wenjin.catalog import corpus_catalog
+from wenjin.catalog import corpus_catalog_report, find_corpus
 from wenjin.corpus_identity import CorpusIdentityError, resolve_identity
 from wenjin.serving import (
     CorpusSources,
@@ -63,10 +63,20 @@ def test_p1_1_catalog_rejects_directory_that_lies_about_its_id(tmp_path):
     """目录`private-1`声明成`public-1`时，语料列表不能顶着公开身份列出它。
 
     不复现的话：给它public-1的公开策略，取件就会放行私有正文。
+    这里断言的是**隔离**而不是"整份列表一起失败"：坏目录被挡在外面，同时不牵连别人
+    （见 tests/test_catalog_fault_isolation.py）。旧行为下任意一个坏目录会让所有语料的
+    取件返回503，故障半径过大。
     """
     write_corpus(tmp_path, directory="private-1", declared="public-1", subdir="x/1")
-    with pytest.raises(CorpusIdentityError, match="身份冲突"):
-        corpus_catalog(tmp_path)
+    report = corpus_catalog_report(tmp_path)
+    assert report.entries == (), "身份冲突的语料不能出现在正常条目里"
+    assert [problem.reason for problem in report.problems] == ["identity_conflict"]
+    assert report.problems[0].directory == "private-1"
+    # 它自称的 `public-1` 不能被当正常语料服务。查 `private-1` 必须明确失败；
+    # 查 `public-1` 不返回条目（它按目录名判定，自称值不构成身份）。
+    with pytest.raises(CorpusIdentityError, match="身份"):
+        find_corpus(tmp_path, "private-1")
+    assert find_corpus(tmp_path, "public-1") is None
 
 
 def test_p1_1_fetch_rejects_directory_that_lies_about_its_id(tmp_path):
@@ -79,13 +89,24 @@ def test_p1_1_fetch_rejects_directory_that_lies_about_its_id(tmp_path):
 
 
 def test_p1_1_rejects_duplicate_corpus_id_across_directories(tmp_path):
-    """同一个corpus_id出现在两个目录时拒绝，不能取第一个匹配项。"""
+    """同一个corpus_id出现在两个目录时拒绝，不能取第一个匹配项。
+
+    两份**都**被隔离，并且查这个 id 必须失败——留任何一份在列表里都等于让
+    "哪份被服务"取决于遍历顺序。
+    """
     write_corpus(tmp_path, directory="same-id", declared="same-id", subdir="x/1",
                  visibility="corpora")
     write_corpus(tmp_path, directory="same-id", declared="same-id", subdir="y/1",
                  visibility="corpora-private")
-    with pytest.raises(CorpusIdentityError, match="corpus_id重复"):
-        corpus_catalog(tmp_path)
+    report = corpus_catalog_report(tmp_path)
+    assert report.entries == ()
+    assert sorted(problem.location for problem in report.problems) == [
+        "corpora-private/same-id/source-manifest.json",
+        "corpora/same-id/source-manifest.json",
+    ]
+    assert {problem.reason for problem in report.problems} == {"duplicate_corpus_id"}
+    with pytest.raises(CorpusIdentityError, match="corpus_id重复|由多个目录声明"):
+        find_corpus(tmp_path, "same-id")
 
 
 def test_p1_1_identity_resolution_reports_source(tmp_path):

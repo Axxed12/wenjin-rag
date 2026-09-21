@@ -24,13 +24,23 @@ from wenjin.access import (  # noqa: E402
     load_policy,
     write_policy,
 )
-from wenjin.catalog import corpus_catalog  # noqa: E402
+from wenjin.catalog import CorpusCatalog, corpus_catalog_report  # noqa: E402
 
 ACCESS_DIR = ROOT / "configs/access"
 
 
+def print_identity_problems(report: CorpusCatalog) -> None:
+    """被隔离的目录必须显式报出来，否则它们在--list里静默消失。"""
+    if not report.problems:
+        return
+    print(f"\n【身份无法确定：{len(report.problems)} 个目录，已隔离，不会出现在上面的清单里】")
+    for problem in report.problems:
+        print(f"  {problem.location:48s} {problem.reason:22s} {problem.detail}")
+
+
 def list_policies() -> int:
-    catalog = {entry.corpus_id: entry for entry in corpus_catalog(ROOT)}
+    report = corpus_catalog_report(ROOT)
+    catalog = {entry.corpus_id: entry for entry in report.entries}
     registry = AccessRegistry.from_directory(ACCESS_DIR)
     # 索引列只说"有没有配置提到它"——能不能用要另外预检（list_corpora 的 index_state）。
     # 这里写成"有配置/无配置"，避免被读成"索引可用"。
@@ -43,13 +53,15 @@ def list_policies() -> int:
             continue
         clients = ",".join(policy.allowed_clients) or "（空：拒绝所有人）"
         print(f"{corpus_id:32s} {policy.visibility:9s} {clients:28s} {targets}")
+    print_identity_problems(report)
     return 0
 
 
 def sync_policies(*, dry_run: bool) -> int:
     """为还没有策略的语料生成默认策略：公开语料放行，内部语料先拒绝所有人。"""
+    report = corpus_catalog_report(ROOT)
     created = 0
-    for entry in corpus_catalog(ROOT):
+    for entry in report.entries:
         if load_policy(ACCESS_DIR, entry.corpus_id) is not None:
             continue
         policy = default_policy(entry.corpus_id, entry.visibility)
@@ -65,6 +77,7 @@ def sync_policies(*, dry_run: bool) -> int:
     else:
         print(f"已写入 {ACCESS_DIR.relative_to(ROOT)}。内部语料默认拒绝，"
               "请用 --grant 把 client_id 加进去。")
+    print_identity_problems(report)
     return 0
 
 

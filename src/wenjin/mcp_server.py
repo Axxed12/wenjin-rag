@@ -17,7 +17,9 @@ MCP-Session-Id；启动时显式禁止stateless HTTP。
 import argparse
 import asyncio
 import json
+import logging
 import os
+import sys
 import time
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
@@ -38,7 +40,7 @@ from starlette.responses import Response as StarletteResponse
 from wenjin.access import AccessDenied, AccessRegistry, AccessSnapshotError, load_snapshot
 from wenjin.audit import SearchAudit
 from wenjin.auth import TRUSTED_CLIENT_HEADER_NAME, BearerAuthMiddleware
-from wenjin.catalog import corpus_catalog, find_corpus, index_target_configs
+from wenjin.catalog import corpus_catalog_report, find_corpus, index_target_configs
 from wenjin.corpus_identity import CorpusIdentityError
 from wenjin.index_audit import preflight_target
 from wenjin.index_registry import (
@@ -62,6 +64,38 @@ ROOT = Path(__file__).resolve().parents[2]
 EXPECTED_PROTOCOL_VERSION = "2025-11-25"
 # 同时在处理的取件请求数上限；配合 serving.MAX_SERVE_BYTES 给内存占用设上界。
 MAX_CONCURRENT_DOWNLOADS = 2
+
+# 被隔离的语料目录只记在**服务端日志**和本地CLI里，不走网络接口：`CorpusProblem`
+# 带的是原始目录名与路径（含corpora-private/底下的），而问题目录不做权限过滤
+# （身份未知，无法判定），原样外发等于让任何客户端读到"内网有一份被隔离的目录叫什么"。
+# 与 auth.py 的 wenjin.security 一样自建stdout handler：uvicorn 会重配日志，
+# 不自建的话这条运维告警可能被吞掉。
+catalog_logger = logging.getLogger("wenjin.catalog")
+catalog_logger.setLevel(logging.WARNING)
+catalog_logger.propagate = False
+if not catalog_logger.handlers:
+    _catalog_handler = logging.StreamHandler(sys.stdout)
+    _catalog_handler.setFormatter(logging.Formatter("%(message)s"))
+    catalog_logger.addHandler(_catalog_handler)
+
+
+def log_identity_problems(report) -> None:
+    """把被隔离的目录写进服务端日志；这是网络接口**不**外发它们之后的可见性出口。
+
+    逐条包 try：运维日志失败不能把一次成功的工具调用变成工具错误。这里用宽泛的
+    `except Exception` 是刻意的——handler 的错误类型不可穷举（格式化、编码、I/O 都可能），
+    而这段代码的契约就是"绝不向外抛"（logging 只在 handler 自己调 handleError 时才吞异常）。
+    """
+    for problem in report.problems:
+        try:
+            catalog_logger.warning(
+                "语料身份无法确定，已隔离：%s reason=%s visibility=%s declared_id=%s "
+                "detail=%s",
+                problem.location, problem.reason, problem.visibility,
+                problem.declared_id, problem.detail,
+            )
+        except Exception:  # noqa: BLE001 - 日志失败不影响工具可用性，见 docstring
+            pass
 
 
 @dataclass(frozen=True)
@@ -695,6 +729,11 @@ def build_mcp_server(
         **"有索引配置"不等于"索引能用"**：配置文件在而 collection 被删、BM25 缺失或
         manifest 换过，语料在旧实现里照样报 indexed=true，但它一条都检索不出来。
         因此每条语料额外给 `index_state`，由预检得出。
+
+        身份有问题的目录**不在本接口输出**：它们不进 `corpora`，也不能被检索或取件；
+        到底是哪些目录、为什么被隔离，只进服务端日志和本地CLI。按ACL过滤在这里救不了场
+        ——隔离目录没有策略，`registry.check` 必然 default-deny，过滤后永远是空的，
+        反而给出"一切正常"的假信号。
         """
         client_id = client_identity(bearer_enabled=bearer_enabled)
         try:
@@ -702,8 +741,10 @@ def build_mcp_server(
         except AccessSnapshotError as exc:
             return {"corpora": [], "count": 0, "error": "unavailable", "detail": str(exc),
                     "mcp_protocol": EXPECTED_PROTOCOL_VERSION}
+        report = corpus_catalog_report(root)
+        log_identity_problems(report)
         entries = []
-        for entry in corpus_catalog(root):
+        for entry in report.entries:
             if not registry.check(entry.corpus_id, client_id):
                 continue
             payload = entry.to_dict(include_files=include_files)
@@ -722,6 +763,11 @@ def build_mcp_server(
             ),
             "note": (
                 "Only corpora this client is allowed to read are listed. "
+                "Directories quarantined for an unresolvable corpus identity are NOT "
+                "reported here (naming them would leak directory names past the access "
+                "check): they are recorded in the server log and listed by "
+                "scripts/manage_access.py --list. If a corpus you expect is missing, ask "
+                "an operator to check for quarantined directories. "
                 "Retrieval scores are ranking signals, not answer confidence."
             ),
             "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
