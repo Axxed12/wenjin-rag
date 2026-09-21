@@ -40,6 +40,15 @@ def _duplicates(values: list[str]) -> list[str]:
     return sorted(repeated)
 
 
+def _reason_counts(dropped: list[dict]) -> dict[str, int]:
+    """按原因码计数；与 `serving.AttachmentResult.dropped_summary` 同一口径。"""
+    counts: dict[str, int] = {}
+    for item in dropped:
+        code = item.get("code", "unknown")
+        counts[code] = counts.get(code, 0) + 1
+    return counts
+
+
 def fuse_identity(item: dict):
     """跨目标融合时的候选身份。
 
@@ -421,7 +430,7 @@ class MultiCorpusRouter:
             char_budget=config.context_char_budget,
         )
         evidence: list[dict] = []
-        dropped_evidence: list[dict] = []
+        dropped_details: list[dict] = []
         for rank, result in enumerate(selected, start=1):
             index = indices[result["target_id"]]
             record = evidence_record(result, index.source_urls, rank=rank)
@@ -431,7 +440,7 @@ class MultiCorpusRouter:
             # 取件链接按manifest登记路径生成；映射不到本库的片段会被丢弃并报告。
             attachment = attach_download_paths([record], index.sources)
             if attachment.dropped:
-                dropped_evidence.extend(attachment.dropped)
+                dropped_details.extend(attachment.dropped)
                 continue
             evidence.extend(attachment.evidence)
         return {
@@ -451,8 +460,15 @@ class MultiCorpusRouter:
             "context_char_budget": config.context_char_budget,
             "context_chars_used": sum(len(item["text"]) for item in evidence),
             "evidence": evidence,
-            # 映射不到所属语料的证据不静默丢弃：单独列出，便于发现索引与manifest不一致。
-            "evidence_dropped": dropped_evidence,
+            # 映射不到所属语料的证据不静默丢弃，但**客户端只能看到数量和原因码**：
+            # 明细含 corpus_id / source_path / chunk_id，"某个语料里有个叫 X 的文件"
+            # 本身就是机密。这条约定与 OSG 单库路径一致（见 serving.dropped_summary）。
+            "evidence_dropped": {
+                "count": len(dropped_details),
+                "reasons": _reason_counts(dropped_details),
+            },
+            # 明细单独放一个键，供服务端写审计。**网络入口必须把它摘掉再返回**。
+            "evidence_dropped_details": dropped_details,
             "evidence_status": "unverified",
             "evidence_guidance": (
                 "The router returned ranked passages from verified indexes but did not verify "

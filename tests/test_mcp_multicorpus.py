@@ -9,6 +9,7 @@
 """
 
 import asyncio
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -251,4 +252,95 @@ def test_default_path_still_uses_the_osg_service(tmp_path):
     server = build_server(tmp_path, access=policies("osg-3.6.5"), router=None)
     data = call(server, "search_docs", {"query": "q"})
     assert "routed_libraries" not in data
+    assert data["version"] == "3.6.5"
+
+
+# --- F1：丢弃明细不能回给客户端 ---
+
+
+def build_router_with_unmapped(indices: list[RoutedIndex]) -> MultiCorpusRouter:
+    """让 alpha 返回一条**未登记**的来源路径，触发丢弃。"""
+
+    def fake_dense(client, vector, collection, *, top_k):
+        if collection != "alpha_dense":
+            return []
+        # 路径指向一个**没在 manifest 登记**的文件，取件映射必然失败。
+        bad = point("alpha-bad", library="alpha", version="1.0", text="未登记来源")
+        bad.payload["source_path"] = "raw_data/alpha/1.0/unregistered-file.md"
+        return [bad]
+
+    def fake_keyword(path, query, *, top_k):
+        return []
+
+    return MultiCorpusRouter(
+        qdrant_client=SimpleNamespace(close=lambda: None),
+        embedder=SimpleNamespace(get_query_embedding=lambda q: [0.0] * 8),
+        indices=indices, dense_search=fake_dense, keyword_search=fake_keyword,
+    )
+
+
+def test_routed_drop_details_never_reach_the_client(tmp_path, two_corpora):
+    """丢弃明细含 corpus_id / source_path / chunk_id，只能进审计，不能回客户端。
+
+    OSG 单库路径用 `dropped_summary()` 只给数量和原因码；路由路径一开始把原始明细
+    直接放进返回值，网络入口原样透传——同一个字段两种口径。
+    """
+    router = build_router_with_unmapped(two_corpora)
+    server = build_server(tmp_path, access=policies(ALPHA, BETA), router=router)
+    data = call(server, "search_docs", {"query": "q", "library": "alpha"})
+
+    assert "evidence_dropped_details" not in data, "明细被回给了客户端"
+    dropped = data["evidence_dropped"]
+    assert dropped["count"] == 1
+    assert isinstance(dropped["reasons"], dict) and dropped["reasons"]
+    # 响应体里不该出现被丢弃条目的标识：chunk_id、来源路径、语料身份。
+    # 注意**原因码**（`unregistered_file` 这类）本来就该在摘要里，
+    # 那是受控词表里的分类，不是明细。
+    blob = json.dumps(data, ensure_ascii=False)
+    assert "alpha-bad" not in blob          # chunk_id
+    assert "unregistered-file.md" not in blob  # 来源路径
+    assert "doc.md" not in blob
+
+
+def test_routed_drop_summary_matches_the_single_index_shape(tmp_path, two_corpora):
+    """两种路径的 `evidence_dropped` 必须是同一形状，否则调用方没法统一处理。"""
+    router = build_router_with_unmapped(two_corpora)
+    server = build_server(tmp_path, access=policies(ALPHA, BETA), router=router)
+    data = call(server, "search_docs", {"query": "q", "library": "alpha"})
+    assert set(data["evidence_dropped"]) == {"count", "reasons"}
+
+
+def test_no_drop_reports_zero_like_the_single_index_path(tmp_path, two_corpora):
+    server = build_server(tmp_path, access=policies(ALPHA, BETA),
+                          router=build_router(two_corpora))
+    data = call(server, "search_docs", {"query": "q", "library": "alpha"})
+    assert data["evidence_dropped"] == {"count": 0, "reasons": {}}
+    assert "evidence_dropped_details" not in data
+
+
+# --- F2：只给 version 不给 library ---
+
+
+def test_version_without_library_gives_an_actionable_error(tmp_path):
+    """不给 library 时只检索 OSG；版本对不上要给能看懂的提示。
+
+    原行为是让 runtime 抛 ValueError，而服务端开了错误屏蔽，客户端只看到
+    "Error calling tool"——分不清是参数写错还是服务坏了。
+    """
+    make_osg_corpus(tmp_path)
+    server = build_server(tmp_path, access=policies("osg-3.6.5"), router=None)
+    data = call(server, "search_docs", {"query": "q", "version": "1.1"})
+    assert data["error"] == "invalid_target"
+    assert "library" in data["detail"]
+    assert "list_corpora" in data["detail"]
+    assert data["evidence"] == []
+    assert data["mcp_protocol"]
+
+
+def test_matching_version_without_library_still_works(tmp_path):
+    """对照：版本与 OSG active 一致时照常检索，不受这条检查影响。"""
+    make_osg_corpus(tmp_path)
+    server = build_server(tmp_path, access=policies("osg-3.6.5"), router=None)
+    data = call(server, "search_docs", {"query": "q", "version": "3.6.5"})
+    assert "error" not in data
     assert data["version"] == "3.6.5"

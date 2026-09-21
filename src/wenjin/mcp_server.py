@@ -526,6 +526,14 @@ def build_mcp_server(
                 "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
             }
 
+        # 明细只进服务端审计，绝不能回给客户端：它含 corpus_id / source_path / chunk_id，
+        # "某个语料里有个叫 X 的文件"本身就是机密。与 OSG 单库路径同一口径。
+        details = result.pop("evidence_dropped_details", [])
+        if details:
+            audit.record_dropped_evidence_details(
+                query=query, dropped=details, client_id=client_id
+            )
+
         request_id = audit.record(
             query=query, version=version or "routed", top_k=top_k,
             context_char_budget=context_char_budget, session_id=session_id,
@@ -583,7 +591,26 @@ def build_mcp_server(
             )
 
         # 未指定 library 时保持 OSG active 的原有语义（含默认版本）。
-        version = version or "3.6.5"
+        active_version = getattr(runtime, "supported_version", "3.6.5")
+        if version is None:
+            version = "3.6.5"
+        elif version != active_version:
+            # 只给 version 不给 library，多半是想查别的语料。这里直接给结构化错误，
+            # 而不是让 runtime 抛 ValueError——服务端开了错误屏蔽，抛异常客户端只会看到
+            # "Error calling tool"，分不清是参数写错还是服务坏了。
+            return {
+                "error": "invalid_target",
+                "detail": (
+                    f"不带 library 时只检索 OSG {active_version}。要查其他版本请同时给出 "
+                    f"library（例如 library=\"gdal\", version=\"3.13.1\"）；"
+                    f"先用 list_corpora 可以看到有哪些库和版本。"
+                ),
+                "query": query,
+                "evidence": [],
+                "evidence_status": "not_retrieved",
+                "answer_status": "not_generated",
+                "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
+            }
         current = request_identity(ctx)
         corpus_id = current.corpus_id if current else None
 
