@@ -457,65 +457,7 @@ uv run python scripts/demo_content_update.py
 uv run python scripts/demo_modify_delete.py
 ```
 
-## 安全边界
 
-- `.env`、本地模型、TLS 私钥、审计日志、生成的索引和原始语料都不提交 Git；
-- **运行时注册表 `data/indexes/index-registry.json` 也不提交**。它记录当前 active 目标
-  和切换历史；切到非公开目标后，active/history 里会有内部 manifest 路径与 collection 名，
-  回退后 `events` 仍保留内部 target_id。用 `manage_indexes.py init` 就地生成；
-- 审计默认只保存 Query / Session / 客户端 ID 的 SHA256；
-- 当前 Bearer 是“一把密钥一个客户端 ID”，不是多用户 IAM，也没有吊销中心；
-- 自签名 TLS 不替代企业 CA 或认证反向代理；
-- 数据库过滤不能代替调用方鉴权。
-
-**镜像里不带访问策略，也不带非公开语料**（`.dockerignore` 排除 `configs/access/`、
-`corpora-private/`、`configs/indexes-private/`）。因此：
-
-- `configs/access/` 必须在运行时挂载；不挂载时策略快照为空，判定是"默认拒绝所有人"
-  ——容器能启动，但不服务任何语料，这是设计上的 fail closed，不是故障；
-- **非公开语料不在镜像支持范围内**。要服务它们，需要同时挂载 `corpora-private/` 和
-  `configs/indexes-private/`（镜像不烘焙这两处，也不为它们提供默认路径）。
-
-## 目录结构
-
-```text
-src/wenjin/                  正式源代码
-  content_hashing.py         双 Hash、规范化 profile 与语料内容指纹
-  paths.py                   路径安全原语（防目录逃逸与符号链接）
-  access.py                  语料访问策略（默认拒绝）
-  serving.py                 原文取件定位（不含 HTTP）
-  catalog.py                 语料目录与索引状态
-  ingestion/                 多格式解析、切片、入库、MinerU OCR
-  indexing/                  Qdrant、BM25 与候选构建
-  retrieval/                 Query 处理、RRF、Reranker、Service、跨库 Router
-  mcp_server.py              状态化 MCP：search_docs / list_corpora / /files 取件
-  index_registry.py          active 索引校验、切换与回退
-tests/                       自动化测试
-evaluation/                  validation 对照、冻结集评测、RAGAS 独立环境
-scripts/                     导入、建库、查询、索引管理与实验 CLI
-corpora/<corpus-id>/         可提交的 manifest、来源与许可元数据
-corpora-private/<corpus-id>/ 非公开语料（Git 忽略）
-configs/access/              访问策略（Git 忽略，属于部署配置）
-raw_data/<library>/<version> 语料原文（不提交 Git）
-configs/indexes/             公开语料的索引目标与候选路由清单
-configs/indexes-private/     非公开语料的索引目标（Git 忽略；配置含内部 corpus_id）
-artifacts/                   实验输出与验收证据（大文件与第三方副本除外）
-```
-
-## 尚未完成
-
-- 新语料的自动化获取脚本（`fetch_corpus.py` 只支持 OSG 风格 manifest）；
-- 扫描件 OCR 的表格/版式质量提升（正文相似度 0.98，表格页仅 0.69~0.78）；
-- 访问策略对接内网 IAM（当前为静态 ACL，且不提供身份认证）；
-- 跨机器联调、企业 CA、多用户权限、并发压测；
-- 离线镜像在目标内网的导入与验收；
-- 父子片段、文档级路由、内网原文查看器；
-- PDF 表格关系与复杂 HTML DOM 的独立质量验收；
-- RAGAS 真实业务指标与 Faithfulness 评测；
-- **召回侧改进**：冻结 test 显示 GDAL 的瓶颈是召回而非排序（MRR 0.974 / 全证据 0.684），
-  且 5 道题连 @20 都取不到。这些都是未召回的题，调重排没有用；
-- **PDF 页级证据的细化判定**：目前只能判"该页有 chunk"，无法校验证据原文是否真的
-  落在切出来的文本里（缺字符级锚点）。
 
 ## 许可证
 
