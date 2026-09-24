@@ -120,10 +120,21 @@ def test_p1_1_identity_resolution_reports_source(tmp_path):
 
 
 def test_p1_1_identifier_rejects_path_like_values():
-    """library/version/corpus_id不能是绝对路径、带分隔符或`..`。"""
+    """library/version/corpus_id不能是绝对路径、带分隔符或`..`。
+
+    **每个坏值都必须再以 `directory=` 的形式测一遍。** 只传 `declared=` 的话，坏值会与
+    合法的目录名构成"身份冲突"，被那条检查先挡下——**字符集校验本身从没被执行到**，
+    这个测试也就没有判别力。
+
+    实测证据：把标识符正则放宽成 `^.{1,128}$` 之后，只传 declared 的写法仍然全绿；
+    加上 directory 那一半才会失败。故障不在代码，在这个测试自己的夹具。
+    """
     for bad in ("../evil", "a/b", "/abs", "C:/x", "..", ".", "-leading", "a b"):
         with pytest.raises(CorpusIdentityError):
             resolve_identity(directory="ok-1.0", declared=bad)
+        # 目录名位置：没有第二个候选可以冲突，只有字符集校验能拦下它。
+        with pytest.raises(CorpusIdentityError, match="语料目录名"):
+            resolve_identity(directory=bad)
 
 
 def test_p1_1_blank_declaration_falls_back_to_directory():

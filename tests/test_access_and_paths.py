@@ -104,6 +104,70 @@ def test_snapshot_reflects_revocation_immediately(tmp_path):
     assert load_snapshot(tmp_path).check("c-1.0", "agent-a") is False
 
 
+# --- 策略文件字段校验 ---
+#
+# 这三个字段写错都**不会有任何运行时提示**：schema_version 写错会被当别的版本读、
+# visibility 写错会让"内部"变成别的语义、allowed_clients 写成字符串会静默逐字符拆开。
+# 判别力审计实测：把这三处校验分别短路成 `if False:`，全量 449 个测试**零失败**。
+
+
+@pytest.mark.parametrize(
+    "field, bad, message",
+    [
+        ("schema_version", 0, "schema_version无效"),
+        ("schema_version", 2, "schema_version无效"),
+        ("schema_version", 99, "schema_version无效"),
+        ("schema_version", "1", "schema_version无效"),
+        ("schema_version", None, "schema_version无效"),
+        ("visibility", "secret", "visibility只能是"),
+        ("visibility", "Public", "visibility只能是"),
+        ("visibility", "", "visibility只能是"),
+        ("visibility", None, "visibility只能是"),
+        ("allowed_clients", "agent-a", "allowed_clients必须是字符串列表"),
+        ("allowed_clients", {"a": 1}, "allowed_clients必须是字符串列表"),
+        ("allowed_clients", ["ok", 5], "allowed_clients必须是字符串列表"),
+        ("allowed_clients", None, "allowed_clients必须是字符串列表"),
+    ],
+)
+def test_policy_rejects_malformed_fields(field, bad, message):
+    """`schema_version` / `visibility` / `allowed_clients` 三者各自的取值范围。"""
+    data = {"schema_version": 1, "corpus_id": "c-1.0", "visibility": "internal",
+            "allowed_clients": ["agent-a"]}
+    data[field] = bad
+    with pytest.raises(ValueError, match=message):
+        AccessPolicy.from_dict(data)
+
+
+def test_policy_rejects_missing_allowed_clients():
+    """整个字段缺失也要拒绝：默认成空列表看着"安全"，但那是在替部署方猜意图。"""
+    with pytest.raises(ValueError, match="allowed_clients必须是字符串列表"):
+        AccessPolicy.from_dict({"schema_version": 1, "corpus_id": "c-1.0",
+                                "visibility": "internal"})
+
+
+def test_a_string_allowed_clients_never_becomes_a_per_character_whitelist():
+    """`allowed_clients` 写成字符串是**最危险的一种写错**，必须在解析处拒绝。
+
+    放它过去的话，`tuple(item.strip() for item in clients)` 会把字符串**逐字符拆开**：
+    `"agent-a"` 变成 `('a','g','e','n','t','-','a')`，于是任何 client_id 恰好是单个字符
+    的调用方（比如 `"a"`）都会被放行。这是"配置写错"静默变成"权限放开"。
+    """
+    with pytest.raises(ValueError, match="allowed_clients必须是字符串列表"):
+        AccessPolicy.from_dict({"schema_version": 1, "corpus_id": "c-1.0",
+                                "visibility": "internal", "allowed_clients": "agent-a"})
+
+
+def test_schema_version_mismatch_is_not_read_as_the_current_version():
+    """版本不匹配必须拒绝，不能"当作当前版本读"。
+
+    当成当前版本读的话，一条 `["*"]` 的策略会在任何未来的格式变更后继续生效——
+    而调用方以为升级后的字段语义已经生效了。
+    """
+    with pytest.raises(ValueError, match="schema_version无效"):
+        AccessPolicy.from_dict({"schema_version": 99, "corpus_id": "c-1.0",
+                                "visibility": "public", "allowed_clients": ["*"]})
+
+
 # --- 路径安全 ---
 
 
