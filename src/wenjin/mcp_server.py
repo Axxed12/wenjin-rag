@@ -632,7 +632,10 @@ def build_mcp_server(
         # 未指定 library 时保持 OSG active 的原有语义（含默认版本）。
         active_version = getattr(runtime, "supported_version", "3.6.5")
         if version is None:
-            version = "3.6.5"
+            # 必须是 active_version，不能写死：active 切到别的版本时，写死会让不带
+            # version 的调用送进一个不匹配的版本，runtime 抛 ValueError，而服务端开了
+            # 错误屏蔽，客户端只看到 "Error calling tool"——正是下面那个分支要避免的症状。
+            version = active_version
         elif version != active_version:
             # 只给 version 不给 library，多半是想查别的语料。这里直接给结构化错误，
             # 而不是让 runtime 抛 ValueError——服务端开了错误屏蔽，抛异常客户端只会看到
