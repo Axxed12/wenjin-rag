@@ -1,0 +1,4176 @@
+{
+  "schema_version": 1,
+  "scope": "AnswerRelevancy（RAGAS 的 answer_relevancy）。它只看 user_input 与 response，不读 retrieved_contexts 与 reference：让判分模型从答案倒推 3 个问题，再算这 3 个问题与原问题的余弦相似度均值；3 个问题全被判为 noncommittal 时乘 0。因此它衡量的是「答案的措辞像不像在回答这个问题」，与检索质量无关。",
+  "reuse_of_existing_run": {
+    "answers_source": "artifacts/frozen-test-001/ragas-retrieval-eval.json",
+    "regenerated_answers": false,
+    "note": "答案沿用既有报告 records[].answer，未重新生成；题集未改动（seal 状态不变），检索结果未重跑。"
+  },
+  "answer_generation": {
+    "model": "xopqwen35397b",
+    "max_tokens": 1024,
+    "prompt": "根据下面提供的资料回答问题。\n要求：只使用资料中的信息，不要补充资料之外的内容；\n如果资料不足以回答问题，就明确说明资料不足，不要猜测。\n\n资料：\n{context}\n\n问题：{question}\n回答：",
+    "answered": 40
+  },
+  "dataset": {
+    "path": "evaluation/datasets/rag-test-001.jsonl",
+    "questions": 40
+  },
+  "retrieval_source": {
+    "path": "artifacts/frozen-test-001/test-retrieval-eval.json",
+    "retriever": "rerank",
+    "top_k": 5
+  },
+  "judge": {
+    "model": "deepseek-flash",
+    "base_url_host": "api.deepseek.com",
+    "max_tokens": 4096,
+    "temperature": 0,
+    "thinking_disabled": false,
+    "api_key": "not recorded",
+    "same_as_existing_metrics": true,
+    "effective_temperature": 0.3,
+    "temperature_note": "本指标每题要倒推 strictness(=3) 个问题，而 ragas 的 RunConfig.get_temperature(n) 在 n>1 时返回 0.3 并覆盖 ChatOpenAI 的 temperature=0。所以答案相关性这一项天生带采样随机性，不能像 context_recall / context_precision 那样指望逐题可复现。"
+  },
+  "embeddings": {
+    "source": "EMBEDDING_MODEL_PATH（项目检索用的同一份本地模型）",
+    "model_dir": "Qwen3-Embedding-0.6B",
+    "device": "cpu",
+    "normalize_embeddings": true,
+    "query_instruction_prefix": "none（与 src/wenjin/settings.py 一致）",
+    "strictness": 3,
+    "downloaded_at_runtime": false
+  },
+  "summary": {
+    "answer_relevancy": {
+      "n": 40,
+      "mean": 0.8669,
+      "std": 0.1769,
+      "min": 0.0,
+      "max": 0.9956
+    },
+    "failed": 0,
+    "failed_ids": [],
+    "zeroed_by_noncommittal": 1,
+    "zeroed_by_noncommittal_ids": [
+      "rag-test-040"
+    ]
+  },
+  "reliability": {
+    "determinism": {
+      "same_input_scored_twice": {
+        "paired": 40,
+        "changed_questions": 39,
+        "mean_abs_diff": 0.025,
+        "max_abs_diff": 0.0976,
+        "changed": [
+          {
+            "id": "rag-test-001",
+            "first": 0.9799,
+            "second": 0.9623,
+            "abs_diff": 0.0176
+          },
+          {
+            "id": "rag-test-002",
+            "first": 0.8326,
+            "second": 0.8421,
+            "abs_diff": 0.0095
+          },
+          {
+            "id": "rag-test-003",
+            "first": 0.9335,
+            "second": 0.8796,
+            "abs_diff": 0.0539
+          },
+          {
+            "id": "rag-test-004",
+            "first": 0.9853,
+            "second": 0.9887,
+            "abs_diff": 0.0034
+          },
+          {
+            "id": "rag-test-005",
+            "first": 0.9504,
+            "second": 0.9726,
+            "abs_diff": 0.0222
+          },
+          {
+            "id": "rag-test-006",
+            "first": 0.9589,
+            "second": 0.9955,
+            "abs_diff": 0.0366
+          },
+          {
+            "id": "rag-test-007",
+            "first": 0.9575,
+            "second": 0.892,
+            "abs_diff": 0.0655
+          },
+          {
+            "id": "rag-test-008",
+            "first": 0.972,
+            "second": 0.9821,
+            "abs_diff": 0.0101
+          },
+          {
+            "id": "rag-test-009",
+            "first": 0.9723,
+            "second": 0.9581,
+            "abs_diff": 0.0142
+          },
+          {
+            "id": "rag-test-010",
+            "first": 0.9877,
+            "second": 0.9561,
+            "abs_diff": 0.0316
+          },
+          {
+            "id": "rag-test-011",
+            "first": 0.9956,
+            "second": 0.978,
+            "abs_diff": 0.0176
+          },
+          {
+            "id": "rag-test-012",
+            "first": 0.7862,
+            "second": 0.7577,
+            "abs_diff": 0.0285
+          },
+          {
+            "id": "rag-test-013",
+            "first": 0.9117,
+            "second": 0.9369,
+            "abs_diff": 0.0252
+          },
+          {
+            "id": "rag-test-014",
+            "first": 0.7522,
+            "second": 0.8111,
+            "abs_diff": 0.0589
+          },
+          {
+            "id": "rag-test-015",
+            "first": 0.9821,
+            "second": 0.9605,
+            "abs_diff": 0.0216
+          },
+          {
+            "id": "rag-test-016",
+            "first": 0.9408,
+            "second": 0.9504,
+            "abs_diff": 0.0096
+          },
+          {
+            "id": "rag-test-017",
+            "first": 0.7607,
+            "second": 0.7718,
+            "abs_diff": 0.0111
+          },
+          {
+            "id": "rag-test-018",
+            "first": 0.9744,
+            "second": 0.9798,
+            "abs_diff": 0.0054
+          },
+          {
+            "id": "rag-test-019",
+            "first": 0.9331,
+            "second": 0.9602,
+            "abs_diff": 0.0271
+          },
+          {
+            "id": "rag-test-020",
+            "first": 0.895,
+            "second": 0.8763,
+            "abs_diff": 0.0187
+          },
+          {
+            "id": "rag-test-021",
+            "first": 0.8959,
+            "second": 0.8858,
+            "abs_diff": 0.0101
+          },
+          {
+            "id": "rag-test-022",
+            "first": 0.9005,
+            "second": 0.8029,
+            "abs_diff": 0.0976
+          },
+          {
+            "id": "rag-test-023",
+            "first": 0.7054,
+            "second": 0.7386,
+            "abs_diff": 0.0332
+          },
+          {
+            "id": "rag-test-024",
+            "first": 0.958,
+            "second": 0.9555,
+            "abs_diff": 0.0025
+          },
+          {
+            "id": "rag-test-025",
+            "first": 0.9291,
+            "second": 0.9314,
+            "abs_diff": 0.0023
+          },
+          {
+            "id": "rag-test-026",
+            "first": 0.5904,
+            "second": 0.6667,
+            "abs_diff": 0.0763
+          },
+          {
+            "id": "rag-test-027",
+            "first": 0.8199,
+            "second": 0.8139,
+            "abs_diff": 0.006
+          },
+          {
+            "id": "rag-test-028",
+            "first": 0.6649,
+            "second": 0.6521,
+            "abs_diff": 0.0128
+          },
+          {
+            "id": "rag-test-029",
+            "first": 0.9032,
+            "second": 0.9392,
+            "abs_diff": 0.036
+          },
+          {
+            "id": "rag-test-030",
+            "first": 0.9262,
+            "second": 0.9689,
+            "abs_diff": 0.0427
+          },
+          {
+            "id": "rag-test-031",
+            "first": 0.9741,
+            "second": 0.9908,
+            "abs_diff": 0.0167
+          },
+          {
+            "id": "rag-test-032",
+            "first": 0.9749,
+            "second": 0.9692,
+            "abs_diff": 0.0057
+          },
+          {
+            "id": "rag-test-033",
+            "first": 0.9395,
+            "second": 0.9279,
+            "abs_diff": 0.0116
+          },
+          {
+            "id": "rag-test-034",
+            "first": 0.9888,
+            "second": 0.9837,
+            "abs_diff": 0.0051
+          },
+          {
+            "id": "rag-test-035",
+            "first": 0.9121,
+            "second": 0.919,
+            "abs_diff": 0.0069
+          },
+          {
+            "id": "rag-test-036",
+            "first": 0.962,
+            "second": 0.9762,
+            "abs_diff": 0.0142
+          },
+          {
+            "id": "rag-test-037",
+            "first": 0.7994,
+            "second": 0.7335,
+            "abs_diff": 0.0659
+          },
+          {
+            "id": "rag-test-038",
+            "first": 0.6551,
+            "second": 0.6172,
+            "abs_diff": 0.0379
+          },
+          {
+            "id": "rag-test-039",
+            "first": 0.7148,
+            "second": 0.7439,
+            "abs_diff": 0.0291
+          }
+        ]
+      },
+      "round2_scores": {
+        "n": 40,
+        "mean": 0.8657,
+        "std": 0.1757,
+        "min": 0.0,
+        "max": 0.9955
+      }
+    },
+    "control_gold_rubric_as_answer": {
+      "what": "把参考 rubric 原文当答案喂进去；它就是针对该问题的标准答案",
+      "expectation": "应当接近 1.0",
+      "scores": {
+        "n": 40,
+        "mean": 0.7949,
+        "std": 0.1612,
+        "min": 0.0,
+        "max": 0.9217
+      },
+      "zeroed_by_noncommittal": 1
+    },
+    "control_retrieved_context_as_answer": {
+      "what": "把检索到的上下文原文当答案喂进去",
+      "expectation": "包含答案所需内容，但措辞不是说在回答问题，故低于 gold",
+      "scores": {
+        "n": 40,
+        "mean": 0.7822,
+        "std": 0.0885,
+        "min": 0.5012,
+        "max": 0.9257
+      },
+      "zeroed_by_noncommittal": 0
+    },
+    "control_question_echo_as_answer": {
+      "what": "把问题原文当答案喂进去（上界对照）",
+      "expectation": "倒推出的问题必然与原问题几乎同义，应当接近 1.0；只测链路，不测质量",
+      "scores": {
+        "n": 40,
+        "mean": 0.2043,
+        "std": 0.3843,
+        "min": 0.0,
+        "max": 0.9486
+      },
+      "zeroed_by_noncommittal": 31
+    }
+  },
+  "elapsed_seconds": 1351.7,
+  "verdict": {
+    "trusted": false,
+    "rules": {
+      "A_reference_rubric_not_below_generated": false,
+      "B_reference_rubric_wins_majority": false,
+      "C_embedding_chain_ok": true
+    },
+    "evidence": {
+      "generated_answer_mean": 0.8669,
+      "reference_rubric_mean": 0.7949,
+      "reference_rubric_wins_questions": "8/40",
+      "echo_control_raw_cosine_mean": 0.9282,
+      "repeat_mean_abs_diff": 0.025
+    }
+  },
+  "records": {
+    "main": [
+      {
+        "id": "rag-test-001",
+        "expected_status": "supported",
+        "score": 0.9799,
+        "seconds": 2.47,
+        "generated_questions": [
+          "gdal_translate 的用途是什么？在转换格式的同时它可以完成哪些操作？",
+          "gdal_translate 的用途是什么？在格式转换的同时它可以执行哪些操作？",
+          "gdal_translate 的用途是什么，以及在格式转换同时能完成哪些操作？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9799,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-002",
+        "expected_status": "supported",
+        "score": 0.8326,
+        "seconds": 3.0,
+        "generated_questions": [
+          "在GDAL的严格模式下，遇到可能导致信息丢失的操作时会发生什么？该行为是否与驱动有关？",
+          "在严格模式（strict mode）下，GDAL 遇到可能导致信息丢失的操作时会如何表现？该行为是否与驱动程序有关？",
+          "在严格模式下，GDAL 遇到可能导致信息丢失的操作时的行为是什么？该行为是否与驱动有关？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8326,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-003",
+        "expected_status": "supported",
+        "score": 0.9335,
+        "seconds": 3.44,
+        "generated_questions": [
+          "gdalwarp 是什么类型的工具，可以重投影到哪些投影，能否使用 GCP？",
+          "What is gdalwarp, what projections can it reproject to, and can it apply GCPs stored in raw images?",
+          "gdalwarp 是什么工具？它可以重投影到哪些投影？能否使用影像中的 GCPs？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9335,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-004",
+        "expected_status": "supported",
+        "score": 0.9853,
+        "seconds": 2.76,
+        "generated_questions": [
+          "根据提供的资料，gdalwarp 默认是否会充分利用 RAM，推荐用什么参数改善，以及该内存参数在多线程下如何使用？",
+          "根据提供的资料，gdalwarp 默认是否会充分利用 RAM，推荐用什么参数改善，以及该内存参数在多线程下如何使用？",
+          "关于 gdalwarp 的内存使用，默认是否会充分利用 RAM，推荐用什么参数改善，以及该内存参数在多线程下如何使用？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9853,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-005",
+        "expected_status": "supported",
+        "score": 0.9504,
+        "seconds": 3.08,
+        "generated_questions": [
+          "According to the provided material, how can you determine whether gdalwarp is IO-bound or CPU-bound, which function name in the logs indicates slower performance, and what does the documentation consider the fastest case?",
+          "根据提供的资料，如何判断 gdalwarp 是 IO 受限还是 CPU 受限？意味着性能较慢的具体函数名是什么？文档认为最快的情况是什么？",
+          "关于 gdalwarp 的性能，如何判断是 IO 受限还是 CPU 受限，意味着性能较慢的具体函数名是什么，以及文档认为最快的情况是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9504,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-006",
+        "expected_status": "supported",
+        "score": 0.9589,
+        "seconds": 1.92,
+        "generated_questions": [
+          "ogr2ogr 的用途是什么，以及在转换过程中可以执行哪些操作？",
+          "What is the purpose of ogr2ogr and what operations can it perform during conversion?",
+          "ogr2ogr 的用途是什么，在转换过程中可以执行哪些操作？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9589,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-007",
+        "expected_status": "supported",
+        "score": 0.9575,
+        "seconds": 3.49,
+        "generated_questions": [
+          "如何用 ogr2ogr 按边界框裁剪输入图层，且边界框参数的四个值按什么顺序给出？",
+          "如何用 ogr2ogr 按边界框裁剪输入图层？",
+          "用 ogr2ogr 按边界框裁剪输入图层的示例命令是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9575,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-008",
+        "expected_status": "supported",
+        "score": 0.972,
+        "seconds": 4.73,
+        "generated_questions": [
+          "从 GDAL 3.6 版本开始，gdalinfo -json 的输出包含什么可用于构建 STAC item 的内容，以及统计量和直方图分别需要同时传入哪些参数？",
+          "从 GDAL 哪个版本开始，gdalinfo -json 的输出会包含可用于构建 STAC item 的键值对？统计量和直方图分别需要同时传入哪些参数？",
+          "从 GDAL 3.6 开始，`gdalinfo -json` 如何用于构建 STAC item，以及获取统计量和直方图需要传入哪些参数？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.972,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-009",
+        "expected_status": "supported",
+        "score": 0.9723,
+        "seconds": 2.78,
+        "generated_questions": [
+          "gdalbuildvrt 的 -resolution 选项接受哪些取值，默认值及含义是什么，并且当输入分辨率不一致时有什么行为？",
+          "What are the accepted values, default value, and behavior of the -resolution option in gdalbuildvrt when the input resolutions differ?",
+          "gdalbuildvrt 的 -resolution 选项接受哪些取值、默认值是什么，以及在输入分辨率不一致时它的行为如何？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9723,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-010",
+        "expected_status": "supported",
+        "score": 0.9877,
+        "seconds": 2.47,
+        "generated_questions": [
+          "根据提供的资料，gdaladdo 的 -r 选项支持哪些重采样算法，默认算法是什么，文档如何评价默认算法？",
+          "gdaladdo 的 -r 选项支持哪些重采样算法，默认算法是什么，文档如何评价默认算法？",
+          "gdaladdo 的 -r 选项支持哪些重采样算法，默认算法是什么，文档如何评价默认算法？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9877,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-011",
+        "expected_status": "supported",
+        "score": 0.9956,
+        "seconds": 2.82,
+        "generated_questions": [
+          "gdaldem hillshade 的 -alg 两个取值各自适合什么地形，-z 与 -s 分别代表什么？",
+          "gdaldem hillshade 的 -alg 两个取值各自适合什么地形，-z 与 -s 分别代表什么？",
+          "gdaldem hillshade 的 -alg 两个取值各自适合什么地形，以及 -z 和 -s 分别代表什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9956,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-012",
+        "expected_status": "supported",
+        "score": 0.7862,
+        "seconds": 2.8,
+        "generated_questions": [
+          "What are the uses of the -burn, -a, and -l options, which of these options can be specified multiple times, and what is the constraint between -l and -sql?",
+          "请说明 -burn、-a 和 -l 选项的用途，哪些选项可以重复指定，以及 -l 与 -sql 之间的约束是什么？",
+          "请说明 -burn、-a、-l 三个选项的用途、哪些可以重复指定，以及 -l 与 -sql 之间的约束。"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7862,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-013",
+        "expected_status": "supported",
+        "score": 0.9117,
+        "seconds": 3.34,
+        "generated_questions": [
+          "关于仿射 GeoTransform，系数数量、正射（北向上）影像中的系数值、(GT(0), GT(3)) 指向的位置以及左上角像素的中心坐标分别是什么？",
+          "关于仿射 GeoTransform，系数数量、正射（北向上）影像中的系数值、(GT(0), GT(3)) 指向的位置以及左上角像素的中心坐标分别是什么？",
+          "关于仿射 GeoTransform，其系数数量是多少，在北向上影像中各系数值是什么，(GT(0), GT(3)) 指向哪里，以及左上角像素的中心坐标是多少？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9117,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-014",
+        "expected_status": "supported",
+        "score": 0.7522,
+        "seconds": 4.07,
+        "generated_questions": [
+          "关于特殊文件系统的命名前缀规则与含义是什么？是否可以串联多个文件系统处理程序？如果可以，请举例说明。",
+          "特殊文件系统的命名前缀规则是什么，vsi 代表什么，能否串联多个文件系统处理程序，并请给出串联示例？",
+          "特殊文件系统的命名前缀规则是什么，vsi 代表什么含义，以及是否可以串联多个文件系统处理程序？如果可以，请举例说明。"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7522,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-015",
+        "expected_status": "supported",
+        "score": 0.9821,
+        "seconds": 3.4,
+        "generated_questions": [
+          "如何设置 GDAL 的配置项，包括命令行上的 --config 用法、自 GDAL 3.9 起新增的写法以及在 C/C++ 中的设置方式？",
+          "如何为 GDAL 设置配置项，包括命令行 --config 的用法、自 GDAL 3.9 起的新写法以及在 C/C++ 中的设置方法？",
+          "如何为 GDAL 设置配置项，命令行上的 --config 如何使用，自 GDAL 3.9 起有什么新写法，以及在 C/C++ 中如何设置？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9821,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-016",
+        "expected_status": "supported",
+        "score": 0.9408,
+        "seconds": 3.32,
+        "generated_questions": [
+          "从哪个 GDAL 版本开始，需要通过哪个配置项来让未知配置选项发出警告，以及默认行为是什么？",
+          "GDAL 从哪个版本开始，需要将哪个配置项设置为 ON 才能开启未知配置选项的警告，默认行为是什么？",
+          "GDAL 从哪个版本开始会对未知的配置选项名称发出警告，需要开启哪个配置项，以及默认行为是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9408,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-017",
+        "expected_status": "supported",
+        "score": 0.7607,
+        "seconds": 2.32,
+        "generated_questions": [
+          "GDAL 3.13 相对 3.12 有哪些改动？",
+          "What are the changes in GDAL 3.13 compared to 3.12?",
+          "GDAL 3.13 相对 3.12 有哪些改动？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7607,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-018",
+        "expected_status": "supported",
+        "score": 0.9744,
+        "seconds": 3.31,
+        "generated_questions": [
+          "GDAL 的公开 C 函数和 C++ 方法是否线程安全？能否在多线程中并发访问同一个 GDALDataset 所属的多个 GeoTIFF 波段？正确做法和原因是什么？",
+          "关于 GDAL 的线程安全性，公开的 C 函数和 C++ 方法是否线程安全，能否在多线程中并发访问同一 GDALDataset 的多个 GeoTIFF 波段，文档给出的正确做法及原因是什么？",
+          "GDAL 的公开 C 函数与 C++ 方法是否线程安全？能否在多线程中并发访问同一个数据集所属的多个 GeoTIFF 波段？文档给出的正确做法和原因是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9744,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-019",
+        "expected_status": "supported",
+        "score": 0.9331,
+        "seconds": 2.73,
+        "generated_questions": [
+          "GeoTIFF 驱动的概视图可以存放在哪些位置，以只读方式打开文件时概视图创建在哪里，以及概视图在什么时候更新？",
+          "根据提供的资料，GeoTIFF 驱动的概视图可以存放在哪里，以只读方式打开文件时会在哪里创建，以及概视图何时更新？",
+          "GeoTIFF 概视图可以存放在哪些位置，以只读方式打开时创建在哪里，以及何时更新？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9331,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-020",
+        "expected_status": "supported",
+        "score": 0.895,
+        "seconds": 3.54,
+        "generated_questions": [
+          "What is a Tileset, how is it described, what rendering concept does its tree organization reflect, must it be a 2D tiling scheme, what spatial data structures can it use, and which two can implicit tiling represent concisely?",
+          "根据提供的资料，Tileset 是什么，以什么形式描述，树的组织形式体现了什么渲染概念，这棵树必须是二维切片方案吗，可以是哪些空间数据结构，隐式切片能简洁表示其中哪两种？",
+          "关于 Tileset 的定义、描述形式、树组织体现的渲染概念、是否为二维切片方案、可用空间数据结构以及隐式切片可简洁表示的两种结构，分别是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.895,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-021",
+        "expected_status": "supported",
+        "score": 0.8959,
+        "seconds": 2.17,
+        "generated_questions": [
+          "3D Tiles 1.1 中四种 legacy tile format 的状态及典型用途是什么？",
+          "在 3D Tiles 1.1 中，四种 legacy tile format 的状态及典型用途分别是什么？",
+          "在 3D Tiles 1.1 中，四种 legacy tile format 的状态及典型用途分别是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8959,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-022",
+        "expected_status": "supported",
+        "score": 0.9005,
+        "seconds": 3.15,
+        "generated_questions": [
+          "What are the file extensions and Media Types for Tileset JSON, JSON subtree, binary subtree, and binary buffer files, and are explicit file extensions mandatory?",
+          "各类文件（Tileset JSON、JSON subtree、二进制 subtree、二进制 buffer）的扩展名和 Media Type 分别是什么？显式扩展名是否强制？",
+          "What are the file extensions and Media Types for Tileset JSON, JSON subtree, binary subtree, and binary buffer, and are explicit file extensions mandatory?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9005,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-023",
+        "expected_status": "supported",
+        "score": 0.7054,
+        "seconds": 3.21,
+        "generated_questions": [
+          "根据提供的资料，线性距离和角度的单位分别是什么，坐标系采用什么手性，朝上的轴是哪个，以及局部笛卡尔坐标系中 z 轴如何定义？",
+          "According to the provided information, what are the units for linear distances and angles, the handedness of the Cartesian coordinate system, the up axis, and the definition of the z-axis in a local Cartesian coordinate system?",
+          "根据提供的资料，单位、坐标系手性、朝上的轴以及局部笛卡尔坐标系中 z 轴的定义分别是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7054,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-024",
+        "expected_status": "supported",
+        "score": 0.958,
+        "seconds": 4.04,
+        "generated_questions": [
+          "tile 的 geometric error 是什么，并且它从根到叶如何变化、在客户端实现里如何使用，以及数值更大意味着什么？",
+          "tile 的 geometric error 是什么？从根到叶其数值大致如何变化？在客户端实现里它如何被使用？数值更大意味着什么？",
+          "What is a tile's geometric error, how does it change from root to leaf, how is it used in client implementations, and what does a larger value mean?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.958,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-025",
+        "expected_status": "supported",
+        "score": 0.9291,
+        "seconds": 3.01,
+        "generated_questions": [
+          "关于 tileset 的 refinement，允许哪些类型，它们在渲染上有何区别，根 tile 是否必须指定 refine，子节点省略 refine 时如何处理？",
+          "根据提供的资料，tileset 中允许哪些精化类型？它们在渲染上有何区别？根 tile 是否必须指定 refine？子节点未写 refine 时如何处理？",
+          "根据提供的资料，允许哪些精化类型，它们在渲染上的区别是什么，对 tileset 的根 tile 而言 refine 是否必需，以及子节点未写 refine 时如何处理？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9291,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-026",
+        "expected_status": "supported",
+        "score": 0.5904,
+        "seconds": 4.43,
+        "generated_questions": [
+          "这个地理范围或包围盒由多少个数字构成，六个值的顺序、单位以及坐标参考分别是什么？",
+          "What are the number of components, order, units, and coordinate reference system for the six coordinate values?",
+          "对于 EPSG 4979 的坐标或边界框，由几个数字构成，六个值的顺序、单位以及坐标参考分别是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.5904,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-027",
+        "expected_status": "supported",
+        "score": 0.8199,
+        "seconds": 2.47,
+        "generated_questions": [
+          "boundingVolume.box 由多少个数字构成，各元素如何定义，处于什么坐标系？",
+          "boundingVolume.box 由多少个数字构成，各元素的定义是什么，处于什么坐标系与朝向？",
+          "boundingVolume.box 由多少个数字构成，各元素如何定义，处于什么坐标系中？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8199,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-028",
+        "expected_status": "supported",
+        "score": 0.6649,
+        "seconds": 3.26,
+        "generated_questions": [
+          "一个由四个数字构成的数组如何定义球体？前三个元素和最后一个元素分别代表什么？半径的单位是什么？",
+          "一个由四个数字构成的数组如何表示球体？请说明其数字数量、前三个元素的含义、最后一个元素的含义以及半径单位。",
+          "根据提供的资料，球体由多少个数字构成？前三个元素和最后一个元素分别定义什么？半径的单位是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.6649,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-029",
+        "expected_status": "supported",
+        "score": 0.9032,
+        "seconds": 2.67,
+        "generated_questions": [
+          "What is the purpose of tile's viewerRequestVolume, what values are used in the documentation example, and why is the content always rendered and initially requested?",
+          "tile 的 viewerRequestVolume 的用途是什么，文档示例中的具体数值是多少，以及为什么该内容会被一直渲染并初始请求？",
+          "What is the purpose of the tile viewerRequestVolume, what are the specific values in the documentation example, and why is the content always rendered and initially requested?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9032,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-030",
+        "expected_status": "supported",
+        "score": 0.9262,
+        "seconds": 2.77,
+        "generated_questions": [
+          "在 3D Tiles 中，tile.transform 作用于哪些对象？当 transform 未定义时默认值是什么？子 tile 的局部坐标如何合成到 tileset 全局坐标？",
+          "tile.transform 作用的对象、未定义时的默认值以及子 tile 局部坐标到 tileset 全局坐标的合成方式是什么？",
+          "请说明 tile.transform 的作用对象、未定义时的默认值，以及子 tile 局部坐标到 tileset 全局坐标的合成方式。"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9262,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-031",
+        "expected_status": "supported",
+        "score": 0.9741,
+        "seconds": 2.68,
+        "generated_questions": [
+          "What coordinate system does glTF use, how does 3D Tiles convert it to z-up at runtime, and what is the complete three-step transformation order?",
+          "glTF 使用的坐标系是什么，3D Tiles 在运行时如何将其转换为 z-up，完整的三步变换顺序是什么？",
+          "glTF 使用的是哪种坐标系，3D Tiles 在运行时如何将其转换为 z-up，以及完整的三步变换顺序是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9741,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-032",
+        "expected_status": "supported",
+        "score": 0.9749,
+        "seconds": 3.0,
+        "generated_questions": [
+          "tileset JSON 的四个顶层属性是什么，asset.version 与 tilesetVersion 的含义分别是什么，以及 tileset 顶层的 geometricError 与 root.geometricError 有什么区别？",
+          "请说明 3D Tiles tileset JSON 的四个顶层属性、asset.version 与 tilesetVersion 的含义，以及 tileset 顶层的 geometricError 与 root.geometricError 的区别。",
+          "根据提供的资料，tileset JSON 的四个顶层属性是什么，asset.version 与 tilesetVersion 的含义是什么，以及 tileset 顶层的 geometricError 与 root.geometricError 有什么区别？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9749,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-033",
+        "expected_status": "supported",
+        "score": 0.9395,
+        "seconds": 2.39,
+        "generated_questions": [
+          "如何构造 tileset 的 tileset（树的树），以及它的典型用途是什么？",
+          "如何构造“tileset 的 tileset”（树的树），以及它的典型用途是什么？",
+          "How is a tileset of tilesets constructed and what is its typical use?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9395,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-034",
+        "expected_status": "supported",
+        "score": 0.9888,
+        "seconds": 3.06,
+        "generated_questions": [
+          "根据提供的资料，implicit tiling 对象有哪些属性？subdivisionScheme 的可取值是什么？对 implicit root tile 有哪些额外约束？",
+          "implicit tiling 对象包含哪些属性，subdivisionScheme 有哪些可取值，以及对 implicit root tile 有哪些额外约束？",
+          "implicit tiling 对象包含哪些属性？subdivisionScheme 的可取值是什么？对 implicit root tile 有哪些额外约束？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9888,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-035",
+        "expected_status": "supported",
+        "score": 0.9121,
+        "seconds": 3.66,
+        "generated_questions": [
+          "根据提供的资料，请说明 quadtree 与 octree 在细分方案上的差别、被明确禁止的 bounding volume 类型及其原因，以及按 Table 24 子节点与父节点的 geometricError 关系是什么？",
+          "根据提供的资料，quadtree 与 octree 在细分方案上有何差别？哪种 bounding volume 类型被明确禁止及其原因是什么？按 Table 24，子节点与父节点的 geometricError 关系是什么？",
+          "根据提供的资料，quadtree 与 octree 在细分方案上的差别是什么？被明确禁止的 bounding volume 类型及原因是什么？按 Table 24，子节点与父节点的 geometricError 关系是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9121,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-036",
+        "expected_status": "supported",
+        "score": 0.962,
+        "seconds": 3.1,
+        "generated_questions": [
+          "Template URI 是什么，必须包含哪些变量，octree 的 Template URI 还必须包含什么，以及以相对路径给出时它相对什么解析？",
+          "What is a Template URI, which variables must it include, what additional variable must an octree Template URI include, and what is a relative path resolved relative to?",
+          "什么是 Template URI，它必须包含哪些变量，octree 的 Template URI 还必须包含什么，并且当以相对路径给出时它相对于什么解析？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.962,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-037",
+        "expected_status": "supported",
+        "score": 0.7994,
+        "seconds": 2.91,
+        "generated_questions": [
+          "What is the type of version, what syntax should it satisfy, and what combination uniquely identifies a specific schema and its revision?",
+          "在 schema 中，version 字段的类型、建议满足的语法以及用于唯一标识特定 schema 及其修订的组合分别是什么？",
+          "关于 schema 的 version 字段，其类型、建议满足的语法以及唯一标识组合分别是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7994,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-038",
+        "expected_status": "supported",
+        "score": 0.6551,
+        "seconds": 2.48,
+        "generated_questions": [
+          "1.1.0 版的首条修订日期、该版本的描述定性以及之后的修订记录分别是什么？",
+          "1.1.0 版的首条修订日期是什么，该版本如何描述，之后的修订记录有哪些？",
+          "1.1.0版的首条修订日期是什么，该版本如何描述，之后的修订记录有哪些？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.6551,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-039",
+        "expected_status": "partially_supported",
+        "score": 0.7148,
+        "seconds": 9.37,
+        "generated_questions": [
+          "资料中列出了哪些压缩扩展，以及它们的默认量化位数或默认压缩级别是什么？",
+          "根据提供的资料，列出了哪些压缩扩展，以及它们的默认量化位数或默认压缩级别是什么？",
+          "根据提供的资料，请列出其中的几何压缩扩展和纹理压缩扩展，并说明这些扩展的默认量化位数或默认压缩级别是什么？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7148,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-040",
+        "expected_status": "insufficient",
+        "score": 0.0,
+        "seconds": 3.38,
+        "generated_questions": [
+          "What is the default value of the maximumScreenSpaceError parameter in the Cesium3DTileset.fromUrl method in CesiumJS?",
+          "CesiumJS 中 `Cesium3DTileset.fromUrl` 方法的 `maximumScreenSpaceError` 参数的默认取值是多少？",
+          "CesiumJS 中 Cesium3DTileset.fromUrl 的 maximumScreenSpaceError 参数默认值是多少？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.973,
+        "zeroed_by_noncommittal": true
+      }
+    ],
+    "main_repeat": [
+      {
+        "id": "rag-test-001",
+        "expected_status": "supported",
+        "score": 0.9623,
+        "seconds": 2.62,
+        "generated_questions": [
+          "gdal_translate 的用途是什么？在格式转换过程中它可以完成哪些操作？",
+          "gdal_translate 的用途是什么？在格式转换的同时，它可以完成哪些操作？",
+          "What is gdal_translate used for and what operations can it perform during format conversion?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9623,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-002",
+        "expected_status": "supported",
+        "score": 0.8421,
+        "seconds": 3.18,
+        "generated_questions": [
+          "在严格模式下，GDAL 遇到可能导致信息丢失的操作时会有什么行为，该行为是否与驱动有关？",
+          "在 GDAL 严格模式下，当遇到可能导致信息丢失的操作时会发生什么，该行为是否与驱动有关？",
+          "在 GDAL 的严格模式（strict mode）下，遇到可能导致信息丢失的操作时会有什么行为？该行为是否与驱动有关？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8421,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-003",
+        "expected_status": "supported",
+        "score": 0.8796,
+        "seconds": 2.52,
+        "generated_questions": [
+          "What is gdalwarp, what projections can it reproject to, and can it apply GCPs stored in raw imagery?",
+          "What is gdalwarp, what projection can it reproject to, and can it apply GCPs stored with the image?",
+          "What is gdalwarp, what projections can it reproject to, and can it apply GCPs?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8796,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-004",
+        "expected_status": "supported",
+        "score": 0.9887,
+        "seconds": 2.67,
+        "generated_questions": [
+          "根据提供的资料，gdalwarp 默认是否会充分利用 RAM？推荐用什么参数改善？该内存参数在多线程下如何使用？",
+          "根据提供的资料，gdalwarp 默认是否会充分利用 RAM？推荐用什么参数改善？该内存参数在多线程下如何使用？",
+          "默认情况下 gdalwarp 是否会充分利用 RAM，推荐用什么参数改善，以及该内存参数在多线程下如何使用？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9887,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-005",
+        "expected_status": "supported",
+        "score": 0.9726,
+        "seconds": 3.38,
+        "generated_questions": [
+          "根据提供的资料，如何判断 gdalwarp 是 IO 受限还是 CPU 受限，哪个具体函数名意味着性能较慢，以及文档认为最快的情况是什么？",
+          "如何判断 gdalwarp 是 IO 受限还是 CPU 受限，哪些函数名意味着性能较慢，以及文档认为最快的情况是什么？",
+          "根据提供的资料，如何判断 gdalwarp 是 IO 受限还是 CPU 受限？哪个具体函数名意味着性能较慢？文档认为最快的情况是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9726,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-006",
+        "expected_status": "supported",
+        "score": 0.9955,
+        "seconds": 2.22,
+        "generated_questions": [
+          "ogr2ogr 的用途是什么，在转换过程中可以执行哪些操作？",
+          "ogr2ogr 的用途是什么，并且在转换过程中可以执行哪些操作？",
+          "ogr2ogr 的用途是什么，在转换过程中能执行哪些操作？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9955,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-007",
+        "expected_status": "supported",
+        "score": 0.892,
+        "seconds": 2.81,
+        "generated_questions": [
+          "How do you crop an input layer by bounding box using ogr2ogr?",
+          "How do you use ogr2ogr to crop an input layer by bounding box, and what is the order of the bounding box values?",
+          "如何使用 ogr2ogr 按边界框裁剪输入图层？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.892,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-008",
+        "expected_status": "supported",
+        "score": 0.9821,
+        "seconds": 3.37,
+        "generated_questions": [
+          "从哪个 GDAL 版本开始，`gdalinfo -json` 的输出会包含可用于构建 STAC item 的键值对？统计量和直方图分别需要传入什么参数？",
+          "从哪个 GDAL 版本开始，gdalinfo -json 的输出会包含可用于构建 STAC item 的键值对，以及统计量和直方图分别需要传入什么参数？",
+          "从 GDAL 3.6 版本开始，`gdalinfo -json` 的输出会包含什么可用于构建 STAC item 的内容，以及统计量和直方图分别需要传入什么参数？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9821,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-009",
+        "expected_status": "supported",
+        "score": 0.9581,
+        "seconds": 2.46,
+        "generated_questions": [
+          "What values does the -resolution option of gdalbuildvrt accept, what is its default, and how does it behave when the input resolutions are inconsistent?",
+          "What values does the -resolution option of gdalbuildvrt accept, what is its default, and how does it behave when input resolutions are inconsistent?",
+          "gdalbuildvrt 的 -resolution 选项接受哪些取值，默认值及含义是什么，并且在输入分辨率不一致时的行为如何？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9581,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-010",
+        "expected_status": "supported",
+        "score": 0.9561,
+        "seconds": 2.8,
+        "generated_questions": [
+          "What are the supported resampling algorithms, default value, and evaluation for the -r option of gdaladdo according to the provided information?",
+          "gdaladdo 的 -r 选项支持哪些重采样算法，默认算法是什么，文档对默认算法如何评价？",
+          "gdaladdo 的 -r 选项支持哪些重采样算法，默认使用哪个算法，文档如何评价该默认算法？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9561,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-011",
+        "expected_status": "supported",
+        "score": 0.978,
+        "seconds": 2.55,
+        "generated_questions": [
+          "gdaldem hillshade 的 -alg 两个取值各自适合什么地形，且 -z 与 -s 分别代表什么？",
+          "gdaldem hillshade 的 -alg 两个取值各自适合的地形是什么，-z 与 -s 分别代表什么？",
+          "在 gdaldem hillshade 中，-alg 的两个取值分别适合什么地形，-z 和 -s 分别代表什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.978,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-012",
+        "expected_status": "supported",
+        "score": 0.7577,
+        "seconds": 2.65,
+        "generated_questions": [
+          "根据提供的资料，-burn、-a 和 -l 三个选项的用途分别是什么？哪些选项可以重复指定？-l 与 -sql 之间的约束是什么？",
+          "请说明 -burn、-a、-l 的用途，哪些选项可以重复指定，以及 -l 与 -sql 之间有什么约束？",
+          "请根据提供的资料说明 -burn、-a、-l 三个选项的用途、哪些选项可以重复指定，以及 -l 与 -sql 之间的约束是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7577,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-013",
+        "expected_status": "supported",
+        "score": 0.9369,
+        "seconds": 3.63,
+        "generated_questions": [
+          "仿射 GeoTransform 的系数数量是多少？在北向上影像中，GT(1)、GT(2)、GT(4)、GT(5) 的值分别是什么？(GT(0), GT(3)) 指向哪里？左上角像素的中心坐标是什么？",
+          "仿射 GeoTransform 由多少个系数组成？在正射北向上影像中 GT(1)、GT(2)、GT(4)、GT(5) 分别是什么？(GT(0), GT(3)) 指向栅格的什么位置？左上角像素的中心坐标是什么？",
+          "关于仿射 GeoTransform，其系数数量、正射（北向上）影像中的系数值、(GT(0), GT(3)) 指向的位置以及左上角像素的中心坐标分别是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9369,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-014",
+        "expected_status": "supported",
+        "score": 0.8111,
+        "seconds": 3.44,
+        "generated_questions": [
+          "What is the naming convention for GDAL virtual file system prefixes, and can multiple file system handlers be chained? Provide examples.",
+          "特殊文件系统的命名前缀规则和含义是什么？它们能否串联？串联的示例有哪些？",
+          "GDAL 虚拟文件系统的命名前缀规则是什么，能否串联多个文件系统处理程序，串联示例有哪些？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8111,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-015",
+        "expected_status": "supported",
+        "score": 0.9605,
+        "seconds": 3.18,
+        "generated_questions": [
+          "How can GDAL configuration options be set, how is the --config command-line switch used, what new syntax was introduced in GDAL 3.9, and how do you set them in C/C++?",
+          "GDAL 配置项有哪些设置方式，命令行 --config 如何使用，自 GDAL 3.9 起有什么新写法，以及在 C/C++ 中如何设置？",
+          "如何为 GDAL 设置配置项，命令行上 --config 的用法是什么，自 GDAL 3.9 起有哪些新写法，以及在 C/C++ 中如何设置？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9605,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-016",
+        "expected_status": "supported",
+        "score": 0.9504,
+        "seconds": 4.33,
+        "generated_questions": [
+          "GDAL 从哪个版本开始会在配置选项名称未知时发出警告，如何启用该警告，默认行为是什么？",
+          "GDAL 从哪个版本开始会对未知配置选项发出警告？需要开启哪个配置项？默认行为是什么？",
+          "GDAL 从哪个版本开始会在配置选项名称未知时发出警告？需要开启哪个配置项？默认行为是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9504,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-017",
+        "expected_status": "supported",
+        "score": 0.7718,
+        "seconds": 1.96,
+        "generated_questions": [
+          "GDAL 3.13 相对 3.12 的改动有哪些？",
+          "GDAL 3.13 相对 3.12 有哪些改动？",
+          "GDAL 3.13 相对 3.12 有哪些改动？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7718,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-018",
+        "expected_status": "supported",
+        "score": 0.9798,
+        "seconds": 3.54,
+        "generated_questions": [
+          "GDAL 的公开 C 函数和 C++ 方法是否线程安全？是否可以多线程并发访问同一个 GDALDataset 的多个 GeoTIFF 波段？文档建议的正确做法及原因是什么？",
+          "GDAL 的公开 C 函数与 C++ 方法是否线程安全？能否在多线程中并发访问同一个数据集所属的多个 GeoTIFF 波段？文档给出的正确做法和原因是什么？",
+          "GDAL 的公开 C 函数和 C++ 方法是否线程安全？能否在多线程中并发访问同一个数据集所属的多个 GeoTIFF 波段？文档给出的正确做法和原因是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9798,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-019",
+        "expected_status": "supported",
+        "score": 0.9602,
+        "seconds": 3.28,
+        "generated_questions": [
+          "GeoTIFF 驱动的概视图可以存放在哪里？以只读方式打开文件时概视图在哪里创建？概视图何时更新？",
+          "GeoTIFF 驱动的概视图可以存放在哪些位置？以只读方式打开文件时概视图会创建在哪里？概视图在什么时候更新？",
+          "GeoTIFF 驱动的概视图可以存放在哪些位置？以只读方式打开文件时概视图创建在哪里？概视图何时更新？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9602,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-020",
+        "expected_status": "supported",
+        "score": 0.8763,
+        "seconds": 3.71,
+        "generated_questions": [
+          "请解释 Tileset 是什么、以什么形式描述、树的组织形式体现了什么渲染概念、是否必须是二维切片方案、可以是哪些空间数据结构，以及隐式切片能简洁表示其中哪两种？",
+          "Tileset 是什么，以什么形式描述，树的组织形式体现了什么渲染概念，这棵树必须是二维切片方案吗，可以是哪些空间数据结构，隐式切片能简洁表示其中哪两种？",
+          "Tileset 是什么，以什么形式描述，树的组织形式体现了什么渲染概念，是否必须是二维切片方案，可以是哪些空间数据结构，隐式切片能简洁表示哪两种？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8763,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-021",
+        "expected_status": "supported",
+        "score": 0.8858,
+        "seconds": 2.41,
+        "generated_questions": [
+          "在 3D Tiles 1.1 中，四种 legacy tile format 的状态及各自对应的典型用途是什么？",
+          "What are the statuses and typical uses of the four legacy tile formats in 3D Tiles 1.1?",
+          "3D Tiles 1.1 中四种 legacy tile format 的状态及典型用途分别是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8858,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-022",
+        "expected_status": "supported",
+        "score": 0.8029,
+        "seconds": 2.62,
+        "generated_questions": [
+          "Tileset JSON、JSON subtree、Binary subtree 和二进制 buffer 的文件扩展名与 Media Type 分别是什么？显式扩展名是否强制？",
+          "根据提供的资料，各类文件的扩展名与 Media Type 分别是什么？显式扩展名是否强制？",
+          "各类文件（Tileset JSON、JSON subtree、二进制 subtree、二进制 buffer）的扩展名和 Media Type 是什么，显式扩展名是否强制？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8029,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-023",
+        "expected_status": "supported",
+        "score": 0.7386,
+        "seconds": 3.2,
+        "generated_questions": [
+          "What are the units for linear distances and angles, the coordinate system handedness, and the definition of the up axis and local Cartesian z-axis?",
+          "根据提供的资料，线性距离和角度的单位、坐标系手性、朝上的轴以及局部笛卡尔坐标系中 z 轴的定义分别是什么？",
+          "根据提供的资料，线性距离和角度的单位、坐标系手性、朝上的轴以及局部笛卡尔坐标系中 z 轴的定义分别是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7386,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-024",
+        "expected_status": "supported",
+        "score": 0.9555,
+        "seconds": 2.74,
+        "generated_questions": [
+          "请解释 tile 的 geometric error 是什么、从根到叶其数值大致如何变化、在客户端实现里它如何被使用，以及数值更大意味着什么？",
+          "关于 tile 的 geometric error，它的定义、从根到叶的变化、在客户端实现中的用途以及数值更大的含义是什么？",
+          "tile 的 geometric error 是什么，从根到叶其数值大致如何变化，在客户端实现里它如何被使用，数值更大意味着什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9555,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-025",
+        "expected_status": "supported",
+        "score": 0.9314,
+        "seconds": 3.42,
+        "generated_questions": [
+          "关于 tileset 的精化（refinement）类型，允许哪些类型？它们在渲染上有什么区别？根 tile 是否必须指定 refine？子节点未写 refine 时如何处理？",
+          "关于 tileset 的 refinement，允许哪些精化类型？替换精化和附加精化在渲染上的区别是什么？根 tile 是否必需指定 refine？子节点未写 refine 时如何处理？",
+          "关于 tileset 的 refinement，允许哪些类型，它们在渲染上有何区别，根 tile 是否必需 refine，子节点未写 refine 时如何处理？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9314,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-026",
+        "expected_status": "supported",
+        "score": 0.6667,
+        "seconds": 7.12,
+        "generated_questions": [
+          "该边界框由几个数字构成，六个值的顺序是什么，经纬度和高度的单位分别是什么，坐标参考是什么？",
+          "What are the six values that compose the bounding region, in what order are they given, what units are used, and what is the coordinate reference?",
+          "EPSG 4979 中包围盒的构成数字个数、六个值的顺序、单位及坐标参考是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.6667,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-027",
+        "expected_status": "supported",
+        "score": 0.8139,
+        "seconds": 2.08,
+        "generated_questions": [
+          "boundingVolume.box 由多少个数字构成，各个元素的定义是什么？",
+          "boundingVolume.box 由多少个数字构成，各元素分别定义什么？",
+          "What is the composition and element definition of boundingVolume.box, and what coordinate system is it in?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8139,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-028",
+        "expected_status": "supported",
+        "score": 0.6521,
+        "seconds": 3.11,
+        "generated_questions": [
+          "根据提供的资料，球体由几个数字构成？前三个元素和最后一个元素分别定义什么？半径的单位是什么？",
+          "How is a sphere represented by an array of four numbers, and what units are used for its radius?",
+          "球体由四个数字构成的数组表示时，这四个数字分别代表什么？前三个元素和最后一个元素各定义什么，半径单位是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.6521,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-029",
+        "expected_status": "supported",
+        "score": 0.9392,
+        "seconds": 2.67,
+        "generated_questions": [
+          "请解释 tile 的 viewerRequestVolume 的用途、文档示例中的具体数值，以及内容会被一直渲染并初始请求的原因。",
+          "根据提供的资料，tile 的 viewerRequestVolume 的用途是什么，文档示例中的 boundingVolume 和 viewerRequestVolume 的具体数值是什么，以及内容为什么会被一直渲染并初始请求？",
+          "根据提供的资料，tile 的 viewerRequestVolume 有什么用途？文档示例中的具体数值是什么？为什么内容会被一直渲染并初始请求？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9392,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-030",
+        "expected_status": "supported",
+        "score": 0.9689,
+        "seconds": 3.31,
+        "generated_questions": [
+          "请说明 tile.transform 的作用对象、未定义时的默认值，以及子 tile 局部坐标到 tileset 全局坐标的合成方式。",
+          "在 3D Tiles 中，tile.transform 作用于哪些对象？当 transform 未定义时的默认值是什么？子 tile 的局部坐标如何合成到 tileset 全局坐标？",
+          "在 3D Tiles 中，tile.transform 作用于哪些对象，未定义时的默认值是什么，以及子 tile 的局部坐标如何合成到 tileset 全局坐标？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9689,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-031",
+        "expected_status": "supported",
+        "score": 0.9908,
+        "seconds": 2.27,
+        "generated_questions": [
+          "glTF 默认使用什么坐标系，3D Tiles 在运行时如何将其转换为 z-up，完整的三步变换顺序是什么？",
+          "glTF 使用的坐标系是什么，3D Tiles 在运行时如何将其转成 z-up，且完整的三步变换顺序是什么？",
+          "glTF 使用什么坐标系，3D Tiles 在运行时如何将其转换成 z-up，完整的三步变换顺序是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9908,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-032",
+        "expected_status": "supported",
+        "score": 0.9692,
+        "seconds": 3.11,
+        "generated_questions": [
+          "tileset JSON 的四个顶层属性是什么，asset.version 和 tilesetVersion 的含义是什么，以及 tileset 顶层的 geometricError 与 root.geometricError 有什么区别？",
+          "请说明 tileset JSON 的四个顶层属性，asset.version 与 tilesetVersion 的含义，以及 tileset 顶层的 geometricError 与 root.geometricError 的区别。",
+          "根据 3D Tiles 规范，tileset JSON 的四个顶层属性是什么？asset.version 和 tilesetVersion 分别有什么含义？tileset 顶层的 geometricError 与 root.geometricError 在运行时确定 SSE 时有什么区别？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9692,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-033",
+        "expected_status": "supported",
+        "score": 0.9279,
+        "seconds": 2.55,
+        "generated_questions": [
+          "根据提供的资料，构造 tileset 的 tileset（树的树）的方法及用途是什么？",
+          "如何构造 tileset 的 tileset（树的树），其用途是什么？",
+          "构造 tileset 的 tileset 的方法及用途是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9279,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-034",
+        "expected_status": "supported",
+        "score": 0.9837,
+        "seconds": 2.4,
+        "generated_questions": [
+          "关于 implicit tiling 对象，请说明它的属性、subdivisionScheme 的可取值以及对 implicit root tile 的额外约束是什么？",
+          "根据提供的资料，implicit tiling 对象包含哪些属性，subdivisionScheme 的可取值有哪些，以及对 implicit root tile 有哪些额外约束？",
+          "implicit tiling 对象包含哪些属性，subdivisionScheme 可以取哪些值，以及对 implicit root tile 有哪些额外约束？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9837,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-035",
+        "expected_status": "supported",
+        "score": 0.919,
+        "seconds": 4.0,
+        "generated_questions": [
+          "根据提供的资料，quadtree 与 octree 在细分方案上有什么差别？被明确禁止的 bounding volume 类型及其原因是什么？子节点与父节点的 geometricError 关系（按 Table 24）是什么？",
+          "quadtree 与 octree 在细分方案上的差别是什么？被明确禁止的 bounding volume 类型及其原因是什么？根据 Table 24，子节点与父节点的 geometricError 关系是什么？",
+          "根据提供的资料，quadtree 与 octree 在细分方案上的差别是什么？被明确禁止的 bounding volume 类型及原因是什么？按 Table 24，子节点与父节点的 geometricError 关系是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.919,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-036",
+        "expected_status": "supported",
+        "score": 0.9762,
+        "seconds": 3.45,
+        "generated_questions": [
+          "Template URI 是什么？它必须包含哪些变量？octree 的 Template URI 还必须包含什么？当以相对路径给出时它相对什么解析？",
+          "根据提供的资料，什么是 Template URI，它必须包含哪些变量，octree 的 Template URI 还必须包含什么，以及当它以相对路径给出时相对于什么解析？",
+          "根据提供的资料，Template URI 是什么，必须包含哪些变量，octree 的 Template URI 还必须包含什么，当以相对路径给出时它相对什么解析？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9762,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-037",
+        "expected_status": "supported",
+        "score": 0.7335,
+        "seconds": 2.46,
+        "generated_questions": [
+          "version 的类型是什么，应该满足什么语法，以及什么组合唯一标识一个特定的 schema 及其修订？",
+          "version 的类型是什么，建议满足什么语法，什么组合唯一标识一个特定的 schema 及其修订？",
+          "version 字段的类型是什么，建议满足什么语法，以及什么组合唯一标识一个特定的 schema 及其修订？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7335,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-038",
+        "expected_status": "supported",
+        "score": 0.6172,
+        "seconds": 3.45,
+        "generated_questions": [
+          "What are the revision details for version 1.1.0, including the first revision date, its description, and subsequent revision records?",
+          "What is the revision history for version 1.1.0 of the document?",
+          "What is the first revision date of version 1.1.0, the description of that version, and the subsequent revision records?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.6172,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-039",
+        "expected_status": "partially_supported",
+        "score": 0.7439,
+        "seconds": 15.08,
+        "generated_questions": [
+          "根据提供的资料，列出了哪些压缩扩展？关于这些扩展的默认量化位数或默认压缩级别，资料中是否有说明？",
+          "What are the geometry and texture compression extensions listed, and what are their default quantization bits or default compression levels?",
+          "根据提供的资料，请列出几何压缩和纹理压缩的扩展，并说明它们的默认量化位数或默认压缩级别分别是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7439,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-040",
+        "expected_status": "insufficient",
+        "score": 0.0,
+        "seconds": 2.71,
+        "generated_questions": [
+          "在 CesiumJS 中，Cesium3DTileset.fromUrl 的 maximumScreenSpaceError 参数默认值是多少？",
+          "CesiumJS 中 Cesium3DTileset.fromUrl 方法的 maximumScreenSpaceError 参数默认值是多少？",
+          "What is the default value of the maximumScreenSpaceError parameter in the Cesium3DTileset.fromUrl method in CesiumJS?"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.974,
+        "zeroed_by_noncommittal": true
+      }
+    ],
+    "control_gold_rubric": [
+      {
+        "id": "rag-test-001",
+        "expected_status": "supported",
+        "score": 0.769,
+        "seconds": 5.1,
+        "generated_questions": [
+          "gdal_translate 有什么作用？",
+          "What is this tool used for, and what operations can it perform when converting between raster data formats?",
+          "栅格数据格式转换工具的主要用途是什么，转换过程中可以执行哪些操作？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.769,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-002",
+        "expected_status": "supported",
+        "score": 0.8397,
+        "seconds": 2.23,
+        "generated_questions": [
+          "GDAL 中的 -strict 选项有什么作用？",
+          "GDAL 中的 -strict 选项有什么作用？",
+          "GDAL 中的 -strict 选项有什么作用？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8397,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-003",
+        "expected_status": "supported",
+        "score": 0.9102,
+        "seconds": 2.49,
+        "generated_questions": [
+          "gdalwarp 是什么工具，支持哪些功能？",
+          "gdalwarp 是什么，它有哪些功能？",
+          "gdalwarp 是什么，它能执行哪些操作？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9102,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-004",
+        "expected_status": "supported",
+        "score": 0.8616,
+        "seconds": 3.32,
+        "generated_questions": [
+          "How can I optimize GDAL memory usage during warp processing?",
+          "在使用 GDAL 处理大数据时，如何通过内存相关参数提升性能？",
+          "如何让 GDAL 更充分地利用 RAM 并提升处理性能？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8616,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-005",
+        "expected_status": "supported",
+        "score": 0.9181,
+        "seconds": 2.79,
+        "generated_questions": [
+          "在 GDAL 处理中，如何判断运行瓶颈是 CPU 受限还是 IO 受限，并有哪些优化建议？",
+          "如何判断 gdalwarp 是 IO 受限还是 CPU 受限，并如何优化其性能？",
+          "如何判断 gdalwarp 运行时是 IO 受限还是 CPU 受限，并有哪些性能优化提示？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9181,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-006",
+        "expected_status": "supported",
+        "score": 0.9037,
+        "seconds": 3.0,
+        "generated_questions": [
+          "ogr2ogr 是用来做什么的？",
+          "What is ogr2ogr used for?",
+          "What is ogr2ogr used for?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9037,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-007",
+        "expected_status": "supported",
+        "score": 0.7434,
+        "seconds": 3.25,
+        "generated_questions": [
+          "How do you use the -spat option in ogr2ogr to specify a bounding box, and what order are the coordinates in?",
+          "使用 -spat 时，边界框参数的坐标顺序是什么？请给出示例。",
+          "ogr2ogr 的 -spat 参数如何指定边界框，顺序和示例是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7434,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-008",
+        "expected_status": "supported",
+        "score": 0.8414,
+        "seconds": 3.2,
+        "generated_questions": [
+          "自 GDAL 3.6 起，-json 输出包含什么，以及在传入 -stats 和 -hist 时分别包含什么？",
+          "自 GDAL 3.6 起，-json 输出包含什么？传入 -stats 和 -hist 时分别包含什么？",
+          "自 GDAL 3.6 起，-json 输出包含哪些内容？传入 -stats 和 -hist 时分别会增加什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8414,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-009",
+        "expected_status": "supported",
+        "score": 0.7338,
+        "seconds": 3.67,
+        "generated_questions": [
+          "当所有输入文件分辨率不一致时，控制输出分辨率计算的选项有哪些取值，分别如何计算？",
+          "当所有输入文件分辨率不一致时，控制输出分辨率如何计算的选项有哪些取值，分别是什么含义？",
+          "当所有输入文件分辨率不一致时，哪个选项用于控制输出分辨率如何计算，以及它有哪些取值？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7338,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-010",
+        "expected_status": "supported",
+        "score": 0.836,
+        "seconds": 3.83,
+        "generated_questions": [
+          "GDAL 支持哪些重采样方法，默认方法是什么，以及自 GDAL 3.9 起刷新已有 TIFF 概视图时未指定 -r 会如何处理？",
+          "GDAL 支持哪些重采样方法，默认方法是什么，且自 GDAL 3.9 起刷新已有 TIFF 概视图未指定 -r 时会怎样？",
+          "GDAL 的 gdaladdo 支持哪些重采样方法，默认方法是什么，以及自 GDAL 3.9 起刷新已有 TIFF 概视图时未指定 -r 会怎样？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.836,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-011",
+        "expected_status": "supported",
+        "score": 0.8575,
+        "seconds": 3.21,
+        "generated_questions": [
+          "在 GDAL 的 DEM 处理工具中，-alg Horn 与 ZevenbergenThorne 有何区别，以及 -z 和 -s 参数分别代表什么？",
+          "What do the -alg, -z, and -s options mean in GDAL DEM hillshade processing?",
+          "What do the -alg, -z, and -s parameters mean for gdaldem hillshade?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8575,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-012",
+        "expected_status": "supported",
+        "score": 0.8053,
+        "seconds": 3.58,
+        "generated_questions": [
+          "-burn、-a、-l 这些选项分别有什么作用？",
+          "gdal_rasterize 中 -burn、-a 和 -l 选项分别有什么作用？",
+          "-burn、-a 和 -l 这些选项分别有什么作用？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8053,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-013",
+        "expected_status": "supported",
+        "score": 0.7718,
+        "seconds": 3.08,
+        "generated_questions": [
+          "GetGeoTransform() 返回的 6 个系数分别代表什么，坐标映射关系是怎样的？",
+          "GetGeoTransform() 返回的 6 个系数代表什么？",
+          "GetGeoTransform() 返回的 6 个系数是什么，它们如何将像素/行坐标映射到地理坐标？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7718,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-014",
+        "expected_status": "supported",
+        "score": 0.8335,
+        "seconds": 2.8,
+        "generated_questions": [
+          "GDAL 中 VSI 文件系统前缀的通用语法是什么，以及如何链式串联多个文件系统 handler？",
+          "What is the general syntax for special file system prefixes in GDAL, and can multiple file system handlers be chained?",
+          "每个特殊文件系统的前缀和通用语法是什么，vsi 代表什么，以及能否链式串联多个文件系统 handler？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8335,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-015",
+        "expected_status": "supported",
+        "score": 0.7564,
+        "seconds": 2.3,
+        "generated_questions": [
+          "How can GDAL_CACHEMAX be set in environment variables, command line tools, GDAL 3.9+, and C/C++?",
+          "如何在不同环境中设置 GDAL 配置选项（例如 GDAL_CACHEMAX）？",
+          "如何设置 GDAL 的 GDAL_CACHEMAX 配置选项？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7564,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-016",
+        "expected_status": "supported",
+        "score": 0.8046,
+        "seconds": 2.31,
+        "generated_questions": [
+          "从 GDAL 3.11 起，什么时候会对未知配置项发出 GDAL 警告？",
+          "自 GDAL 3.11 起，当把 CPL_DEBUG 设为 ON 时，对未知配置项会有什么行为？",
+          "自 GDAL 3.11 起，当 CPL_DEBUG 设为 ON 或任何非 OFF、FALSE、NO 的值时，对未知配置项会发生什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8046,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-017",
+        "expected_status": "supported",
+        "score": 0.8202,
+        "seconds": 2.51,
+        "generated_questions": [
+          "cpl_port.h 中的 MIN、MAX、ABS 和 M_PI 宏发生了什么变化？",
+          "cpl_port.h 中的 MIN、MAX、ABS 和 M_PI 发生了什么变化？",
+          "cpl_port.h 中的 MIN、MAX、ABS 和 M_PI 宏发生了哪些变化？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8202,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-018",
+        "expected_status": "supported",
+        "score": 0.8642,
+        "seconds": 2.39,
+        "generated_questions": [
+          "GDAL 的公开 C 函数与 C++ 方法是否可重入或线程安全？",
+          "GDAL 的公开 C 函数和 C++ 方法是否线程安全？",
+          "GDAL 的公开 C 函数与 C++ 方法在多线程环境下的可重入性和线程安全性如何？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8642,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-019",
+        "expected_status": "supported",
+        "score": 0.8696,
+        "seconds": 2.32,
+        "generated_questions": [
+          "GeoTIFF 驱动对内部概视图的读取、创建与更新有何支持？",
+          "GeoTIFF 驱动如何处理概视图的读取、创建与更新？",
+          "GeoTIFF 驱动如何支持内部概视图的读取、创建与更新？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8696,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-020",
+        "expected_status": "supported",
+        "score": 0.8566,
+        "seconds": 2.12,
+        "generated_questions": [
+          "3D Tiles 中的 tileset 是什么？它的树可以使用哪些空间数据结构？",
+          "3D Tiles 中的 tileset 是什么？",
+          "什么是 tileset？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8566,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-021",
+        "expected_status": "supported",
+        "score": 0.8651,
+        "seconds": 2.7,
+        "generated_questions": [
+          "3D Tiles 1.1 中哪四种格式被弃用，并且它们的用途分别是什么？",
+          "在 3D Tiles 1.1 中被弃用的是哪四种格式，以及 Table 1 中给出的各自用途是什么？",
+          "在 3D Tiles 1.1 中，b3dm、i3dm、pnts 和 cmpt 这四种格式的状态及各自的用途是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8651,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-022",
+        "expected_status": "supported",
+        "score": 0.9108,
+        "seconds": 2.85,
+        "generated_questions": [
+          "在 3D Tiles 规范中，tileset、JSON subtree、二进制 subtree、二进制 buffer、元数据 schema 和 tileset 样式文件分别应使用什么扩展名和 MIME 类型？",
+          "What file extensions and MIME types are specified for tileset files, JSON subtree files, binary subtree files, binary buffer files, metadata schema files, and tileset style files, and are explicit file extensions optional?",
+          "3D Tiles 中不同类型的文件分别使用什么扩展名和 MIME 类型，显式扩展名是否必需？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9108,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-023",
+        "expected_status": "supported",
+        "score": 0.9091,
+        "seconds": 2.5,
+        "generated_questions": [
+          "3D Tiles 中线性距离和角度的单位是什么，以及使用什么坐标系？",
+          "3D Tiles 使用什么坐标系和单位？",
+          "3D Tiles 使用哪些线性距离单位、角度单位和坐标系约定？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9091,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-024",
+        "expected_status": "supported",
+        "score": 0.8599,
+        "seconds": 2.76,
+        "generated_questions": [
+          "一个 tile 的 geometric error 定义了什么，以及它在渲染中如何使用？",
+          "What is a tile's geometric error and how is it used to decide whether to refine the tile and render its children?",
+          "一个 tile 的 geometric error 定义了什么，它如何影响 tile 的精化？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8599,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-025",
+        "expected_status": "supported",
+        "score": 0.8776,
+        "seconds": 2.7,
+        "generated_questions": [
+          "A tileset 中允许哪些精化类型，replacement 与 additive 分别如何渲染，以及 refine 对根 tile 和其他 tile 是必需还是可选？",
+          "Tileset 中允许哪些精化类型，它们分别有什么渲染行为，以及 refine 对根 tile 和其他 tile 的要求是什么？",
+          "What are the allowed refinement types for tilesets, how do replacement and additive work, and how is the refine property applied to tiles?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8776,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-026",
+        "expected_status": "supported",
+        "score": 0.5511,
+        "seconds": 2.44,
+        "generated_questions": [
+          "region 是什么？它由哪些元素构成，使用什么坐标系？",
+          "region 是什么？它如何定义，包含哪些元素以及使用什么坐标系？",
+          "region 是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.5511,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-027",
+        "expected_status": "supported",
+        "score": 0.5591,
+        "seconds": 2.68,
+        "generated_questions": [
+          "box 是由什么构成的，它的 12 个元素分别表示什么？",
+          "What is box and how is it defined?",
+          "box 数组是什么？它的 12 个数字分别代表什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.5591,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-028",
+        "expected_status": "supported",
+        "score": 0.5848,
+        "seconds": 2.36,
+        "generated_questions": [
+          "sphere 数组是如何定义的？",
+          "sphere 数组由哪些元素构成，分别代表什么？",
+          "sphere 是什么，它由哪些元素组成，分别代表什么含义？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.5848,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-029",
+        "expected_status": "supported",
+        "score": 0.9217,
+        "seconds": 3.33,
+        "generated_questions": [
+          "tile 的 viewerRequestVolume 有什么用途？能举个例子吗？",
+          "tile 的 viewerRequestVolume 有什么用途？请举例说明。",
+          "tile 的 viewerRequestVolume 有什么用途？能否举例说明？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9217,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-030",
+        "expected_status": "supported",
+        "score": 0.8598,
+        "seconds": 2.63,
+        "generated_questions": [
+          "在 3D Tiles 中，transform 的作用和应用范围是什么？",
+          "在 3D Tiles 中，transform 作用于哪些对象，如何影响坐标和 geometricError？",
+          "transform 在 3D Tiles 中作用于哪些内容？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8598,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-031",
+        "expected_status": "supported",
+        "score": 0.902,
+        "seconds": 2.34,
+        "generated_questions": [
+          "glTF 如何从 y-up 坐标系转换到 3D Tiles 的 z-up 坐标系？",
+          "如何将 glTF 的 y-up 坐标系转换到 3D Tiles 的 z-up 坐标系，且变换顺序是什么？",
+          "How is the glTF y-up coordinate system converted to the 3D Tiles z-up coordinate system, and what is the order of transformations?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.902,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-032",
+        "expected_status": "supported",
+        "score": 0.8237,
+        "seconds": 2.13,
+        "generated_questions": [
+          "3D Tiles tileset 的四个顶层属性是什么？",
+          "3D Tiles 的 tileset 有哪四个顶层属性？它们分别是什么？",
+          "3D Tiles tileset 的四个顶层属性是什么？它们各自有什么作用？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8237,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-033",
+        "expected_status": "supported",
+        "score": 0.8405,
+        "seconds": 2.74,
+        "generated_questions": [
+          "如何让一个 tileset 引用另一个 tileset，从而形成“树的树”？",
+          "如何通过某个 tile 的 content.uri 指向外部 tileset 来形成“树的树”，以及典型用途是什么？",
+          "如何让一个 tile 的 content.uri 指向外部 tileset，从而形成“树的树”？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8405,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-034",
+        "expected_status": "supported",
+        "score": 0.8868,
+        "seconds": 2.09,
+        "generated_questions": [
+          "What are the properties of the implicitTiling object and the constraints on the implicit root tile?",
+          "implicitTiling 对象（Table 21）包含哪些属性，并且对 implicit root tile 有什么约束？",
+          "What are the properties of the implicitTiling object (Table 21) and the constraints on the implicit root tile?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8868,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-035",
+        "expected_status": "supported",
+        "score": 0.7918,
+        "seconds": 2.63,
+        "generated_questions": [
+          "什么是 subdivision scheme？quadtree 和 octree 如何划分包围体，球体为什么被禁止，Table 24 的细分规则是什么？",
+          "subdivision scheme 是什么？quadtree 和 octree 如何划分空间？为什么球体包围体被禁止？Table 24 的细分规则是什么？",
+          "什么是 subdivision scheme，quadtree 和 octree 分别如何划分空间，以及 Table 24 的细分规则是什么？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7918,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-036",
+        "expected_status": "supported",
+        "score": 0.8689,
+        "seconds": 3.57,
+        "generated_questions": [
+          "什么是 Template URI？它必须包含哪些变量？",
+          "什么是 Template URI？",
+          "什么是 Template URI，它必须包含哪些变量，引用具体 tile 时如何处理，以及相对路径如何解析？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8689,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-037",
+        "expected_status": "supported",
+        "score": 0.7264,
+        "seconds": 2.43,
+        "generated_questions": [
+          "What is schema version and what are the requirements for the version field?",
+          "schema version（version）是什么，它有什么作用？",
+          "What is a schema version, what type must it be, and how is it used to identify a schema revision?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7264,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-038",
+        "expected_status": "supported",
+        "score": 0.5916,
+        "seconds": 2.53,
+        "generated_questions": [
+          "1.1.0 版本有哪些修订记录？",
+          "1.1.0 版本的修订记录有哪些？",
+          "1.1.0 的修订记录有哪些？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.5916,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-039",
+        "expected_status": "partially_supported",
+        "score": 0.8669,
+        "seconds": 3.19,
+        "generated_questions": [
+          "glTF 规范正文 7.2.5 列出了哪些几何与纹理压缩扩展，并且是否为这些扩展给出默认量化位数或默认压缩级别？",
+          "glTF 7.2.5 节列出了哪些几何与纹理压缩扩展，规范正文是否给出这些扩展的默认量化位数或默认压缩级别？",
+          "glTF 规范 7.2.5 中列出了哪些几何与纹理压缩扩展，并且规范正文是否给出了这些扩展的默认量化位数或默认压缩级别？"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8669,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-040",
+        "expected_status": "insufficient",
+        "score": 0.0,
+        "seconds": 3.01,
+        "generated_questions": [
+          "CesiumJS 中 maximumScreenSpaceError 的默认值是多少？",
+          "CesiumJS 中 maximumScreenSpaceError 的默认值是多少？",
+          "CesiumJS 中 maximumScreenSpaceError 的默认值是多少？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8863,
+        "zeroed_by_noncommittal": true
+      }
+    ],
+    "control_retrieved_context": [
+      {
+        "id": "rag-test-001",
+        "expected_status": "supported",
+        "score": 0.9257,
+        "seconds": 2.68,
+        "generated_questions": [
+          "What is gdal_translate and what does it do?",
+          "What does the gdal_translate utility do?",
+          "What does the gdal_translate utility do?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9257,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-002",
+        "expected_status": "supported",
+        "score": 0.7059,
+        "seconds": 2.5,
+        "generated_questions": [
+          "What is the gdal_translate utility used for?",
+          "What does the gdal_translate utility do?",
+          "What does the gdal_translate utility do?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7059,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-003",
+        "expected_status": "supported",
+        "score": 0.8425,
+        "seconds": 2.0,
+        "generated_questions": [
+          "What is the gdalwarp utility?",
+          "What is the gdalwarp utility?",
+          "What is gdalwarp and what options does it support?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8425,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-004",
+        "expected_status": "supported",
+        "score": 0.8643,
+        "seconds": 4.55,
+        "generated_questions": [
+          "How can I improve the performance of gdalwarp?",
+          "How can I improve the performance of gdalwarp and optimize its memory usage?",
+          "How does memory usage affect gdalwarp performance, and how can it be tuned?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8643,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-005",
+        "expected_status": "supported",
+        "score": 0.7961,
+        "seconds": 3.34,
+        "generated_questions": [
+          "How can I improve the performance of gdalwarp?",
+          "What can be done to improve the performance and memory usage of gdalwarp?",
+          "How can I optimize gdalwarp performance and memory usage?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7961,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-006",
+        "expected_status": "supported",
+        "score": 0.8463,
+        "seconds": 2.22,
+        "generated_questions": [
+          "What is ogr2ogr used for?",
+          "What is the ogr2ogr utility and what options does it provide?",
+          "What are the command-line options and usage of ogr2ogr?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8463,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-007",
+        "expected_status": "supported",
+        "score": 0.7243,
+        "seconds": 3.28,
+        "generated_questions": [
+          "What is ogr2ogr and what can it be used for?",
+          "What is ogr2ogr and what can it be used for?",
+          "What is ogr2ogr and what can it be used for?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7243,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-008",
+        "expected_status": "supported",
+        "score": 0.7565,
+        "seconds": 2.29,
+        "generated_questions": [
+          "What are the command line options for gdalinfo?",
+          "What command line options are available for gdalinfo?",
+          "What does the gdalinfo program do and what command line options does it support?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7565,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-009",
+        "expected_status": "supported",
+        "score": 0.7606,
+        "seconds": 11.05,
+        "generated_questions": [
+          "What is the documentation for the gdalbuildvrt command, including its options and usage?",
+          "What are the command-line options and usage for gdalbuildvrt?",
+          "What are the command-line options and usage information for GDAL's gdalbuildvrt and gdalwarp utilities?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7606,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-010",
+        "expected_status": "supported",
+        "score": 0.8749,
+        "seconds": 2.41,
+        "generated_questions": [
+          "What are the available resampling methods for the GDAL gdaladdo -r option?",
+          "What resampling algorithms are available for the gdaladdo -r option?",
+          "What resampling algorithms are available for gdaladdo, and what does the -r option do?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8749,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-011",
+        "expected_status": "supported",
+        "score": 0.7808,
+        "seconds": 3.09,
+        "generated_questions": [
+          "What is the gdaldem command in GDAL, and what do its hillshade and slope modes do?",
+          "What does the gdaldem hillshade command do and what options does it support?",
+          "What does the gdaldem hillshade command do and what is its output format?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7808,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-012",
+        "expected_status": "supported",
+        "score": 0.7231,
+        "seconds": 2.23,
+        "generated_questions": [
+          "What is the usage and description of the gdal_rasterize command?",
+          "What is gdal_rasterize and what does it do?",
+          "What is the gdal_rasterize utility?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7231,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-013",
+        "expected_status": "supported",
+        "score": 0.7264,
+        "seconds": 7.65,
+        "generated_questions": [
+          "What are the GDAL affine geotransform coefficients and how are they used to map pixel/line coordinates to georeferenced coordinates?",
+          "What information does the gdalinfo utility report about a raster dataset, including geotransform and GCPs?",
+          "What does the gdalinfo utility report and how does GDAL handle georeferencing with geotransforms and GCPs?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7264,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-014",
+        "expected_status": "supported",
+        "score": 0.8061,
+        "seconds": 2.51,
+        "generated_questions": [
+          "What are GDAL Virtual File Systems and what are some examples of their prefixes?",
+          "What are GDAL Virtual File Systems and what do they support?",
+          "What are GDAL Virtual File Systems?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8061,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-015",
+        "expected_status": "supported",
+        "score": 0.8182,
+        "seconds": 2.13,
+        "generated_questions": [
+          "What are GDAL runtime configuration options and how can they be set?",
+          "What are GDAL runtime configuration options and how can they be set?",
+          "What are GDAL runtime configuration options and how can they be set?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8182,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-016",
+        "expected_status": "supported",
+        "score": 0.7856,
+        "seconds": 4.69,
+        "generated_questions": [
+          "What does the GDAL documentation say about configuration options, including thread-local configuration and detection of unknown options?",
+          "What are GDAL configuration options and how are they used?",
+          "How to detect if the passed configuration option is known to GDAL?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7856,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-017",
+        "expected_status": "supported",
+        "score": 0.6295,
+        "seconds": 4.76,
+        "generated_questions": [
+          "What are the changes listed in the GDAL migration guide?",
+          "What changes are listed in the GDAL migration guide?",
+          "What changes are documented in the GDAL migration guide?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.6295,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-018",
+        "expected_status": "supported",
+        "score": 0.8306,
+        "seconds": 2.55,
+        "generated_questions": [
+          "What are GDAL's thread-safety guarantees and guidelines for multi-threading?",
+          "Is GDAL thread-safe and what are the restrictions for multi-threading?",
+          "What does the GDAL documentation say about multi-threading and thread safety when using its API and datasets?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8306,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-019",
+        "expected_status": "supported",
+        "score": 0.8083,
+        "seconds": 2.84,
+        "generated_questions": [
+          "How does the GeoTIFF driver handle overview creation, update, and configuration in GDAL?",
+          "What does the GeoTIFF driver support for internal and external overviews, and what options are available?",
+          "What is the behavior of the GeoTIFF driver regarding overviews?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8083,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-020",
+        "expected_status": "supported",
+        "score": 0.7851,
+        "seconds": 2.71,
+        "generated_questions": [
+          "How does 3D Tiles organize tiles and what spatial data structures can it use?",
+          "How are tiles organized in 3D Tiles and what spatial data structures can be used?",
+          "How does 3D Tiles organize tiles and what spatial data structures can be used to organize a tileset?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7851,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-021",
+        "expected_status": "supported",
+        "score": 0.8658,
+        "seconds": 2.77,
+        "generated_questions": [
+          "What are the legacy 3D Tiles 1.0 tile formats and their common uses?",
+          "What are the legacy tile formats in 3D Tiles and what are their common uses?",
+          "What are the legacy tile formats in 3D Tiles and what is the primary tile format in 3D Tiles 1.1?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8658,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-022",
+        "expected_status": "supported",
+        "score": 0.8109,
+        "seconds": 4.0,
+        "generated_questions": [
+          "What does the 3D Tiles specification say about application-specific metadata, styles, file extensions, and media types?",
+          "What does the 3D Tiles specification say about application-specific metadata, styles, file extensions and media types, and JSON encoding?",
+          "What does the 3D Tiles specification say about application-specific metadata, styles, file extensions, and media types?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8109,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-023",
+        "expected_status": "supported",
+        "score": 0.712,
+        "seconds": 2.42,
+        "generated_questions": [
+          "What coordinate system does 3D Tiles use?",
+          "What coordinate reference systems and metadata semantics are used in 3D Tiles?",
+          "What coordinate reference system does 3D Tiles use, and how can a tileset's CRS be defined?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.712,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-024",
+        "expected_status": "supported",
+        "score": 0.8272,
+        "seconds": 3.19,
+        "generated_questions": [
+          "What is geometric error and how is it used in 3D Tiles?",
+          "What is geometric error in 3D Tiles and how is it used?",
+          "What is the geometric error of a tile and how is it used in 3D Tiles?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8272,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-025",
+        "expected_status": "supported",
+        "score": 0.8478,
+        "seconds": 2.61,
+        "generated_questions": [
+          "What are the refinement types for a tileset and how do replacement and additive refinement work?",
+          "What refinement types can a tileset use?",
+          "What refinement types can a tileset use, and how do replacement and additive refinement work?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8478,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-026",
+        "expected_status": "supported",
+        "score": 0.7954,
+        "seconds": 2.65,
+        "generated_questions": [
+          "What is the boundingVolume.region property, and what coordinate system and order does it use?",
+          "What is the boundingVolume.region property and how is it defined?",
+          "What is the boundingVolume.region property?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7954,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-027",
+        "expected_status": "supported",
+        "score": 0.8877,
+        "seconds": 3.11,
+        "generated_questions": [
+          "How is the boundingVolume.box property defined in 3D Tiles?",
+          "What does the boundingVolume.box property define and how is it represented?",
+          "What is the boundingVolume.box property in 3D Tiles and how is it defined?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8877,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-028",
+        "expected_status": "supported",
+        "score": 0.8454,
+        "seconds": 3.63,
+        "generated_questions": [
+          "What is the boundingVolume.sphere property and how is it defined?",
+          "What is the boundingVolume.sphere property and how is it defined?",
+          "What is the boundingVolume.sphere property in 3D Tiles?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8454,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-029",
+        "expected_status": "supported",
+        "score": 0.8261,
+        "seconds": 2.59,
+        "generated_questions": [
+          "How are bounding volumes used in 3D Tiles, including tile.boundingVolume, content.boundingVolume, and viewerRequestVolume?",
+          "What do tile.boundingVolume, content.boundingVolume, viewerRequestVolume, geometricError, refine, and content properties mean in 3D Tiles?",
+          "How are bounding volumes defined for tiles and tile content in 3D Tiles?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8261,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-030",
+        "expected_status": "supported",
+        "score": 0.8451,
+        "seconds": 4.89,
+        "generated_questions": [
+          "What is the transform property in 3D Tiles and what does it apply to?",
+          "What is the transform property in 3D Tiles and what does it apply to?",
+          "What is the transform property in a tileset and what does it apply to?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8451,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-031",
+        "expected_status": "supported",
+        "score": 0.8949,
+        "seconds": 2.48,
+        "generated_questions": [
+          "How are glTFs transformed from y-up to z-up in 3D Tiles, and what is the order of transformations?",
+          "How are glTFs transformed from y-up to z-up in 3D Tiles, and what is the order of transformations?",
+          "What transform is applied to glTFs at runtime to convert from y-up to z-up for consistency with the z-up coordinate system of 3D Tiles?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8949,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-032",
+        "expected_status": "supported",
+        "score": 0.8398,
+        "seconds": 2.45,
+        "generated_questions": [
+          "What are the top-level properties of a 3D Tiles tileset JSON and what do they represent?",
+          "What are the top-level properties of a 3D Tiles tileset JSON and what do they define?",
+          "What are the top-level properties of a tileset JSON and what do they define?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8398,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-033",
+        "expected_status": "supported",
+        "score": 0.7818,
+        "seconds": 2.66,
+        "generated_questions": [
+          "What does the 3D Tiles specification say about external tilesets and the structure of tilesets?",
+          "How can a tree of trees be created in a tileset?",
+          "What is an external tileset in 3D Tiles?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.7818,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-034",
+        "expected_status": "supported",
+        "score": 0.8596,
+        "seconds": 3.38,
+        "generated_questions": [
+          "What is the implicit tiling object and what properties and constraints apply to it?",
+          "What is implicit tiling and what properties and constraints does the implicitTiling object have?",
+          "What are the properties of the implicitTiling object?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8596,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-035",
+        "expected_status": "supported",
+        "score": 0.6786,
+        "seconds": 2.65,
+        "generated_questions": [
+          "What are the subdivision rules for implicit tiling in 3D Tiles?",
+          "What are the subdivision rules for descendant tiles in implicit tiling?",
+          "What are the subdivision rules for implicit tiling in 3D Tiles?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.6786,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-036",
+        "expected_status": "supported",
+        "score": 0.761,
+        "seconds": 2.8,
+        "generated_questions": [
+          "What is a Template URI in 3D Tiles and which expressions can it include?",
+          "What is a Template URI in the context of 3D Tiles?",
+          "What is a Template URI in 3D Tiles?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.761,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-037",
+        "expected_status": "supported",
+        "score": 0.6442,
+        "seconds": 2.93,
+        "generated_questions": [
+          "What are the components and properties of a schema in this specification?",
+          "How does the specification define schemas and their components, including IDs, versions, names, descriptions, enums, and classes?",
+          "What are the components and properties of a schema, including its JSON Schema representation?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.6442,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-038",
+        "expected_status": "supported",
+        "score": 0.5012,
+        "seconds": 3.85,
+        "generated_questions": [
+          "What information is provided in the annexes of this document?",
+          "What information is listed in Annex H (informative) Revision history and Annex G (informative) Contributors?",
+          "What is the revision history of the document?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.5012,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-039",
+        "expected_status": "partially_supported",
+        "score": 0.5982,
+        "seconds": 5.36,
+        "generated_questions": [
+          "What does the 3D Tiles specification say about metadata, compression, and legacy tile formats?",
+          "What does the 3D Tiles specification say about metadata, compression, and point cloud representation?",
+          "What does EXT_structural_metadata store and how can it be used?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.5982,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-040",
+        "expected_status": "insufficient",
+        "score": 0.6759,
+        "seconds": 4.44,
+        "generated_questions": [
+          "What does geometricError mean in a 3D Tiles tileset?",
+          "How are geometricError, properties, root, and external tilesets defined and used in the 3D Tiles specification?",
+          "What is geometricError in a 3D Tiles tileset and how is it used?"
+        ],
+        "noncommittal": [
+          0,
+          0,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.6759,
+        "zeroed_by_noncommittal": false
+      }
+    ],
+    "control_question_echo": [
+      {
+        "id": "rag-test-001",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 22.75,
+        "generated_questions": [
+          "What do you want to know about gdal_translate?",
+          "What does the gdal_translate tool do and what additional operations can it perform during format conversion?",
+          "gdal_translate 这个工具是做什么的？在格式转换的同时它还能顺带完成哪些操作？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9425,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-002",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 19.21,
+        "generated_questions": [
+          "gdal_translate 的 -strict 严格模式遇到可能导致信息丢失的操作（例如无法精确保持的数据类型转换）时会怎样？该行为是否与驱动有关？",
+          "gdal_translate 的 -strict 严格模式遇到可能导致信息丢失的操作（例如无法精确保持的数据类型转换）时会怎样？该行为是否与驱动有关？",
+          "What is your question about gdal_translate -strict mode?"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9791,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-003",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 18.97,
+        "generated_questions": [
+          "请介绍一下 gdalwarp 工具及其重投影功能，以及它对携带控制信息的 raw 影像中 GCP 的使用情况。",
+          "What is gdalwarp and what are its capabilities regarding reprojection and using GCPs from raw imagery?",
+          "gdalwarp 是什么类型的工具，它能重投影到什么范围，对携带控制信息的 raw 影像能否使用影像自带的 GCP？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.949,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-004",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 30.24,
+        "generated_questions": [
+          "官方文档中关于 gdalwarp 默认是否会充分利用 RAM、推荐用什么参数改善以及该内存参数在多线程下如何使用的说明是什么？",
+          "What does the official documentation say about gdalwarp RAM usage and multithreading?",
+          "官方文档中关于 gdalwarp 默认是否充分利用 RAM、推荐用什么参数改善以及该内存参数在多线程下如何使用，是怎么说的？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9642,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-005",
+        "expected_status": "supported",
+        "score": 0.8428,
+        "seconds": 32.6,
+        "generated_questions": [
+          "关于 gdalwarp 的性能，你有哪些问题？",
+          "如何提高 gdalwarp 的性能？",
+          "What questions do you have about gdalwarp performance?"
+        ],
+        "noncommittal": [
+          0,
+          1,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8428,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-006",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 10.32,
+        "generated_questions": [
+          "What is the purpose of ogr2ogr and what other operations can it perform during conversion?",
+          "What would you like to know about ogr2ogr?",
+          "What is the purpose of ogr2ogr and what other operations can it perform during conversion?"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.875,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-007",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 27.99,
+        "generated_questions": [
+          "如何用 ogr2ogr 按边界框裁剪输入图层？示例命令是什么？边界框参数的四个值按什么顺序给出？",
+          "用 ogr2ogr 按边界框裁剪输入图层，示例命令长什么样？该边界框参数的四个值按什么顺序给出？",
+          "用 ogr2ogr 按边界框裁剪输入图层，示例命令长什么样？该边界框参数的四个值按什么顺序给出？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9971,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-008",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 22.67,
+        "generated_questions": [
+          "从 GDAL 哪个版本开始，gdalinfo -json 的输出会包含可用于构建 STAC item 的键值对？统计量与直方图分别需要同时传入哪个参数？",
+          "关于 GDAL 的 gdalinfo -json 输出和 STAC item 构建，你想问什么？",
+          "如何从 gdalinfo -json 的输出构建 STAC item？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9337,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-009",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 19.97,
+        "generated_questions": [
+          "gdalbuildvrt 的 -resolution 选项有什么作用？",
+          "What is the -resolution option in gdalbuildvrt?",
+          "gdalbuildvrt 的 -resolution 选项有什么作用？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9426,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-010",
+        "expected_status": "supported",
+        "score": 0.8727,
+        "seconds": 22.91,
+        "generated_questions": [
+          "What does the user want to know about the -r option of gdaladdo?",
+          "What resampling algorithms does the -r option of gdaladdo support, which one is the default, and how does the documentation evaluate it?",
+          "What do you want to know about the -r option of gdaladdo?"
+        ],
+        "noncommittal": [
+          0,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8727,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-011",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 21.25,
+        "generated_questions": [
+          "请解释 gdaldem hillshade 的 -alg、-z 和 -s 选项分别是什么？",
+          "gdaldem hillshade 的 -alg 两个取值各自适合什么地形？-z 与 -s 分别代表什么？",
+          "gdaldem hillshade 的参数有哪些？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9258,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-012",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 21.55,
+        "generated_questions": [
+          "gdal_rasterize 的 -burn、-a、-l 三个选项分别是什么用途？其中哪些可以重复指定？-l 与 -sql 之间有什么约束？",
+          "gdal_rasterize 的 -burn、-a、-l 三个选项分别是什么用途？其中哪些可以重复指定？-l 与 -sql 之间有什么约束？",
+          "gdal_rasterize 的 -burn、-a、-l 三个选项分别是什么用途？其中哪些可以重复指定？-l 与 -sql 之间有什么约束？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 1.0,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-013",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 17.19,
+        "generated_questions": [
+          "What are the components of GDAL's affine GeoTransform and what do the coefficients represent?",
+          "GDAL 的仿射 GeoTransform 由哪些系数组成，它们在正射影像中分别代表什么？",
+          "What are the coefficients and components of GDAL's affine GeoTransform?"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8458,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-014",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 17.77,
+        "generated_questions": [
+          "GDAL 虚拟文件系统的命名前缀规则是什么（/vsiPREFIX/ 中的 vsi 代表什么）？不同 handler 能否串联？请给出一个串联示例。",
+          "What is your question about the GDAL virtual file system naming prefix rules and handler chaining?",
+          "What is the naming prefix rule for the GDAL virtual file system (what does vsi stand for in /vsiPREFIX/)? Can different handlers be chained? Give an example of chaining."
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9438,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-015",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 21.05,
+        "generated_questions": [
+          "如何为 GDAL 设置配置项？",
+          "为 GDAL 设置配置项有哪些方式？",
+          "如何设置 GDAL 配置项？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9222,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-016",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 22.75,
+        "generated_questions": [
+          "What are the details about GDAL warnings for unknown configuration option names?",
+          "关于 GDAL 未知配置项警告，你想了解什么？",
+          "关于 GDAL 未知配置项警告，有哪些问题需要解答？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9188,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-017",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 18.18,
+        "generated_questions": [
+          "GDAL 3.13 相对 3.12，对 port/cpl_port.h 中的 MIN/MAX/ABS 宏以及 M_PI 分别做了什么改动？",
+          "What changes were made in GDAL 3.13 compared to 3.12?",
+          "GDAL 3.13 相对 3.12，对 port/cpl_port.h 中的 MIN/MAX/ABS 宏以及 M_PI 分别做了什么改动？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9125,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-018",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 24.15,
+        "generated_questions": [
+          "How can I safely access multiple GeoTIFF bands from the same GDALDataset concurrently in a multithreaded environment using GDAL's public C functions and C++ methods, and what does the documentation recommend?",
+          "What does the GDAL documentation say about thread safety of public C functions and C++ methods, and concurrent access to multiple GeoTIFF bands of the same GDALDataset?",
+          "What is the thread safety of GDAL's public C functions and C++ methods, and can multiple GeoTIFF bands from the same GDALDataset be accessed concurrently in multiple threads, according to the documentation?"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9091,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-019",
+        "expected_status": "supported",
+        "score": 0.9486,
+        "seconds": 29.02,
+        "generated_questions": [
+          "GeoTIFF 驱动的概视图（overviews）的存放位置、只读打开时的创建位置以及更新时机分别是什么？",
+          "GeoTIFF 驱动的概视图（overviews）的存储位置、以只读方式打开文件时的创建位置以及更新时机是什么？",
+          "关于 GeoTIFF 驱动的概视图（overviews），有哪些问题？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          0
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9486,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-020",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 26.99,
+        "generated_questions": [
+          "请解释 3D Tiles 中的 tileset。",
+          "请解释 3D Tiles 中的 tileset、树的组织形式、空间数据结构和隐式切片。",
+          "请解释 3D Tiles 中的 tileset 及其相关概念。"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9022,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-021",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 23.62,
+        "generated_questions": [
+          "3D Tiles 1.1 中，1.0 时代的四种 legacy tile format（b3dm / i3dm / pnts / cmpt）处于什么状态？它们各自对应的典型用途是什么？",
+          "关于 3D Tiles 1.1 中 1.0 时代的四种 legacy tile format，你想了解什么？",
+          "3D Tiles 1.1 中，1.0 时代的四种 legacy tile format（b3dm / i3dm / pnts / cmpt）处于什么状态？它们各自对应的典型用途是什么？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9627,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-022",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 14.18,
+        "generated_questions": [
+          "3D Tiles 1.1 规定各类文件应使用的扩展名与 Media Type：tileset JSON、JSON subtree、二进制 subtree、二进制 buffer 分别是什么？显式扩展名是强制的吗？",
+          "What are the file extensions and Media Types specified for 3D Tiles 1.1?",
+          "What are the file extensions and Media Types specified in 3D Tiles 1.1?"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9399,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-023",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 19.21,
+        "generated_questions": [
+          "What questions do you have about 3D Tiles?",
+          "3D Tiles 中所有线性距离与角度的单位分别是什么？它使用什么手性的坐标系、哪根轴朝上？对于局部笛卡尔坐标系，z 轴的定义是什么？",
+          "3D Tiles 中所有线性距离与角度的单位分别是什么？它使用什么手性的坐标系、哪根轴朝上？对于局部笛卡尔坐标系，z 轴的定义是什么？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8599,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-024",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 16.45,
+        "generated_questions": [
+          "你能解释一下 tile 的 geometric error 是什么，以及从根到叶其数值大致如何变化、在客户端实现里它如何被使用、数值更大意味着什么吗？",
+          "你能解释一下 tile 的 geometric error 吗？包括从根到叶的变化、在客户端实现中的使用以及数值更大的含义。",
+          "What is the geometric error of a tile, how does its value change from root to leaf, how is it used in client implementations, and what does a larger value mean?"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9047,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-025",
+        "expected_status": "supported",
+        "score": 0.9296,
+        "seconds": 24.95,
+        "generated_questions": [
+          "请解释 3D Tiles 1.1 中的精化（refinement）机制，包括允许的类型、渲染区别、根 tile 的要求以及子节点的处理。",
+          "What are the questions regarding 3D Tiles 1.1 refinement types, their rendering differences, whether refine is required for the root tile of a tileset, and how child nodes without refine are handled?",
+          "3D Tiles 1.1 中的精化（refinement）类型有哪些，它们在渲染和 tileset 中如何处理？"
+        ],
+        "noncommittal": [
+          1,
+          0,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9296,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-026",
+        "expected_status": "supported",
+        "score": 0.9386,
+        "seconds": 12.15,
+        "generated_questions": [
+          "关于 3D Tiles 的 boundingVolume.region，你想问什么？",
+          "3D Tiles 的 boundingVolume.region 的格式是什么，包括数字个数、六个值的顺序、单位以及坐标参考？",
+          "What is the boundingVolume.region in 3D Tiles?"
+        ],
+        "noncommittal": [
+          0,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9386,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-027",
+        "expected_status": "supported",
+        "score": 0.9149,
+        "seconds": 13.87,
+        "generated_questions": [
+          "What is the structure and coordinate system of boundingVolume.box in 3D Tiles?",
+          "What is the question about 3D Tiles boundingVolume.box?",
+          "What are the specifications of the boundingVolume.box in 3D Tiles?"
+        ],
+        "noncommittal": [
+          1,
+          0,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9149,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-028",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 18.95,
+        "generated_questions": [
+          "3D Tiles 中的 boundingVolume.sphere 的结构是什么？",
+          "3D Tiles 的 boundingVolume.sphere 的结构是什么？",
+          "3D Tiles 的 boundingVolume.sphere 的格式是什么？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9533,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-029",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 21.59,
+        "generated_questions": [
+          "关于 tile 的 viewerRequestVolume 以及文档中的点云 tile 示例，你想了解什么？",
+          "What questions do you have about the purpose of tile's viewerRequestVolume and the boundingVolume and viewerRequestVolume of the point cloud tile in the documentation example, and why the content is always rendered and requested initially?",
+          "tile 的 viewerRequestVolume 有什么用途？文档给出的示例中，点云 tile 的 boundingVolume 与 viewerRequestVolume 分别是什么、为什么内容会被一直渲染并初始请求？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9349,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-030",
+        "expected_status": "supported",
+        "score": 0.9111,
+        "seconds": 27.66,
+        "generated_questions": [
+          "What does tile.transform do in 3D Tiles and how does it work?",
+          "关于 3D Tiles 的 tile.transform，你有哪些问题？",
+          "3D Tiles 中 tile.transform 的作用、默认值以及子 tile 坐标合成方式是什么？"
+        ],
+        "noncommittal": [
+          1,
+          0,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9111,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-031",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 16.37,
+        "generated_questions": [
+          "关于 glTF 坐标系以及 3D Tiles 在运行时如何将其转换为 z-up，你想了解哪些问题？",
+          "glTF 与 3D Tiles 之间的坐标系转换是如何工作的？",
+          "glTF 使用什么坐标系？3D Tiles 在运行时如何把它转成 z-up？完整的三步变换顺序是什么？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9594,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-032",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 20.66,
+        "generated_questions": [
+          "关于 tileset JSON，你想问哪些问题？",
+          "tileset JSON 有哪四个顶层属性？其中 asset.version 与 tilesetVersion 各表示什么？tileset 顶层的 geometricError 与 root.geometricError 有什么区别？",
+          "tileset JSON 有哪四个顶层属性？其中 asset.version 与 tilesetVersion 各表示什么？tileset 顶层的 geometricError 与 root.geometricError 有什么区别？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9314,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-033",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 26.76,
+        "generated_questions": [
+          "如何构造“tileset 的 tileset”（树的树）？具体做法是什么、有什么典型用途？",
+          "How do you construct a tileset of tilesets?",
+          "如何构造“tileset 的 tileset”（树的树）？具体做法是什么、有什么典型用途？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9463,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-034",
+        "expected_status": "supported",
+        "score": 0.9416,
+        "seconds": 28.69,
+        "generated_questions": [
+          "What are the questions regarding implicit tiling?",
+          "implicit tiling 对象有哪些属性？subdivisionScheme 的可取值是什么？对 implicit root tile 有哪些额外约束？",
+          "implicit tiling 对象有哪些属性？subdivisionScheme 的可取值是什么？对 implicit root tile 有哪些额外约束？"
+        ],
+        "noncommittal": [
+          0,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9416,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-035",
+        "expected_status": "supported",
+        "score": 0.8705,
+        "seconds": 18.29,
+        "generated_questions": [
+          "What are the differences between quadtree and octree in subdivision schemes, which bounding volume is explicitly prohibited for implicit slicing, and what is the relationship between child and parent geometricError according to Table 24?",
+          "文档中关于 quadtree 与 octree 细分方案、禁止用于隐式切片的 bounding volume 以及 Table 24 中 geometricError 关系的问题是什么？",
+          "What are the differences between quadtree and octree in subdivision schemes (how many child tiles each splits into and which dimensions are bisected)? Which type of bounding volume is explicitly forbidden for implicit slicing, and why? According to Table 24, what is the relationship between the geometricError of child nodes and parent nodes?"
+        ],
+        "noncommittal": [
+          1,
+          0,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8705,
+        "zeroed_by_noncommittal": false
+      },
+      {
+        "id": "rag-test-036",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 18.96,
+        "generated_questions": [
+          "请解释 octree 的 Template URI 是什么，它必须包含哪些变量，还必须包含什么，当以相对路径给出时它相对什么解析？",
+          "What is Template URI and what variables must it contain, especially for octree, and how are relative paths resolved?",
+          "Template URI 是什么？它必须包含哪些变量？octree 的 Template URI 还必须包含什么？当以相对路径给出时它相对什么解析？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.953,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-037",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 16.8,
+        "generated_questions": [
+          "What does the 3D Metadata specification say about the schema version?",
+          "What does the 3D Metadata specification say about the schema version type, the suggested syntax, and the unique identifier for a schema and its revision?",
+          "In the 3D Metadata specification, what is the type of the schema version, what syntax does the documentation suggest it satisfies, and what combination uniquely identifies a schema and its revision?"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9199,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-038",
+        "expected_status": "supported",
+        "score": 0.0,
+        "seconds": 14.07,
+        "generated_questions": [
+          "按 22-025r4 的修订历史（Annex H），1.1.0 版的首条修订日期是哪天？该版本的描述如何定性？之后还有哪些修订记录？",
+          "22-025r4 的修订历史是什么？",
+          "22-025r4 的修订历史（Annex H）是什么？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.8855,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-039",
+        "expected_status": "partially_supported",
+        "score": 0.0,
+        "seconds": 18.81,
+        "generated_questions": [
+          "3D Tiles 1.1 规范中关于 glTF 的几何压缩扩展与纹理压缩扩展有哪些规定？文档是否给出了这些扩展的默认量化位数或默认压缩级别？",
+          "3D Tiles 1.1 中 glTF 的几何压缩扩展和纹理压缩扩展有哪些？",
+          "3D Tiles 1.1 规范中关于 glTF 压缩扩展及其默认参数提供了哪些信息？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 0.9448,
+        "zeroed_by_noncommittal": true
+      },
+      {
+        "id": "rag-test-040",
+        "expected_status": "insufficient",
+        "score": 0.0,
+        "seconds": 19.27,
+        "generated_questions": [
+          "在 CesiumJS 中通过 Cesium3DTileset.fromUrl 加载 tileset 时，maximumScreenSpaceError 的默认取值是多少？该参数与 spec 中的哪个概念对应？",
+          "在 CesiumJS 中通过 Cesium3DTileset.fromUrl 加载 tileset 时，maximumScreenSpaceError 的默认取值是多少？该参数与 spec 中的哪个概念对应？",
+          "在 CesiumJS 中通过 Cesium3DTileset.fromUrl 加载 tileset 时，maximumScreenSpaceError 的默认取值是多少？该参数与 spec 中的哪个概念对应？"
+        ],
+        "noncommittal": [
+          1,
+          1,
+          1
+        ],
+        "n_generated": 3,
+        "raw_cosine_mean": 1.0,
+        "zeroed_by_noncommittal": true
+      }
+    ]
+  }
+}
