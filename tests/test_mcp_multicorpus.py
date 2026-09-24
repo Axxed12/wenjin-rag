@@ -31,8 +31,13 @@ class FakeService:
     """OSG 默认路径用的桩；多语料测试不经过它。"""
 
     qdrant_client = SimpleNamespace()
+    supported_version = "3.6.5"
 
     def search(self, query, *, config):
+        # 与真实 RetrievalService._search_unlocked 同样地校验版本。桩里不照做的话，
+        # "不带 version 时送错了版本"这个缺陷在测试里根本表现不出来。
+        if config.version != self.supported_version:
+            raise ValueError(f"当前active索引只包含 {self.supported_version}")
         return {"query": query, "version": config.version, "evidence": [],
                 "answer_status": "not_generated"}
 
@@ -344,3 +349,21 @@ def test_matching_version_without_library_still_works(tmp_path):
     data = call(server, "search_docs", {"query": "q", "version": "3.6.5"})
     assert "error" not in data
     assert data["version"] == "3.6.5"
+
+
+def test_default_version_follows_the_active_index(tmp_path):
+    """不带 version 时必须跟随 active 的版本，不能写死 "3.6.5"。
+
+    写死的话，active 一旦切到别的版本，这个分支会把一个不匹配的版本送进 runtime，
+    它抛 ValueError，而服务端开了错误屏蔽——客户端只看到 "Error calling tool"。
+    那正是同一个函数里 invalid_target 那个分支要避免的症状，绕了一圈又回来了。
+
+    这条在旧实现下会以工具错误的形式失败（桩已照真实服务校验版本）。
+    """
+    make_osg_corpus(tmp_path)
+    service = FakeService()
+    service.supported_version = "9.9.9"
+    server = build_server(tmp_path, access=policies("osg-3.6.5"), service=service)
+    data = call(server, "search_docs", {"query": "q"})
+    assert "error" not in data
+    assert data["version"] == "9.9.9", "默认版本没有跟随 active，仍被写死"

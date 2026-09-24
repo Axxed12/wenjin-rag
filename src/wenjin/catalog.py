@@ -388,16 +388,23 @@ def find_corpus(root: Path, corpus_id: str) -> CorpusEntry | None:
     要防的事。所以一个坏目录在 manifest 里自称 `osg-3.6.5`，不会让真正名为
     `osg-3.6.5` 的那份语料停止服务；它自己也仍然取不到（它不在 `entries` 里）。
 
+    **先查 `entries`、再查 `problems`**，顺序不能反：同名目录可以同时存在于 `corpora/`
+    与 `corpora-private/` 两棵树，一份坏不该让另一份停服。反过来写（先扫 problems）
+    的话，一个坏掉的私有 `foo` 会把健康的公开 `foo` 一起拒掉——那正是本函数要消灭的
+    故障半径问题。先返回合法条目不放松任何判定：条目自己的 manifest 路径只指向它自己
+    那一份，与问题目录无关。
+
     请求一个既无目录、也无问题目录占用的 id 仍然返回 `None`，由调用方按"不存在"处理。
     """
     report = corpus_catalog_report(root)
+    entry = next((item for item in report.entries if item.corpus_id == corpus_id), None)
+    if entry is not None:
+        return entry
     for problem in report.problems:
         if problem.directory == corpus_id:
             raise CorpusIdentityError(
                 f"语料 {corpus_id} 的身份无法确定（{problem.reason}）：{problem.detail}"
                 f"（{problem.location}）"
             )
-    return next(
-        (entry for entry in report.entries if entry.corpus_id == corpus_id), None
-    )
+    return None
 

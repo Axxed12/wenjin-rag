@@ -302,6 +302,41 @@ def test_duplicate_corpus_id_does_not_break_download_of_a_good_corpus(tmp_path):
     assert fetch(app, "/files/dup-1.0/guide.md") == 503
 
 
+def test_a_broken_private_twin_does_not_disable_a_healthy_public_corpus(tmp_path):
+    """同名目录可以同时存在于公开与私有两棵树，一份坏不该让另一份停服。
+
+    判定顺序必须是「先查可服务条目、再查问题目录」。反过来的话，一个坏掉的私有
+    `foo` 会把健康的公开 `foo` 一起拒掉——**正是 find_corpus 自己在 docstring 里
+    声称不会发生、而旧实现恰好会做的那件事**。故障半径只缩小了一半，没消灭。
+    """
+    write_good_corpus(tmp_path)                       # corpora/<GOOD_ID>：健康
+    broken = tmp_path / "corpora-private" / GOOD_ID   # 私有树：同名，但 manifest 坏掉
+    broken.mkdir(parents=True)
+    (broken / "source-manifest.json").write_text("{not json", encoding="utf-8")
+
+    report = corpus_catalog_report(tmp_path)
+    assert [e.corpus_id for e in report.entries] == [GOOD_ID]
+    assert [p.directory for p in report.problems] == [GOOD_ID]
+
+    # 旧实现先扫 problems，撞上同名目录就在这里抛 CorpusIdentityError。
+    entry = find_corpus(tmp_path, GOOD_ID)
+    assert entry is not None and entry.corpus_id == GOOD_ID
+
+
+def test_a_broken_directory_still_cannot_be_served_under_its_own_name(tmp_path):
+    """对照：问题目录自己仍然取不到——「先查 entries」不放松任何判定。
+
+    没有这条，把 find_corpus 改成"永远返回第一个匹配"也能让上一条通过。
+    """
+    write_good_corpus(tmp_path)
+    broken = tmp_path / "corpora-private" / "bad-1.0"
+    broken.mkdir(parents=True)
+    (broken / "source-manifest.json").write_text("{not json", encoding="utf-8")
+
+    with pytest.raises(CorpusIdentityError):
+        find_corpus(tmp_path, "bad-1.0")
+
+
 def test_list_corpora_does_not_leak_quarantined_directory_names(tmp_path, bad_shape):
     """`list_corpora` 不得外发被隔离目录的任何明细——连一个无权调用方也不行。
 
