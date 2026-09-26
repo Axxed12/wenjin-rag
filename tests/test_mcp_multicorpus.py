@@ -240,6 +240,38 @@ def test_broken_acl_snapshot_denies_routed_search(tmp_path, two_corpora):
     assert "访问策略不可用" in data["detail"]
 
 
+def test_acl_snapshot_failure_never_leaks_the_declared_corpus_id(tmp_path, two_corpora):
+    """整体拒绝是对的，但 `AccessSnapshotError` 的**正文不能外发**。
+
+    它的正文带着与文件名不一致的那份声明身份，而那正是无权客户端不该知道的语料名
+    （`corpora-private/` 底下的也算）。原来的写法直接 `str(exc)` / f-string 插值，
+    等于让一个没有该语料权限的调用方靠一句报错就知道内网里有这么一份语料。
+    `list_corpora` 尤其严重：它对所有调用方开放，连猜语料名这一步都不需要。
+    真实异常只进服务端日志（`policy_unavailable`）。
+    """
+    access_dir = tmp_path / "configs/access"
+    access_dir.mkdir(parents=True)
+    (access_dir / "secret-project.json").write_text(
+        json.dumps({"schema_version": 1, "corpus_id": "secret-project-INTERNAL",
+                    "visibility": "internal", "allowed_clients": []}),
+        encoding="utf-8",
+    )
+    server = build_mcp_server(
+        FakeService(), audit=SearchAudit(tmp_path / "audit.jsonl"),
+        access=None,                      # 走真实的 load_snapshot
+        raw_root=tmp_path / "raw_data", project_root=tmp_path,
+        identity=RuntimeIdentity("osg-3.6.5", "test", "osg"),
+        corpus_router=build_router(two_corpora),
+    )
+    for tool, arguments in (("list_corpora", {}),
+                            ("search_docs", {"query": "q", "library": "alpha"})):
+        payload = json.dumps(call(server, tool, arguments), ensure_ascii=False)
+        # 声明身份和文件名都不能出现——文件名本身也点名了那份语料。
+        assert "secret-project" not in payload, f"{tool} 泄露了私有语料身份：{payload}"
+        # 但拒绝本身必须照旧生效。
+        assert "访问策略不可用" in payload
+
+
 # --- 未配置多语料时的行为 ---
 
 

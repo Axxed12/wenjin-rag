@@ -93,8 +93,12 @@ def fixed_chunks(document: dict, *, size: int = 1200, overlap: int = 120) -> lis
         line_end = text.find("\n", end)
         line_end = len(text) if line_end == -1 else line_end + 1
         lines = text.splitlines(keepends=True)
-        before = text[:line_start].count("\n")
-        after = text[:line_end].count("\n")
+        # 行下标必须按 `lines` 的实际切分来数，不能用 `count("\n")`：文件末尾**没有**
+        # 换行时换行符比行数少一个，`after` 就少算最后一行，而循环随即因
+        # `line_end >= len(text)` 退出，末行永远不入库——不报错、也不计数。
+        # `splitlines()` 与上面的 `lines` 是同一套切分规则，不会错位。
+        before = len(text[:line_start].splitlines())
+        after = len(text[:line_end].splitlines())
         chunks.append(
             _make_chunk(
                 document=document,

@@ -78,3 +78,23 @@ def test_blocks_split_keeps_page_number_and_source_hash():
     assert all(chunk.page_number == 7 for chunk in chunks)
     assert all(chunk.source_raw_sha256 == "a" * 64 for chunk in chunks)
     assert all(chunk.chunk_id.startswith("3.6.5:include/osg/Test:page-7:") for chunk in chunks)
+
+
+def test_fixed_chunks_keep_a_last_line_without_a_trailing_newline():
+    """末行没有换行时必须照样入库。
+
+    `fixed` 用换行符个数当排他结束行下标；文件末尾没换行时它比行数少一个，
+    末行就永远切不出来——而循环随即因已到文件末尾退出，所以既不报错也不计数。
+    旧样例都带末尾换行，正好绕开了这个条件。
+    """
+    chunks = fixed_chunks(document("first\nlast"), size=1200, overlap=120)
+    assert [chunk.text for chunk in chunks] == ["first\nlast"]
+    assert (chunks[0].start_line, chunks[0].end_line) == (1, 2)
+
+
+def test_fixed_chunks_reach_the_last_line_across_several_windows():
+    """多窗口时同样：最后一个 chunk 的行区间必须盖到末行。"""
+    text = "\n".join(f"line-{index}" for index in range(40))
+    chunks = fixed_chunks(document(text), size=60, overlap=10)
+    assert chunks[-1].end_line == 40
+    assert "line-39" in chunks[-1].text

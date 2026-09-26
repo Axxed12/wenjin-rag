@@ -319,3 +319,50 @@ def test_revocation_takes_effect_on_next_request(tmp_path):
             assert second.status_code == 403, "撤权后新请求必须被拒绝"
 
     asyncio.run(scenario())
+
+
+def test_broken_access_snapshot_on_download_does_not_leak_a_private_corpus_id(tmp_path):
+    """取件入口同样整体拒绝，但异常正文**不外发**。
+
+    `AccessSnapshotError` 的正文带着与文件名不一致的那份声明身份——正是无权客户端
+    不该知道的语料名。真实异常改走服务端审计的 `detail`（与 SourceUnverified 同一处理），
+    所以这里同时断言"客户端看不到"和"服务端没丢"。
+    """
+    corpus_id, _ = make_project(tmp_path, clients=(CLIENT_ID,))
+    access_dir = tmp_path / "configs" / "access"
+    access_dir.mkdir(parents=True)
+    (access_dir / "secret-project.json").write_text(json.dumps({
+        "schema_version": 1, "corpus_id": "secret-project-INTERNAL",
+        "visibility": "internal", "allowed_clients": [],
+    }), encoding="utf-8")
+
+    audit_path = tmp_path / "audit.jsonl"
+    server = build_mcp_server(
+        FakeService(),
+        audit=SearchAudit(audit_path),
+        # 不给 access：走真实的 load_snapshot，才会碰到上面那份坏策略。
+        raw_root=tmp_path / "raw_data",
+        project_root=tmp_path,
+        bearer_enabled=True,
+        identity=RuntimeIdentity(CORPUS_ID, "test", f"{CORPUS_ID}-x"),
+    )
+    app = BearerAuthMiddleware(server.http_app(path="/mcp"), api_key=API_KEY, client_id=CLIENT_ID)
+
+    async def scenario():
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://testserver",
+            headers={"Authorization": f"Bearer {API_KEY}"},
+        ) as client:
+            response = await client.get(f"/files/{corpus_id}/guide.md")
+            assert response.status_code == 503
+            assert "访问策略不可用" in response.text
+            assert "secret-project" not in response.text
+
+    asyncio.run(scenario())
+
+    # 拒绝要留痕：真实异常进审计 detail，供运维用 request_id 定位。
+    rows = [json.loads(line) for line in audit_path.read_text(encoding="utf-8").splitlines()]
+    errors = [row for row in rows if row.get("outcome") == "error"]
+    assert errors, "策略快照加载失败必须留下审计记录"
+    assert "secret-project-INTERNAL" in errors[-1]["detail"]
+    assert errors[-1]["request_id"]

@@ -99,6 +99,35 @@ def log_identity_problems(report) -> None:
             pass
 
 
+# 策略快照加载失败的**完整异常**只进这里，网络接口只回一句不含身份的说明。
+# 复用 auth.py 那一路日志（鉴权失败也走它）。
+#
+# **这里刻意不配 handler**：auth.py 在 `BearerAuthMiddleware.__init__` 里配，那一刻
+# 在一个请求/一个测试的上下文内。若在 import 期抢先加一个 `StreamHandler(sys.stdout)`，
+# handler 会在构造时就绑死当时的 `sys.stdout`——pytest 的 capsys 是逐测试替换它的，
+# 于是那条鉴权审计行会绕过 capsys 写到真 stdout，`test_auth.py` 直接看不到它。
+# 不配也有兜底：开关闭鉴权时该 logger 无 handler 且 propagate 仍为默认 True，走 root。
+security_logger = logging.getLogger("wenjin.security")
+
+
+def policy_unavailable(exc: Exception, *, tool: str) -> str:
+    """记下策略快照加载失败，返回**可以外发**的客户端说明。
+
+    `AccessSnapshotError` 的正文是 `访问策略快照加载失败：<内层异常>`，内层异常带着
+    与文件名不一致的**声明语料身份**或策略文件路径。整体拒绝（fail closed）是对的，
+    但把它原样回给客户端，等于让没有该语料权限的调用方靠一句报错就知道"内网里有这么
+    一份语料"——`corpora-private/` 底下的也算。与 `log_identity_problems` 同一口径：
+    被隔离的身份只走服务端日志。
+    """
+    try:
+        security_logger.warning(
+            "访问策略快照加载失败，已整体拒绝：tool=%s error=%s", tool, exc
+        )
+    except Exception:  # noqa: BLE001 - 日志失败不能把一次拒绝变成崩溃
+        pass
+    return "访问策略不可用，已拒绝本次请求"
+
+
 @dataclass(frozen=True)
 class RuntimeIdentity:
     """服务启动时确定的索引身份；请求期间不再读注册表。"""
@@ -501,12 +530,15 @@ def build_mcp_server(
         """
         from wenjin.retrieval.router import MultiCorpusRouter, RouteConfig
 
-        def denied(detail: str) -> dict:
+        def denied(detail: str, *, error: Exception | None = None) -> dict:
+            # 默认把"拒绝"本身记成 AccessDenied；策略快照加载失败要记成真实的异常类型，
+            # 否则审计里"快照坏了"会伪装成一次普通的无权访问。`error` 只取类型名入行，
+            # 正文不外发也不入日志行。
             audit.record(
                 query=query, version=version or "routed", top_k=top_k,
                 context_char_budget=context_char_budget, session_id=session_id,
                 client_id=client_id, elapsed_seconds=time.perf_counter() - started,
-                error=AccessDenied(detail),
+                error=error or AccessDenied(detail),
             )
             return forbidden(detail, corpus_id=None, query=query)
 
@@ -517,7 +549,7 @@ def build_mcp_server(
         try:
             registry = current_access()
         except AccessSnapshotError as exc:
-            return denied(f"访问策略不可用：{exc}")
+            return denied(policy_unavailable(exc, tool="search_docs"), error=exc)
 
         allowed = [
             index for index in router.indices
@@ -670,7 +702,13 @@ def build_mcp_server(
                 client_id=client_id,
                 elapsed_seconds=time.perf_counter() - started, error=exc,
             )
-            return forbidden(str(exc), corpus_id=corpus_id, query=query)
+            # AccessDenied 说的是**本服务绑定**的那个语料，调用方本来就在跟它打交道，
+            # 原样回；策略快照的异常带着别的语料身份，只能给通用说明。
+            detail = (
+                policy_unavailable(exc, tool="search_docs")
+                if isinstance(exc, AccessSnapshotError) else str(exc)
+            )
+            return forbidden(detail, corpus_id=corpus_id, query=query)
 
         try:
             result = runtime.search(
@@ -747,7 +785,8 @@ def build_mcp_server(
         try:
             registry = current_access()
         except AccessSnapshotError as exc:
-            return {"corpora": [], "count": 0, "error": "unavailable", "detail": str(exc),
+            return {"corpora": [], "count": 0, "error": "unavailable",
+                    "detail": policy_unavailable(exc, tool="list_corpora"),
                     "mcp_protocol": EXPECTED_PROTOCOL_VERSION}
         report = corpus_catalog_report(root)
         log_identity_problems(report)
@@ -860,7 +899,11 @@ def serve_download(
     try:
         registry = current_access()
     except AccessSnapshotError as exc:
-        return finish("error", 503, {"error": "unavailable", "detail": str(exc)})
+        # 与下面的 SourceUnverified 同一处理：客户端拿通用说明，真实异常走审计 detail。
+        return finish("error", 503,
+                      {"error": "unavailable",
+                       "detail": policy_unavailable(exc, tool="download")},
+                      detail=str(exc))
     try:
         registry.require(corpus_id, client_id)
     except AccessDenied as exc:

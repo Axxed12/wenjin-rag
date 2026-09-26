@@ -1,0 +1,40 @@
+{
+  "forged_chunk_admission": {
+    "baseline": "PASS",
+    "forged": "PASS",
+    "source_unchanged": true
+  },
+  "long_line_contract": [
+    {
+      "start": 1,
+      "end": 1,
+      "length": 1600,
+      "equals_declared_lines": false
+    },
+    {
+      "start": 1,
+      "end": 1,
+      "length": 101,
+      "equals_declared_lines": false
+    }
+  ],
+  "fixed_no_final_newline": [
+    {
+      "text": "first\n",
+      "start": 1,
+      "end": 1
+    }
+  ],
+  "policy_error_leak": {
+    "corpora": [],
+    "count": 0,
+    "error": "unavailable",
+    "detail": "访问策略快照加载失败：访问策略的corpus_id与文件名不一致：secret-project-INTERNAL",
+    "mcp_protocol": "2025-11-25"
+  },
+  "routed_model_concurrency": {
+    "requests": 4,
+    "peak": 4,
+    "all_success": true
+  }
+}
