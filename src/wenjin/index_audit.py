@@ -9,7 +9,10 @@
 4. 两侧的来源双 Hash、normalization、逻辑文档 ID 与 manifest 一致；
 5. 两侧的行号与页码一致，且落在来源文件的实际范围内；
 6. 版本与切片策略与目标配置一致；
-7. 旧 schema 缺列只在 manifest 未声明该元数据时才容忍。
+7. 旧 schema 缺列只在 manifest 未声明该元数据时才容忍；
+8. 父子化索引（`blocks-split-parented`）另有一层：父块单独存在同一 BM25 文件的
+   `parents` 表里，逐条按 manifest 与**原文行切片**核验，并核对 child 与父块的
+   对应关系（每个 child 的父块存在且包含它，每个父块两端对齐、中间无洞）。
 
 只读：不修改任何索引、配置或语料。
 """
@@ -28,6 +31,7 @@ from wenjin.index_registry import (
     resolve_project_path,
     validate_target,
 )
+from wenjin.ingestion.chunking import PARENTED_STRATEGY
 from wenjin.parser_names import (
     HYBRID_PAGE_PARSER,
     OCR_PAGE_PARSER,
@@ -60,13 +64,16 @@ COMPARED_FIELDS = {
     "page_number": "position_mismatch",
     "parser": "parser_mismatch",
     "ocr_derived": "ocr_marker_mismatch",
+    # 父子化索引：两侧对"这个 child 属于哪个父块"必须一致，否则命中同一个 child
+    # 时，向量侧和关键词侧会返回两段不同的正文。
+    "parent_id": "parent_mismatch",
 }
 
 
 def read_bm25_rows(path: Path) -> tuple[list[dict], set[str]]:
     """读取BM25行，并返回实际存在的列名。
 
-    旧索引没有 page_number/logical_document_id 列，按NULL补齐以兼容；
+    旧索引没有 page_number/logical_document_id/parent_id 列，按NULL补齐以兼容；
     是否**允许**缺失由调用方按 manifest 声明判断，不能静默放过。
     """
     with closing(sqlite3.connect(path)) as database:
@@ -79,17 +86,46 @@ def read_bm25_rows(path: Path) -> tuple[list[dict], set[str]]:
         )
         parser_column = "parser" if "parser" in columns else "NULL AS parser"
         ocr_column = "ocr_derived" if "ocr_derived" in columns else "NULL AS ocr_derived"
+        parent_column = "parent_id" if "parent_id" in columns else "NULL AS parent_id"
         rows = [dict(row) for row in database.execute(
             "SELECT chunk_id, source_path, version, start_line, end_line, strategy, "
             "content_sha256, source_raw_sha256, source_canonical_sha256, normalization, "
-            f"{page_column}, {logical_column}, {parser_column}, {ocr_column}, raw_text "
-            "FROM chunks"
+            f"{page_column}, {logical_column}, {parser_column}, {ocr_column}, {parent_column}, "
+            "raw_text FROM chunks"
         )]
     # SQLite 没有布尔类型，存的是 0/1；NULL 保留为 None，表示"这一列不存在"，
     # 不能折成 False——那会把"无法核验"说成"确认不是OCR"。
     for row in rows:
         row["ocr_derived"] = None if row["ocr_derived"] is None else bool(row["ocr_derived"])
     return rows, columns
+
+
+def read_bm25_parents(path: Path) -> list[dict] | None:
+    """读取父子化索引的父块行；这份索引没有 `parents` 表时返回 **None**。
+
+    返回 None 与返回空列表是两件事：前者是"这份索引没有父子结构"，后者是"声明了父子
+    结构却一行父块都没有"（后面的检查会把它当缺陷）。字段名与 `read_bm25_rows` 一致
+    （正文在 `text` 键下），所以来源绑定、位置范围、解析器标记这些检查能直接复用，
+    不必为父块再写一套口径不同的判定。
+    """
+    with closing(sqlite3.connect(path)) as database:
+        tables = {
+            row[0] for row in database.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        }
+        if "parents" not in tables:
+            return None
+        database.row_factory = sqlite3.Row
+        rows = [
+            dict(row)
+            for row in database.execute(
+                "SELECT chunk_id, source_path, version, start_line, end_line, strategy, "
+                "content_sha256, source_raw_sha256, source_canonical_sha256, normalization, "
+                "page_number, logical_document_id, parser, ocr_derived, text FROM parents"
+            )
+        ]
+    for row in rows:
+        row["ocr_derived"] = None if row["ocr_derived"] is None else bool(row["ocr_derived"])
+    return rows
 
 
 def read_qdrant_payloads(client: QdrantClient, collection: str) -> list[dict]:
@@ -187,6 +223,32 @@ def _count_source_lines(relative: str, raw_root: Path, cache: dict[str, int | No
             total = None  # 二进制或读不了：不做行数范围判定
     cache[relative] = total
     return total
+
+
+def _parsed_source_lines(relative: str, raw_root: Path, parser: str) -> list[str] | None:
+    """来源文件**经解析后**的原文行，用来和父块正文逐字比对。
+
+    必须走建库当时那一个解析器，不能拿磁盘字节直接切片：按后缀推断的解析器会逐行
+    改写正文（`html-line-v1` 去标签、`xml-line-v1`、`man-roff-line-v1`），而且统一用
+    `"\\n"` 连接、末尾补一个换行——磁盘文件末尾没有换行符时，两者的差别正好落在最后
+    一行上。拿原文比会把一份正常索引判成坏的（实测 osgearth 的 .md 就是这样）。
+
+    读不到、太大、解析器不认识或不是文本时返回 None：那种情况只做位置范围判定，
+    不假装比对过。重解析的成本与建库时读一遍文件同级，只发生在逐条审计里。
+    """
+    # 延迟导入：本模块在服务启动路径上，不应为一次可选核对拉进 PyMuPDF/BeautifulSoup。
+    from wenjin.ingestion.multiformat import parse_line_mapped
+
+    try:
+        path = resolve_within(raw_root, relative)
+    except UnsafePathError:
+        return None
+    if path is None or not path.is_file() or path.stat().st_size > MAX_LINES_CHECK_BYTES:
+        return None
+    try:
+        return parse_line_mapped(path, relative, parser).text.splitlines(keepends=True)
+    except (UnicodeDecodeError, OSError, ValueError):
+        return None
 
 
 def _scan_pages(manifest_record: dict) -> list[int] | None:
@@ -287,6 +349,200 @@ def _check_parser_marker(
     return verified
 
 
+def _audit_parent_blocks(
+    *,
+    parent_rows: list[dict] | None,
+    child_rows: list[dict],
+    strategy: str,
+    version: str,
+    records: dict,
+    in_scope: set[str],
+    sources: CorpusSources,
+    corpus_root: Path,
+    line_counts: dict[str, int | None],
+    page_counts: dict[str, int | None],
+    note,
+) -> dict:
+    """逐条核验父块，以及 child 与父块的对应关系；返回报告里的 `parents` 小节。
+
+    父块不参与检索（它不在 FTS 表里，也没有向量），所以**没有"另一侧"可比**：它的真值
+    是 manifest 登记记录 + 原文行切片，比两侧互证更直接。这里因此既复用 child 的那套
+    来源绑定（路径映射、双 Hash、位置范围、解析器/OCR 标记、正文 Hash 重算），又多做
+    一件 child 那套检查**做不到**的事：把父块正文与它声明的行区间切片逐字比对——
+    单行硬切产生的 child 只覆盖整行的一部分，逐字比必然不等，只有父块能这么查。
+
+    父子结构本身也在这里判定，且判据与调用方无关：每个 child 的 `parent_id` 必须落在
+    真实存在的父块上、来源与页码相同、行区间被父块包含；反过来每个父块都必须被 child
+    引用，且两端对齐、中间没有洞（父块声明了一段它没盖满的范围时，下游按行号取原文会
+    取到不存在的证据）。
+    """
+    declared_parented = strategy == PARENTED_STRATEGY
+    summary = {
+        "table_present": parent_rows is not None,
+        "rows": 0,
+        "children_with_parent": 0,
+        "children_unparented": 0,
+        "dangling_parent_ids": 0,
+        "line_level_checkable": 0,
+        "text_slice_verified": 0,
+        "text_slice_uncheckable": 0,
+        "page_level_unchecked": 0,
+    }
+    if parent_rows is None:
+        if declared_parented:
+            note(
+                "parent_missing", None,
+                f"目标策略为{PARENTED_STRATEGY}，但BM25没有parents表：命中child后取不到父块",
+            )
+        return summary
+    if not declared_parented:
+        note(
+            "parent_mismatch", None,
+            f"BM25里有parents表，但目标声明的策略是{strategy!r}：父块不属于这个索引目标",
+        )
+    summary["rows"] = len(parent_rows)
+    for parent_id in _duplicates([row["chunk_id"] for row in parent_rows]):
+        note("parent_mismatch", parent_id, "parents表里父块ID重复")
+    by_id = {row["chunk_id"]: row for row in parent_rows}
+    children_of: dict[str, list[dict]] = {}
+    for child in child_rows:
+        if child.get("parent_id"):
+            children_of.setdefault(str(child["parent_id"]), []).append(child)
+
+    # 逐条核验父块自身；同时按来源文件把可做切片比对的父块分组，稍后每个文件只读一次。
+    slice_groups: dict[str, list[dict]] = {}
+    for parent_id, row in by_id.items():
+        try:
+            record = sources.match_chunk_path(str(row.get("source_path") or ""))
+        except SourceNotFound as error:
+            note("source_path_unmapped", parent_id, f"父块：{error}")
+        else:
+            if record.relative not in in_scope:
+                note(
+                    "outside_retrieval_scope", parent_id,
+                    f"父块：{record.relative} 不在检索白名单内",
+                )
+            manifest_record = records.get(record.relative)
+            if manifest_record is None:
+                note("source_path_unmapped", parent_id, f"父块：未登记路径 {record.relative}")
+            else:
+                expected = {
+                    "source_raw_sha256": manifest_record.get("_content_hash"),
+                    "source_canonical_sha256": manifest_record.get("canonical_sha256"),
+                    "normalization": manifest_record.get("normalization"),
+                    "logical_document_id": manifest_record.get("logical_document_id"),
+                }
+                for field, want in expected.items():
+                    if want is None:
+                        continue
+                    if row.get(field) != want:
+                        note(
+                            COMPARED_FIELDS.get(field, "source_hash_mismatch"), parent_id,
+                            f"父块的{field}与manifest不符：{row.get(field)!r} != {want!r}",
+                        )
+                _check_parser_marker("父块", row, manifest_record, parent_id, note)
+                detail = _position_problems(
+                    row, manifest_record, record.relative, corpus_root, line_counts, page_counts
+                )
+                if detail:
+                    note("position_mismatch", parent_id, f"父块：{detail}")
+                if row.get("parser") in PAGE_PARSERS:
+                    # 按页来源的行号是**页内解析文本**的行号，磁盘上的PDF没有可切的行。
+                    summary["page_level_unchecked"] += 1
+                elif not row.get("parser"):
+                    # 旧索引没有 parser 列：无法复现当时的解析，不能假装比对过。
+                    summary["text_slice_uncheckable"] += 1
+                else:
+                    slice_groups.setdefault(record.relative, []).append(row)
+        recomputed = hashlib.sha256((row.get("text") or "").encode("utf-8")).hexdigest()
+        if row.get("content_sha256") != recomputed:
+            note(
+                "content_hash_mismatch", parent_id,
+                f"父块的content_sha256与正文不符：{row.get('content_sha256')!r}",
+            )
+        if row.get("version") != version:
+            note("version_mismatch", parent_id, f"父块version={row.get('version')!r} 目标={version!r}")
+        if row.get("strategy") != strategy:
+            note("strategy_mismatch", parent_id, f"父块strategy={row.get('strategy')!r} 目标={strategy!r}")
+
+        members = sorted(
+            children_of.get(str(parent_id), []),
+            key=lambda item: (item["start_line"], item["end_line"]),
+        )
+        if not members:
+            note("parent_missing", parent_id, "父块没有任何child引用：它永远不可能作为证据返回")
+            continue
+        if members[0]["start_line"] != row.get("start_line") or members[-1]["end_line"] != row.get("end_line"):
+            note(
+                "parent_mismatch", parent_id,
+                f"child两端未对齐父块区间 {row.get('start_line')}-{row.get('end_line')}："
+                f"{members[0]['start_line']}-{members[-1]['end_line']}",
+            )
+        for previous, current in zip(members, members[1:]):
+            if current["start_line"] > previous["end_line"] + 1:
+                note(
+                    "parent_mismatch", parent_id,
+                    f"child之间有洞：{previous['end_line'] + 1}-{current['start_line'] - 1}"
+                    "（父块声明覆盖了没有child覆盖的行）",
+                )
+                break
+
+    # 父块正文必须逐字等于它声明的行区间切片：只要有一个字符来自"拼接child文本"或
+    # 别的重新排版，证据正文与行号指向的原文就不是同一串字节。比对走**建库当时的解析器**，
+    # 按来源文件分组解析一次，读完即弃，不把整库正文留在内存里。
+    for relative, group in slice_groups.items():
+        lines = _parsed_source_lines(relative, corpus_root, str(group[0].get("parser")))
+        if lines is None:
+            summary["text_slice_uncheckable"] += len(group)
+            continue
+        summary["line_level_checkable"] += len(group)
+        for row in group:
+            expected = "".join(lines[row["start_line"] - 1 : row["end_line"]])
+            if row.get("text") != expected:
+                note(
+                    "parent_text_mismatch", row["chunk_id"],
+                    f"父块正文不是它声明区间 {row['start_line']}-{row['end_line']} 的原文切片",
+                )
+            else:
+                summary["text_slice_verified"] += 1
+
+    # child 一侧：父子化索引里每个 child 都必须指向一个真实存在、且包含它的父块。
+    for child in child_rows:
+        parent_id = child.get("parent_id")
+        if not parent_id:
+            if declared_parented:
+                summary["children_unparented"] += 1
+                note(
+                    "parent_missing", child["chunk_id"],
+                    f"目标策略为{PARENTED_STRATEGY}，但这个child没有parent_id：命中它取不到父块",
+                )
+            continue
+        parent = by_id.get(str(parent_id))
+        if parent is None:
+            summary["dangling_parent_ids"] += 1
+            note("parent_missing", child["chunk_id"], f"parent_id={parent_id} 在parents表里不存在")
+            continue
+        summary["children_with_parent"] += 1
+        if (
+            parent.get("source_path") != child.get("source_path")
+            or parent.get("page_number") != child.get("page_number")
+        ):
+            note(
+                "parent_mismatch", child["chunk_id"],
+                f"child与父块来自不同来源：{child.get('source_path')!r}/页{child.get('page_number')!r}"
+                f" vs {parent.get('source_path')!r}/页{parent.get('page_number')!r}",
+            )
+        elif not (
+            parent["start_line"] <= child["start_line"] and parent["end_line"] >= child["end_line"]
+        ):
+            note(
+                "parent_mismatch", child["chunk_id"],
+                f"父块区间 {parent['start_line']}-{parent['end_line']} 不包含"
+                f"child的 {child['start_line']}-{child['end_line']}",
+            )
+    return summary
+
+
 def audit_index(target: IndexTarget, *, root: Path, qdrant_client: QdrantClient) -> dict:
     """对单个候选或 active 目标做完整审计；返回可直接写进证据文件的报告。"""
     # 1) 共享的三资产校验（manifest字节绑定、按记录重算的指纹、行数/点数/维度/状态）。
@@ -306,6 +562,7 @@ def audit_index(target: IndexTarget, *, root: Path, qdrant_client: QdrantClient)
     )
 
     rows, bm25_columns = read_bm25_rows(resolve_project_path(root, target.bm25_path))
+    parent_rows = read_bm25_parents(resolve_project_path(root, target.bm25_path))
     payloads = read_qdrant_payloads(qdrant_client, target.dense_collection)
 
     problems: dict[str, list] = {
@@ -327,6 +584,11 @@ def audit_index(target: IndexTarget, *, root: Path, qdrant_client: QdrantClient)
         "ocr_marker_mismatch": [],
         "version_mismatch": [],
         "strategy_mismatch": [],
+        # 父子结构自身的三类缺陷：引用了取不到的父块 / 父子关系不自洽 / 父块正文
+        # 不等于它声明的原文切片。三者都会让"命中child后返回父块"变成半截证据。
+        "parent_missing": [],
+        "parent_mismatch": [],
+        "parent_text_mismatch": [],
     }
 
     def note(kind: str, chunk_id, detail) -> None:
@@ -485,6 +747,21 @@ def audit_index(target: IndexTarget, *, root: Path, qdrant_client: QdrantClient)
     for path in _duplicates([row["path"] for row in manifest_module.file_records(manifest)]):
         note("duplicate_manifest_paths", None, f"manifest重复登记：{path}")
 
+    # 8) 父子结构：父块没有"另一侧"可比，它的真值是 manifest 记录加原文行切片。
+    parent_summary = _audit_parent_blocks(
+        parent_rows=parent_rows,
+        child_rows=rows,
+        strategy=target.strategy,
+        version=target.version,
+        records=records,
+        in_scope=in_scope,
+        sources=sources,
+        corpus_root=corpus_root,
+        line_counts=line_counts,
+        page_counts=page_counts,
+        note=note,
+    )
+
     failed = {kind: items for kind, items in problems.items() if items}
     return {
         "target_id": target.target_id,
@@ -509,6 +786,23 @@ def audit_index(target: IndexTarget, *, root: Path, qdrant_client: QdrantClient)
             "ocr_source_chunks": ocr_source_chunks,
             "ocr_marker_verified_chunks": ocr_marker_verified_chunks,
             "verifiable": not ocr_sources or ocr_marker_verified_chunks == ocr_source_chunks,
+        },
+        # 父块的可核验范围。两种情形要分开：
+        # - 非父子化索引（fixed/blocks/blocks-split）根本没有父块要核验，不构成覆盖缺口；
+        # - 父子化索引则必须**真的核验到**父块正文：一行都没核到（表缺失或表为空）时，
+        #   两侧的 0 相等，"什么都没查"不能报成"核验通过"。按页来源的父块只做位置校验
+        #   （PDF 里没有可切的原文行），由 page_level_unchecked 说明，不计入这里。
+        "parents": {
+            **parent_summary,
+            "verifiable": (
+                (target.strategy != PARENTED_STRATEGY and parent_summary["rows"] == 0)
+                or (
+                    parent_summary["text_slice_verified"] > 0
+                    and parent_summary["text_slice_verified"]
+                    == parent_summary["line_level_checkable"]
+                    and parent_summary["text_slice_uncheckable"] == 0
+                )
+            ),
         },
         "problems": problems,
         "status": "PASS" if not failed else "FAIL",

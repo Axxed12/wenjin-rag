@@ -59,6 +59,9 @@ def create_dense_collection(
                         # OCR 标记必须随向量一起存：证据要能说明正文是识别来的。
                         "parser": chunk.parser,
                         "ocr_derived": chunk.ocr_derived,
+                        # 父子化索引里命中 child 后要换成父块返回；父块 ID 必须两侧都有，
+                        # 否则向量侧命中的候选换不到父块（审计也会逐字段比这一列）。
+                        "parent_id": chunk.parent_id,
                     },
                 )
             )

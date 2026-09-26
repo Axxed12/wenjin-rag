@@ -21,6 +21,7 @@ from wenjin.index_registry import IndexTarget, resolve_project_path
 from wenjin.indexing.bm25 import bm25_query, query_terms
 from wenjin.indexing.dense import dense_query_vector
 from wenjin.retrieval.fusion import rrf_fuse
+from wenjin.retrieval.parents import resolve_parents
 from wenjin.retrieval.rerank import candidate_document, rank_candidates
 from wenjin.retrieval.service import evidence_record, load_source_urls, select_context
 from wenjin.serving import CorpusSources, attach_download_paths
@@ -56,8 +57,11 @@ def fuse_identity(item: dict):
     两个目标各有一个 `README.md:0000` 时，按 chunk_id 融合会把它们并成一条，
     正文取先出现的那份、分数却叠加了两边的排名贡献。
     同一目标内 dense/BM25 的同一 chunk 仍然共用同一个键，照常合并。
+
+    带 `parent_id` 的候选按**父块**给身份：父子化索引里同一父块会被多个 child 命中，
+    按 chunk_id 融合等于没去重（见 `retrieval.parents`）。
     """
-    return (item.get("target_id"), item["chunk_id"])
+    return (item.get("target_id"), item.get("parent_id") or item["chunk_id"])
 
 
 @dataclass(frozen=True)
@@ -313,6 +317,10 @@ class MultiCorpusRouter:
 
         dense: list[dict] = []
         keyword: list[dict] = []
+        # 各路检索器的**原始命中**，只用于诊断：父子化索引里真正的命中是 child，
+        # 而参与融合与证据的是父块，两者分开报，"命中了什么"和"返回了什么"才不含糊。
+        dense_hits: list[dict] = []
+        keyword_hits: list[dict] = []
         per_library = []
         for index in selected:
             dense_started = time.perf_counter()
@@ -339,6 +347,13 @@ class MultiCorpusRouter:
                 else []
             )
             bm25_seconds = time.perf_counter() - bm25_started
+            dense_hits.extend(library_dense)
+            keyword_hits.extend(library_keyword)
+            # 父子化索引：命中的是 child，进融合的必须是它的父块。替换放在**融合之前**，
+            # 否则同一父块的多个 child 会各自占一个名额，同一段正文挤掉别的证据。
+            # 每个库只在这一处查一次父块表，dense 与 BM25 两侧共用同一批父块行。
+            library_dense = resolve_parents(library_dense, bm25_path=index.bm25_path)
+            library_keyword = resolve_parents(library_keyword, bm25_path=index.bm25_path)
             dense.extend(library_dense)
             keyword.extend(library_keyword)
             per_library.append(
@@ -392,8 +407,8 @@ class MultiCorpusRouter:
                 for index in selected
             ],
             "skipped_libraries": skipped,
-            "dense_candidates": dense,
-            "bm25_candidates": keyword,
+            "dense_candidates": dense_hits,
+            "bm25_candidates": keyword_hits,
             "fused_candidates": fused,
             "ranked_candidates": ranked,
             "per_library": per_library,

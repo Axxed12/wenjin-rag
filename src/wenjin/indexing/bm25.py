@@ -9,6 +9,7 @@
 
 import re
 import sqlite3
+from collections.abc import Iterable
 from contextlib import closing
 from pathlib import Path
 
@@ -45,8 +46,14 @@ def fts_query(query: str) -> str:
     return " OR ".join(f'"{term.replace(chr(34), chr(34) * 2)}"' for term in terms)
 
 
-def build_bm25_index(path: Path, chunks: list) -> None:
-    """通过临时数据库完整重建，再替换正式文件，避免半成品索引。"""
+def build_bm25_index(path: Path, chunks: list, *, parents: list | None = None) -> None:
+    """通过临时数据库完整重建，再替换正式文件，避免半成品索引。
+
+    `parents` 是父子化索引的父块（见 `chunking.block_chunks_parented`）：它们写进同一
+    文件里的 `parents` 表，**不进 FTS 表**，因此不会被关键词检索命中——父块只在命中
+    child 之后作为证据返回。表放在同一个文件里是为了让父块和 child 共享同一条
+    manifest 绑定与准入审计，而不是多出一个需要单独绑定与校验的资产。
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
     temporary.unlink(missing_ok=True)
@@ -70,6 +77,7 @@ def build_bm25_index(path: Path, chunks: list) -> None:
                 logical_document_id UNINDEXED,
                 parser UNINDEXED,
                 ocr_derived UNINDEXED,
+                parent_id UNINDEXED,
                 retrieval_text,
                 raw_text UNINDEXED,
                 tokenize='unicode61'
@@ -92,6 +100,7 @@ def build_bm25_index(path: Path, chunks: list) -> None:
                 chunk.logical_document_id,
                 chunk.parser,
                 int(chunk.ocr_derived),
+                chunk.parent_id,
                 # 路径也进入检索表示，让类/文件名可以参与关键词召回。
                 # 只有这列被索引，所以中文切分只作用在这里，表结构和 raw_text 都不动。
                 segment_cjk(f"{chunk.source_path}\n{chunk.text}"),
@@ -100,11 +109,84 @@ def build_bm25_index(path: Path, chunks: list) -> None:
             for chunk in chunks
         ]
         database.executemany(
-            "INSERT INTO chunks VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", rows
+            "INSERT INTO chunks VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", rows
         )
+        if parents is not None:
+            database.execute(
+                """
+                CREATE TABLE parents(
+                    chunk_id TEXT PRIMARY KEY,
+                    source_path, version, start_line, end_line, strategy,
+                    content_sha256, source_raw_sha256, source_canonical_sha256,
+                    normalization, page_number, logical_document_id, parser, ocr_derived,
+                    text
+                )
+                """
+            )
+            database.executemany(
+                "INSERT INTO parents VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [
+                    (
+                        parent.chunk_id,
+                        parent.source_path,
+                        parent.version,
+                        parent.start_line,
+                        parent.end_line,
+                        parent.strategy,
+                        parent.content_sha256,
+                        parent.source_raw_sha256,
+                        parent.source_canonical_sha256,
+                        parent.normalization,
+                        parent.page_number,
+                        parent.logical_document_id,
+                        parent.parser,
+                        int(parent.ocr_derived),
+                        parent.text,
+                    )
+                    for parent in parents
+                ],
+            )
         database.execute("INSERT INTO chunks(chunks) VALUES('optimize')")
         database.commit()
     temporary.replace(path)
+
+
+def load_parents(path: Path, parent_ids: Iterable[str]) -> dict[str, dict]:
+    """按 ID 取父块行；这份索引没有 `parents` 表时返回空字典。
+
+    返回字段与 `bm25_query` 的候选同形（正文在 `text` 键下），检索侧可以直接用父块行
+    替换命中的 child 候选：证据的 source_path、行区间、正文于是仍逐字来自原文。
+    缺表返回空字典而不是抛错，是为了让"没有父子结构"这条正常路径不必特殊处理；
+    引用了取不到的父块由调用方按资产损坏处理（见 `retrieval.parents.resolve_parents`）。
+    """
+    wanted = sorted({str(parent_id) for parent_id in parent_ids if parent_id})
+    if not wanted:
+        return {}
+    with closing(sqlite3.connect(path)) as database:
+        tables = {
+            row[0] for row in database.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        }
+        if "parents" not in tables:
+            return {}
+        database.row_factory = sqlite3.Row
+        parents: dict[str, dict] = {}
+        # 分批查询：SQLite 的绑定变量个数有上限，一次塞几千个 ID 会直接报错。
+        for start in range(0, len(wanted), 500):
+            batch = wanted[start : start + 500]
+            placeholders = ",".join("?" for _ in batch)
+            for row in database.execute(
+                "SELECT chunk_id, source_path, version, start_line, end_line, strategy, "
+                "content_sha256, source_raw_sha256, source_canonical_sha256, normalization, "
+                f"page_number, logical_document_id, parser, ocr_derived, text FROM parents "
+                f"WHERE chunk_id IN ({placeholders})",
+                batch,
+            ):
+                item = dict(row)
+                item["ocr_derived"] = (
+                    None if item["ocr_derived"] is None else bool(item["ocr_derived"])
+                )
+                parents[item["chunk_id"]] = item
+    return parents
 
 
 def bm25_query(
@@ -137,12 +219,15 @@ def bm25_query(
         # "没有这列"和"确认不是 OCR"是两件事，后者不能由缺失推断出来。
         parser_select = "parser" if "parser" in columns else "NULL AS parser"
         ocr_select = "ocr_derived" if "ocr_derived" in columns else "NULL AS ocr_derived"
+        # 父子化索引才有 parent_id 列；旧索引缺列即"没有父子结构"。
+        parent_select = "parent_id" if "parent_id" in columns else "NULL AS parent_id"
         source_clause = " AND source_path LIKE ?" if source_prefix else ""
         parameters = (expression, source_prefix, top_k) if source_prefix else (expression, top_k)
         rows = database.execute(
             f"""
             SELECT chunk_id, source_path, version, start_line, end_line, strategy,
                    {page_select}, {logical_select}, {parser_select}, {ocr_select},
+                   {parent_select},
                    raw_text, bm25(chunks) AS raw_bm25
             FROM chunks
             WHERE chunks MATCH ?
@@ -166,6 +251,7 @@ def bm25_query(
             "logical_document_id": row["logical_document_id"],
             "parser": row["parser"],
             "ocr_derived": None if row["ocr_derived"] is None else bool(row["ocr_derived"]),
+            "parent_id": row["parent_id"],
             "text": row["raw_text"],
             "matched_terms": terms,
         }

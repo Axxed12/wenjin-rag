@@ -1,0 +1,84 @@
+{
+  "note": "父子契约判定的校准证据。只读真实索引；不修改任何索引、配置或语料。validation 是调参集，其数字不能用来宣称对外性能提升。",
+  "reports": [
+    {
+      "mode": "budget",
+      "route": "configs/indexes/multicorpus-candidates-002.json",
+      "note": "预算可行性估计：用真实切片函数与真实 `select_context`，不建索引、不跑检索。8000 是 SearchConfig.context_char_budget 的默认值；每库随机抽 2000 次、每次抽 5 个块（固定种子）。child 列是同一口径的对照。",
+      "per_library": {
+        "osgearth": {
+          "parents": 21,
+          "children": 44,
+          "parent_chars_mean": 2531.7,
+          "parent_chars_max": 4529,
+          "child_chars_mean": 1208.3,
+          "child_chars_max": 1595,
+          "parent_fit_mean": 3.26,
+          "parent_fit_stdev": 0.77,
+          "child_fit_mean": 5.0,
+          "child_fit_stdev": 0.0,
+          "parent_draws_returning_fewer_than_5": 1891,
+          "draws": 2000
+        },
+        "gdal": {
+          "parents": 218,
+          "children": 344,
+          "parent_chars_mean": 1953.7,
+          "parent_chars_max": 4663,
+          "child_chars_mean": 1238.1,
+          "child_chars_max": 1599,
+          "parent_fit_mean": 3.91,
+          "parent_fit_stdev": 0.82,
+          "child_fit_mean": 5.0,
+          "child_fit_stdev": 0.0,
+          "parent_draws_returning_fewer_than_5": 1475,
+          "draws": 2000
+        },
+        "proj": {
+          "parents": 27,
+          "children": 63,
+          "parent_chars_mean": 3071.6,
+          "parent_chars_max": 4748,
+          "child_chars_mean": 1316.4,
+          "child_chars_max": 1598,
+          "parent_fit_mean": 2.67,
+          "parent_fit_stdev": 0.69,
+          "child_fit_mean": 5.0,
+          "child_fit_stdev": 0.0,
+          "parent_draws_returning_fewer_than_5": 1988,
+          "draws": 2000
+        },
+        "ogc-3dtiles": {
+          "parents": 592,
+          "children": 1025,
+          "parent_chars_mean": 1874.9,
+          "parent_chars_max": 7378,
+          "child_chars_mean": 1082.9,
+          "child_chars_max": 1600,
+          "parent_fit_mean": 4.05,
+          "parent_fit_stdev": 0.86,
+          "child_fit_mean": 5.0,
+          "child_fit_stdev": 0.0,
+          "parent_draws_returning_fewer_than_5": 1290,
+          "draws": 2000
+        },
+        "ogc-wms": {
+          "parents": 109,
+          "children": 215,
+          "parent_chars_mean": 2179.6,
+          "parent_chars_max": 4713,
+          "child_chars_mean": 1105.0,
+          "child_chars_max": 1600,
+          "parent_fit_mean": 3.57,
+          "parent_fit_stdev": 0.84,
+          "child_fit_mean": 5.0,
+          "child_fit_stdev": 0.0,
+          "parent_draws_returning_fewer_than_5": 1726,
+          "draws": 2000
+        }
+      },
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}

@@ -1,0 +1,94 @@
+{
+  "note": "父子契约判定的校准证据。只读真实索引；不修改任何索引、配置或语料。validation 是调参集，其数字不能用来宣称对外性能提升。",
+  "reports": [
+    {
+      "mode": "indexes",
+      "route": "configs/indexes/multicorpus-candidates-probe-003.json",
+      "note": "校准用：真索引上的违规必须是 0，否则是判定写错而不是实现写错。partial_line_pieces 是单行硬切产生的半行片段，只有它允许非 0。",
+      "indexes": [
+        {
+          "label": "gdal-3.13.1-blocks-split-parented-probe-003",
+          "manifest_path": "corpora/gdal-3.13.1/source-manifest.json",
+          "bm25_path": "data/indexes/gdal_3_13_1_bm25_blocks_split_parented_probe-003.sqlite",
+          "chunks": 344,
+          "parents": 218,
+          "parented": true,
+          "parsed_units": 14,
+          "unmapped_chunks": [],
+          "unmapped_chunks_total": 0,
+          "partial_line_pieces": 0,
+          "violations": {},
+          "violation_total": 0,
+          "examples": {},
+          "status": "PASS"
+        },
+        {
+          "label": "proj-9.8.1-blocks-split-parented-probe-003",
+          "manifest_path": "corpora/proj-9.8.1/source-manifest.json",
+          "bm25_path": "data/indexes/proj_9_8_1_bm25_blocks_split_parented_probe-003.sqlite",
+          "chunks": 63,
+          "parents": 27,
+          "parented": true,
+          "parsed_units": 9,
+          "unmapped_chunks": [],
+          "unmapped_chunks_total": 0,
+          "partial_line_pieces": 0,
+          "violations": {},
+          "violation_total": 0,
+          "examples": {},
+          "status": "PASS"
+        },
+        {
+          "label": "ogc-wms-1.3.0-blocks-split-parented-probe-003",
+          "manifest_path": "corpora/ogc-wms-1.3.0/source-manifest.json",
+          "bm25_path": "data/indexes/ogc_wms_1_3_0_bm25_blocks_split_parented_probe-003.sqlite",
+          "chunks": 215,
+          "parents": 109,
+          "parented": true,
+          "parsed_units": 86,
+          "unmapped_chunks": [],
+          "unmapped_chunks_total": 0,
+          "partial_line_pieces": 0,
+          "violations": {},
+          "violation_total": 0,
+          "examples": {},
+          "status": "PASS"
+        },
+        {
+          "label": "ogc-3dtiles-1.1-blocks-split-parented-probe-003",
+          "manifest_path": "corpora/ogc-3dtiles-1.1/source-manifest.json",
+          "bm25_path": "data/indexes/ogc_3dtiles_1_1_bm25_blocks_split_parented_probe-003.sqlite",
+          "chunks": 1025,
+          "parents": 592,
+          "parented": true,
+          "parsed_units": 360,
+          "unmapped_chunks": [],
+          "unmapped_chunks_total": 0,
+          "partial_line_pieces": 58,
+          "violations": {},
+          "violation_total": 0,
+          "examples": {},
+          "status": "PASS"
+        },
+        {
+          "label": "osgearth-3.8-blocks-split-parented-probe-003",
+          "manifest_path": "corpora/osgearth-3.8/source-manifest.json",
+          "bm25_path": "data/indexes/osgearth_3_8_bm25_blocks_split_parented_probe-003.sqlite",
+          "chunks": 44,
+          "parents": 21,
+          "parented": true,
+          "parsed_units": 13,
+          "unmapped_chunks": [],
+          "unmapped_chunks_total": 0,
+          "partial_line_pieces": 0,
+          "violations": {},
+          "violation_total": 0,
+          "examples": {},
+          "status": "PASS"
+        }
+      ],
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}

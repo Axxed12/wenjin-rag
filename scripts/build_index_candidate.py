@@ -23,9 +23,11 @@ def main() -> None:
     parser.add_argument("--collection", required=True)
     parser.add_argument("--bm25-output", type=Path, required=True)
     parser.add_argument("--target-output", type=Path, required=True)
-    # 必须与 build_candidate_index 接受的三种策略一致：少了 blocks-split，
-    # 这个入口就建不出已验收候选所用的那种切片。
-    parser.add_argument("--strategy", choices=["blocks", "blocks-split", "fixed"],
+    # 必须与 build_candidate_index 接受的策略一致：少了 blocks-split，
+    # 这个入口就建不出已验收候选所用的那种切片；少了 blocks-split-parented，
+    # 就建不出父子化候选（父块与 child 一起写进同一份BM25文件）。
+    parser.add_argument("--strategy",
+                        choices=["blocks", "blocks-split", "blocks-split-parented", "fixed"],
                         default="blocks")
     args = parser.parse_args()
     if args.target_output.exists():

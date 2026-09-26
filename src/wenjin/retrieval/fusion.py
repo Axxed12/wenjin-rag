@@ -3,6 +3,15 @@
 from collections.abc import Callable
 
 
+def identity_by_parent(result: dict):
+    """默认身份：有 `parent_id` 时按父块合并，否则按 `chunk_id`。
+
+    父子化索引里同一父块会由多个 child 命中，必须合成一条候选，否则同一段正文会占掉
+    多个名额。没有 `parent_id` 的候选（fixed/blocks/blocks-split）行为完全不变。
+    """
+    return result.get("parent_id") or result["chunk_id"]
+
+
 def rrf_fuse(
     result_sets: dict[str, list[dict]],
     *,
@@ -11,17 +20,22 @@ def rrf_fuse(
 ) -> list[dict]:
     """合并多个排名列表；rank 从 1 开始，重复出现的候选按名次累加。
 
-    `identity` 决定"两条候选是不是同一个"，默认用 `chunk_id`——这在**单个**索引内
-    是唯一的。跨索引融合时必须传入包含目标身份的键，否则两个目标里同名的 chunk
-    会被并成一条：正文取先出现的那份，分数却叠加了双方的排名贡献。
+    `identity` 决定"两条候选是不是同一个"，默认 `identity_by_parent`——在**单个**索引内
+    `chunk_id` 唯一，父子化索引则要按 `parent_id` 合并。跨索引融合时必须传入包含目标
+    身份的键，否则两个目标里同名的 chunk 会被并成一条：正文取先出现的那份，分数却
+    叠加了双方的排名贡献。
 
     键只在**同一份候选列表内部**需要唯一；不同检索器之间用同一个键表示"同一条候选"，
-    正是靠它合并且分别记录各自的名次。
+    正是靠它合并且分别记录各自的名次。同一路列表里同一个键**重复出现**时只记最好的
+    名次、不重复累加：父子化之后一个父块会由多个 child 各自命中，若按次数累加，
+    同一段正文就能靠"命中得多"挤掉别的证据。
     """
     if k < 0:
         raise ValueError("RRF k must be non-negative")
-    key_of = identity or (lambda result: result["chunk_id"])
+    key_of = identity or identity_by_parent
     merged: dict[object, dict] = {}
+    # 每个键在每一路里的最好名次；RRF 分数最后用它一次性算出来，避免先加后减的浮点误差。
+    best_ranks: dict[object, dict[str, int]] = {}
     for retriever, results in result_sets.items():
         for rank, result in enumerate(results, start=1):
             key = key_of(result)
@@ -34,9 +48,15 @@ def rrf_fuse(
                 merged[key]["rrf_score"] = 0.0
                 merged[key]["ranks"] = {}
                 merged[key]["original_scores"] = {}
-            merged[key]["rrf_score"] += 1.0 / (k + rank)
+                best_ranks[key] = {}
+            previous = best_ranks[key].get(retriever)
+            if previous is not None and rank >= previous:
+                continue
+            best_ranks[key][retriever] = rank
             merged[key]["ranks"][retriever] = rank
             merged[key]["original_scores"][retriever] = result.get("score")
+    for key, item in merged.items():
+        item["rrf_score"] = sum(1.0 / (k + rank) for rank in best_ranks[key].values())
     return sorted(
         merged.values(),
         key=lambda item: (

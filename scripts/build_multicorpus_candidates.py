@@ -31,7 +31,8 @@ def safe_name(corpus_id: str) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description="为5个新语料构建隔离候选索引")
     parser.add_argument("--generation", default="001", help="候选代次，例如001或002")
-    parser.add_argument("--strategy", default="blocks", choices=["blocks", "blocks-split"])
+    parser.add_argument("--strategy", default="blocks",
+                        choices=["blocks", "blocks-split", "blocks-split-parented"])
     parser.add_argument(
         "--artifacts",
         type=Path,

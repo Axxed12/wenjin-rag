@@ -9,8 +9,15 @@ from wenjin.content_hashing import manifest_content_fingerprint
 from wenjin.index_registry import IndexTarget
 from wenjin.indexing.bm25 import build_bm25_index
 from wenjin.indexing.dense import create_dense_collection, embed_chunks
-from wenjin.ingestion.chunking import block_chunks, fixed_chunks
+from wenjin.ingestion.chunking import (
+    PARENTED_STRATEGY,
+    block_chunks,
+    block_chunks_parented,
+    fixed_chunks,
+)
 from wenjin.ingestion.multiformat import load_retrieval_documents
+
+SUPPORTED_STRATEGIES = ("blocks", "blocks-split", PARENTED_STRATEGY, "fixed")
 
 
 def build_candidate_index(
@@ -25,9 +32,15 @@ def build_candidate_index(
     embedding_model: str,
     project_root: Path,
 ) -> IndexTarget:
-    """拒绝覆盖现有资产；任一步失败则删除本次新建的候选。"""
-    if strategy not in {"blocks", "blocks-split", "fixed"}:
-        raise ValueError("strategy必须为blocks、blocks-split或fixed")
+    """拒绝覆盖现有资产；任一步失败则删除本次新建的候选。
+
+    `blocks-split-parented` 只把 **child** 写进 dense 与 BM25（检索命中的是它们），
+    父块写进 BM25 文件里的 `parents` 表（见 `chunking.block_chunks_parented`）。
+    `chunk_count` 因此仍是**可检索片段数**，与 BM25 行数和 Qdrant 点数逐一对应；
+    父块由准入审计按同一套来源绑定独立核验，不靠数量对账。
+    """
+    if strategy not in SUPPORTED_STRATEGIES:
+        raise ValueError("strategy必须为" + "、".join(SUPPORTED_STRATEGIES))
     if qdrant_client.collection_exists(dense_collection):
         raise FileExistsError(f"候选collection已存在：{dense_collection}")
     if bm25_path.exists():
@@ -47,9 +60,14 @@ def build_candidate_index(
         else load_documents(manifest_path)
     )
     chunks = []
+    parents = []
     for document in documents:
         if strategy == "fixed":
             chunks.extend(fixed_chunks(document, size=1200, overlap=120))
+        elif strategy == PARENTED_STRATEGY:
+            children, parent_chunks = block_chunks_parented(document, max_chars=1600)
+            chunks.extend(children)
+            parents.extend(parent_chunks)
         else:
             # blocks-split 对超长块强制生效，chunk 文本不再超过 max_chars。
             chunks.extend(
@@ -62,7 +80,9 @@ def build_candidate_index(
     try:
         vectors = embed_chunks(embedder, chunks)
         create_dense_collection(qdrant_client, dense_collection, chunks, vectors)
-        build_bm25_index(bm25_path, chunks)
+        build_bm25_index(
+            bm25_path, chunks, parents=parents if strategy == PARENTED_STRATEGY else None
+        )
     except Exception:
         if qdrant_client.collection_exists(dense_collection):
             qdrant_client.delete_collection(dense_collection)

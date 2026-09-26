@@ -14,6 +14,7 @@ from typing import Any, Callable
 from wenjin.indexing.bm25 import bm25_query, query_terms
 from wenjin.indexing.dense import dense_query
 from wenjin.retrieval.fusion import rrf_fuse
+from wenjin.retrieval.parents import parent_identity, resolve_parents
 from wenjin.retrieval.rerank import candidate_document, rank_candidates
 
 
@@ -165,8 +166,14 @@ class RetrievalService:
             if terms else []
         )
         bm25_seconds = time.perf_counter() - bm25_started
+        # 父子化索引：命中的是 child，返回的必须是它的父块；替换要在融合之前，
+        # 否则同一父块的多个 child 会各自占一个名额。非父子化索引这里零开销。
+        dense = resolve_parents(dense, bm25_path=self.bm25_path)
+        keyword = resolve_parents(keyword, bm25_path=self.bm25_path)
         fusion_started = time.perf_counter()
-        fused = rrf_fuse({"dense": dense, "bm25": keyword}, k=config.rrf_k)
+        # 身份按父块：同一父块由多个 child 命中时只能留一条。
+        fused = rrf_fuse({"dense": dense, "bm25": keyword}, k=config.rrf_k,
+                         identity=parent_identity)
         candidates = [item for item in fused if item["version"] == config.version][
             :config.candidate_k
         ]

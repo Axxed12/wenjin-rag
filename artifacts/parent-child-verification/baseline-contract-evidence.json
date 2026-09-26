@@ -1,0 +1,2521 @@
+{
+  "note": "父子契约判定的校准证据。只读真实索引；不修改任何索引、配置或语料。validation 是调参集，其数字不能用来宣称对外性能提升。",
+  "reports": [
+    {
+      "mode": "evidence",
+      "route": "configs/indexes/multicorpus-candidates-002.json",
+      "dataset": "evaluation/datasets/rag-validation-001.jsonl",
+      "dataset_role": "validation only; test 集冻结且未参与本次运行",
+      "questions": 50,
+      "reranker": true,
+      "violations": {},
+      "violation_total": 0,
+      "violation_questions": [],
+      "returned_per_question": 5.0,
+      "details": [
+        {
+          "id": "rag-validation-001",
+          "query": "osgEarth 3.8 里的 Earth File 本质上是什么类型的文件？它描述的是哪个对象的内容？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0004"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              1,
+              49
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              34,
+              46
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              86,
+              120
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              1,
+              29
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              52,
+              60
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-002",
+          "query": "一个 Map 中依次声明了 World、Boston、New York 三个影像图层，osgEarth 的绘制顺序是怎样的？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/composite.md:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              50,
+              85
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              1,
+              49
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              56,
+              93
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              34,
+              46
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/composite.md",
+              null,
+              1,
+              38
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-003",
+          "query": "在 osgEarth 的 Earth File 中，用什么语法把另一个 XML 文件的内容内联进来？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0004"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              86,
+              120
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              1,
+              49
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              34,
+              46
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              50,
+              85
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              52,
+              60
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-004",
+          "query": "Earth File 里声明的 OGRFeatures 图层会被 osgEarth 直接渲染到场景里吗？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0004"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              86,
+              120
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              34,
+              46
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              1,
+              49
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              1,
+              29
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              52,
+              60
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-005",
+          "query": "像 Viewpoints 这种不显示内容的数据层，它在 Map 中的位置顺序会影响渲染结果吗？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0003",
+            "3.8:raw_data/osgearth/3.8/docs/source/elevation.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              50,
+              85
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              47,
+              49
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/elevation.md",
+              null,
+              1,
+              13
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              56,
+              93
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              1,
+              49
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-006",
+          "query": "Earth File 中 <url> 写成相对路径时，osgEarth 是相对于哪个位置来解析的？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/xyz.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/wms.md:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              1,
+              49
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/xyz.md",
+              null,
+              28,
+              37
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              86,
+              120
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              50,
+              85
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/wms.md",
+              null,
+              11,
+              20
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-007",
+          "query": "在 osgEarth 3.8 的 earth file 里，设置瓦片尺寸的属性名是什么？影像层与高程层的默认值分别是多少？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/TileLayer.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/gdal.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/elevation.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/gdal.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0002"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/TileLayer.md",
+              null,
+              1,
+              18
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/gdal.md",
+              null,
+              1,
+              34
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/elevation.md",
+              null,
+              1,
+              13
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/gdal.md",
+              null,
+              35,
+              71
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              34,
+              46
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-008",
+          "query": "TileLayer 的 max_data_level 属性起什么作用？超过该层级显示的数据如何处理？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/TileLayer.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/elevation.md:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/TileLayer.md",
+              null,
+              1,
+              18
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              32,
+              33
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              34,
+              46
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              1,
+              29
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/elevation.md",
+              null,
+              1,
+              13
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-009",
+          "query": "高程数据里出现超出合理范围或占位数值时，TileLayer 用哪些属性把它们当作 NO DATA 处理？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/TileLayer.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/elevation.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0004",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/TileLayer.md",
+              null,
+              1,
+              18
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/elevation.md",
+              null,
+              1,
+              13
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              52,
+              60
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              1,
+              29
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              32,
+              33
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-010",
+          "query": "Visible Layer 的 blend 属性有哪些取值？各自含义与默认值是什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/visiblelayer.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/TileLayer.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/gdal.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/layer.md:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/visiblelayer.md",
+              null,
+              1,
+              16
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              32,
+              33
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/TileLayer.md",
+              null,
+              1,
+              18
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/gdal.md",
+              null,
+              35,
+              71
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layer.md",
+              null,
+              1,
+              16
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-011",
+          "query": "想让一个图层随相机远离而逐渐淡出，并限定它的最大/最小渲染距离，应该用哪几个属性？默认值是什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/visiblelayer.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0003",
+            "3.8:raw_data/osgearth/3.8/docs/source/layer.md:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/visiblelayer.md",
+              null,
+              1,
+              16
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              34,
+              46
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              32,
+              33
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              47,
+              49
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layer.md",
+              null,
+              1,
+              16
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-012",
+          "query": "Layer 基类的 enabled 属性控制什么？默认值和 cacheid 的默认行为分别是什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/layer.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/visiblelayer.md:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/layer.md",
+              null,
+              1,
+              16
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              32,
+              33
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              34,
+              46
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              1,
+              29
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/visiblelayer.md",
+              null,
+              1,
+              16
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-013",
+          "query": "FeatureImage 与 FeatureModel 同样是显示矢量数据，两者在实现方式上有什么区别？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0004",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              1,
+              29
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              86,
+              120
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              34,
+              46
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              52,
+              60
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              32,
+              33
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-014",
+          "query": "Earth File 中的 ThreeDTiles 图层对应哪个 API 类？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0004",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              34,
+              46
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              52,
+              60
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              1,
+              29
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              1,
+              49
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              32,
+              33
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-015",
+          "query": "按 osgEarth 3.8 文档的图层清单，哪些栅格影像图层被标注为需要 license key？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layer.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0002"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              1,
+              29
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              34,
+              46
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              1,
+              49
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layer.md",
+              null,
+              1,
+              16
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              94,
+              123
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-016",
+          "query": "CompositeImage 能否把影像层和高程层混合组合在一起？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/composite.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/TileLayer.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/gdal.md:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/composite.md",
+              null,
+              1,
+              38
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              1,
+              29
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/TileLayer.md",
+              null,
+              1,
+              18
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              50,
+              85
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/gdal.md",
+              null,
+              1,
+              34
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-017",
+          "query": "高程层的 vdatum 属性支持哪些取值？默认是什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/elevation.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/gdal.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/gdal.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0004"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/elevation.md",
+              null,
+              1,
+              13
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/gdal.md",
+              null,
+              1,
+              34
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/gdal.md",
+              null,
+              35,
+              71
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              50,
+              85
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              153,
+              187
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-018",
+          "query": "为什么 XYZ 图层需要由用户自己指定 profile？该属性的默认值是什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/xyz.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/xyz.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0006",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/xyz.md",
+              null,
+              1,
+              27
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              1,
+              55
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/xyz.md",
+              null,
+              28,
+              37
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              228,
+              274
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              32,
+              33
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-019",
+          "query": "osgEarth 的 GDAL 图层示例里，为什么加载 DTED0 高程文件时要显式写 <vdatum>egm96</vdatum>？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/gdal.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/gdal.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/elevation.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/earthfile.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/gdal.md",
+              null,
+              35,
+              71
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/gdal.md",
+              null,
+              1,
+              34
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/elevation.md",
+              null,
+              1,
+              13
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/earthfile.md",
+              null,
+              50,
+              85
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              32,
+              33
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-020",
+          "query": "GDALDEM 图层的 processing 属性有哪些取值？默认值是哪个？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/gdal.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/gdal.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/layer.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/elevation.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/TileLayer.md:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/gdal.md",
+              null,
+              35,
+              71
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/gdal.md",
+              null,
+              1,
+              34
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layer.md",
+              null,
+              1,
+              16
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/elevation.md",
+              null,
+              1,
+              13
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/TileLayer.md",
+              null,
+              1,
+              18
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-021",
+          "query": "osgEarth 3.8 的 <WMSImage> 默认向服务器请求哪个 WMS 版本？而 OGC 06-042 规范的版本号又是多少？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/wms.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/wms.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/wms.md:blocks-split:0003",
+            "3.8:raw_data/osgearth/3.8/docs/source/wms.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/wms.md",
+              null,
+              21,
+              22
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/wms.md",
+              null,
+              1,
+              10
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/wms.md",
+              null,
+              23,
+              33
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/wms.md",
+              null,
+              11,
+              20
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              1,
+              29
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-022",
+          "query": "WMSImage 把 transparent 设为 true 有什么前提条件？它到底表达了什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/docs/source/wms.md:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/docs/source/wms.md:blocks-split:0003",
+            "3.8:raw_data/osgearth/3.8/docs/source/wms.md:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/docs/source/wms.md:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/docs/source/wms.md",
+              null,
+              11,
+              20
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/wms.md",
+              null,
+              23,
+              33
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/wms.md",
+              null,
+              1,
+              10
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/wms.md",
+              null,
+              21,
+              22
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              32,
+              33
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-023",
+          "query": "osgEarth 3.8 的 Map 类中，addLayer 用于添加图层；那么 getLayers 在多线程下有什么保证，返回值是什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0003",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0008",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0007",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0002"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              56,
+              93
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              124,
+              152
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              318,
+              360
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              275,
+              317
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              94,
+              123
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-024",
+          "query": "Map::getIndexOfLayer 在指定图层不存在时会返回什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0008",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0006",
+            "3.8:raw_data/osgearth/3.8/docs/source/layers.md:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              56,
+              93
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              318,
+              360
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              94,
+              123
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              228,
+              274
+            ],
+            [
+              "raw_data/osgearth/3.8/docs/source/layers.md",
+              null,
+              32,
+              33
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-025",
+          "query": "MapNode::Options 中控制几何 LOD 屏幕空间误差的选项名是什么？默认值是多少？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0007",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0004"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              73,
+              108
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              34,
+              72
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              276,
+              280
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              1,
+              33
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              146,
+              186
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-026",
+          "query": "MapNode 继承自哪个类？文档注释如何描述它与 Map 的分工？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0005",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              34,
+              72
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              73,
+              108
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              187,
+              227
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              1,
+              33
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              1,
+              55
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-027",
+          "query": "MapNode 提供哪个静态方法可以从命令行参数中的 .earth 文件加载地图节点？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0001",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0003",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0004"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              34,
+              72
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              109,
+              145
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              1,
+              33
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              73,
+              108
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              146,
+              186
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-028",
+          "query": "osgEarth 3.8 的 Map 头文件里声明的许可证，与仓库根目录 LICENSE.txt 声明的许可证是否一致？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/Map:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/LICENSE.txt:blocks-split:0000",
+            "3.8:raw_data/osgearth/3.8/LICENSE.txt:blocks-split:0002",
+            "3.8:raw_data/osgearth/3.8/LICENSE.txt:blocks-split:0005",
+            "3.8:raw_data/osgearth/3.8/src/osgEarth/MapNode:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/Map",
+              null,
+              1,
+              55
+            ],
+            [
+              "raw_data/osgearth/3.8/LICENSE.txt",
+              null,
+              1,
+              39
+            ],
+            [
+              "raw_data/osgearth/3.8/LICENSE.txt",
+              null,
+              70,
+              101
+            ],
+            [
+              "raw_data/osgearth/3.8/LICENSE.txt",
+              null,
+              161,
+              186
+            ],
+            [
+              "raw_data/osgearth/3.8/src/osgEarth/MapNode",
+              null,
+              1,
+              33
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-029",
+          "query": "在 WMS 1.3.0 的 GetMap 请求里，哪些参数是强制要求的（M）？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-33:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-39:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-39:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-33:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-3:blocks-split:0004"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              33,
+              1,
+              41
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              39,
+              42,
+              68
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              39,
+              1,
+              41
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              33,
+              42,
+              71
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              3,
+              40,
+              55
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-030",
+          "query": "WMS 1.3.0 的 GetMap 中，TRANSPARENT、BGCOLOR、EXCEPTIONS 三个可选参数各自的默认值是什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-33:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-78:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-37:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-36:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-36:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              33,
+              1,
+              41
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              78,
+              1,
+              35
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              37,
+              32,
+              62
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              36,
+              1,
+              26
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              36,
+              27,
+              42
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-031",
+          "query": "在 WMS 的 GetCapabilities 请求中，VERSION 参数是必填还是可选？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-10:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-11:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-39:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-22:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-21:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              10,
+              32,
+              53
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              11,
+              1,
+              28
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              39,
+              42,
+              68
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              22,
+              1,
+              34
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              21,
+              40,
+              64
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-032",
+          "query": "这份 WMS 标准定义了哪几个操作？其中哪个是可选的？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-5:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-21:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-3:blocks-split:0004",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-63:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-72:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              5,
+              15,
+              27
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              21,
+              1,
+              39
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              3,
+              40,
+              55
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              63,
+              34,
+              79
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              72,
+              1,
+              33
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-033",
+          "query": "WMS 1.3.0 的 GetMap 用哪个参数指定坐标参考系？另外，本文档是否也使用旧称 SRS？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-17:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-33:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-34:blocks-split:0002",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-15:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-15:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              17,
+              26,
+              43
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              33,
+              1,
+              41
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              34,
+              45,
+              60
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              15,
+              1,
+              27
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              15,
+              28,
+              55
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-034",
+          "query": "为什么规范要求 EPSG 地理坐标参考系统按“纬度在前、经度在后”的顺序书写坐标？依据是什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-16:blocks-split:0002",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-16:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-16:blocks-split:0003",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-16:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-17:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              16,
+              31,
+              49
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              16,
+              1,
+              18
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              16,
+              50,
+              63
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              16,
+              19,
+              30
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              17,
+              1,
+              25
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-035",
+          "query": "文档举了哪些“轴顺序不是 easting/northing”的坐标参考系例子？并要求坐标如何映射到 Map CS？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-16:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-16:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-17:blocks-split:0002",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-15:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-44:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              16,
+              19,
+              30
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              16,
+              1,
+              18
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              17,
+              44,
+              53
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              15,
+              1,
+              27
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              44,
+              1,
+              45
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-036",
+          "query": "在地理 CRS 下，纬度与经度的取值范围分别是多少？单位不是度时如何处理？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-16:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-46:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-16:blocks-split:0002",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-47:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-45:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              16,
+              19,
+              30
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              46,
+              55,
+              70
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              16,
+              31,
+              49
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              47,
+              53,
+              70
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              45,
+              52,
+              69
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-037",
+          "query": "这份规范的参考编号、版本号与发布日期分别是什么？它声称取代了哪些既往版本？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-4:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-1:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-3:blocks-split:0002",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-81:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-66:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              4,
+              1,
+              19
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              1,
+              1,
+              34
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              3,
+              27,
+              36
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              81,
+              1,
+              2
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              66,
+              1,
+              2
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-038",
+          "query": "WMS 标准本身是否支持用户对要素数据自定义符号化（symbolization）？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-5:blocks-split:0002",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-6:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-5:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-3:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-9:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              5,
+              28,
+              43
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              6,
+              1,
+              40
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              5,
+              1,
+              14
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              3,
+              1,
+              24
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              9,
+              1,
+              61
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-039",
+          "query": "按 WMS 文档的说明，WMS 产出的“map”是什么？它与数据本身是什么关系？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-5:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-15:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-5:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-24:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-5:blocks-split:0002"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              5,
+              1,
+              14
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              15,
+              1,
+              27
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              5,
+              15,
+              27
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              24,
+              1,
+              26
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              5,
+              28,
+              43
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-040",
+          "query": "WMS Capabilities 的 XML Schema 中，根元素叫什么？它的 version 属性被固定成了什么值？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-59:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-22:blocks-split:0002",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-80:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-59:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+              null,
+              2,
+              30
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              59,
+              35,
+              70
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              22,
+              55,
+              66
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              80,
+              21,
+              56
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              59,
+              1,
+              34
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-041",
+          "query": "在 Schema 里，Capability 元素包含哪些子元素？其中哪些是必须出现的？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-63:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd:blocks-split:0004",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-23:blocks-split:0002",
+            "1.3.0:raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-22:blocks-split:0002"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              63,
+              1,
+              33
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+              null,
+              187,
+              205
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              23,
+              49,
+              62
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+              null,
+              2,
+              30
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              22,
+              55,
+              66
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-042",
+          "query": "Schema 中 Request 元素列出了哪些操作？其中哪些在 Capabilities 文档里是可选的？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd:blocks-split:0004",
+            "1.3.0:raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd:blocks-split:0005",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-63:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-71:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-63:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+              null,
+              187,
+              205
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+              null,
+              208,
+              272
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              63,
+              1,
+              33
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              71,
+              40,
+              63
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              63,
+              34,
+              79
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-043",
+          "query": "Schema 中 BoundingBox 元素有哪些必填属性、哪些可选属性？EX_GeographicBoundingBox 的子元素顺序是什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd:blocks-split:0009",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-66:blocks-split:0003",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-26:blocks-split:0002",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-26:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-82:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+              null,
+              357,
+              406
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              66,
+              42,
+              79
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              26,
+              48,
+              63
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              26,
+              25,
+              47
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              82,
+              6,
+              36
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-044",
+          "query": "Schema 注释里 Name 与 Title 两个元素的用途有什么区别？Service 下 Name 的取值被限制成什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-23:blocks-split:0000",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-59:blocks-split:0001",
+            "1.3.0:raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd:blocks-split:0002",
+            "1.3.0:raw_data/ogc-wms/1.3.0/06-042.pdf:page-25:blocks-split:0002",
+            "1.3.0:raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd:blocks-split:0001"
+          ],
+          "top_positions": [
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              23,
+              1,
+              31
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              59,
+              35,
+              70
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+              null,
+              102,
+              161
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/06-042.pdf",
+              25,
+              47,
+              70
+            ],
+            [
+              "raw_data/ogc-wms/1.3.0/capabilities_1_3_0.xsd",
+              null,
+              33,
+              99
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-045",
+          "query": "PROJ 9.8.1 官方文档首页写着 PROJ 采用什么开源许可证？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "9.8.1:raw_data/proj/9.8.1/docs/source/about_core.rst:blocks-split:0000",
+            "9.8.1:raw_data/proj/9.8.1/README.md:blocks-split:0000",
+            "9.8.1:raw_data/proj/9.8.1/README.md:blocks-split:0001",
+            "9.8.1:raw_data/proj/9.8.1/man/man1/proj.1:blocks-split:0000",
+            "9.8.1:raw_data/proj/9.8.1/README.md:blocks-split:0002"
+          ],
+          "top_positions": [
+            [
+              "raw_data/proj/9.8.1/docs/source/about_core.rst",
+              null,
+              1,
+              18
+            ],
+            [
+              "raw_data/proj/9.8.1/README.md",
+              null,
+              1,
+              26
+            ],
+            [
+              "raw_data/proj/9.8.1/README.md",
+              null,
+              27,
+              57
+            ],
+            [
+              "raw_data/proj/9.8.1/man/man1/proj.1",
+              null,
+              1,
+              63
+            ],
+            [
+              "raw_data/proj/9.8.1/README.md",
+              null,
+              58,
+              77
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-046",
+          "query": "按 PROJ 文档首页的说法，PROJ 目前支持多少种不同的地图投影？它对基准面变换的支持程度如何？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "9.8.1:raw_data/proj/9.8.1/docs/source/about_core.rst:blocks-split:0000",
+            "9.8.1:raw_data/proj/9.8.1/README.md:blocks-split:0000",
+            "9.8.1:raw_data/proj/9.8.1/README.md:blocks-split:0001",
+            "9.8.1:raw_data/proj/9.8.1/man/man1/projinfo.1:blocks-split:0010",
+            "9.8.1:raw_data/proj/9.8.1/man/man1/gie.1:blocks-split:0010"
+          ],
+          "top_positions": [
+            [
+              "raw_data/proj/9.8.1/docs/source/about_core.rst",
+              null,
+              1,
+              18
+            ],
+            [
+              "raw_data/proj/9.8.1/README.md",
+              null,
+              1,
+              26
+            ],
+            [
+              "raw_data/proj/9.8.1/README.md",
+              null,
+              27,
+              57
+            ],
+            [
+              "raw_data/proj/9.8.1/man/man1/projinfo.1",
+              null,
+              442,
+              495
+            ],
+            [
+              "raw_data/proj/9.8.1/man/man1/gie.1",
+              null,
+              490,
+              494
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-047",
+          "query": "PROJ 9.8.1 软件包中包含哪些命令行工具？各自用途是什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "9.8.1:raw_data/proj/9.8.1/README.md:blocks-split:0001",
+            "9.8.1:raw_data/proj/9.8.1/docs/source/about_core.rst:blocks-split:0000",
+            "9.8.1:raw_data/proj/9.8.1/README.md:blocks-split:0000",
+            "9.8.1:raw_data/proj/9.8.1/man/man1/proj.1:blocks-split:0001",
+            "9.8.1:raw_data/proj/9.8.1/man/man1/proj.1:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/proj/9.8.1/README.md",
+              null,
+              27,
+              57
+            ],
+            [
+              "raw_data/proj/9.8.1/docs/source/about_core.rst",
+              null,
+              1,
+              18
+            ],
+            [
+              "raw_data/proj/9.8.1/README.md",
+              null,
+              1,
+              26
+            ],
+            [
+              "raw_data/proj/9.8.1/man/man1/proj.1",
+              null,
+              64,
+              139
+            ],
+            [
+              "raw_data/proj/9.8.1/man/man1/proj.1",
+              null,
+              1,
+              63
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-048",
+          "query": "PROJ 的资源（网格）文件包应该解压到哪里？在 Windows 上有什么额外要求？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "9.8.1:raw_data/proj/9.8.1/README.md:blocks-split:0002",
+            "9.8.1:raw_data/proj/9.8.1/README.md:blocks-split:0001",
+            "9.8.1:raw_data/proj/9.8.1/man/man1/projsync.1:blocks-split:0001",
+            "9.8.1:raw_data/proj/9.8.1/README.md:blocks-split:0000",
+            "9.8.1:raw_data/proj/9.8.1/docs/source/about_core.rst:blocks-split:0000"
+          ],
+          "top_positions": [
+            [
+              "raw_data/proj/9.8.1/README.md",
+              null,
+              58,
+              77
+            ],
+            [
+              "raw_data/proj/9.8.1/README.md",
+              null,
+              27,
+              57
+            ],
+            [
+              "raw_data/proj/9.8.1/man/man1/projsync.1",
+              null,
+              64,
+              114
+            ],
+            [
+              "raw_data/proj/9.8.1/README.md",
+              null,
+              1,
+              26
+            ],
+            [
+              "raw_data/proj/9.8.1/docs/source/about_core.rst",
+              null,
+              1,
+              18
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-049",
+          "query": "PROJ 的源码与网格数据分别以什么文件名分发？文件名里的 x/y/z 表示什么？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "9.8.1:raw_data/proj/9.8.1/README.md:blocks-split:0001",
+            "9.8.1:raw_data/proj/9.8.1/docs/source/about_core.rst:blocks-split:0000",
+            "9.8.1:raw_data/proj/9.8.1/README.md:blocks-split:0000",
+            "9.8.1:raw_data/proj/9.8.1/man/man1/gie.1:blocks-split:0003",
+            "9.8.1:raw_data/proj/9.8.1/man/man1/proj.1:blocks-split:0005"
+          ],
+          "top_positions": [
+            [
+              "raw_data/proj/9.8.1/README.md",
+              null,
+              27,
+              57
+            ],
+            [
+              "raw_data/proj/9.8.1/docs/source/about_core.rst",
+              null,
+              1,
+              18
+            ],
+            [
+              "raw_data/proj/9.8.1/README.md",
+              null,
+              1,
+              26
+            ],
+            [
+              "raw_data/proj/9.8.1/man/man1/gie.1",
+              null,
+              177,
+              216
+            ],
+            [
+              "raw_data/proj/9.8.1/man/man1/proj.1",
+              null,
+              273,
+              318
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        },
+        {
+          "id": "rag-validation-050",
+          "query": "PROJ 9.8.1 中 projsync 支持哪些命令行参数？同步时如何选择特定国家或区域的网格文件？",
+          "reranker": true,
+          "top_chunk_ids": [
+            "9.8.1:raw_data/proj/9.8.1/man/man1/projsync.1:blocks-split:0003",
+            "9.8.1:raw_data/proj/9.8.1/man/man1/gie.1:blocks-split:0009",
+            "9.8.1:raw_data/proj/9.8.1/man/man1/projsync.1:blocks-split:0000",
+            "9.8.1:raw_data/proj/9.8.1/README.md:blocks-split:0001",
+            "9.8.1:raw_data/proj/9.8.1/man/man1/projsync.1:blocks-split:0002"
+          ],
+          "top_positions": [
+            [
+              "raw_data/proj/9.8.1/man/man1/projsync.1",
+              null,
+              195,
+              223
+            ],
+            [
+              "raw_data/proj/9.8.1/man/man1/gie.1",
+              null,
+              475,
+              489
+            ],
+            [
+              "raw_data/proj/9.8.1/man/man1/projsync.1",
+              null,
+              1,
+              63
+            ],
+            [
+              "raw_data/proj/9.8.1/README.md",
+              null,
+              27,
+              57
+            ],
+            [
+              "raw_data/proj/9.8.1/man/man1/projsync.1",
+              null,
+              115,
+              192
+            ]
+          ],
+          "violations": {
+            "duplicate_evidence": [],
+            "same_position_different_text": [],
+            "containment_within_result": [],
+            "rank_sequence_broken": []
+          }
+        }
+      ],
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}

@@ -8,6 +8,14 @@
 51个行级证据，行号联合覆盖与按文本重建覆盖零分歧。
 只使用validation（50题）；test保持冻结，不参与调参。
 运行：uv run python evaluation/run_multicorpus_eval.py
+
+父子化候选有两条臂，用 `--parent-order` 选：
+- `before-fusion`（默认）：融合前就把 child 换成父块，**重排模型读的是父块正文**；
+- `after-rerank`：检索与重排在 child 粒度上做，只在返回前换成父块（小块匹配、
+  小块排序、只把大块用于返回）。这条臂多一列 `returned`：`rerank` 是重排看到的那份
+  （child），`returned` 才是交给调用方的证据（父块），两者在 k=5 上的差别就是返回窗口
+  被放大的净效应。两条臂都按**父块身份**做融合去重，否则同一父块的多个 child 会各占
+  一个候选名额。
 """
 
 import argparse
@@ -107,7 +115,22 @@ def evidence_metrics(
     }
 
 
-def blank_line_map(route_path: Path, evidence: list[dict]) -> dict[str, frozenset[int]]:
+def dataset_label(dataset: Path, *, root: Path = ROOT) -> str:
+    """报告里给题集一个标识，且不指认开发机的绝对路径。
+
+    题集**可以在给定的 `root` 之外**——评测临时根里的候选时，题集往往仍取仓库那一份。
+    那种情况下 `relative_to` 会抛 `ValueError`。而这个字段只是报告里的一个标识，
+    **不该为它让跑完的一整轮评测作废**：它是在 50 题全部跑完、模型也释放之后才写的。
+    落在 root 之外时退回文件名。
+    """
+    try:
+        return str(dataset.resolve().relative_to(root.resolve())).replace("\\", "/")
+    except ValueError:
+        return dataset.name
+
+
+def blank_line_map(route_path: Path, evidence: list[dict], *,
+                   root: Path = ROOT) -> dict[str, frozenset[int]]:
     """证据文件里**解析后为空**的行号。
 
     必须用解析后的文本判断，不能用原始 HTML：像 `</div>` 这样的纯标记行原文非空，
@@ -115,6 +138,9 @@ def blank_line_map(route_path: Path, evidence: list[dict]) -> dict[str, frozense
 
     只解析**确实出现在行级证据里**的文件：3D Tiles 那份 51MB / 359 页的 PDF 不参与
     行级判定，没必要为它付解析开销。
+
+    `root` 默认是仓库根；评测临时根里的候选时由 `--root` 传进来，否则会去读仓库那棵
+    语料树、和被测的那份对不上。
     """
     from wenjin.ingestion.multiformat import load_retrieval_documents
 
@@ -124,10 +150,10 @@ def blank_line_map(route_path: Path, evidence: list[dict]) -> dict[str, frozense
     route = json.loads(route_path.read_text(encoding="utf-8-sig"))
     result: dict[str, frozenset[int]] = {}
     for item in route["candidates"]:
-        manifest_path = ROOT / item["manifest_path"]
+        manifest_path = root / item["manifest_path"]
         if not manifest_path.is_file():
             continue
-        raw_root = ROOT / "raw_data"
+        raw_root = root / "raw_data"
         for document in load_retrieval_documents(manifest_path, raw_root):
             path = document["source_path"]
             if path not in wanted or path in result:
@@ -139,18 +165,55 @@ def blank_line_map(route_path: Path, evidence: list[dict]) -> dict[str, frozense
     return result
 
 
+def dedupe_by_parent(candidates: list[dict]) -> list[dict]:
+    """按父块去重，保留名次最好的那条；没有 `parent_id` 的候选按 chunk_id 去重。
+
+    只用在"重排之后才换成父块"那条臂上：换成父块的时机越晚，同一条证据被重复计入的
+    机会越多，而重复的结果等于凭空吃掉一个证据名额。正常路径上融合已经按父块身份合并，
+    所以这是兜底——把这条不变量放在替换发生的地方，而不是依赖上游那一步的键怎么取。
+    """
+    seen: set = set()
+    kept: list[dict] = []
+    for item in candidates:
+        key = item.get("parent_id") or item["chunk_id"]
+        if key in seen:
+            continue
+        seen.add(key)
+        kept.append(item)
+    return kept
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="五库候选索引的validation检索对照")
-    parser.add_argument("--route", type=Path,
-                        default=ROOT / "configs/indexes/multicorpus-candidates-002.json")
-    parser.add_argument("--dataset", type=Path,
-                        default=ROOT / "evaluation/datasets/rag-validation-001.jsonl")
+    # --root 让这个脚本也能评测**临时根**里的候选（父子片段这类实验建在真拷贝里，不碰
+    # 仓库资产）。三个路径参数的默认值因此不能在构造 parser 时就算死——它们要跟着
+    # 给定的 root 走，所以先留 None，解析完再补。不传 --root 时结果与从前完全一致。
+    parser.add_argument("--root", type=Path, default=ROOT,
+                        help="项目根。默认是仓库根；指向临时根即可评测那里的候选索引。")
+    parser.add_argument("--route", type=Path, default=None)
+    parser.add_argument("--dataset", type=Path, default=None)
     parser.add_argument("--candidate-k", type=int, default=20)
     parser.add_argument("--rrf-k", type=int, default=60)
-    parser.add_argument("--output", type=Path,
-                        default=ROOT / "artifacts/corpus-acceptance-002/validation-retrieval-eval.json")
+    parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--no-reranker", action="store_true", help="只跑dense/BM25/RRF")
+    # 父子化候选的两条臂。默认值保持从前那一条，行为一个字都不变。
+    parser.add_argument(
+        "--parent-order",
+        choices=["before-fusion", "after-rerank"],
+        default="before-fusion",
+        help=(
+            "父子替换发生在哪一步（只对父子化候选有意义，非父子化候选两者等价）："
+            "before-fusion=默认，融合前就换成父块，检索与**重排**看到的都是父块正文；"
+            "after-rerank=小块匹配、小块排序，重排后才换成父块返回"
+        ),
+    )
     arguments = parser.parse_args()
+    root = arguments.root.resolve()
+    arguments.route = arguments.route or root / "configs/indexes/multicorpus-candidates-002.json"
+    arguments.dataset = arguments.dataset or root / "evaluation/datasets/rag-validation-001.jsonl"
+    arguments.output = arguments.output or (
+        root / "artifacts/corpus-acceptance-002/validation-retrieval-eval.json"
+    )
 
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
@@ -159,7 +222,8 @@ def main() -> None:
 
     from wenjin.indexing.bm25 import bm25_query, query_terms
     from wenjin.indexing.dense import dense_query_vector
-    from wenjin.retrieval.fusion import rrf_fuse
+    from wenjin.retrieval.fusion import identity_by_parent, rrf_fuse
+    from wenjin.retrieval.parents import resolve_parents
     from wenjin.retrieval.rerank import Qwen3Reranker, candidate_document, rank_candidates
     from wenjin.retrieval.router import MultiCorpusRouter
     from wenjin.settings import Settings
@@ -178,6 +242,7 @@ def main() -> None:
     blank_lines = blank_line_map(
         arguments.route.resolve(),
         [span for row in dataset for span in row["evidence"]],
+        root=root,
     )
     print(f"空行表：{len(blank_lines)} 个证据文件，"
           f"共 {sum(len(v) for v in blank_lines.values())} 个空行")
@@ -193,7 +258,7 @@ def main() -> None:
         # 构造路由时会逐个校验候选索引；任一不合格就不会进入本次评测。
         routing = MultiCorpusRouter.from_route_file(
             arguments.route.resolve(),
-            root=ROOT,
+            root=root,
             qdrant_client=client,
             embedder=embedder,
             reranker=reranker,
@@ -218,8 +283,24 @@ def main() -> None:
                 if terms else []
             )
             bm25_seconds = time.perf_counter() - bm25_started
+            after_rerank = arguments.parent_order == "after-rerank"
             fusion_started = time.perf_counter()
-            fused = rrf_fuse({"dense": dense, "bm25": keyword}, k=arguments.rrf_k)
+            if after_rerank:
+                # 小块匹配、小块排序、只把大块用于返回：检索与重排都停在 child 粒度，
+                # `returned` 才是父块。融合仍按**父块身份**去重——同一父块的多个 child
+                # 若各占一条，候选名额就被同一段正文吃掉多次（而正文仍是 child 自己的，
+                # 所以这一步只影响"谁进候选池"，不影响重排看到的文本）。
+                # 非父子化候选这里零开销（没有 parent_id 就不读父块表）。
+                fused = rrf_fuse(
+                    {"dense": dense, "bm25": keyword},
+                    k=arguments.rrf_k,
+                    identity=identity_by_parent,
+                )
+            else:
+                # 默认臂：融合前就换成父块，于是**重排模型读的是被放大的父块正文**。
+                dense = resolve_parents(dense, bm25_path=index.bm25_path)
+                keyword = resolve_parents(keyword, bm25_path=index.bm25_path)
+                fused = rrf_fuse({"dense": dense, "bm25": keyword}, k=arguments.rrf_k)
             fusion_seconds = time.perf_counter() - fusion_started
             rerank_started = time.perf_counter()
             if reranker is not None and fused:
@@ -228,9 +309,19 @@ def main() -> None:
             else:
                 ranked = fused
             rerank_seconds = time.perf_counter() - rerank_started
+            # 重排之后、交给调用方之前才换成父块。按父块去重在这里是兜底：
+            # 融合已按父块身份合并，正常一个父块只会有一条；重复等于同一段原文占两条证据。
+            returned = (
+                dedupe_by_parent(resolve_parents(ranked, bm25_path=index.bm25_path))
+                if after_rerank else ranked
+            )
             retrievers = {"dense": dense, "bm25": keyword, "rrf": fused}
             if reranker is not None:
                 retrievers["rerank"] = ranked
+            if after_rerank:
+                # 多一列 returned：与"重排看到的那份"（child）分开报，
+                # 两者在 k=5 上的差别就是"返回窗口被放大"的净效应。
+                retrievers["returned"] = returned
             records.append({
                 "id": row["id"],
                 "library": library,
@@ -268,6 +359,9 @@ def main() -> None:
                 reranker.close()
 
     retriever_names = ["dense", "bm25", "rrf"] + (["rerank"] if reranker is not None else [])
+    if arguments.parent_order == "after-rerank":
+        # returned 是"调用方真正拿到的那份"（父块）；rerank 是"重排看到的那份"（child）。
+        retriever_names.append("returned")
     libraries = sorted({record["library"] for record in records})
 
     def summary_for(records_subset: list[dict]) -> dict:
@@ -285,10 +379,23 @@ def main() -> None:
 
     report = {
         "route_id": json.loads(arguments.route.read_text(encoding="utf-8-sig"))["route_id"],
-        "dataset": str(arguments.dataset.relative_to(ROOT)).replace("\\", "/"),
+        "dataset": dataset_label(arguments.dataset, root=root),
         "dataset_role": "validation only; test 40题保持冻结且未参与本次调参",
         "candidate_k": arguments.candidate_k,
         "rrf_k": arguments.rrf_k,
+        # 只有非默认臂才多写这两项：默认臂的产物必须与从前的逐题对照可比，
+        # 不被新增字段搅乱（开关本身不改默认路径的任何一条记录）。
+        **(
+            {
+                "parent_order": arguments.parent_order,
+                "parent_order_note": (
+                    "重排在 child 正文上做（小块匹配、小块排序）；`rerank` 列是重排看到的那份，"
+                    "`returned` 列才是换成父块之后交给调用方的证据。两者在 k=5 上的差别就是"
+                    "返回窗口被放大的净效应。"
+                ),
+            }
+            if arguments.parent_order != "before-fusion" else {}
+        ),
         "reranker": None if reranker is None else {
             "model": settings.reranker_model_path.name,
             "max_length": reranker.max_length,
