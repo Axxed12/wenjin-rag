@@ -492,7 +492,24 @@ uv run python scripts/demo_content_update.py
 uv run python scripts/demo_modify_delete.py
 ```
 
+## 安全边界
 
+- `.env`、本地模型、TLS 私钥、审计日志、生成的索引和原始语料都不提交 Git；
+- **运行时注册表 `data/indexes/index-registry.json` 也不提交**。它记录当前 active 目标
+  和切换历史；切到非公开目标后，active/history 里会有内部 manifest 路径与 collection 名，
+  回退后 `events` 仍保留内部 target_id。用 `manage_indexes.py init` 就地生成；
+- 审计默认只保存 Query / Session / 客户端 ID 的 SHA256；
+- 当前 Bearer 是“一把密钥一个客户端 ID”，不是多用户 IAM，也没有吊销中心；
+- 自签名 TLS 不替代企业 CA 或认证反向代理；
+- 数据库过滤不能代替调用方鉴权。
+
+**镜像里不带访问策略，也不带非公开语料**（`.dockerignore` 排除 `configs/access/`、
+`corpora-private/`、`configs/indexes-private/`）。因此：
+
+- `configs/access/` 必须在运行时挂载；不挂载时策略快照为空，判定是"默认拒绝所有人"
+  ——容器能启动，但不服务任何语料，这是设计上的 fail closed，不是故障；
+- **非公开语料不在镜像支持范围内**。要服务它们，需要同时挂载 `corpora-private/` 和
+  `configs/indexes-private/`（镜像不烘焙这两处，也不为它们提供默认路径）。
 
 ## 许可证
 
