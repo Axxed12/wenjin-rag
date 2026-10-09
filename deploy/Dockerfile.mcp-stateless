@@ -1,0 +1,34 @@
+FROM ghcr.io/astral-sh/uv:0.11.3 AS uv-bin
+
+FROM python:3.12.3-slim-bookworm AS mcp-stateless
+COPY --from=uv-bin /uv /uvx /usr/local/bin/
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_DEFAULT_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple \
+    PATH=/app/mcp-stateless/.venv/bin:$PATH \
+    HF_HUB_OFFLINE=1 \
+    TRANSFORMERS_OFFLINE=1 \
+    HF_HOME=/tmp/huggingface \
+    LLAMA_INDEX_CACHE_DIR=/tmp/llama_index \
+    TMPDIR=/tmp \
+    WENJIN_PROJECT_ROOT=/app
+
+RUN groupadd --gid 10001 wenjin \
+    && useradd --uid 10001 --gid 10001 --create-home wenjin \
+    && install -d -o wenjin -g wenjin /app/data /app/raw_data /app/artifacts /var/lib/wenjin \
+    && install -d -o root -g root -m 1777 /tmp
+WORKDIR /app
+
+COPY mcp-stateless/pyproject.toml mcp-stateless/uv.lock ./mcp-stateless/
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --project mcp-stateless --locked --no-dev --no-install-project
+
+COPY src ./src
+COPY deploy/with-secrets.sh /usr/local/bin/with-secrets
+ENV PYTHONPATH=/app/src
+RUN chmod 0755 /usr/local/bin/with-secrets \
+    && chown -R wenjin:wenjin /app/src
+USER wenjin
+ENTRYPOINT ["/usr/local/bin/with-secrets"]
+CMD ["python", "-m", "wenjin.mcp.stateless_server", "--host", "0.0.0.0", "--port", "18768", "--identity-db", "/var/lib/wenjin/identity.sqlite"]

@@ -1,0 +1,28 @@
+{$PUBLIC_DOMAIN} {
+	encode gzip zstd
+	@modern_mcp path /mcp-stateless /mcp-stateless/*
+	@legacy_mcp path /mcp /mcp/* /files/*
+	route {
+		handle @modern_mcp {
+			reverse_proxy mcp-stateless:18768 {
+				header_up X-Forwarded-For {remote_host}
+				header_up X-Forwarded-Proto {scheme}
+				header_up X-Forwarded-Host {hostport}
+			}
+		}
+		handle @legacy_mcp {
+			reverse_proxy mcp:8765 {
+				header_up X-Forwarded-For {remote_host}
+				header_up X-Forwarded-Proto {scheme}
+				header_up X-Forwarded-Host {hostport}
+			}
+		}
+		handle {
+			reverse_proxy management:8777 {
+				header_up X-Forwarded-For {remote_host}
+				header_up X-Forwarded-Proto {scheme}
+				header_up X-Forwarded-Host {hostport}
+			}
+		}
+	}
+}

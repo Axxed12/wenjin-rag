@@ -1,0 +1,76 @@
+{
+  "original_snapshot_files_checked": 631,
+  "original_source_changed_paths": [],
+  "legacy_core_or_deployment_changed_paths": [],
+  "new_iteration_links_checked": 63,
+  "new_iteration_missing_links": [],
+  "inherited_missing_links": [
+    {
+      "document": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-entry-parity/candidate-10-vs-20/comparison.json",
+      "exists": false
+    },
+    {
+      "document": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-entry-parity/candidate-20-vs-25/comparison.json",
+      "exists": false
+    },
+    {
+      "document": "code.md",
+      "target": "artifacts/iterations/2026-10-07-admin-improvements/final-checks.json",
+      "exists": false
+    },
+    {
+      "document": "code.md",
+      "target": "artifacts/phase1-source-replay-validation/independent-report.md",
+      "exists": false
+    },
+    {
+      "document": "docs/development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-structure-refactor/ui/acceptance.json",
+      "exists": false
+    },
+    {
+      "document": "docs/development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-admin-improvements/real-corpus-acceptance.json",
+      "exists": false
+    },
+    {
+      "document": "docs/development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-admin-improvements/http-acceptance.json",
+      "exists": false
+    },
+    {
+      "document": "docs/development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-admin-improvements/http-upload-and-snapshot.json",
+      "exists": false
+    },
+    {
+      "document": "docs/development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-admin-improvements/deployed-acceptance.json",
+      "exists": false
+    },
+    {
+      "document": "docs/development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-admin-improvements/final-checks.json",
+      "exists": false
+    },
+    {
+      "document": "docs/development-log.md",
+      "target": "../artifacts/iterations/2026-10-06-admin-frontend/http-acceptance.jsonl",
+      "exists": false
+    },
+    {
+      "document": "docs/development-log.md",
+      "target": "../artifacts/iterations/2026-10-06-admin-frontend/final-checks.json",
+      "exists": false
+    }
+  ],
+  "notes": [
+    "Original source checked against copied byte hashes; no live-service/database/asset inspection was performed.",
+    "Historical links may target artifacts intentionally not copied into isolated worktree; not counted as newly introduced link failures."
+  ],
+  "final_runtime_image_id": "sha256:1f00cf6f96f22b68302845bad5eb8dbd2e44e976c720edf5029d9849d709fa62",
+  "final_source_template_hashes_checked": 9,
+  "final_source_template_hash_mismatches": []
+}

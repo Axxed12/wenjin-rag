@@ -2,6 +2,8 @@
 
 本文面向本机维护者和部署操作者，说明两种Docker拓扑、启动方式、远程模型链路与备份边界。根目录`compose.yaml`仍是旧兼容入口；新配置位于`deploy/`，不要把两种stack同时接到同一Qdrant/数据目录。
 
+2026-10-09另行授权的个人迭代提供新版MCP2026-07-28独立服务/依赖overlay；下面旧MCP仍遵循2025-11-25。新版路径、secret/下载隔离、追加启动与回退见[新版MCP说明](mcp-stateless.md)，实际联验状态见[当轮记录](../artifacts/iterations/2026-10-09-mcp-stateless/development-log.md)。该新增能力不回写到技术叙事截止日前。
+
 ## 拓扑与职责
 
 本机完整部署由管理HTTP、状态化MCP、Qdrant和GPU模型节点组成。管理HTTP是受管文件、版本、身份、任务与SQLite状态的唯一管理进程；MCP通过它的HTTP桥访问受管状态，不另起manager。共享语料原文、registry、BM25和manifest只读挂载；受管文件原文使用独立的`WENJIN_MANAGED_RAW_DATA_ROOT`，在新stack中保存在`wenjin-data`卷。Qdrant只在Docker私有数据网内提供服务。

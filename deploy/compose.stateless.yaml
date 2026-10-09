@@ -1,0 +1,109 @@
+services:
+  mcp-stateless:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.mcp-stateless
+    image: wenjin-mcp-stateless:2026-10-09
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=1g,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 30s
+    command:
+      - python
+      - -m
+      - wenjin.mcp.stateless_server
+      - --identity-db
+      - /var/lib/wenjin/identity.sqlite
+      - --host
+      - 0.0.0.0
+      - --port
+      - "18768"
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ""
+      WENJIN_IDENTITY_DB: /var/lib/wenjin/identity.sqlite
+      WENJIN_MANAGED_RAW_DATA_ROOT: data/file-management/raw_data
+      WENJIN_FILE_MANAGEMENT_URL: http://management:8777
+      WENJIN_FILE_MANAGEMENT_ALLOW_PRIVATE_HTTP: "1"
+      WENJIN_MODEL_PROVIDER: remote
+      WENJIN_MODEL_API_URL: ${WENJIN_MODEL_API_URL:-https://model-node}
+      WENJIN_MODEL_API_CA_BUNDLE: /runcert/model-node-ca-bundle.pem
+      EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID:-Qwen3-Embedding-0.6B}
+      RERANKER_MODEL_ID: ${RERANKER_MODEL_ID:-Qwen3-Reranker-0.6B}
+      WENJIN_AUDIT_SINK: stdout
+      WENJIN_AUDIT_INCLUDE_QUERY: "0"
+      WENJIN_MCP_ALLOW_PRIVATE_HTTP: "1"
+      WENJIN_MCP_STATELESS_ALLOWED_HOSTS: ${WENJIN_MCP_STATELESS_ALLOWED_HOSTS:?Set the stateless MCP public host allowlist}
+      FORWARDED_ALLOW_IPS: ${WENJIN_PROXY_TRUSTED_IP:-172.30.250.2}
+    secrets:
+      - model_api_token
+    volumes:
+      - wenjin-data:/app/data:ro
+      # SQLite needs WAL/SHM sidecars; the MCP adapter sets PRAGMA query_only=ON
+      # on every connection and refuses IdentityStore.initialize().
+      - wenjin-identity:/var/lib/wenjin
+      - wenjin-artifacts:/app/artifacts:ro
+      - type: bind
+        source: ${WENJIN_CORPORA_ROOT:-./corpora}
+        target: /app/corpora
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_CONFIG_ROOT:-./configs}
+        target: /app/configs
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_INDEX_ROOT:-./data/indexes}
+        target: /app/data/indexes
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_RAW_DATA_ROOT:-./raw_data}
+        target: /app/raw_data
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${MODEL_NODE_CA_BUNDLE_FILE:?Set the trusted model API CA bundle}
+        target: /runcert/model-node-ca-bundle.pem
+        read_only: true
+        bind:
+          create_host_path: false
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      management:
+        condition: service_healthy
+    expose:
+      - "18768"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import socket; s=socket.create_connection(('127.0.0.1',18768),3); s.close()"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      data-plane: {}
+      model-egress: {}
+      proxy-plane:
+        ipv4_address: ${WENJIN_STATELESS_PROXY_IP:-172.30.250.5}
+
+  cloud-edge:
+    depends_on:
+      mcp-stateless:
+        condition: service_healthy
+    volumes:
+      - ./deploy/Caddyfile.stateless:/etc/caddy/Caddyfile:ro

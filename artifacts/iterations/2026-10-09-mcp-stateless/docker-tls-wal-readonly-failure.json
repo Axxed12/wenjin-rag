@@ -1,0 +1,41 @@
+{
+  "classification": "synthetic-released-image-caddy-tls-official-ts-sdk",
+  "image": "wenjin-mcp-stateless:2026-10-09",
+  "imageId": "sha256:e2cf7cea8f774b9dfbea5bf87aeefc6b9832ec9fb48681a34df8be9684ecb2b3",
+  "identityMount": "temporary-real-IdentityStore-read-only",
+  "tls": "disposable-Caddy-internal-CA-trusted-by-NODE_EXTRA_CA_CERTS",
+  "checks": {
+    "identityJournalModeBeforeMount": "wal",
+    "firstAuthWithoutWalSidecars": {
+      "status": 500,
+      "passed": false,
+      "sidecarsBefore": [],
+      "identityUnchangedDuringRead": true,
+      "body": "Internal Server Error"
+    },
+    "writerGrantRevision": 1,
+    "identityFilesAfterWriter": {
+      "identity.sqlite": "d90e1a35799fbac5ca1ca09186f1e847c9399c7e461dc7219268ec704e9ed792"
+    },
+    "officialSdkCallAfterGrant": {
+      "passed": false,
+      "returncode": 1,
+      "diagnostic": "on failed: the server answered the probe with HTTP ${outcome.status}`, {\n\t\t       ^\n\nSdkHttpError: Version negotiation failed: the server answered the probe with HTTP 500\n    at classifyHttpError (file:///C:/Users/Onebiter/.codex/worktrees/2a22/rag-project/tests/acceptance/mcp-stateless-client/node_modules/@modelcontextprotocol/client/dist/index.mjs:2499:10)\n    at classifyProbeOutcome (file:///C:/Users/Onebiter/.codex/worktrees/2a22/rag-project/tests/acceptance/mcp-stateless-client/node_modules/@modelcontextprotocol/client/dist/index.mjs:2417:29)\n    at probe (file:///C:/Users/Onebiter/.codex/worktrees/2a22/rag-project/tests/acceptance/mcp-stateless-client/node_modules/@modelcontextprotocol/client/dist/index.mjs:2829:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async negotiateEra (file:///C:/Users/Onebiter/.codex/worktrees/2a22/rag-project/tests/acceptance/mcp-stateless-client/node_modules/@modelcontextprotocol/client/dist/index.mjs:2860:12)\n    at async Client._connectNegotiated (file:///C:/Users/Onebiter/.codex/worktrees/2a22/rag-project/tests/acceptance/mcp-stateless-client/node_modules/@modelcontextprotocol/client/dist/index.mjs:3400:38)\n    at async file:///C:/Users/Onebiter/.codex/worktrees/2a22/rag-project/tests/acceptance/mcp-stateless-client/client.mjs:102:3 {\n  code: 'ERA_NEGOTIATION_FAILED',\n  data: {\n    status: 500,\n    statusText: 'Internal Server Error',\n    text: 'Internal Server Error'\n  }\n}\n\nNode.js v24.14.0\n"
+    },
+    "grantVisibleOnNextReadOnlyMountedRequest": {
+      "passed": false,
+      "visibleLibraries": [],
+      "writerSidecarsAfterGrant": [],
+      "identityUnchangedByRead": true
+    },
+    "identityFilesUnchangedByPostWriterRead": true,
+    "sidecarsAbsentBeforeFirstContainerAuth": true,
+    "officialTsClientOverTlsToReleasedImage": {
+      "passed": false,
+      "returncode": 1,
+      "diagnostic": "t/tests/acceptance/mcp-stateless-client/node_modules/@modelcontextprotocol/client/dist/index.mjs:2499:10)\n    at classifyProbeOutcome (file:///C:/Users/Onebiter/.codex/worktrees/2a22/rag-project/tests/acceptance/mcp-stateless-client/node_modules/@modelcontextprotocol/client/dist/index.mjs:2417:29)\n    at probe (file:///C:/Users/Onebiter/.codex/worktrees/2a22/rag-project/tests/acceptance/mcp-stateless-client/node_modules/@modelcontextprotocol/client/dist/index.mjs:2829:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async negotiateEra (file:///C:/Users/Onebiter/.codex/worktrees/2a22/rag-project/tests/acceptance/mcp-stateless-client/node_modules/@modelcontextprotocol/client/dist/index.mjs:2860:12)\n    at async Client._connectNegotiated (file:///C:/Users/Onebiter/.codex/worktrees/2a22/rag-project/tests/acceptance/mcp-stateless-client/node_modules/@modelcontextprotocol/client/dist/index.mjs:3400:38)\n    at async file:///C:/Users/Onebiter/.codex/worktrees/2a22/rag-project/tests/acceptance/mcp-stateless-client/client.mjs:102:3 {\n  code: 'ERA_NEGOTIATION_FAILED',\n  data: { status: 502, statusText: 'Bad Gateway', text: '' }\n}\n\nNode.js v24.14.0\n"
+    }
+  },
+  "tlsRootCaSha256": "e060a24412c15dc1a33949e32c58742d0e5462752cff0f88e51c355a87d20faa",
+  "containerLogTailRedacted": []
+}

@@ -1,0 +1,33 @@
+{
+  "classification": "synthetic-two-process-sdk-era-isolation",
+  "legacy": {
+    "sdkVersion": "1.29.0",
+    "negotiatedProtocol": "2025-11-25",
+    "sessionIssued": true,
+    "toolCallError": false,
+    "toolResultProtocol": "2025-11-25",
+    "tools": [
+      "search_docs",
+      "list_corpora",
+      "list_managed_files"
+    ]
+  },
+  "modernClientAgainstLegacy": {
+    "sdkVersion": "2.3.1",
+    "connectFailed": true,
+    "methods": [
+      "server/discover"
+    ],
+    "autoFallbackInitialize": false
+  },
+  "legacyClientAgainstModern": {
+    "sdkVersion": "1.29.0",
+    "initializeRejected": true,
+    "sessionIssued": false,
+    "errorType": "ExceptionGroup"
+  },
+  "endpoints": {
+    "legacyPath": "/mcp",
+    "modernPath": "/mcp-stateless"
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "clientPackage": "@modelcontextprotocol/client",
+  "clientVersion": "2.3.1",
+  "protocolVersion": "2026-07-28",
+  "protocolEra": "modern",
+  "discovery": {
+    "supportedVersions": [
+      "2026-07-28"
+    ],
+    "capabilities": {
+      "logging": {},
+      "prompts": {
+        "listChanged": false
+      },
+      "resources": {
+        "subscribe": false,
+        "listChanged": false
+      },
+      "tools": {
+        "listChanged": false
+      },
+      "extensions": {
+        "io.modelcontextprotocol/ui": {}
+      }
+    }
+  },
+  "toolNames": [
+    "search_docs",
+    "list_corpora",
+    "list_managed_files"
+  ],
+  "callResult": {
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "wenjin-rag-stateless",
+        "version": "0.1.0"
+      }
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"corpora\":[],\"count\":0,\"usable_count\":0,\"index_state_note\":\"'usable' means a preflight check passed (manifest bytes, BM25, collection and point count all match). It is NOT full admission — run scripts/verify_candidate_indexes.py for that. 'no_index_config' means no index target references this corpus yet.\",\"note\":\"Only corpora this client is allowed to read are listed. Directories quarantined for an unresolvable corpus identity are NOT reported here (naming them would leak directory names past the access check): they are recorded in the server log and listed by scripts/manage_access.py --list. If a corpus you expect is missing, ask an operator to check for quarantined directories. Retrieval scores are ranking signals, not answer confidence.\",\"mcp_protocol\":\"2026-07-28\"}"
+      }
+    ],
+    "structuredContent": {
+      "corpora": [],
+      "count": 0,
+      "usable_count": 0,
+      "index_state_note": "'usable' means a preflight check passed (manifest bytes, BM25, collection and point count all match). It is NOT full admission — run scripts/verify_candidate_indexes.py for that. 'no_index_config' means no index target references this corpus yet.",
+      "note": "Only corpora this client is allowed to read are listed. Directories quarantined for an unresolvable corpus identity are NOT reported here (naming them would leak directory names past the access check): they are recorded in the server log and listed by scripts/manage_access.py --list. If a corpus you expect is missing, ask an operator to check for quarantined directories. Retrieval scores are ranking signals, not answer confidence.",
+      "mcp_protocol": "2026-07-28"
+    },
+    "isError": false
+  },
+  "observedRequests": [
+    {
+      "method": "POST",
+      "protocolVersionHeader": "2026-07-28",
+      "mcpMethodHeader": "server/discover",
+      "mcpNameHeader": null,
+      "authorizationPresent": true,
+      "sessionHeaderPresent": false,
+      "bodyMethod": "server/discover",
+      "bodyName": null,
+      "bodyProtocolVersion": "2026-07-28",
+      "bodyCapabilitiesPresent": true
+    },
+    {
+      "method": "POST",
+      "protocolVersionHeader": "2026-07-28",
+      "mcpMethodHeader": "tools/list",
+      "mcpNameHeader": null,
+      "authorizationPresent": true,
+      "sessionHeaderPresent": false,
+      "bodyMethod": "tools/list",
+      "bodyName": null,
+      "bodyProtocolVersion": "2026-07-28",
+      "bodyCapabilitiesPresent": true
+    },
+    {
+      "method": "POST",
+      "protocolVersionHeader": "2026-07-28",
+      "mcpMethodHeader": "tools/call",
+      "mcpNameHeader": "list_corpora",
+      "authorizationPresent": true,
+      "sessionHeaderPresent": false,
+      "bodyMethod": "tools/call",
+      "bodyName": "list_corpora",
+      "bodyProtocolVersion": "2026-07-28",
+      "bodyCapabilitiesPresent": true
+    }
+  ],
+  "observedResponses": [
+    {
+      "requestMethod": "server/discover",
+      "status": 200,
+      "sessionHeaderReturned": false,
+      "cacheControl": null,
+      "resultType": "complete",
+      "ttlMs": 0,
+      "cacheScope": "private",
+      "serverInfoPresent": true,
+      "errorCode": null
+    },
+    {
+      "requestMethod": "tools/list",
+      "status": 200,
+      "sessionHeaderReturned": false,
+      "cacheControl": null,
+      "resultType": "complete",
+      "ttlMs": 0,
+      "cacheScope": "private",
+      "serverInfoPresent": true,
+      "errorCode": null
+    },
+    {
+      "requestMethod": "tools/call",
+      "status": 200,
+      "sessionHeaderReturned": false,
+      "cacheControl": "no-store",
+      "resultType": "complete",
+      "ttlMs": null,
+      "cacheScope": null,
+      "serverInfoPresent": true,
+      "errorCode": null
+    }
+  ]
+}

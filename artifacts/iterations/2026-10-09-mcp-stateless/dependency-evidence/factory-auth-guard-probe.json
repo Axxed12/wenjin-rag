@@ -1,0 +1,8 @@
+{
+  "classification": "synthetic-factory-auth-guard-probe",
+  "call": "create_stateless_app()",
+  "expected": "ValueError before constructing an ASGI app when both IdentityStore and static Bearer credential are absent",
+  "observed": "ValueError: stateless MCP app requires an IdentityStore or static Bearer credential",
+  "result": "passed",
+  "environment": "temporary probe virtualenv; worktree src on PYTHONPATH; no service or project data"
+}

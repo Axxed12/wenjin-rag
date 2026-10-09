@@ -1,0 +1,12 @@
+{
+  "name": "rag-project-mcp-stateless-acceptance-client",
+  "private": true,
+  "type": "module",
+  "description": "Isolated real MCP TypeScript SDK client for 2026-07-28 acceptance",
+  "scripts": {
+    "accept": "node client.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.3.1"
+  }
+}

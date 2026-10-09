@@ -111,3 +111,47 @@ registered_count 3
 - `Context.session_id` was checked only as a property descriptor; the value under an actual modern request was not exercised. Existing `audit_session_id` catches `RuntimeError`, but runtime behavior remains to be tested.
 - Existing tool payloads currently write `mcp_protocol="2025-11-25"`; a new protocol adapter needs to correct/omit that field for modern calls without changing legacy behavior.
 - Existing FastMCP 3 `server.py` invokes `run(transport="streamable-http", stateless_http=False, ...)` and asserts the v1 SDK protocol constant equals the old version. A separate FastMCP 4 entry point can reuse tool registrations, but needs its own transport/app wiring and tests. This probe did not test protocol rejection/isolation.
+
+## Independent lock and modern protocol API check
+
+The separate `mcp-stateless/pyproject.toml` pins `fastmcp==4.1.0` and `mcp==2.3.0`, leaving the original project dependency files unchanged. Lock generation command:
+
+```powershell
+uv lock --project mcp-stateless
+```
+
+Observed output: `Resolved 141 packages in 10.18s`; `mcp-stateless/uv.lock` was created. This dependency lock is isolated from the main project lock.
+
+Runtime API probe command:
+
+```powershell
+$python = Join-Path $env:TEMP 'codex-mcp-stateless-probe-20261009\Scripts\python.exe'
+& $python -c "from mcp.types import LATEST_PROTOCOL_VERSION; from mcp.server.lowlevel.server import MODERN_PROTOCOL_VERSIONS; from fastmcp import FastMCP; print('protocol', LATEST_PROTOCOL_VERSION); print('modern_versions', MODERN_PROTOCOL_VERSIONS); print('http_app', hasattr(FastMCP, 'http_app'))"
+```
+
+Output:
+
+```text
+protocol 2026-07-28
+modern_versions ('2026-07-28',)
+http_app True
+```
+
+This confirms the selected SDK's current modern version constant/list and the FastMCP 4 ASGI app API. The stateless builder checks these at startup so running it from the legacy environment fails explicitly. The SDK's actual `server/discover` response and transport wire behavior are left for the independent client acceptance; this API check alone does not prove them.
+
+The new entry module guard and lock consistency were then exercised:
+
+```powershell
+$env:PYTHONPATH = (Join-Path (Get-Location) 'src')
+& $python -c "from wenjin.mcp.stateless_server import _validate_stateless_runtime; _validate_stateless_runtime(); print('runtime_guard=pass')"
+uv lock --check --project mcp-stateless
+```
+
+Output:
+
+```text
+runtime_guard=pass
+Resolved 141 packages in 1ms
+```
+
+The lock lists `fastmcp==4.1.0` and `mcp==2.3.0` explicitly. The guard was only run inside the isolated probe venv; the main legacy environment was not changed.

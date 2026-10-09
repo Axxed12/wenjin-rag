@@ -1,0 +1,18 @@
+{
+  "classification": "synthetic-local-SQLite-WAL-query-only-probe",
+  "command": "temporary CPython 3.12.3 probe environment; worktree src on PYTHONPATH; create isolated IdentityStore, checkpoint WAL, remove only that fixture's -wal/-shm, query through StatelessIdentityStore, attempt SQL DELETE/INSERT, then update a synthetic probe row using a separate SQLite writer and reread",
+  "environment": "temporary probe virtualenv; no project .env, live service, corpus, index, account or production database",
+  "observations": {
+    "journal_mode": "wal",
+    "files_before_first_read": ["identity.sqlite"],
+    "sidecars_absent_before_first_read": true,
+    "first_read_query_only": 1,
+    "first_read_value": "initial",
+    "sql_write_rejected": true,
+    "main_db_sha256_unchanged_by_reader": true,
+    "writer_update_visible_next_read": true,
+    "main_db_sha256_unchanged_by_second_reader": true,
+    "sidecars_after_read": ["identity.sqlite-shm", "identity.sqlite-wal"]
+  },
+  "interpretation": "SQLite created/updated WAL/SHM coordination sidecars on the first reader. SQL mutations were rejected and the main database file hash was unchanged by reader operations. Filesystem access must permit sidecars; this is logical read-only, not a read-only mount. Separate container acceptance is pending."
+}

@@ -1,0 +1,11 @@
+......                                                             [100%]
+============================== warnings summary ===============================
+tests/test_mcp_stateless_identity_release.py::test_stateless_mcp_rechecks_identity_grants_and_managed_versions
+tests/test_mcp_stateless_identity_release.py::test_stateless_mcp_rechecks_identity_grants_and_managed_versions
+tests/test_mcp_stateless_identity_release.py::test_stateless_mcp_rechecks_identity_grants_and_managed_versions
+tests/test_mcp_stateless_identity_release.py::test_stateless_mcp_rechecks_identity_grants_and_managed_versions
+  C:\Users\Onebiter\.codex\worktrees\2a22\rag-project\src\wenjin\indexing\dense.py:36: DeprecationWarning: `recreate_collection` method is deprecated and will be removed in the future. Use `collection_exists` to check collection existence and `create_collection` instead.
+    client.recreate_collection(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+6 passed, 4 warnings, 6 subtests passed in 14.38s

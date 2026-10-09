@@ -79,3 +79,6 @@
 
 
 
+
+2026-10-14 [新版无状态MCP业务整合](../artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)：挑取隔离服务源码、独立uv依赖和部署配置至集成worktree，按当前模型准入、身份库与凭据能力适配。来源目录中的历史SDK/容器合同标为历史，不替代本轮兼容与独立验收。
+

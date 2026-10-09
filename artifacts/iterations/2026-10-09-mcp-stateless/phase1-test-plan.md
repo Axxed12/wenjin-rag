@@ -18,6 +18,7 @@
 
 - 规范版本：MCP `2026-07-28`。本文只引用定版规范目录，不把 `draft` 页面作为规范依据。
 - 当前项目锁定值：`fastmcp==3.4.4`，`mcp==1.29.0`。协议版本、Python SDK 版本和服务框架版本属于不同轴。
+- Python SDK 2.3.0 已于 2026-10-02 发布到 PyPI；开发隔离环境固定该版。GitHub Releases 页面显示到 2.2.0，发布页与包索引有延迟时以 PyPI 包文件/发布时间为当前可安装证据。
 - Python 官方 `mcp` 2.x 与 TypeScript 官方 `@modelcontextprotocol/client` 2.x 均有覆盖该协议的客户端/服务端实现。独立真实客户端选择 TypeScript Client；npm registry lookup on 2026-10-09 returned `2.3.1`, and the isolated acceptance package pins that exact version, not floating `latest`。
 - 主客户端连接使用 `versionNegotiation.mode = { pin: '2026-07-28' }`。SDK 必须拒绝旧协议服务器，不允许自动退回 `initialize`。固定模式会以 `server/discover` 探测并拒绝降级；用 `getDiscoverResult()` 检查广告结果，再执行工具列表和工具调用。
 
@@ -26,11 +27,11 @@
 | 范围 | 输入/操作 | 预期 | 证据类型 |
 |---|---|---|---|
 | 发现 | 现代 SDK pinned 连接；读 discover 结果 | 只声明 `2026-07-28`；包含 `tools` capability 和服务身份元数据；无 initialize | 官方 TS SDK 真客户端 |
-| 工具列表 | `listTools()` | 返回静态工具 schema；请求仍须有效凭据。若只含静态 schema，可用 public cache scope；结果有 `resultType=complete`、`ttlMs`、`cacheScope`；顺序稳定 | 官方 TS SDK 真客户端 + 收到的 wire |
-| 工具调用 | 合成 query/file id 调用 search 工具 | `resultType=complete`，证据指向合成文档和目标 release；工具结果内容可被 SDK 解码 | 官方 TS SDK 真客户端 |
+| 工具列表 | `listTools()` | 返回静态工具 schema；请求仍须有效凭据。结果有 `resultType=complete`、`ttlMs`、`cacheScope`（静态 schema 可 `public`，`private` 同样合规）；顺序稳定 | 官方 TS SDK 真客户端 + 收到的 wire |
+| 工具调用 | 合成 query/library/top_k 调用 `search_docs` | wire `resultType=complete`、SDK `isError=false`、存在 `structuredContent`；顶层和嵌套 `mcp_protocol` 标签均为 `2026-07-28`；证据指向合成文档和目标 release；HTTP `Cache-Control` 含 `no-store` | 官方 TS SDK 真客户端 |
 | 每请求元数据 | 对每个现代 POST 检查 body `_meta` | `protocolVersion=2026-07-28` 与 `clientCapabilities` 必须存在；`clientInfo` 可选且不用于授权 | 收到的 wire |
 | 标准 HTTP headers | 检查每个现代 POST | `MCP-Protocol-Version` 与 `_meta` 相符；`Mcp-Method` 与 body method 相符；`tools/call` 的 `Mcp-Name` 与 params.name 相符 | 收到的 wire |
-| header 校验负例 | 缺 header、header/body mismatch、缺 required `_meta`、不支持版、未知 method | 依定版规范返回 HTTP/JSON-RPC 状态与代码；现代流量不进入旧版 handler | 定向合成负例（不能替代 SDK 正例） |
+| header 校验负例 | 缺 header、header/body mismatch、缺 required `_meta`、错误meta类型、不支持版、未知 method | 依定版规范返回 HTTP/JSON-RPC 状态与代码，并断言错误响应中的 JSON-RPC `id` 对应请求；现代流量不进入旧版 handler。unsupported-version负例的 HTTP 头和 body `_meta` 都明确匹配同一个未知版本，避免被误判为 HeaderMismatch | 定向合成负例（不能替代 SDK 正例） |
 | 错误结果 | 工具业务错误、无权限、失效 release | 区分 MCP transport/protocol error 与合法的 tool result；客户端看到错误语义稳定且不泄漏 credential 或内部路径 | 官方 TS SDK + 合成夹具 |
 | 凭据/ACL | 未授权、有效授权、撤 MCP credential、撤 library grant | 每个现代请求（包括 tools/list）都校验 token；静态工具 schema 不按个人资料权限变形。用户资料列表/检索/下载读取当前 grant；撤权后同一连接/新请求均拒绝或返回既定的不可用语义 | 官方 TS SDK + 合成 identity store |
 | 版本绑定 | release A 查询后切换 active 到 B，再请求 A 的下载；传不存在/错模型 release | 下载路径仍绑定 A；未知/不匹配版本 fail-closed；不能静默切到 active B | 官方 TS SDK + 两版合成 release |
@@ -66,3 +67,4 @@
 - [TypeScript SDK Client package](https://github.com/modelcontextprotocol/typescript-sdk/tree/main/packages/client)
 - [Python SDK releases](https://github.com/modelcontextprotocol/python-sdk/releases)
 - Independent real-client harness: `tests/acceptance/mcp-stateless-client/` (`@modelcontextprotocol/client==2.3.1`)
+- [Python SDK 2.3.0 on PyPI](https://pypi.org/project/mcp/2.3.0/)

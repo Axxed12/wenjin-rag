@@ -1,0 +1,111 @@
+{
+  "classification": "synthetic-indexes-in-memory-qdrant-real-http-management-and-real-ts-mcp-client",
+  "protocolVersion": "2026-07-28",
+  "client": {
+    "package": "@modelcontextprotocol/client",
+    "version": "2.3.1"
+  },
+  "retrieval": {
+    "embedder": "synthetic deterministic marker embedder",
+    "reranker": "disabled; real reranker/model not exercised"
+  },
+  "sameLegacySessionHeader": {
+    "sentByOfficialClient": true,
+    "aliceVisibleFileIds": [
+      "2a2142aa9f1345829d07be66c459d161"
+    ],
+    "bobVisibleFileIds": [],
+    "serverResponsesMintSession": false
+  },
+  "sharedReleases": {
+    "activeAfterFirstSearch": "2287cf8cd2b34b7e98a109b3ea82d1c1",
+    "queryMarkerA": "release_marker_A",
+    "aDownloadPathReleaseId": "2287cf8cd2b34b7e98a109b3ea82d1c1",
+    "downloadAStatusAfterSwitchToB": 200,
+    "downloadABytesSha256": "b8e514ed7af6f7f24765ebc736481159ef2f8d1a8a5a9205aa5d68c9bc057707",
+    "expectedABytesSha256": "b8e514ed7af6f7f24765ebc736481159ef2f8d1a8a5a9205aa5d68c9bc057707",
+    "activeAfterSwitch": "512057b2545043cfb034e17d7655f285",
+    "queryMarkerB": "release_marker_B",
+    "bDownloadPathReleaseId": "512057b2545043cfb034e17d7655f285",
+    "wrongVersionIsToolError": true,
+    "unknownReleaseDownloadStatus": 403
+  },
+  "managedVersions": {
+    "queryMarkerA": "ambermarker_v1",
+    "versionA": "ae8ade9e517c4c0ca9ae15f9edbc8247",
+    "downloadAStatus": 200,
+    "downloadAContainsMarker": true,
+    "versionB": "84cbf3ca27dc43f89dea4953d47ecba2",
+    "staleVersionADownloadAfterReplace": 409,
+    "wrongVersionIsToolError": true,
+    "queryMarkerB": "cobaltmarker_v2",
+    "downloadBStatus": 200,
+    "downloadBContainsMarker": true
+  },
+  "revocation": {
+    "filesAfterGrantRevocation": 0,
+    "credentialRevokedDiscoverStatus": 401
+  },
+  "managementBridgeRequests": [
+    {
+      "path": "/api/mcp/libraries",
+      "authenticatedIdentity": "alice"
+    },
+    {
+      "path": "/api/mcp/libraries",
+      "authenticatedIdentity": "alice"
+    },
+    {
+      "path": "/api/mcp/libraries",
+      "authenticatedIdentity": "alice"
+    },
+    {
+      "path": "/api/mcp/files",
+      "authenticatedIdentity": "alice"
+    },
+    {
+      "path": "/api/mcp/files",
+      "authenticatedIdentity": "bob"
+    },
+    {
+      "path": "/api/mcp/files",
+      "authenticatedIdentity": "alice"
+    },
+    {
+      "path": "/api/mcp/search",
+      "authenticatedIdentity": "alice"
+    },
+    {
+      "path": "/api/mcp/files/2a2142aa9f1345829d07be66c459d161/source",
+      "authenticatedIdentity": "alice"
+    },
+    {
+      "path": "/api/mcp/files/2a2142aa9f1345829d07be66c459d161/source",
+      "authenticatedIdentity": "alice"
+    },
+    {
+      "path": "/api/mcp/files",
+      "authenticatedIdentity": "alice"
+    },
+    {
+      "path": "/api/mcp/search",
+      "authenticatedIdentity": "alice"
+    },
+    {
+      "path": "/api/mcp/files",
+      "authenticatedIdentity": "alice"
+    },
+    {
+      "path": "/api/mcp/search",
+      "authenticatedIdentity": "alice"
+    },
+    {
+      "path": "/api/mcp/files/2a2142aa9f1345829d07be66c459d161/source",
+      "authenticatedIdentity": "alice"
+    },
+    {
+      "path": "/api/mcp/files",
+      "authenticatedIdentity": "alice"
+    }
+  ]
+}

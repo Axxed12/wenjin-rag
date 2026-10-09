@@ -4,7 +4,7 @@
 
 ## 当前能力与证据
 
-- **新版MCP个人迭代（2026-10-14，整合中）**：用户授权在独立worktree新增隔离的2026-07-28无状态MCP入口；旧2025-11-25状态化入口、主环境依赖和历史项目叙事保持原边界。当前仅已挑取设计/范围记录，业务整合和独立验收未完成；不操作真实业务数据或运行服务。见[本轮开发记录](artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)及[来源计划](artifacts/iterations/2026-10-09-mcp-stateless/phase-1-plan.md)。
+- **新版MCP个人迭代（2026-10-14，整合开发中）**：用户授权在独立worktree新增隔离的2026-07-28无状态MCP入口；旧2025-11-25状态化入口、主环境依赖和历史项目叙事保持原边界。源码与隔离部署配置已挑取至集成worktree，当前适配和独立验收未完成；来源历史验收仅作历史证据；不操作真实业务数据或运行服务。见[本轮开发记录](artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)及[来源计划](artifacts/iterations/2026-10-09-mcp-stateless/phase-1-plan.md)。
 
 - **本地保存（2026-10-14）**：按用户要求保存当前开发Git快照；保存检查不替代功能验收，详细范围见[保存记录](artifacts/iterations/2026-10-14-git-checkpoint/development-log.md)。
 
@@ -65,6 +65,7 @@
 ## 记录规则
 
 后续仅更新上述当前结论、边界和下一步；详细问题、处理、结果和未解决项写入 `artifacts/iterations/<date>-<topic>/development-log.md`，并更新[开发记录索引](docs/development-log.md)。已安装、冒烟通过、效果评测与生产验收分别描述。不要重新引入根目录一次性交接提示词。
+
 
 
 

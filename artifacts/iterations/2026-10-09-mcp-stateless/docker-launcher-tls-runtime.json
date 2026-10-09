@@ -1,0 +1,118 @@
+{
+  "image": "wenjin-mcp-stateless:2026-10-09",
+  "imageId": "sha256:1f00cf6f96f22b68302845bad5eb8dbd2e44e976c720edf5029d9849d709fa62",
+  "client": "@modelcontextprotocol/client 2.3.1",
+  "protocolVersion": "2026-07-28",
+  "classification": "synthetic Qdrant/index/model/identity; official image CLI; official TS network client; Caddy internal TLS",
+  "networkLoopbackPublishedPorts": {
+    "qdrant": 58157,
+    "https": 58158
+  },
+  "syntheticFixture": {
+    "library": "osg",
+    "activeVersion": "1.0",
+    "marker": "release_marker_A",
+    "collections": {
+      "A": "synthetic_release_a",
+      "B": "synthetic_release_b"
+    }
+  },
+  "identity": {
+    "journalMode": "wal",
+    "sidecarsInitiallyAbsent": true,
+    "mainDbSha256BeforeReads": "4dee869291b0bedff83c0dcb599e1ff0bdaf876b199e26336005c87378c02767",
+    "readerCredentialPresent": true,
+    "grantInitially": true,
+    "firstNoWriterSegmentHashUnchanged": true,
+    "hashUnchangedAfterQueryOnlyProbe": true
+  },
+  "officialTsSearch": {
+    "passed": true,
+    "resultType": "complete",
+    "isError": false,
+    "markerObserved": true,
+    "protocol": "2026-07-28",
+    "https": true,
+    "tlsCaFile": "temporary Caddy internal root (not retained in evidence)",
+    "entrypoint": "python -m wenjin.mcp.stateless_server",
+    "download": {
+      "status": 200,
+      "sha256": "b8e514ed7af6f7f24765ebc736481159ef2f8d1a8a5a9205aa5d68c9bc057707",
+      "matchesFixtureBytes": true,
+      "noStore": true,
+      "pathIncludesReleaseId": false
+    }
+  },
+  "queryOnlyStore": {
+    "initializeRejected": true,
+    "queryOnly": 1,
+    "writeRejected": true
+  },
+  "grantRevocation": {
+    "writerRevision": 2,
+    "nextRequestObserved": true,
+    "corpusCount": 0,
+    "deniedDownloadStatus": 403,
+    "mainDbHashUnchangedDuringRead": true,
+    "mainDbSha256AfterWriter": "28269e458a0de66b88e11af7d271c956787f96a0c46d2c68c774226f5b0b888c"
+  },
+  "grantWriterUpdate": {
+    "writerRevision": 3,
+    "nextRequestCorpusCount": 1,
+    "downloadStatus": 200,
+    "mainDbHashUnchangedDuringRead": true,
+    "mainDbSha256AfterWriter": "86c9a54610b2e8d1d82e8f83193a4df82058ab87ba51a24ecf1ca8e7fc189a6e"
+  },
+  "caddySyntheticUpstreamProxyChecks": {
+    "/mcp": {
+      "syntheticUpstream": "/mcp"
+    },
+    "/files/probe": {
+      "syntheticUpstream": "/files/probe"
+    }
+  },
+  "managementHttpsAuth": {
+    "actualCreateApp": true,
+    "loginStatus": 200,
+    "cookieSecure": true,
+    "cookieHttpOnly": true,
+    "sessionCookiePersisted": true,
+    "wrongOriginStatus": 403,
+    "missingCsrfStatus": 403,
+    "validCsrfCredentialIssueStatus": 201
+  },
+  "syntheticDependencyCounters": {
+    "counts": {
+      "/status": 2,
+      "/v1/identity": 2,
+      "/api/mcp/libraries": 3,
+      "management_libraries": 3,
+      "/v1/embeddings": 1,
+      "/v1/rerank": 1,
+      "/mcp": 1,
+      "/files/probe": 1
+    },
+    "personalAuthorizationObserved": true
+  },
+  "databaseSha256AfterNoWriterSegments": "86c9a54610b2e8d1d82e8f83193a4df82058ab87ba51a24ecf1ca8e7fc189a6e",
+  "imageSourceSha256": {
+    "src/wenjin/mcp/stateless_identity.py": "3e180710dd15c8682c43af5b9350bab5ad106139b6ab7423346243481d0945ed",
+    "src/wenjin/mcp/stateless_server.py": "bb9f6afbc8952bb4f52f4f3566e1c5fdf083c4b10e3befa7a5e87da765ad8361",
+    "src/wenjin/mcp/stateless_tools.py": "30ffc42b1832df0adb4dc298d6ffc51c19651427c7b50888ee46a27da96fcbe5",
+    "mcp-stateless/pyproject.toml": "fc1337e57462b20cbf06acb9de50867de8b1cae903a17d4b75b7cfaae945c449",
+    "mcp-stateless/uv.lock": "060bc27c009db9c889431156e532c5972d3bb4dde0924fd67e759ef83725cc23"
+  },
+  "hostTemplateSha256": {
+    "deploy/Dockerfile.mcp-stateless": "df5d59157189d459b2166febcdd421a1975310e25fe4ce79f53eac74f3c05693",
+    "deploy/Dockerfile.mcp-stateless.dockerignore": "7ba9db8174329ea1348ddf07c3526e6efab42c533e010cc369f2110fb20eddef",
+    "deploy/compose.stateless.yaml": "92ed3d368b7bfc7c6e08d63271684ade42a4712e449c9e7c59f3e19667f6c5eb",
+    "deploy/Caddyfile.stateless": "e763e99630de9430b7deb9c14477716dfca9a32444aa397a780adcfddd4189c0"
+  },
+  "imageHashVerification": {
+    "imageId": "sha256:1f00cf6f96f22b68302845bad5eb8dbd2e44e976c720edf5029d9849d709fa62",
+    "container": "docker run --rm --entrypoint python",
+    "mountedVolumes": [],
+    "shortLived": true,
+    "matchesCurrentSource": true
+  }
+}
