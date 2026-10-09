@@ -1,5 +1,7 @@
 # 持续开发记录索引
 
+2026-10-14 [新版无状态MCP业务整合](../artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)：在独立worktree从本地保存点挑取既有隔离实现，核对模型准入、个人凭据、身份库和部署依赖兼容性；业务适配及独立验收状态以当轮记录为准。来源实验记录见[2026-10-09无状态MCP迭代](../artifacts/iterations/2026-10-09-mcp-stateless/development-log.md)。
+
 2026-10-14 [当前开发本地Git保存](../artifacts/iterations/2026-10-14-git-checkpoint/development-log.md)：保存当前代码、配置、测试及开发记录，排除运行数据库/凭据/原文，不重跑测试或推送远端；验收沿用各轮原有证据。
 
 2026-10-14 [MCP凭据管理与北京时间](../artifacts/iterations/2026-10-14-mcp-credentials-ux/development-log.md)：管理员按所属账号统一管理，签发后一次复制交付、按名称/前缀/状态识别与确认撤销；全部时间固定北京时间，390px卡片显示。最终Node42项、隔离后端6项通过，真实页面只读查看与桌面/390px复查；恢复原18777/18765服务，9条凭据与22条授权摘要不变，未签发或撤销真实token，真实客户端分发流程未验收。
@@ -74,5 +76,6 @@
 2026-10-08 [管理员评测GPU真实API单题生命周期](../artifacts/iterations/2026-10-08-evaluation-http-real-runtime/development-log.md)：修正GPU单行解析后，以真实CUDA模型经默认管理API完成固定单题成功、取消、跨lifespan shutdown/resume/checkpoint复用；独立测试Agent审读证据一致，Qdrant只读0写入。Python临时目录退出清理遇Windows SQLite WinError32，clean exit/自动清理未通过；非语义质量/生产验收。详见[独立审核](../artifacts/iterations/2026-10-08-evaluation-http-real-runtime/independent-review.md)。
 
 2026-10-08 [管理调用日志SQLite连接释放修复](../artifacts/iterations/2026-10-08-evaluation-http-real-runtime/development-log.md)：`CallLogStore._connect()`改为事务型contextmanager并在finally关闭每条真实SQLite连接；旧码连接强引用合同4个handle仍可查询，修后同合同通过且Windows可重命名、删除临时root。attempt-07历史exit_code=1保持原样，不重跑模型；清理合同不替代真实runner新版本exit验证。
+
 
 

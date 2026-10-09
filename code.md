@@ -4,6 +4,8 @@
 
 ## 当前能力与证据
 
+- **新版MCP个人迭代（2026-10-14，整合中）**：用户授权在独立worktree新增隔离的2026-07-28无状态MCP入口；旧2025-11-25状态化入口、主环境依赖和历史项目叙事保持原边界。当前仅已挑取设计/范围记录，业务整合和独立验收未完成；不操作真实业务数据或运行服务。见[本轮开发记录](artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)及[来源计划](artifacts/iterations/2026-10-09-mcp-stateless/phase-1-plan.md)。
+
 - **本地保存（2026-10-14）**：按用户要求保存当前开发Git快照；保存检查不替代功能验收，详细范围见[保存记录](artifacts/iterations/2026-10-14-git-checkpoint/development-log.md)。
 
 - **MCP连接凭据（2026-10-14）**：管理员按所属账号统一签发/查看/撤销（含本人），普通用户仅本人；名称只是备注，完整token仅签发时复制交付一次，历史不可恢复。北京时间固定Asia/Shanghai，桌面时间合并一列、390px卡片显示状态与撤销入口，登录会话期限分开。最终Node42项、独立隔离HTTP/Store6项通过；真实18777页面检查账号选择、改密前禁签、时间和桌面/390px展示，未签发/复制/撤销真实token。当天两Python服务已停，按原配置备份后恢复18777/18765，健康200、模型身份不变；9条凭据/22条grant摘要不变。迟到签发不回填也不自动撤销，可能遗留不可重显凭据需回原用户列表核对；分发与真实客户端未验收。详见[本轮记录](artifacts/iterations/2026-10-14-mcp-credentials-ux/development-log.md)、[独立合同](artifacts/iterations/2026-10-14-mcp-credentials-ux/validation-report.md)。静态资源刷新加载，未改变MCP协议或授权规则。
@@ -63,6 +65,7 @@
 ## 记录规则
 
 后续仅更新上述当前结论、边界和下一步；详细问题、处理、结果和未解决项写入 `artifacts/iterations/<date>-<topic>/development-log.md`，并更新[开发记录索引](docs/development-log.md)。已安装、冒烟通过、效果评测与生产验收分别描述。不要重新引入根目录一次性交接提示词。
+
 
 
 

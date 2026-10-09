@@ -27,6 +27,8 @@
 
 项目技术叙事截止于 2026-07-15。MCP 目标协议为 `2025-11-25` 的状态化生命周期，使用 `initialize` / `initialized` 能力协商和 Streamable HTTP 会话语义；不采用 `2026-07-28` 发布的无状态协议核心及其替代机制。
 
+2026-10-09用户另行授权个人迭代：在独立worktree、依赖环境和服务入口增加`2026-07-28`无状态MCP，旧入口继续遵循上述`2025-11-25`规则。新版不归入2026-07-15前项目叙述。复用检索/授权/版本/来源校验，不取消管理页登录会话，不操作真实数据或现有服务；实际分批状态见[本轮开发记录](artifacts/iterations/2026-10-09-mcp-stateless/development-log.md)和[第一批计划](artifacts/iterations/2026-10-09-mcp-stateless/phase-1-plan.md)。
+
 LlamaIndex 用于 Document/Node、切分和模型/向量库集成；导入更新、实验编排、融合及评测保持显式可检查。RRF 是排名融合，不是模型重排。
 Query 改写通过 OpenAI 兼容接口接入；当前公网 API 仅用于公开问题的开发实验，目标部署指向内网 LiteLLM，不能把内部 query 发往公网。
 
