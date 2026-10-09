@@ -4,12 +4,12 @@ import hashlib
 import json
 from pathlib import Path
 
-from ingest import load_documents
 from wenjin.content_hashing import manifest_content_fingerprint
 from wenjin.index_registry import IndexTarget
 from wenjin.indexing.bm25 import build_bm25_index
 from wenjin.indexing.dense import create_dense_collection, embed_chunks
 from wenjin.ingestion.chunking import block_chunks, fixed_chunks
+from wenjin.ingestion.manifest_documents import load_documents
 from wenjin.ingestion.multiformat import load_retrieval_documents
 
 
@@ -24,6 +24,7 @@ def build_candidate_index(
     embedder,
     embedding_model: str,
     project_root: Path,
+    raw_data_root: Path | None = None,
 ) -> IndexTarget:
     """拒绝覆盖现有资产；任一步失败则删除本次新建的候选。"""
     if strategy not in {"blocks", "blocks-split", "fixed"}:
@@ -34,6 +35,9 @@ def build_candidate_index(
         raise FileExistsError(f"候选BM25已存在：{bm25_path}")
     manifest_path = manifest_path.resolve()
     project_root = project_root.resolve()
+    trusted_raw_data_root = Path(raw_data_root or (project_root / "raw_data")).resolve()
+    if not trusted_raw_data_root.is_relative_to(project_root):
+        raise ValueError("原文存储root必须位于项目目录内")
     if not manifest_path.is_relative_to(project_root) or not bm25_path.resolve().is_relative_to(
         project_root
     ):
@@ -41,17 +45,18 @@ def build_candidate_index(
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
     uses_retrieval_scope = any("retrieval_eligible" in entry for entry in manifest["files"])
-    documents = (
-        load_retrieval_documents(manifest_path, project_root / "raw_data")
-        if uses_retrieval_scope
-        else load_documents(manifest_path)
-    )
+    if uses_retrieval_scope:
+        documents = load_retrieval_documents(manifest_path, trusted_raw_data_root)
+    else:
+        documents = load_documents(
+            manifest_path, raw_data_root=trusted_raw_data_root
+        )
     chunks = []
     for document in documents:
         if strategy == "fixed":
             chunks.extend(fixed_chunks(document, size=1200, overlap=120))
         else:
-            # blocks-split 对超长块强制生效，chunk 文本不再超过 max_chars。
+            # blocks-split 按行拆分超长块；过长单行会完整保留，允许超过 max_chars。
             chunks.extend(
                 block_chunks(
                     document, max_chars=1600, split_oversized=strategy == "blocks-split"
@@ -89,5 +94,9 @@ def build_candidate_index(
         ),
         normalization_profile=(
             next(iter(profiles)) if len(profiles) == 1 else "mixed-versioned-v1"
+        ),
+        raw_snapshot_root=(
+            str(trusted_raw_data_root.relative_to(project_root)).replace("\\", "/")
+            if trusted_raw_data_root != (project_root / "raw_data").resolve() else None
         ),
     )

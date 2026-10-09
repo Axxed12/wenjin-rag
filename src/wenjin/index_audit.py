@@ -14,18 +14,27 @@
 只读：不修改任何索引、配置或语料。
 """
 
+import codecs
 import hashlib
 import sqlite3
-from contextlib import closing
+import tempfile
+from contextlib import ExitStack, closing
 from pathlib import Path
 
 from qdrant_client import QdrantClient
 
 from wenjin import manifest as manifest_module
-from wenjin.content_hashing import BINARY_IDENTITY_V1
+from wenjin.content_hashing import (
+    BINARY_IDENTITY_V1,
+    SUPPORTED_PROFILES,
+    TEXT_NEWLINE_LF_V1,
+    hash_content,
+    normalize_newlines,
+)
 from wenjin.index_registry import (
     IndexTarget,
     resolve_project_path,
+    target_raw_data_root,
     validate_target,
 )
 from wenjin.parser_names import (
@@ -44,6 +53,9 @@ from wenjin.serving import CorpusSources, SourceNotFound
 MAX_EXAMPLES = 20
 # 位置范围校验要读来源文件行数；超过这个大小就不读（避免为审计拉入大文件）。
 MAX_LINES_CHECK_BYTES = 8 * 1024 * 1024
+LINE_MAPPED_PARSERS = frozenset(
+    {"text-line-v1", "rst-line-v1", "html-line-v1", "xml-line-v1", "man-roff-line-v1"}
+)
 
 # 期望在两侧都比对的字段，以及不一致时归到哪一类问题。
 COMPARED_FIELDS = {
@@ -120,6 +132,7 @@ def _position_problems(
     corpus_root: Path,
     line_counts: dict[str, int | None],
     page_counts: dict[str, int | None],
+    page_lines_by_source: dict[str, dict[int, list[str]]],
 ) -> str | None:
     """位置合理性，按**来源类型**判定。
 
@@ -130,16 +143,34 @@ def _position_problems(
     parser = record.get("parser")
     page = row.get("page_number")
     if parser in PAGE_PARSERS:
-        if not isinstance(page, int) or page < 1:
+        if type(page) is not int or page < 1:
             return f"按页来源必须带物理页码，实际为{page!r}"
         total_pages = _pdf_page_count(relative, corpus_root, page_counts)
         if total_pages is not None and page > total_pages:
             return f"页码超出来源PDF页数：{page} > {total_pages}"
+        if expected_unit_parser(record, page) == OCR_PAGE_PARSER:
+            # OCR派生正文不能按原文行切片逐字核验；这里仍验证物理页码存在。
+            return None
+        page_lines = page_lines_by_source.get(relative, {}).get(page)
+        if page_lines is None:
+            return f"第{page}物理页未能从已核验的PDF文本快照取得页内行"
+        start, end = row.get("start_line"), row.get("end_line")
+        if (
+            type(start) is not int
+            or type(end) is not int
+            or start < 1
+            or end < start
+            or end > len(page_lines)
+        ):
+            return (
+                f"PDF页内行区间非法：第{page}页start={start!r} end={end!r} "
+                f"该页共{len(page_lines)}行"
+            )
         return None
     start, end = row.get("start_line"), row.get("end_line")
-    if not isinstance(start, int) or not isinstance(end, int) or start < 1 or end < start:
+    if type(start) is not int or type(end) is not int or start < 1 or end < start:
         return f"行号区间非法：start={start} end={end}"
-    if page is not None and (not isinstance(page, int) or page < 1):
+    if page is not None and (type(page) is not int or page < 1):
         return f"页码非法：{page}"
     _count_source_lines(relative, corpus_root, line_counts)
     total = line_counts.get(relative)
@@ -189,6 +220,264 @@ def _count_source_lines(relative: str, raw_root: Path, cache: dict[str, int | No
     return total
 
 
+def _stream_content_hashes(
+    path: Path,
+    normalization: str,
+    encoding: str | None,
+    *,
+    snapshot_path: Path | None = None,
+) -> tuple[str, str]:
+    """流式校验大来源；需要parser重放时把同一字节流复制到受控临时快照。"""
+    if normalization not in SUPPORTED_PROFILES:
+        raise ValueError(f"不支持的内容规范化策略：{normalization}")
+    raw_digest = hashlib.sha256()
+    canonical_digest = hashlib.sha256()
+    if normalization == BINARY_IDENTITY_V1:
+        if encoding is not None:
+            raise ValueError("binary-identity-v1不能声明文本编码")
+        with ExitStack() as stack:
+            source = stack.enter_context(path.open("rb"))
+            snapshot = stack.enter_context(snapshot_path.open("wb")) if snapshot_path else None
+            for block in iter(lambda: source.read(1024 * 1024), b""):
+                if snapshot is not None:
+                    snapshot.write(block)
+                raw_digest.update(block)
+                canonical_digest.update(block)
+        return raw_digest.hexdigest(), canonical_digest.hexdigest()
+
+    if not encoding:
+        raise ValueError("文本来源缺少encoding")
+    decoder = codecs.getincrementaldecoder(encoding)(errors="strict")
+    pending_cr = ""
+    with ExitStack() as stack:
+        source = stack.enter_context(path.open("rb"))
+        snapshot = stack.enter_context(snapshot_path.open("wb")) if snapshot_path else None
+        for block in iter(lambda: source.read(1024 * 1024), b""):
+            if snapshot is not None:
+                snapshot.write(block)
+            raw_digest.update(block)
+            decoded = pending_cr + decoder.decode(block, final=False)
+            pending_cr = "\r" if decoded.endswith("\r") else ""
+            if pending_cr:
+                decoded = decoded[:-1]
+            canonical_digest.update(normalize_newlines(decoded).encode("utf-8"))
+        decoded = pending_cr + decoder.decode(b"", final=True)
+        canonical_digest.update(normalize_newlines(decoded).encode("utf-8"))
+    return raw_digest.hexdigest(), canonical_digest.hexdigest()
+
+
+def _verified_source(
+    relative: str, record: dict, corpus_root: Path
+) -> dict:
+    """校验并解析单个来源；返回结果供同一文件的全部chunk共享。"""
+    try:
+        path = resolve_within(corpus_root, relative)
+    except UnsafePathError as error:
+        return {"error": f"来源路径无效：{error}"}
+    if not path.is_file():
+        return {"error": "manifest登记的来源文件不存在"}
+
+    normalization = record.get("normalization", TEXT_NEWLINE_LF_V1)
+    encoding = record.get(
+        "encoding", None if normalization == BINARY_IDENTITY_V1 else "utf-8"
+    )
+    expected_raw = str(record.get("_content_hash") or "").lower()
+    expected_canonical = record.get("canonical_sha256")
+    requires_canonical = bool(record.get("retrieval_eligible"))
+    if requires_canonical and not expected_canonical:
+        return {"error": "retrieval_eligible来源缺少canonical_sha256"}
+
+    multi_format_input = "retrieval_eligible" in record
+    parser = record.get("parser") if multi_format_input else None
+    if not parser:
+        # legacy ingest.py按扩展名写parser但原文不做行转换；新多格式建库也按扩展名回退。
+        from wenjin.ingestion.multiformat import parser_for_path
+
+        parser = parser_for_path(Path(relative))
+    is_pdf = Path(relative).suffix.lower() == ".pdf"
+    snapshot_directory = None
+    snapshot_path = None
+    raw = None
+    try:
+        size = path.stat().st_size
+        if size <= MAX_LINES_CHECK_BYTES:
+            raw = path.read_bytes()
+            hashed = hash_content(raw, normalization=normalization, encoding=encoding)
+            actual_raw = hashed.raw_sha256
+            actual_canonical = hashed.canonical_sha256
+            canonical_text = (
+                hashed.canonical_text() if encoding is not None else None
+            )
+        else:
+            # Hash与parser重放必须绑定同一字节快照，避免Hash后原路径被替换。
+            needs_snapshot = parser in LINE_MAPPED_PARSERS or is_pdf
+            if needs_snapshot:
+                snapshot_directory = tempfile.TemporaryDirectory(
+                    prefix="wenjin-index-audit-"
+                )
+                suffix = Path(relative).suffix or ".source"
+                snapshot_path = Path(snapshot_directory.name) / f"source{suffix}"
+            actual_raw, actual_canonical = _stream_content_hashes(
+                path, normalization, encoding, snapshot_path=snapshot_path
+            )
+            canonical_text = None
+    except (OSError, LookupError, UnicodeError, TypeError, ValueError) as error:
+        if snapshot_directory is not None:
+            snapshot_directory.cleanup()
+        return {"error": f"來源讀取、解碼或正規化失敗：{type(error).__name__}: {error}"}
+
+    try:
+        if not expected_raw or actual_raw != expected_raw:
+            return {"error": "来源raw_sha256与manifest登记值不符"}
+        if expected_canonical and actual_canonical != str(expected_canonical).lower():
+            return {"error": "来源canonical_sha256与manifest登记值不符"}
+
+        result = {
+            "raw_hash_verified": True,
+            "canonical_hash_verified": bool(expected_canonical),
+            "hash_verified": True,
+            "lines": None,
+            "pages": None,
+            "page_count": None,
+            "raw_line_count": None,
+            "parser": parser,
+            "parser_replayed": False,
+            "hybrid_classification_unverified": False,
+            "reason": None,
+        }
+
+        if is_pdf:
+            if parser == OCR_PAGE_PARSER:
+                # OCR正文不作原文逐字声明，但物理页引用仍必须落到真实可读的PDF。
+                page_count = _snapshot_pdf_page_count(raw, snapshot_path)
+                if page_count is None:
+                    result["error"] = "无法从Hash已核验的PDF快照读取OCR来源的物理页数"
+                    return result
+                result["reason"] = "ocr_derived_text"
+                result["page_count"] = page_count
+                return result
+            if parser not in {TEXT_PAGE_PARSER, HYBRID_PAGE_PARSER}:
+                page_count = _snapshot_pdf_page_count(raw, snapshot_path)
+                if page_count is None:
+                    result["error"] = "无法从Hash已核验的PDF快照读取物理页数"
+                    return result
+                result["reason"] = "unsupported_pdf_parser"
+                result["page_count"] = page_count
+                return result
+            if parser == HYBRID_PAGE_PARSER and _scan_pages(record) is None:
+                page_count = _snapshot_pdf_page_count(raw, snapshot_path)
+                if page_count is None:
+                    result["error"] = "无法从Hash已核验的混合PDF快照读取物理页数"
+                    return result
+                result["reason"] = "ocr_page_plan_missing"
+                result["page_count"] = page_count
+                return result
+
+            try:
+                from wenjin.ingestion.multiformat import (
+                    parse_pdf_pages,
+                    parse_pdf_pages_bytes,
+                )
+
+                # 小PDF直接用已Hash的bytes；大PDF只读Hash时创建的私有快照。
+                units = (
+                    parse_pdf_pages_bytes(raw, relative)
+                    if raw is not None
+                    else parse_pdf_pages(snapshot_path, relative)
+                )
+                # 物理页数必须独立读取可信快照；用解析结果的len作期望值会让
+                # “解析器漏掉末页”自证通过。
+                page_count = _snapshot_pdf_page_count(raw, snapshot_path)
+                if page_count is None:
+                    raise ValueError("无法从Hash已核验的PDF快照读取物理页数")
+                _check_page_coverage(relative, parser, units, page_count)
+                if parser == HYBRID_PAGE_PARSER:
+                    _validate_scan_page_plan(record, page_count)
+                    provenance = record.get("provenance")
+                    parse_report = (
+                        provenance.get("parse_report")
+                        if isinstance(provenance, dict)
+                        else None
+                    )
+                    classification_fields = {"pages", "text_pages", "no_text_pages"}
+                    result["hybrid_classification_unverified"] = not (
+                        isinstance(parse_report, dict)
+                        and classification_fields.issubset(parse_report)
+                    )
+            except Exception as error:  # noqa: BLE001 - 文本层解析失败必须拒绝准入
+                result["error"] = (
+                    f"PDF文本层解析器重放失败：{type(error).__name__}: {error}"
+                )
+                return result
+
+            result["pages"] = {
+                unit.page_number: unit.text.splitlines(keepends=True)
+                for unit in units
+            }
+            result["page_count"] = page_count
+            result["parser_replayed"] = True
+            return result
+
+        if normalization == BINARY_IDENTITY_V1 or parser in PAGE_PARSERS:
+            result["reason"] = "page_or_binary_source"
+            return result
+        if parser not in LINE_MAPPED_PARSERS:
+            result["reason"] = "unknown_parser"
+            return result
+
+        try:
+            if snapshot_path is not None:
+                if multi_format_input:
+                    # 大HTML/RST/XML/man只从同一字节流生成的私有快照重放声明parser。
+                    from wenjin.ingestion.multiformat import parse_line_mapped
+
+                    parsed_text = parse_line_mapped(snapshot_path, relative, parser).text
+                    result["parser_replayed"] = True
+                else:
+                    # 旧manifest没有retrieval_eligible标记；历史建库直接切canonical正文，
+                    # 不能因为扩展名推断出html-line parser就改变旧索引的正文语义。
+                    parsed_text = normalize_newlines(
+                        snapshot_path.read_bytes().decode(encoding)
+                    )
+            elif multi_format_input:
+                from wenjin.ingestion.multiformat import parse_line_mapped_text
+
+                # 生产文本parser固定按UTF-8重读；复用已Hash bytes避免TOCTOU。
+                parser_input = normalize_newlines(raw.decode("utf-8"))
+                parsed_text = parse_line_mapped_text(parser_input, parser)
+                result["parser_replayed"] = True
+            else:
+                # 旧版load_documents把canonical_text直接交给切片器。
+                parsed_text = canonical_text
+        except Exception as error:  # noqa: BLE001 - 声明parser失败必须使准入失败
+            result["error"] = f"行映射解析器重放失败：{type(error).__name__}: {error}"
+            return result
+
+        result["lines"] = parsed_text.splitlines(keepends=True)
+        result["raw_line_count"] = len(result["lines"])
+        return result
+    finally:
+        # 解析行/页由audit级cache复用；raw bytes和临时快照在单文件审计后释放。
+        if snapshot_directory is not None:
+            snapshot_directory.cleanup()
+
+
+def _snapshot_pdf_page_count(raw: bytes | None, snapshot_path: Path | None) -> int | None:
+    """只从刚通过Hash的bytes/快照读取PDF物理页数，不重开原来源路径。"""
+    import pymupdf
+
+    try:
+        if raw is not None:
+            with pymupdf.open(stream=raw, filetype="pdf") as pdf:
+                return len(pdf)
+        if snapshot_path is not None:
+            with pymupdf.open(snapshot_path) as pdf:
+                return len(pdf)
+    except Exception:  # noqa: BLE001 - 扫描件正文不做原文声称，页数不可读时不猜测
+        return None
+    return None
+
+
 def _scan_pages(manifest_record: dict) -> list[int] | None:
     """manifest 记录的逐页解析计划里，哪些页是扫描页。
 
@@ -203,6 +492,77 @@ def _scan_pages(manifest_record: dict) -> list[int] | None:
         return None
     pages = report["scan_pages"]
     return [page for page in pages if isinstance(page, int)] if isinstance(pages, list) else None
+
+
+def _validate_scan_page_plan(manifest_record: dict, page_count: int) -> set[int]:
+    """混合PDF逐页计划必须是有效、互斥且覆盖真实物理页的分区。"""
+    provenance = manifest_record.get("provenance")
+    report = provenance.get("parse_report") if isinstance(provenance, dict) else None
+    pages = report.get("scan_pages") if isinstance(report, dict) else None
+    if not isinstance(pages, list):
+        raise ValueError("混合PDF缺少有效scan_pages计划")
+    if any(type(page) is not int for page in pages):
+        raise ValueError("混合PDF scan_pages必须只含整数物理页码")
+    if len(set(pages)) != len(pages):
+        raise ValueError("混合PDF scan_pages包含重复页码")
+    invalid = sorted(page for page in pages if page < 1 or page > page_count)
+    if invalid:
+        raise ValueError(f"混合PDF scan_pages超出1..{page_count}：{invalid}")
+    scan_pages = set(pages)
+
+    if "pages" in report:
+        reported_pages = report["pages"]
+        if type(reported_pages) is not int or reported_pages != page_count:
+            raise ValueError(
+                f"混合PDF parse_report.pages={reported_pages!r}与物理页数{page_count}不符"
+            )
+
+    no_text_pages: set[int] = set()
+    if "no_text_pages" in report:
+        no_text_values = report["no_text_pages"]
+        if not isinstance(no_text_values, list):
+            raise ValueError("混合PDF no_text_pages必须是整数页码列表")
+        if any(type(page) is not int for page in no_text_values):
+            raise ValueError("混合PDF no_text_pages必须只含整数物理页码")
+        if len(set(no_text_values)) != len(no_text_values):
+            raise ValueError("混合PDF no_text_pages包含重复页码")
+        no_text_pages = set(no_text_values)
+        invalid_no_text = sorted(
+            page for page in no_text_pages if page < 1 or page > page_count
+        )
+        if invalid_no_text:
+            raise ValueError(
+                f"混合PDF no_text_pages超出1..{page_count}：{invalid_no_text}"
+            )
+        if scan_pages & no_text_pages:
+            raise ValueError("混合PDF scan_pages与no_text_pages重叠")
+
+    text_pages = report.get("text_pages")
+    if "text_pages" in report and type(text_pages) is not int:
+        raise ValueError("混合PDF text_pages必须是整数")
+    if "text_pages" in report and not 0 <= text_pages <= page_count - len(scan_pages):
+        raise ValueError(
+            f"混合PDF text_pages={text_pages!r}超出物理页分区可行范围"
+        )
+    if (
+        "text_pages" in report
+        and "no_text_pages" in report
+        and text_pages != page_count - len(scan_pages) - len(no_text_pages)
+    ):
+        raise ValueError(
+            f"混合PDF text_pages={text_pages!r}与物理页分区数量不符"
+        )
+    return scan_pages
+
+
+def _check_page_coverage(relative: str, parser: str, units, page_count: int) -> None:
+    """文本层重放必须覆盖每个真实物理页，且每页恰好出现一次。"""
+    page_numbers = [unit.page_number for unit in units]
+    if len(page_numbers) != page_count or set(page_numbers) != set(range(1, page_count + 1)):
+        raise ValueError(
+            f"{relative}按{parser}重放的页集合与物理页不一致："
+            f"units={page_numbers!r}, page_count={page_count}"
+        )
 
 
 def expected_unit_parser(manifest_record: dict, page_number) -> str | None:
@@ -292,7 +652,7 @@ def audit_index(target: IndexTarget, *, root: Path, qdrant_client: QdrantClient)
     # 1) 共享的三资产校验（manifest字节绑定、按记录重算的指纹、行数/点数/维度/状态）。
     validation = validate_target(target, root=root, qdrant_client=qdrant_client)
 
-    raw_data_root = root / "raw_data"
+    raw_data_root = target_raw_data_root(root, target)
     manifest_path = resolve_project_path(root, target.manifest_path)
     # 结构校验必须包含 subdir：导入拒绝的配置，验收也不能接受。
     manifest = manifest_module.validate_manifest(manifest_path, raw_data_root=raw_data_root)
@@ -323,13 +683,18 @@ def audit_index(target: IndexTarget, *, root: Path, qdrant_client: QdrantClient)
         "logical_document_id_mismatch": [],
         "source_path_mismatch": [],
         "position_mismatch": [],
+        "source_text_mismatch": [],
+        "source_content_invalid": [],
         "parser_mismatch": [],
         "ocr_marker_mismatch": [],
         "version_mismatch": [],
         "strategy_mismatch": [],
     }
+    problem_totals = {kind: 0 for kind in problems}
 
     def note(kind: str, chunk_id, detail) -> None:
+        # examples有上限，但逐chunk核验不能被MAX_EXAMPLES截断后的列表长度遮蔽。
+        problem_totals[kind] += 1
         if len(problems[kind]) < MAX_EXAMPLES:
             problems[kind].append({"chunk_id": chunk_id, "detail": detail})
 
@@ -380,9 +745,34 @@ def audit_index(target: IndexTarget, *, root: Path, qdrant_client: QdrantClient)
 
     line_counts: dict[str, int | None] = {}
     page_counts: dict[str, int | None] = {}
+    page_lines_by_source: dict[str, dict[int, list[str]]] = {}
+    source_text_cache: dict[str, dict] = {}
+    source_text_audit = {
+        "total_chunks": len(bm25_ids & qdrant_ids),
+        "verified_chunks": 0,
+        "mismatched_chunks": 0,
+        "unverifiable_chunks": 0,
+        "page_level_unchecked": 0,
+        "sources_considered": 0,
+        "sources_hash_verified": 0,
+        "sources_raw_hash_verified": 0,
+        "sources_canonical_hash_verified": 0,
+        "sources_hash_failed": 0,
+        "sources_parser_replayed": 0,
+        "hybrid_classification_unverified_sources": 0,
+        "limits_by_reason": {},
+        "verifiable": False,
+    }
+
+    def count_text_limit(reason: str) -> None:
+        counts = source_text_audit["limits_by_reason"]
+        counts[reason] = counts.get(reason, 0) + 1
+
     ocr_source_chunks = 0
     ocr_marker_verified_chunks = 0
     for chunk_id in sorted(bm25_ids & qdrant_ids):
+        chunk_problem_count_before = sum(problem_totals.values())
+        source_text_candidate_verified = False
         row, payload = by_id_bm25[chunk_id], by_id_qdrant[chunk_id]
 
         # 4) 两侧逐字段比较。除正文外的字段直接比；正文单独比并各自重算Hash。
@@ -396,6 +786,8 @@ def audit_index(target: IndexTarget, *, root: Path, qdrant_client: QdrantClient)
         text_bm25, text_qdrant = row.get("raw_text") or "", payload.get("text") or ""
         if text_bm25 != text_qdrant:
             note("text_mismatch", chunk_id, "BM25与Qdrant正文不一致")
+            source_text_audit["unverifiable_chunks"] += 1
+            count_text_limit("index_sides_disagree")
             continue
 
         # 5) 两侧的正文Hash各自重算。
@@ -462,6 +854,139 @@ def audit_index(target: IndexTarget, *, root: Path, qdrant_client: QdrantClient)
             note("source_path_mismatch", chunk_id,
                  f"两侧指向不同来源记录：{resolved_sources}")
 
+        # 8) 正文必须逐字等于可信来源经建库解析器处理后的连续行切片。
+        #    同一来源的原始字节、Hash和解析结果按文件缓存，不按chunk重复读取。
+        if set(resolved_sources) != {"Qdrant", "BM25"}:
+            source_text_audit["unverifiable_chunks"] += 1
+            count_text_limit("source_path_unmapped")
+        elif len(set(resolved_sources.values())) != 1:
+            source_text_audit["unverifiable_chunks"] += 1
+            count_text_limit("source_path_mismatch")
+        else:
+            relative = next(iter(resolved_sources.values()))
+            manifest_record = records.get(relative)
+            if manifest_record is None or relative not in in_scope:
+                source_text_audit["unverifiable_chunks"] += 1
+                count_text_limit("source_outside_scope")
+            else:
+                if relative not in source_text_cache:
+                    source_text_audit["sources_considered"] += 1
+                    check = _verified_source(relative, manifest_record, corpus_root)
+                    source_text_cache[relative] = check
+                    if check.get("hash_verified"):
+                        source_text_audit["sources_hash_verified"] += 1
+                        source_text_audit["sources_raw_hash_verified"] += 1
+                        if check.get("canonical_hash_verified"):
+                            source_text_audit["sources_canonical_hash_verified"] += 1
+                    else:
+                        source_text_audit["sources_hash_failed"] += 1
+                    if check.get("parser_replayed"):
+                        source_text_audit["sources_parser_replayed"] += 1
+                    if check.get("hybrid_classification_unverified"):
+                        source_text_audit["hybrid_classification_unverified_sources"] += 1
+                    if check.get("error"):
+                        note("source_content_invalid", chunk_id,
+                             f"{relative}：{check.get('error', '来源Hash核验失败')}")
+                check = source_text_cache[relative]
+                # 后续位置检查也复用同一来源快照，避免再打开原路径读行数。
+                line_counts[relative] = (
+                    len(check["lines"])
+                    if check.get("lines") is not None
+                    else check.get("raw_line_count")
+                )
+                if Path(relative).suffix.lower() == ".pdf":
+                    # page range也绑定同一份已Hash快照；None表示该快照无法解析页数，
+                    # 不再回头打开可能已变化的原始PDF路径。
+                    page_counts[relative] = check.get("page_count")
+                    page_lines_by_source[relative] = check.get("pages") or {}
+                if check.get("error"):
+                    source_text_audit["unverifiable_chunks"] += 1
+                    count_text_limit("source_integrity_failure")
+                elif check.get("reason"):
+                    source_text_audit["unverifiable_chunks"] += 1
+                    reason = check["reason"]
+                    count_text_limit(reason)
+                    if reason in {
+                        "page_or_binary_source", "ocr_derived_text",
+                        "ocr_page_plan_missing", "unsupported_pdf_parser",
+                    }:
+                        source_text_audit["page_level_unchecked"] += 1
+                elif check.get("pages") is not None:
+                    page_number = row.get("page_number")
+                    declared_parser = check["parser"]
+                    page_parser = (
+                        expected_unit_parser(manifest_record, page_number)
+                        if declared_parser == HYBRID_PAGE_PARSER
+                        else TEXT_PAGE_PARSER
+                    )
+                    for side, side_row in side_rows.items():
+                        actual_parser = side_row.get("parser")
+                        if actual_parser is not None and actual_parser != page_parser:
+                            note("parser_mismatch", chunk_id,
+                                 f"{side} parser={actual_parser!r}，第{page_number}页"
+                                 f"按manifest应为{page_parser!r}")
+                    if page_parser == OCR_PAGE_PARSER:
+                        # OCR识别文本能绑定到扫描页，但不能宣称等于图像中的原文。
+                        source_text_audit["unverifiable_chunks"] += 1
+                        source_text_audit["page_level_unchecked"] += 1
+                        count_text_limit("ocr_derived_text")
+                    elif page_parser != TEXT_PAGE_PARSER:
+                        source_text_audit["unverifiable_chunks"] += 1
+                        source_text_audit["page_level_unchecked"] += 1
+                        count_text_limit("pdf_page_parser_unavailable")
+                    else:
+                        page_lines = check["pages"].get(page_number)
+                        start, end = row.get("start_line"), row.get("end_line")
+                        if page_lines is None:
+                            source_text_audit["unverifiable_chunks"] += 1
+                            count_text_limit("pdf_physical_page_unavailable")
+                            note("source_content_invalid", chunk_id,
+                                 f"{relative}第{page_number!r}物理页不在已核验的PDF文本快照中")
+                        elif (
+                            type(start) is not int
+                            or type(end) is not int
+                            or start < 1
+                            or end < start
+                            or end > len(page_lines)
+                        ):
+                            source_text_audit["mismatched_chunks"] += 1
+                            count_text_limit("invalid_pdf_page_line_range")
+                            note("position_mismatch", chunk_id,
+                                 f"第{page_number}页页内行区间非法：{start!r}-{end!r}")
+                        elif "".join(page_lines[start - 1 : end]) != text_qdrant:
+                            source_text_audit["mismatched_chunks"] += 1
+                            note("source_text_mismatch", chunk_id,
+                                 f"正文不等于来源{relative}第{page_number}物理页"
+                                 f"按{TEXT_PAGE_PARSER}解析后的连续行{start}-{end}")
+                        else:
+                            source_text_candidate_verified = True
+                else:
+                    expected_parser = check["parser"]
+                    for side, side_row in side_rows.items():
+                        actual_parser = side_row.get("parser")
+                        if actual_parser is not None and actual_parser != expected_parser:
+                            note("parser_mismatch", chunk_id,
+                                 f"{side} parser={actual_parser!r}，来源建库解析器"
+                                 f"应为{expected_parser!r}")
+                    start, end = row.get("start_line"), row.get("end_line")
+                    lines = check["lines"]
+                    if (
+                        type(start) is not int
+                        or type(end) is not int
+                        or start < 1
+                        or end < start
+                        or end > len(lines)
+                    ):
+                        source_text_audit["unverifiable_chunks"] += 1
+                        count_text_limit("invalid_line_range")
+                    elif "".join(lines[start - 1 : end]) != text_qdrant:
+                        source_text_audit["mismatched_chunks"] += 1
+                        note("source_text_mismatch", chunk_id,
+                             f"正文不等于来源{relative}按{expected_parser}解析后的"
+                             f"连续行{start}-{end}")
+                    else:
+                        source_text_candidate_verified = True
+
         # 7) 位置与页码：按来源类型判定，两侧各查一次。
         for side, relative in resolved_sources.items():
             manifest_record = records.get(relative)
@@ -469,7 +994,7 @@ def audit_index(target: IndexTarget, *, root: Path, qdrant_client: QdrantClient)
                 continue
             detail = _position_problems(
                 side_rows[side], manifest_record, relative, corpus_root,
-                line_counts, page_counts,
+                line_counts, page_counts, page_lines_by_source,
             )
             if detail:
                 note("position_mismatch", chunk_id, f"{side}：{detail}")
@@ -481,11 +1006,22 @@ def audit_index(target: IndexTarget, *, root: Path, qdrant_client: QdrantClient)
         if row.get("strategy") != target.strategy:
             note("strategy_mismatch", chunk_id,
                  f"BM25={row.get('strategy')!r} 目标={target.strategy!r}")
+        # 仅当本chunk没有任何两侧元数据、来源位置或解析器问题时，才把原文比对
+        # 计为完整核验；不能让一侧位置错误时另一侧正文正确掩盖问题。
+        if (
+            source_text_candidate_verified
+            and sum(problem_totals.values()) == chunk_problem_count_before
+        ):
+            source_text_audit["verified_chunks"] += 1
 
     for path in _duplicates([row["path"] for row in manifest_module.file_records(manifest)]):
         note("duplicate_manifest_paths", None, f"manifest重复登记：{path}")
 
     failed = {kind: items for kind, items in problems.items() if items}
+    source_text_audit["verifiable"] = (
+        source_text_audit["total_chunks"] > 0
+        and source_text_audit["verified_chunks"] == source_text_audit["total_chunks"]
+    )
     return {
         "target_id": target.target_id,
         "library": target.library,
@@ -510,6 +1046,7 @@ def audit_index(target: IndexTarget, *, root: Path, qdrant_client: QdrantClient)
             "ocr_marker_verified_chunks": ocr_marker_verified_chunks,
             "verifiable": not ocr_sources or ocr_marker_verified_chunks == ocr_source_chunks,
         },
+        "source_text_audit": source_text_audit,
         "problems": problems,
         "status": "PASS" if not failed else "FAIL",
     }

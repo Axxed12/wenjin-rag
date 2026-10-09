@@ -1,0 +1,14 @@
+{$PUBLIC_DOMAIN} {
+	encode gzip zstd
+	@stateful_mcp path /mcp*
+	reverse_proxy @stateful_mcp mcp:8765 {
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Host {hostport}
+	}
+	reverse_proxy management:8777 {
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Host {hostport}
+	}
+}

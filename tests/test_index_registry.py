@@ -1,6 +1,8 @@
 import hashlib
 import json
+import os
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -32,12 +34,13 @@ def target(tmp_path: Path, target_id: str = "a") -> IndexTarget:
         }],
     }), encoding="utf-8")
     database = tmp_path / "index.sqlite"
-    with sqlite3.connect(database) as connection:
-        connection.execute("CREATE TABLE IF NOT EXISTS chunks(version, strategy)")
-        if connection.execute("SELECT COUNT(*) FROM chunks").fetchone()[0] == 0:
-            connection.executemany(
-                "INSERT INTO chunks VALUES (?, ?)", [("3.6.5", "blocks")] * 2
-            )
+    with closing(sqlite3.connect(database)) as connection:
+        with connection:
+            connection.execute("CREATE TABLE IF NOT EXISTS chunks(version, strategy)")
+            if connection.execute("SELECT COUNT(*) FROM chunks").fetchone()[0] == 0:
+                connection.executemany(
+                    "INSERT INTO chunks VALUES (?, ?)", [("3.6.5", "blocks")] * 2
+                )
     return IndexTarget(
         target_id=target_id,
         library="osg",
@@ -68,6 +71,16 @@ def test_validate_target_checks_all_three_assets(tmp_path):
     result = validate_target(target(tmp_path), root=tmp_path, qdrant_client=FakeQdrant())
     assert result["valid"] is True
     assert result["bm25_rows"] == result["qdrant_points"] == 2
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows会阻止删除仍被SQLite句柄打开的文件")
+def test_validate_target_closes_bm25_handle_for_managed_retry(tmp_path):
+    """Windows重试/删除候选索引前，准入审计必须释放BM25文件句柄。"""
+    config = target(tmp_path)
+    validate_target(config, root=tmp_path, qdrant_client=FakeQdrant())
+    bm25_path = resolve_project_path(tmp_path, config.bm25_path)
+    bm25_path.unlink()
+    assert not bm25_path.exists()
 
 
 def test_registry_switch_and_rollback_are_revisioned(tmp_path):

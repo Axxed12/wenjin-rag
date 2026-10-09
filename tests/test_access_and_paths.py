@@ -456,10 +456,30 @@ def test_identical_duplicate_target_config_is_deduplicated(tmp_path):
 
 
 def test_real_project_index_configs_have_no_duplicate_target_ids():
-    """真实项目里同一个 target 会同时出现在路由清单和自己的配置文件里，必须能通过。"""
+    """公开基线去重后必须完整；部署者新增的内部库不改变公开基线。"""
     root = Path(__file__).resolve().parents[1]
     configs = index_target_configs(root)
+    expected_target_ids = {
+        "gdal-3.13.1-blocks-candidate-001",
+        "gdal-3.13.1-blocks-split-candidate-002",
+        "ogc-3dtiles-1.1-blocks-candidate-001",
+        "ogc-3dtiles-1.1-blocks-split-candidate-002",
+        "ogc-3dtiles-1.1-blocks-split-candidate-003",
+        "ogc-wms-1.3.0-blocks-candidate-001",
+        "ogc-wms-1.3.0-blocks-split-candidate-002",
+        "osg-3.6.5-blocks-dualhash-003",
+        "osgearth-3.8-blocks-candidate-001",
+        "osgearth-3.8-blocks-split-candidate-002",
+        "proj-9.8.1-blocks-candidate-001",
+        "proj-9.8.1-blocks-split-candidate-002",
+    }
+    # 内部语料是本机部署状态，不能把某个开发者的私有资料数量锁成公开测试合同。
+    public_configs = {
+        key: value for key, value in configs.items()
+        if str(value.get("manifest_path", "")).startswith("corpora/")
+    }
+    assert set(public_configs) == expected_target_ids
+    assert all(value.get("target_id") == key for key, value in configs.items())
     assert configs["osg-3.6.5-blocks-dualhash-003"]["dense_collection"] == (
         "osg_3_6_5_dense_blocks_dualhash"
     )
-    assert len(configs) == 11

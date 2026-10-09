@@ -1,0 +1,75 @@
+services:
+  management:
+    environment:
+      WENJIN_MODEL_API_URL: ${WENJIN_MODEL_API_URL:?Set the private TLS model API URL}
+      WENJIN_MODEL_API_CA_BUNDLE: /runcert/model-node-ca-bundle.pem
+      FORWARDED_ALLOW_IPS: ${WENJIN_PROXY_TRUSTED_IP:-172.30.250.2}
+    volumes:
+      - type: bind
+        source: ${MODEL_NODE_CA_BUNDLE_FILE:?Set the trusted model API CA bundle}
+        target: /runcert/model-node-ca-bundle.pem
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      data-plane: {}
+      model-egress: {}
+      proxy-plane:
+        ipv4_address: ${WENJIN_MANAGEMENT_PROXY_IP:-172.30.250.3}
+
+  mcp:
+    environment:
+      WENJIN_MODEL_API_URL: ${WENJIN_MODEL_API_URL:?Set the private TLS model API URL}
+      WENJIN_MODEL_API_CA_BUNDLE: /runcert/model-node-ca-bundle.pem
+      WENJIN_MCP_ALLOWED_HOSTS: ${WENJIN_MCP_ALLOWED_HOSTS:?Set public MCP host allowlist}
+      FORWARDED_ALLOW_IPS: ${WENJIN_PROXY_TRUSTED_IP:-172.30.250.2}
+    volumes:
+      - type: bind
+        source: ${MODEL_NODE_CA_BUNDLE_FILE:?Set the trusted model API CA bundle}
+        target: /runcert/model-node-ca-bundle.pem
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      data-plane: {}
+      model-egress: {}
+      proxy-plane:
+        ipv4_address: ${WENJIN_MCP_PROXY_IP:-172.30.250.4}
+
+  cloud-edge:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    depends_on:
+      management:
+        condition: service_healthy
+      mcp:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:?Set a DNS name before cloud deployment}
+    volumes:
+      - ./deploy/Caddyfile.cloud:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      edge: {}
+      proxy-plane:
+        ipv4_address: ${WENJIN_PROXY_TRUSTED_IP:-172.30.250.2}
+
+networks:
+  edge:
+  # 允许应用经宿主机已有的VPN/私网路由访问GPU节点；Qdrant仍只在internal data-plane。
+  model-egress:
+    driver: bridge
+  proxy-plane:
+    internal: true
+    ipam:
+      config:
+        - subnet: ${WENJIN_PROXY_SUBNET:-172.30.250.0/29}
+
+volumes:
+  caddy-data:
+  caddy-config:

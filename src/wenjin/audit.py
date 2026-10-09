@@ -4,12 +4,44 @@ import hashlib
 import json
 import logging
 import os
+import re
 import sys
 from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import TextIO
 from uuid import uuid4
+
+_SAFE_TARGET_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+
+
+def _safe_retrieval_target(result: dict | None) -> str:
+    """从检索结果只提取稳定target身份，不记录库显示名、路径或正文。"""
+    if not isinstance(result, dict):
+        return "unknown"
+    managed = result.get("managed_file")
+    if isinstance(managed, dict):
+        file_id = managed.get("file_id")
+        if isinstance(file_id, str) and _SAFE_TARGET_ID.fullmatch(file_id):
+            return f"file:{file_id}"
+    target_id = result.get("index_target_id")
+    if isinstance(target_id, str) and _SAFE_TARGET_ID.fullmatch(target_id):
+        return f"index:{target_id}"
+    routed = result.get("routed_libraries")
+    if isinstance(routed, list):
+        target_ids = []
+        for item in routed:
+            if not isinstance(item, dict):
+                continue
+            item_target = item.get("target_id")
+            if isinstance(item_target, str) and _SAFE_TARGET_ID.fullmatch(item_target):
+                target_ids.append(item_target)
+        target_ids = list(dict.fromkeys(target_ids))
+        if target_ids:
+            shown = target_ids[:5]
+            suffix = f",+{len(target_ids) - len(shown)}" if len(target_ids) > len(shown) else ""
+            return "routed:" + ",".join(shown) + suffix
+    return "unknown"
 
 
 def digest(value: str) -> str:
@@ -57,6 +89,9 @@ class SearchAudit:
         if sink == "file":
             configured = os.getenv("WENJIN_AUDIT_PATH")
             path = Path(configured) if configured else root / "artifacts/audit/search_docs.jsonl"
+            if not path.is_absolute():
+                # 相对路径固定以项目root为基准，确保管理服务能安全读取同一文件。
+                path = root / path
             return cls(path, include_query=include_query)
         if sink == "off":
             return cls(include_query=include_query, enabled=False)
@@ -83,6 +118,7 @@ class SearchAudit:
             "service": "wenjin-rag",
             "request_id": request_id,
             "tool": "search_docs",
+            "retrieval_target": _safe_retrieval_target(result),
             "session_id_sha256": digest(session_id) if session_id else None,
             "client_id_sha256": digest(client_id) if client_id else None,
             "query_sha256": digest(query),

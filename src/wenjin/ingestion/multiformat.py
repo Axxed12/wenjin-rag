@@ -70,7 +70,22 @@ def _roff_line(line: str) -> str:
 
 def parse_line_mapped(path: Path, source_path: str, parser: str) -> ParsedUnit:
     """解析文本并保持行数完全不变。"""
-    raw_lines = path.read_text(encoding="utf-8").splitlines()
+    source_text = path.read_text(encoding="utf-8")
+    text = parse_line_mapped_text(source_text, parser)
+    raw_lines = source_text.splitlines()
+    return ParsedUnit(
+        source_path=source_path,
+        parser=parser,
+        text=text,
+        start_line=1 if raw_lines else None,
+        end_line=len(raw_lines) if raw_lines else None,
+        warnings=[] if any(line.strip() for line in text.splitlines()) else ["no_extracted_text"],
+    )
+
+
+def parse_line_mapped_text(text: str, parser: str) -> str:
+    """按行映射规则解析已解码的文本，供审计复用同一份已校验字节。"""
+    raw_lines = text.splitlines()
     if parser == "html-line-v1":
         parsed = [_html_line(line) for line in raw_lines]
     elif parser == "xml-line-v1":
@@ -81,14 +96,7 @@ def parse_line_mapped(path: Path, source_path: str, parser: str) -> ParsedUnit:
         parsed = raw_lines
     else:
         raise ValueError(f"不支持的行映射解析器：{parser}")
-    return ParsedUnit(
-        source_path=source_path,
-        parser=parser,
-        text="\n".join(parsed) + ("\n" if raw_lines else ""),
-        start_line=1 if raw_lines else None,
-        end_line=len(raw_lines) if raw_lines else None,
-        warnings=[] if any(line.strip() for line in parsed) else ["no_extracted_text"],
-    )
+    return "\n".join(parsed) + ("\n" if raw_lines else "")
 
 
 def parse_pdf_pages(path: Path, source_path: str) -> list[ParsedUnit]:
@@ -96,15 +104,29 @@ def parse_pdf_pages(path: Path, source_path: str) -> list[ParsedUnit]:
     units = []
     with pymupdf.open(path) as pdf:
         for index, page in enumerate(pdf):
-            text = page.get_text(sort=True)
-            units.append(ParsedUnit(
-                source_path=source_path,
-                parser=TEXT_PAGE_PARSER,
-                text=text,
-                page_number=index + 1,
-                warnings=[] if text.strip() else ["no_extracted_text; inspect OCR need"],
-            ))
+            units.append(_pdf_page_unit(page, source_path, index + 1))
     return units
+
+
+def parse_pdf_pages_bytes(content: bytes, source_path: str) -> list[ParsedUnit]:
+    """从已校验的原始字节解析PDF，避免Hash后重新打开原路径形成TOCTOU。"""
+    units = []
+    with pymupdf.open(stream=content, filetype="pdf") as pdf:
+        for index, page in enumerate(pdf):
+            units.append(_pdf_page_unit(page, source_path, index + 1))
+    return units
+
+
+def _pdf_page_unit(page, source_path: str, page_number: int) -> ParsedUnit:
+    """生产建库和准入审计共用的PyMuPDF文本层页解析。"""
+    text = page.get_text(sort=True)
+    return ParsedUnit(
+        source_path=source_path,
+        parser=TEXT_PAGE_PARSER,
+        text=text,
+        page_number=page_number,
+        warnings=[] if text.strip() else ["no_extracted_text; inspect OCR need"],
+    )
 
 
 def parser_for_path(path: Path) -> str:

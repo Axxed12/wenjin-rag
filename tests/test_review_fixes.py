@@ -234,10 +234,11 @@ CLI_CALLERS = [
 def test_p1_3_factory_returns_service_not_tuple(monkeypatch):
     """create_default_service()必须返回service本身：既有调用方不拆元组。"""
     from wenjin import mcp_server as module
+    from wenjin.mcp import runtime
 
     fake = SimpleNamespace(search=lambda *a, **k: {}, close=lambda: None)
     identity = module.RuntimeIdentity("demo-1.0", "test", "demo-1.0-x")
-    monkeypatch.setattr(module, "create_runtime", lambda **kwargs: (fake, identity))
+    monkeypatch.setattr(runtime, "create_runtime", lambda **kwargs: (fake, identity))
     service = module.create_default_service()
     assert service is fake
     assert hasattr(service, "search") and hasattr(service, "close")
@@ -246,11 +247,12 @@ def test_p1_3_factory_returns_service_not_tuple(monkeypatch):
 def test_p1_3_create_runtime_returns_service_and_identity(monkeypatch):
     """需要身份的一方用create_runtime()，两者出自同一次读取。"""
     from wenjin import mcp_server as module
+    from wenjin.mcp import runtime
 
     fake = SimpleNamespace(search=lambda *a, **k: {}, close=lambda: None)
     identity = module.RuntimeIdentity("demo-1.0", "test", "demo-1.0-x")
-    monkeypatch.setattr(module, "create_runtime", lambda **kwargs: (fake, identity))
-    service, got = module.create_runtime()
+    monkeypatch.setattr(runtime, "create_runtime", lambda **kwargs: (fake, identity))
+    service, got = runtime.create_runtime()
     assert service is fake and got is identity
 
 
@@ -273,6 +275,7 @@ def test_p1_3_no_caller_unpacks_the_factory_result():
 def test_p1_3_factory_callers_release_the_right_object(monkeypatch, tmp_path):
     """冒烟：按CLI的用法调用（不加载模型），确认search和close都作用在service上。"""
     from wenjin import mcp_server as module
+    from wenjin.mcp import runtime
 
     calls = []
 
@@ -286,7 +289,7 @@ def test_p1_3_factory_callers_release_the_right_object(monkeypatch, tmp_path):
 
     fake = FakeService()
     identity = module.RuntimeIdentity("demo-1.0", "test", "demo-1.0-x")
-    monkeypatch.setattr(module, "create_runtime", lambda **kwargs: (fake, identity))
+    monkeypatch.setattr(runtime, "create_runtime", lambda **kwargs: (fake, identity))
     service = module.create_default_service(use_reranker=False)
     try:
         service.search("q", config=SimpleNamespace())
@@ -303,16 +306,17 @@ def test_p2_5_download_runs_off_the_event_loop(tmp_path, monkeypatch):
     from wenjin import mcp_server as module
     from wenjin.access import AccessPolicy, AccessRegistry
     from wenjin.audit import SearchAudit
+    from wenjin.mcp import download
 
     write_corpus(tmp_path, directory="demo-1.0", declared="demo-1.0", subdir="demo/1",
                  visibility="corpora")
-    real = module.serve_download
+    real = download.serve_download
 
     def slow_serve(**kwargs):
         time.sleep(0.2)  # 模拟一次慢读取
         return real(**kwargs)
 
-    monkeypatch.setattr(module, "serve_download", slow_serve)
+    monkeypatch.setattr(download, "serve_download", slow_serve)
     server = module.build_mcp_server(
         SimpleNamespace(search=lambda *a, **k: {}),
         audit=SearchAudit(tmp_path / "audit.jsonl"),
@@ -347,6 +351,28 @@ def test_p2_5_download_runs_off_the_event_loop(tmp_path, monkeypatch):
 
 
 # --- P2-6 验收脚本的门禁不能被绕过 ---
+
+
+def stub_batch1_2_checks(monkeypatch, module, tmp_path, archives):
+    """替换验收脚本所有会读取项目语料的检查，并确认入口调用了替身。"""
+    from unittest.mock import Mock
+
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    monkeypatch.setattr(module, "OUTPUT", tmp_path / "out.json")
+    monkeypatch.setattr(module, "CHUNK_PATH_CASES", [("demo-1.0", "docs/Node.md")])
+    checks = {
+        "check_identity": Mock(return_value=[{"resolved": "demo-1.0", "directory": "demo-1.0"}]),
+        "check_fetch": Mock(side_effect=lambda corpus, path: {
+            "corpus_id": corpus, "chunk_source_path": path, "error": None,
+            "raw_sha256_matches": True, "bytes": 1, "media_type": "text/plain",
+        }),
+        "check_negative": Mock(return_value=[{"case": "stub", "blocked": True}]),
+        "check_archives": Mock(return_value=archives),
+        "check_encoding": Mock(return_value=[{"case": "stub", "ok": True}]),
+    }
+    for name, replacement in checks.items():
+        monkeypatch.setattr(module, name, replacement)
+    return checks
 
 
 def test_p2_6_acceptance_gate_catches_every_category(tmp_path):
@@ -386,34 +412,43 @@ def test_p2_6_acceptance_script_exits_nonzero_on_failure(tmp_path, monkeypatch):
     """端到端：注入一个归档失败后，脚本必须以非零码退出。"""
     import importlib
 
-    from scripts import verify_batch1_2 as module
+    # main() 查找 canonical 模块的 globals，替身必须打到同一命名空间。
+    from scripts.operations import verify_batch1_2 as module
 
     importlib.reload(module)
-    monkeypatch.setattr(module, "OUTPUT", tmp_path / "out.json")
-    monkeypatch.setattr(module, "check_archives", lambda: {
+    checks = stub_batch1_2_checks(monkeypatch, module, tmp_path, {
         "demo-1.0": {"archived_files": 3, "downloadable": 1, "largest_mb": 0.0,
                      "failures": [{"path": "a.tar.gz", "error": "SourceNotFound"}]},
     })
     with pytest.raises(SystemExit) as excinfo:
         module.main()
     assert excinfo.value.code != 0
+    checks["check_identity"].assert_called_once_with()
+    fetch_calls = checks["check_fetch"].call_args_list
+    assert [call.args for call in fetch_calls] == list(module.CHUNK_PATH_CASES)
+    checks["check_negative"].assert_called_once_with()
+    checks["check_archives"].assert_called_once_with()
+    checks["check_encoding"].assert_called_once_with()
+    assert (tmp_path / "out.json").is_file()
 
 
 def test_p2_6_acceptance_script_passes_on_healthy_report(tmp_path, monkeypatch):
     """对照组：全通过时退出码为0，证明上一条测的是门禁而不是脚本本身总失败。"""
     import importlib
 
-    from scripts import verify_batch1_2 as module
+    # 与失败用例使用同一权威实现，避免 shim 与 main() 的 globals 分离。
+    from scripts.operations import verify_batch1_2 as module
 
     importlib.reload(module)
-    monkeypatch.setattr(module, "OUTPUT", tmp_path / "out.json")
-    monkeypatch.setattr(module, "check_archives", lambda: {
+    checks = stub_batch1_2_checks(monkeypatch, module, tmp_path, {
         "demo-1.0": {"archived_files": 2, "downloadable": 2, "largest_mb": 0.0,
                      "failures": []},
     })
     with pytest.raises(SystemExit) as excinfo:
         module.main()
     assert excinfo.value.code == 0
+    for check in checks.values():
+        assert check.called
 
 
 # --- 第二轮复审：P2 并发槽位必须覆盖正文发送 ---
@@ -568,10 +603,11 @@ def test_p2_1_slot_is_released_when_client_disconnects(tmp_path, monkeypatch):
     import httpx
 
     from wenjin import mcp_server as module
+    from wenjin.mcp import download
 
     build_download_project(tmp_path)
     reader = BlockingReader()
-    monkeypatch.setattr(module, "serve_download", reader.serve)
+    monkeypatch.setattr(download, "serve_download", reader.serve)
     app = download_app(tmp_path)
     slots = module.MAX_CONCURRENT_DOWNLOADS
 
@@ -614,10 +650,11 @@ def test_p2_1_slot_released_after_reads_finish_when_cancelled(tmp_path, monkeypa
     import httpx
 
     from wenjin import mcp_server as module
+    from wenjin.mcp import download
 
     build_download_project(tmp_path)
     reader = BlockingReader()
-    monkeypatch.setattr(module, "serve_download", reader.serve)
+    monkeypatch.setattr(download, "serve_download", reader.serve)
     app = download_app(tmp_path)
     slots = module.MAX_CONCURRENT_DOWNLOADS
 

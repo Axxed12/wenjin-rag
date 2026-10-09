@@ -1,4 +1,5 @@
 .venv/
+build/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -6,10 +7,14 @@ __pycache__/
 .env
 .env.*
 !.env.example
+!.env.*.example
 *.egg-info/
 artifacts/audit/
 artifacts/tls/
 *.key
+secrets/
+deploy/secrets/
+*.pem
 # 可由脚本重建的本地索引和解析衍生件
 data/indexes/*.sqlite
 # 运行时索引注册表：记录当前 active 目标及其切换历史。
@@ -45,9 +50,19 @@ artifacts/corpus-acceptance-001/proj-index-pinned.rst
 # 候选索引是派生数据，与 data/indexes/*.sqlite 同理不进仓库：
 # artifacts/chinese-bm25/verify_candidate.py 可原地重建它，验证结论记在 report.json。
 artifacts/*/*.sqlite
+# 管理界面隔离预览的临时数据库和合成原文；验收摘要保留在父目录。
+artifacts/iterations/2026-10-06-admin-frontend/preview-root/
+artifacts/iterations/2026-10-06-admin-frontend/backend-wheel-check/
+artifacts/iterations/2026-10-07-admin-improvements/preview-root/
+artifacts/iterations/2026-10-07-admin-improvements/wheel-check/
+artifacts/iterations/2026-10-07-admin-improvements/snapshot-probe-root/
+# 管理登记、调用历史和受管副本属于本机运行数据，不发布到仓库。
+data/file-management/
 # 忽略所有目录中的 Markdown 文档
 *.md
 # 保留适合仓库公开展示的文档
 !README.md
 !SECURITY.md
 !THIRD_PARTY_NOTICES.md
+!docs/file-management.md
+!docs/admin-frontend.md

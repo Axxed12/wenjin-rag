@@ -1,0 +1,207 @@
+name: wenjin
+
+x-app-build: &app-build
+  context: .
+  dockerfile: deploy/Dockerfile
+  target: backend
+
+x-app-security: &app-security
+  restart: unless-stopped
+  read_only: true
+  tmpfs:
+    - /tmp:size=1g,mode=1777
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  stop_grace_period: 30s
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.19.1
+    restart: unless-stopped
+    environment:
+      QDRANT__TELEMETRY_DISABLED: "true"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    expose:
+      - "6333"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/6333"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks:
+      - data-plane
+
+  management:
+    build: *app-build
+    image: wenjin-backend:2026-10-08
+    <<: *app-security
+    command:
+      - python
+      - -m
+      - wenjin.file_management
+      - serve
+      - --root
+      - /app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8777"
+      - --identity-db
+      - /var/lib/wenjin/identity.sqlite
+    environment: &backend-environment
+      QDRANT_URL: http://qdrant:6333
+      # Qdrant没有发布到主机；该stack把数据面限制在专用Docker网络。
+      QDRANT_API_KEY: ""
+      WENJIN_IDENTITY_DB: /var/lib/wenjin/identity.sqlite
+      WENJIN_MANAGED_RAW_DATA_ROOT: data/file-management/raw_data
+      WENJIN_MODEL_PROVIDER: remote
+      WENJIN_MODEL_API_URL: ${WENJIN_MODEL_API_URL:-https://model-node}
+      EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID:-Qwen3-Embedding-0.6B}
+      RERANKER_MODEL_ID: ${RERANKER_MODEL_ID:-Qwen3-Reranker-0.6B}
+      WENJIN_FILE_MAX_UPLOAD_BYTES: ${WENJIN_FILE_MAX_UPLOAD_BYTES:-104857600}
+      WENJIN_AUDIT_SINK: stdout
+      WENJIN_AUDIT_INCLUDE_QUERY: "0"
+    secrets:
+      - model_api_token
+      - file_admin_token
+    volumes:
+      - wenjin-data:/app/data
+      - wenjin-identity:/var/lib/wenjin
+      - wenjin-artifacts:/app/artifacts
+      - type: bind
+        source: ${WENJIN_CORPORA_ROOT:-./corpora}
+        target: /app/corpora
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_CONFIG_ROOT:-./configs}
+        target: /app/configs
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_INDEX_ROOT:-./data/indexes}
+        target: /app/data/indexes
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_RAW_DATA_ROOT:-./raw_data}
+        target: /app/raw_data
+        read_only: true
+        bind:
+          create_host_path: false
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    expose:
+      - "8777"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8777/api/health', timeout=3).read()"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      - data-plane
+
+  mcp:
+    build: *app-build
+    image: wenjin-backend:2026-10-08
+    <<: *app-security
+    command:
+      - python
+      - -m
+      - wenjin.mcp_server
+      - --identity-db
+      - /var/lib/wenjin/identity.sqlite
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8765"
+    environment:
+      <<: *backend-environment
+      WENJIN_FILE_MANAGEMENT_URL: http://management:8777
+      WENJIN_MCP_HOST: 0.0.0.0
+      WENJIN_MCP_PORT: "8765"
+      WENJIN_MCP_PATH: /mcp
+      # 该listener只在私有Docker网络上，宿主访问只经loopback发布或TLS反代。
+      WENJIN_MCP_ALLOW_PRIVATE_HTTP: "1"
+      # 仅MCP容器在internal data-plane访问唯一管理HTTP桥时允许服务间HTTP。
+      WENJIN_FILE_MANAGEMENT_ALLOW_PRIVATE_HTTP: "1"
+      WENJIN_MCP_ALLOWED_HOSTS: ${WENJIN_MCP_ALLOWED_HOSTS:-localhost:18765,127.0.0.1:18765}
+      WENJIN_AUDIT_SINK: stdout
+    secrets:
+      - model_api_token
+    volumes:
+      - wenjin-data:/app/data:ro
+      - wenjin-identity:/var/lib/wenjin
+      - wenjin-artifacts:/app/artifacts:ro
+      - type: bind
+        source: ${WENJIN_CORPORA_ROOT:-./corpora}
+        target: /app/corpora
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_CONFIG_ROOT:-./configs}
+        target: /app/configs
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_INDEX_ROOT:-./data/indexes}
+        target: /app/data/indexes
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_RAW_DATA_ROOT:-./raw_data}
+        target: /app/raw_data
+        read_only: true
+        bind:
+          create_host_path: false
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      management:
+        condition: service_healthy
+    expose:
+      - "8765"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import socket; s=socket.create_connection(('127.0.0.1',8765),3); s.close()"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      - data-plane
+
+volumes:
+  qdrant-data:
+  wenjin-data:
+  wenjin-identity:
+  wenjin-artifacts:
+
+networks:
+  data-plane:
+    internal: true
+
+secrets:
+  model_api_token:
+    file: ${WENJIN_MODEL_API_TOKEN_FILE:?Create an external model API token file}
+  file_admin_token:
+    file: ${WENJIN_FILE_ADMIN_TOKEN_FILE:?Create an external file-admin token file}

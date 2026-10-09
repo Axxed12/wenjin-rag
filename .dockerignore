@@ -5,6 +5,13 @@
 __pycache__
 *.pyc
 .env
+**/.env
+**/.env.*
+!**/.env.example
+secrets
+**/secrets
+*.key
+*.pem
 artifacts
 evaluation/ragas/.venv
 data/packages
@@ -25,3 +32,15 @@ configs/indexes-private
 
 # 本地索引与注册表由 compose 挂载进来，不烘进镜像。
 data/indexes
+models/
+data/file-management
+data/releases
+data/evaluation*
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.wal
+*.shm
+unused.sqlite
+configs/indexes

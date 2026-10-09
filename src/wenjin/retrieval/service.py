@@ -22,9 +22,10 @@ class SearchConfig:
     """单次查询预算和版本约束；限制后可安全暴露为工具参数。"""
 
     version: str = "3.6.5"
-    candidate_k: int = 20
+    candidate_k: int = 10
     top_k: int = 5
     rrf_k: int = 60
+    rerank_pool: int = 30
     context_char_budget: int = 8000
 
     def validate(self) -> None:
@@ -36,6 +37,8 @@ class SearchConfig:
             raise ValueError("top_k 必须在 1 到 min(candidate_k, 20) 之间")
         if self.rrf_k < 0:
             raise ValueError("rrf_k 不能为负")
+        if not self.top_k <= self.rerank_pool <= 200:
+            raise ValueError("rerank_pool必须不小于top_k且不超过200")
         if not 500 <= self.context_char_budget <= 20000:
             raise ValueError("context_char_budget 必须在 500 到 20000 之间")
 
@@ -115,8 +118,10 @@ class RetrievalService:
         supported_version: str = "3.6.5",
         index_target_id: str | None = None,
         reranker: Any | None = None,
+        source_context_cache: Any | None = None,
         dense_search: Callable[..., list] = dense_query,
         keyword_search: Callable[..., list[dict]] = bm25_query,
+        search_lock: Any | None = None,
     ) -> None:
         if not bm25_path.is_file():
             raise FileNotFoundError(f"BM25 索引不存在：{bm25_path}")
@@ -128,14 +133,16 @@ class RetrievalService:
         self.supported_version = supported_version
         self.index_target_id = index_target_id
         self.reranker = reranker
+        self.source_context_cache = source_context_cache
         self.dense_search = dense_search
         self.keyword_search = keyword_search
-        # 当前单GPU模型按请求串行执行，避免并发进入同一模型导致显存峰值和线程安全问题。
-        self._search_lock = Lock()
+        # 锁跟随模型执行资源共享；组合多个服务/路由时，调用方可注入同一把锁。
+        # 未注入时仍为独立实例创建锁，保持 CLI 等独立调用方式。
+        self.search_lock = search_lock if search_lock is not None else Lock()
 
     def search(self, query: str, *, config: SearchConfig | None = None) -> dict:
         """返回可引用片段、检索阶段和预算；不生成答案。"""
-        with self._search_lock:
+        with self.search_lock:
             return self._search_unlocked(query, config=config)
 
     def _search_unlocked(self, query: str, *, config: SearchConfig | None = None) -> dict:
@@ -167,16 +174,24 @@ class RetrievalService:
         bm25_seconds = time.perf_counter() - bm25_started
         fusion_started = time.perf_counter()
         fused = rrf_fuse({"dense": dense, "bm25": keyword}, k=config.rrf_k)
+        # 与跨库路由保持相同口径：每个召回通道按candidate_k取候选，RRF后最多
+        # rerank_pool条进入重排，避免单库兼容入口额外截断到candidate_k。
         candidates = [item for item in fused if item["version"] == config.version][
-            :config.candidate_k
+            :config.rerank_pool
         ]
         fusion_seconds = time.perf_counter() - fusion_started
         rerank_started = time.perf_counter()
+        source_context_statuses: dict[str, int] = {}
         if self.reranker is not None and candidates:
-            scores = self.reranker.score(
-                query,
-                [candidate_document(candidate) for candidate in candidates],
-            )
+            documents = []
+            for candidate in candidates:
+                if self.source_context_cache is None:
+                    document, status = candidate_document(candidate), "unregistered_target_profile"
+                else:
+                    document, status = self.source_context_cache.document_for_candidate(candidate)
+                documents.append(document)
+                source_context_statuses[status] = source_context_statuses.get(status, 0) + 1
+            scores = self.reranker.score(query, documents)
             ranked = rank_candidates(candidates, scores)
         else:
             ranked = candidates
@@ -196,11 +211,14 @@ class RetrievalService:
             "collection": self.collection_name,
             "index_target_id": self.index_target_id,
             "retrieval": {
+                "candidate_k": config.candidate_k,
+                "rerank_pool": config.rerank_pool,
                 "dense_returned": len(dense),
                 "bm25_returned": len(keyword),
                 "bm25_terms": terms,
                 "fused_candidates": len(candidates),
                 "reranker_used": self.reranker is not None,
+                "source_context_diagnostics": source_context_statuses,
                 "timing_seconds": {
                     "dense": round(dense_seconds, 6),
                     "bm25": round(bm25_seconds, 6),
@@ -222,6 +240,10 @@ class RetrievalService:
 
     def close(self) -> None:
         """释放服务持有的客户端和模型；可用于CLI退出或服务关闭。"""
-        self.qdrant_client.close()
-        if self.reranker is not None:
-            self.reranker.close()
+        with self.search_lock:
+            self.qdrant_client.close()
+            if self.reranker is not None:
+                self.reranker.close()
+            bindings = getattr(self, "model_bindings", None)
+            if bindings is not None:
+                bindings.close()

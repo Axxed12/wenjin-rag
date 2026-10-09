@@ -1,0 +1,96 @@
+services:
+  model-api:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+      target: model-node
+    image: wenjin-model-node:2026-10-08
+    restart: unless-stopped
+    command:
+      - python
+      - -m
+      - wenjin.model_api
+      - serve
+      - --root
+      - /app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8765"
+    environment:
+      WENJIN_MODEL_PROVIDER: local
+      EMBEDDING_MODEL_PATH: /models/embedding
+      EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID:?Set stable embedding model identity}
+      RERANKER_MODEL_PATH: /models/reranker
+      RERANKER_MODEL_ID: ${RERANKER_MODEL_ID:?Set stable reranker model identity}
+      QDRANT_API_KEY: ""
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+    gpus: all
+    secrets:
+      - model_api_token
+    volumes:
+      - type: bind
+        source: ${EMBEDDING_MODEL_PATH:?Set local embedding model directory}
+        target: /models/embedding
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${RERANKER_MODEL_PATH:?Set local reranker model directory}
+        target: /models/reranker
+        read_only: true
+        bind:
+          create_host_path: false
+    read_only: true
+    tmpfs:
+      - /tmp:size=1g,mode=1777
+    shm_size: "1gb"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 30s
+    healthcheck:
+      test: ["CMD", "python", "/app/deploy/health_model_api.py", "http://127.0.0.1:8765"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+    networks:
+      model-internal:
+
+  model-edge:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    depends_on:
+      model-api:
+        condition: service_healthy
+    ports:
+      - "${MODEL_NODE_BIND_ADDRESS:-127.0.0.1}:${MODEL_NODE_TLS_PORT:-18766}:443"
+    environment:
+      MODEL_NODE_TLS_NAME: ${MODEL_NODE_TLS_NAME:-model-node}
+    volumes:
+      - ./deploy/Caddyfile.model-node:/etc/caddy/Caddyfile:ro
+      - type: bind
+        source: ${MODEL_NODE_CERT_FILE:?Set model API TLS certificate}
+        target: /run/tls/model-node.crt
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${MODEL_NODE_KEY_FILE:?Set model API TLS private key}
+        target: /run/tls/model-node.key
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      - model-internal
+
+networks:
+  model-internal:
+    internal: true
+
+secrets:
+  model_api_token:
+    file: ${WENJIN_MODEL_API_TOKEN_FILE:?Create an external model API token file}

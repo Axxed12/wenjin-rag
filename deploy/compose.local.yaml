@@ -1,0 +1,84 @@
+services:
+  management:
+    environment:
+      WENJIN_MODEL_API_URL: http://model-node:8765
+    ports:
+      - "${WENJIN_ADMIN_BIND_ADDRESS:-127.0.0.1}:${WENJIN_ADMIN_PORT:-18777}:8777"
+    depends_on:
+      model-node:
+        condition: service_healthy
+
+  mcp:
+    environment:
+      WENJIN_MODEL_API_URL: http://model-node:8765
+      WENJIN_MCP_ALLOWED_HOSTS: ${WENJIN_MCP_ALLOWED_HOSTS:-localhost:18765,127.0.0.1:18765}
+    ports:
+      - "${MCP_BIND_ADDRESS:-127.0.0.1}:${MCP_PORT:-18765}:8765"
+    depends_on:
+      model-node:
+        condition: service_healthy
+
+  model-node:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+      target: model-node
+    image: wenjin-model-node:2026-10-08
+    restart: unless-stopped
+    command:
+      - python
+      - -m
+      - wenjin.model_api
+      - serve
+      - --root
+      - /app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8765"
+    environment:
+      WENJIN_MODEL_PROVIDER: local
+      EMBEDDING_MODEL_PATH: /models/embedding
+      EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID:-Qwen3-Embedding-0.6B}
+      RERANKER_MODEL_PATH: /models/reranker
+      RERANKER_MODEL_ID: ${RERANKER_MODEL_ID:-Qwen3-Reranker-0.6B}
+      QDRANT_API_KEY: ""
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+    gpus: all
+    secrets:
+      - model_api_token
+    volumes:
+      - type: bind
+        source: ${EMBEDDING_MODEL_PATH:?Set local embedding model directory}
+        target: /models/embedding
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${RERANKER_MODEL_PATH:?Set local reranker model directory}
+        target: /models/reranker
+        read_only: true
+        bind:
+          create_host_path: false
+    read_only: true
+    tmpfs:
+      - /tmp:size=1g
+    shm_size: "1gb"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 30s
+    healthcheck:
+      test: ["CMD", "python", "/app/deploy/health_model_api.py", "http://127.0.0.1:8765"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+    networks:
+      - data-plane
+
+secrets:
+  model_api_token:
+    file: ${WENJIN_MODEL_API_TOKEN_FILE:?Create an external model API token file}

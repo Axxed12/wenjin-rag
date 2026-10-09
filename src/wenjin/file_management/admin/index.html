@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172d2b">
+  <title>问津 · RAG 管理中心</title>
+  <link rel="stylesheet" href="/admin/styles.css">
+  <script defer src="/admin/identity.js"></script>
+  <script defer src="/admin/app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="主导航">
+      <a class="brand" href="#overview" data-page="overview" aria-label="问津管理中心首页">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span><strong>问津</strong><small>知识管理系统</small></span>
+      </a>
+      <div class="workspace-label">工作区</div>
+      <nav class="nav-list">
+        <button class="nav-item active" data-page="overview"><span class="nav-icon">◫</span>总览</button>
+        <button class="nav-item" data-page="files"><span class="nav-icon">▤</span>文件管理<span class="nav-count" id="nav-file-count">—</span></button>
+        <button class="nav-item" data-page="jobs"><span class="nav-icon">◷</span>任务中心<span class="nav-count" id="nav-job-count">—</span></button>
+        <button class="nav-item" data-page="search"><span class="nav-icon">⌕</span>检索调试</button>
+        <button class="nav-item" data-page="calls"><span class="nav-icon">⌁</span>调用日志</button>
+        <button class="nav-item" data-page="releases"><span class="nav-icon">⇄</span>资料库版本</button>
+        <button class="nav-item hidden" data-page="evaluations"><span class="nav-icon">⌁</span>检索方式对比</button>
+        <button class="nav-item" data-page="identity"><span class="nav-icon">♙</span>身份与授权</button>
+      </nav>
+      <div class="workspace-label roadmap-label">规划</div>
+      <nav class="nav-list">
+        <button class="nav-item" data-page="roadmap"><span class="nav-icon">⌁</span>能力与路线</button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-note">
+        <span class="note-dot"></span>
+        <div><strong>本机管理服务</strong><small id="sidebar-service-state">等待连接</small></div>
+      </div>
+      <div class="sidebar-foot">问津 RAG <span>·</span> 本地知识管理</div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div class="breadcrumb"><span>工作区</span><b>/</b><strong id="current-page-title">总览</strong></div>
+        <div class="topbar-actions">
+          <span class="connection-pill" id="connection-pill"><i></i><span>正在连接</span></span>
+          <button class="icon-button" id="open-auth" aria-label="管理服务认证设置" title="连接与认证">⚙</button>
+          <span class="avatar" aria-label="用户头像">问</span>
+        </div>
+      </header>
+
+      <section class="connection-banner hidden" id="connection-banner" role="status">
+        <div class="banner-icon">!</div><div class="banner-copy"><strong id="banner-title">无法连接管理服务</strong><span id="banner-message">请确认服务已启动，然后重试。</span></div>
+        <button class="button button-quiet" id="banner-connect">设置连接</button><button class="icon-button banner-close" id="dismiss-banner" aria-label="关闭提示">×</button>
+      </section>
+
+      <div class="page-content">
+        <section class="page-view" id="page-identity" data-title="身份与授权">
+          <div class="page-heading"><div><div class="eyebrow">本机账户</div><h1>身份与授权</h1><p>管理本机账户、资料库读取授权和个人 Agent 凭据。</p></div><div class="heading-actions"><span id="identity-current-user"></span><button class="button button-secondary" id="identity-logout">退出登录</button></div></div>
+          <div id="identity-self-panel" class="panel identity-panel"><h2>我的 Agent 凭据</h2><p>凭据只在签发时完整显示一次。请将它保存在 Agent 的本机密钥存储中。</p><p id="identity-session-policy" class="privacy-note">登录有效期：读取服务端策略中…</p><form id="credential-form" class="identity-form"><label>名称<input name="label" maxlength="100" required placeholder="例如：本机 Codex"></label><label>有效期<select name="expires"><option value="0">不自动过期</option><option value="2592000">30 天</option><option value="7776000">90 天</option><option value="31536000">365 天</option></select></label><button class="button button-primary">创建个人 MCP 凭据</button></form><pre id="credential-reveal" class="hidden"></pre><div id="my-credentials"></div></div>
+          <section id="identity-admin-panel" class="hidden">
+            <section class="panel identity-panel"><div class="panel-heading"><div><span class="section-kicker">用户</span><h2>本地用户</h2><p>新用户首次登录后必须修改临时密码。</p></div></div><form id="identity-create-user" class="identity-form"><label>用户名<input name="username" maxlength="64" required></label><label>临时密码<input name="password" type="password" maxlength="1024" required></label><label>角色<select name="role"><option value="reader">只读用户</option><option value="admin">管理员</option></select></label><button class="button button-primary">创建用户</button></form><div id="identity-users"></div></section>
+            <section class="panel identity-panel"><div class="panel-heading"><div><span class="section-kicker">资料库授权</span><h2>资料库读取授权</h2><p>按逻辑资料库查看和管理授权；管理员身份不自动带来资料读取权限，新资料库和新用户默认没有授权。</p></div></div><p id="identity-grants-status" class="privacy-note" aria-live="polite"></p><div id="identity-grants"></div></section>
+            <section class="panel identity-panel"><div class="panel-heading"><div><span class="section-kicker">审计</span><h2>身份审计</h2></div></div><div id="identity-audit"></div></section>
+          </section>
+          <div id="identity-empty-grants" class="notice hidden">当前账号尚未获得任何资料库授权。请管理员在“资料库读取授权”中明确授予读取权限。</div>
+        </section>
+        <section class="page-view active" id="page-overview" data-title="总览">
+          <div class="page-heading heading-overview">
+            <div><div class="eyebrow">知识管理</div><h1>管理概览</h1><p>查看当前资料、索引规模与后台任务状态。</p></div>
+            <div class="heading-actions"><span class="updated-label">数据来自当前管理服务</span><button class="button button-primary" data-action="upload"><span>＋</span> 上传资料</button></div>
+          </div>
+          <div class="metric-grid">
+            <article class="metric-card metric-total"><div class="metric-top"><span>登记文件</span><span class="metric-icon">▤</span></div><div class="metric-value" id="metric-files">—</div><div class="metric-foot"><span id="metric-files-sub">连接服务后加载</span><span class="metric-trend">文件</span></div></article>
+            <article class="metric-card"><div class="metric-top"><span>受管文件</span><span class="metric-icon">◈</span></div><div class="metric-value" id="metric-managed">—</div><div class="metric-foot"><span>可在此管理版本与原文</span><span class="metric-trend">受管</span></div></article>
+            <article class="metric-card"><div class="metric-top"><span>共享只读文档</span><span class="metric-icon icon-muted">◌</span></div><div class="metric-value" id="metric-legacy">—</div><div class="metric-foot"><span>直接检索，无需重复导入</span><span class="metric-trend trend-muted">共享</span></div></article>
+            <article class="metric-card"><div class="metric-top"><span>受管索引片段</span><span class="metric-icon">⌘</span></div><div class="metric-value" id="metric-chunks">—</div><div class="metric-foot"><span>以文件清单当前值汇总</span><span class="metric-trend">片段</span></div></article>
+          </div>
+
+          <div class="overview-grid">
+            <section class="panel file-panel">
+              <div class="panel-heading"><div><span class="section-kicker">资料库</span><h2>资料库</h2><p>近期更新的文件与当前状态</p></div><button class="text-link" data-goto="files">查看全部 <span>→</span></button></div>
+              <div class="table-wrap"><table class="data-table overview-table"><thead><tr><th>文件</th><th>状态</th><th>版本</th><th>片段</th><th>更新</th></tr></thead><tbody id="overview-file-rows"><tr><td colspan="5" class="table-placeholder">连接管理服务后显示真实文件</td></tr></tbody></table></div>
+              <div class="panel-footer"><span class="live-indicator"></span><span id="overview-file-foot">等待服务数据</span></div>
+            </section>
+            <section class="panel jobs-panel">
+              <div class="panel-heading"><div><span class="section-kicker">调用记录</span><h2>任务动态</h2><p>导入、替换和清理进度</p></div><button class="text-link" data-goto="jobs">任务中心 <span>→</span></button></div>
+              <div class="activity-list" id="overview-jobs"><div class="empty-inline">暂无任务数据</div></div>
+              <div class="panel-footer"><span id="overview-jobs-foot">任务记录来自管理服务</span></div>
+            </section>
+          </div>
+          <section class="panel quick-panel">
+            <div class="panel-heading"><div><span class="section-kicker">快捷入口</span><h2>常用操作</h2></div></div>
+            <div class="quick-actions">
+              <button class="quick-action" data-action="upload"><span class="quick-icon teal">↑</span><span><strong>导入新资料</strong><small>上传文件并建立受管索引</small></span><b>→</b></button>
+              <button class="quick-action" data-goto="search"><span class="quick-icon blue">⌕</span><span><strong>调试检索</strong><small>查看真实证据与来源定位</small></span><b>→</b></button>
+              <button class="quick-action" data-goto="jobs"><span class="quick-icon amber">◷</span><span><strong>跟踪后台任务</strong><small>检查阶段、进度与失败原因</small></span><b>→</b></button>
+            </div>
+          </section>
+        </section>
+
+        <section class="page-view" id="page-files" data-title="文件管理">
+          <div class="page-heading"><div><div class="eyebrow">资料控制</div><h1>文件管理</h1><p>按资料库查看文档和版本。共享资料可直接检索，受管文件支持替换与删除。</p></div><div class="heading-actions"><button class="button button-secondary" id="refresh-files">↻ 刷新</button><button class="button button-primary" data-action="upload"><span>＋</span> 上传资料</button></div></div>
+          <div class="toolbar panel toolbar-files"><label class="search-field"><span>⌕</span><input id="file-search" type="search" placeholder="搜索文件名、资料库或文档 ID…" autocomplete="off"></label><label class="select-field"><span>状态</span><select id="file-status-filter"><option value="all">全部状态</option><option value="active">已就绪</option><option value="importing">处理中</option><option value="deleting">清理中</option><option value="failed">有失败</option><option value="legacy_unmanaged">历史未受管</option></select></label><label class="select-field"><span>来源</span><select id="file-source-filter"><option value="all">全部来源</option><option value="shared">共享只读</option><option value="managed">受管文件</option></select></label><label class="select-field"><span>文档类型</span><select id="file-type-filter"><option value="all">全部类型</option><option value="pdf">PDF</option><option value="text">文本</option><option value="html">HTML</option><option value="xml">XML</option><option value="other">其他</option></select></label><span class="toolbar-count" id="file-count">—</span></div>
+          <div id="library-groups" class="library-groups"><div class="panel table-placeholder">连接后读取资料库目录</div></div>
+          <div class="list-footnote"><span>资料库和文档清单来自当前可用目录</span><span>共享源只读；受管文件操作仅作用于其独立副本和索引</span></div>
+        </section>
+
+        <section class="page-view" id="page-jobs" data-title="任务中心">
+          <div class="page-heading"><div><div class="eyebrow">后台任务</div><h1>任务中心</h1><p>查看持久任务的执行阶段、进度和失败原因。</p></div><div class="heading-actions"><button class="button button-secondary" id="refresh-jobs">↻ 刷新任务</button></div></div>
+          <div class="job-summary" id="job-summary"><div><span class="summary-dot running"></span><strong id="job-running-count">—</strong><small>执行中</small></div><div><span class="summary-dot success"></span><strong id="job-done-count">—</strong><small>已完成</small></div><div><span class="summary-dot failure"></span><strong id="job-failed-count">—</strong><small>失败</small></div><div class="job-summary-note">当前分页汇总（最多 100 条） · 仅可重试的失败任务可重新执行</div></div>
+          <div class="toolbar panel toolbar-jobs"><label class="search-field"><span>⌕</span><input id="job-search" type="search" placeholder="按任务 ID、文件 ID 搜索…" autocomplete="off"></label><label class="select-field"><span>类型</span><select id="job-kind-filter"><option value="all">全部类型</option><option value="import">导入 / 替换</option><option value="delete">删除</option></select></label><label class="select-field"><span>状态</span><select id="job-status-filter"><option value="all">全部状态</option><option value="running">执行中</option><option value="queued">排队中</option><option value="completed">已完成</option><option value="deleted">已删除</option><option value="duplicate">重复内容</option><option value="failed">失败</option><option value="cancelled">已取消</option></select></label><span class="toolbar-count" id="job-count">—</span></div>
+          <section class="panel job-lookup"><div class="lookup-copy"><span class="section-kicker">按编号查询</span><strong>按任务 ID 查询</strong><small>输入完整 job_id，直接读取对应持久任务。</small></div><label class="lookup-input"><span>⌕</span><input id="job-id-lookup" type="text" placeholder="job_id" autocomplete="off" spellcheck="false"></label><button class="button button-secondary" id="lookup-job">查询任务</button></section>
+          <section class="panel table-panel"><div class="table-wrap"><table class="data-table jobs-table"><thead><tr><th>任务</th><th>目标文件</th><th>状态</th><th>阶段 / 进度</th><th>创建时间</th><th class="align-right">操作</th></tr></thead><tbody id="job-rows"><tr><td colspan="6" class="table-placeholder">连接管理服务后显示真实任务</td></tr></tbody></table></div><div class="empty-state hidden" id="jobs-empty"><div class="empty-illustration">◷</div><strong>还没有任务记录</strong><p>上传、替换或删除资料后，任务会出现在这里。</p></div></section>
+          <div class="pagination"><span id="job-page-note">读取最近任务记录</span><div><button class="button button-secondary" id="jobs-prev" disabled>← 上一页</button><button class="button button-secondary" id="jobs-next" disabled>下一页 →</button></div></div>
+        </section>
+
+        <section class="page-view" id="page-search" data-title="检索调试">
+          <div class="page-heading"><div><div class="eyebrow">检索调试</div><h1>检索调试</h1><p>检索已有共享资料或受管文件，直接检查返回的原文证据；此页不生成答案。</p></div></div>
+          <div class="search-layout">
+            <section class="panel search-form-panel"><div class="panel-heading"><div><span class="section-kicker">查询</span><h2>查询设置</h2><p>提交时会校验资料库与当前生效版本</p></div><span class="form-step">01</span></div>
+              <form id="search-form">
+                <label class="field-label" for="search-library">资料库 <em>必选</em></label><select class="control" id="search-library" required><option value="">连接后加载当前可用资料库</option></select><div class="field-help">共享库保留各自索引；受管上传建立独立文件索引，不并入共享库。</div>
+                <label class="field-label" for="search-source">资料版本 <em>必选</em></label><select class="control" id="search-source" required disabled><option value="">先选择资料库</option></select><div class="field-help">默认检索当前生效版本；文件更新后请刷新资料库再试。</div>
+                <label class="field-label" for="search-document">限定文档 <span class="optional">可选</span></label><select class="control" id="search-document" disabled><option value="">检索所选版本中的全部文档</option></select><div class="field-help">可将检索范围收窄到一份文档；共享资料只读，受管文件可替换或删除。</div>
+                <label class="field-label" for="search-query">检索问题 <em>必选</em></label><textarea class="control query-input" id="search-query" maxlength="2000" placeholder="输入想从这份资料中查找的内容…" required></textarea><div class="field-help field-counter"><span>最多 2,000 字符</span><span id="query-length">0 / 2000</span></div>
+                <div class="form-row"><label><span class="field-label" for="search-top-k">最多证据片段</span><select class="control" id="search-top-k"><option>3</option><option selected>5</option><option>8</option><option>10</option><option>15</option><option>20</option></select></label><label><span class="field-label" for="search-budget">证据正文预算（字符）</span><select class="control" id="search-budget"><option value="2000">2,000 字符</option><option value="4000">4,000 字符</option><option value="8000" selected>8,000 字符</option><option value="12000">12,000 字符</option><option value="20000">20,000 字符</option></select></label></div>
+                <div class="field-help">默认 8,000 沿用后端配置，尚无预算对照实验证明它是最优值。</div>
+                <div class="search-note"><span>ⓘ</span><span>预算计算的是检索返回的正文总字符数，不是 token 数，也不是模型上下文窗口。为保证片段完整，超预算时最终片段数可能少于 Top K。排序分数仅供排序，请核对证据是否支持问题。</span></div>
+                <button class="button button-primary button-run-search" id="run-search" type="submit"><span>⌕</span>运行检索</button>
+              </form>
+            </section>
+            <section class="panel results-panel"><div class="results-heading"><div><span class="section-kicker">证据</span><h2>检索证据</h2><p id="results-subtitle">运行一次检索后，真实返回片段会显示在这里</p></div><span class="evidence-state" id="evidence-state">尚未查询</span></div><div class="results-meta hidden" id="results-meta"></div><div class="evidence-list" id="evidence-list"><div class="evidence-empty"><div class="evidence-glyph">⌕</div><strong>等待检索</strong><span>先选择资料库和版本，再输入问题</span></div></div></section>
+          </div>
+        </section>
+
+        <section class="page-view" id="page-releases" data-title="资料库版本管理">
+          <div class="page-heading"><div><div class="eyebrow">资料库版本</div><h1>资料库版本管理</h1><p>决定检索使用哪个已建好的资料版本：准备候选、检查完整性、显式切换；出问题时可回到保留版本。准备不会自动切换。</p></div><button class="button button-secondary" id="release-refresh">刷新版本</button></div>
+          <section class="panel identity-panel">
+            <div class="panel-heading"><div><span class="section-kicker">准备新版本</span><h2>准备一个资料库版本</h2></div><span class="status-tag status-planned">不会自动切换</span></div>
+            <form id="release-prepare-form" class="identity-form">
+              <label>资料库<select id="release-library" required><option value="">连接后读取</option></select></label>
+              <label>已建好的候选索引<select id="release-target" required><option value="">先选择资料库</option></select><small>这里选择已构建的检索数据；本页只检查并准备版本，不会重新建库。</small></label>
+              <label>操作原因<input id="release-reason" maxlength="1000" required placeholder="说明此次发布目的"></label>
+              <button class="button button-primary" id="release-prepare-submit">检查并准备版本</button>
+            </form>
+            <p class="privacy-note"><span>◈</span><span>准备过程会固定本次登记的候选配置并检查原文与索引完整性。检查失败或任务中断都不会切换当前版本；版本切换需要在准备成功后单独执行。</span></p>
+          </section>
+          <section class="panel identity-panel"><div class="panel-heading"><div><span class="section-kicker">当前使用版本</span><h2 id="release-active-title">选择资料库查看版本</h2></div><span class="status-tag" id="release-revision">状态版本号 —</span></div><p id="release-active-detail" class="privacy-note">切换只影响之后开始的检索；历史版本继续保留，可在需要时回退。</p><details class="release-technical-details"><summary>查看内部版本信息</summary><small id="release-active-technical">状态版本号：尚未读取</small></details><div id="release-actions" class="identity-form"></div></section>
+          <section class="panel identity-panel"><div class="panel-heading"><div><span class="section-kicker">保留的版本</span><h2>版本历史</h2></div></div><div id="release-history" class="table-wrap"><div class="table-placeholder">连接后读取资料库版本</div></div></section>
+          <section class="panel identity-panel"><div class="panel-heading"><div><span class="section-kicker">准备进度</span><h2>最近的版本准备任务</h2></div></div><div id="release-job-state" class="table-placeholder">暂无版本准备任务</div></section>
+        </section>
+        <section class="page-view" id="page-evaluations" data-title="检索评测">
+          <div class="page-heading"><div><div class="eyebrow">开发评测</div><h1>四种检索策略对比</h1><p>在固定开发题集上比较不同找资料方式。管理员可以查看进度和证据；提交前仍需拥有题集涉及资料库的读取授权。</p></div><div class="heading-actions"><button class="button button-secondary" id="evaluation-refresh">↻ 刷新任务</button></div></div>
+          <section class="panel identity-panel"><div class="panel-heading"><div><span class="section-kicker">固定评测</span><h2>选择一项评测</h2><p>题目、资料版本和策略由服务固定，避免不同输入造成误比。提交会检查当前授权，任务运行期间也会持续检查。</p></div></div><form id="evaluation-submit-form" class="identity-form"><label>评测内容<select id="evaluation-template" required><option value="">读取固定评测…</option></select></label><button class="button button-primary" id="evaluation-submit">提交评测</button></form><div id="evaluation-template-note" class="privacy-note">结果中的候选数量和耗时用于检索诊断，不直接代表答案正确率。</div></section>
+          <section class="panel identity-panel"><div class="panel-heading"><div><span class="section-kicker">任务进度</span><h2>评测任务</h2></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>任务</th><th>状态 / 阶段</th><th>题目进度</th><th>题集与检索方式</th><th>创建时间</th><th>操作</th></tr></thead><tbody id="evaluation-job-rows"><tr><td colspan="6" class="table-placeholder">尚未读取评测任务</td></tr></tbody></table></div></section>
+          <section class="panel identity-panel"><div class="panel-heading"><div><span class="section-kicker">对比结果</span><h2 id="evaluation-result-title">检索方式对比结果</h2><p>候选数量、返回证据数量和耗时用于检索诊断；不代表答案语义正确率。</p></div></div><div id="evaluation-result-meta" class="privacy-note">选择已完成任务查看受控结果。</div><div class="table-wrap"><table class="data-table"><thead><tr><th>检索方式</th><th>有效题数</th><th>进入排序的候选数</th><th>返回证据数</th><th>平均耗时（秒）</th></tr></thead><tbody id="evaluation-arm-rows"><tr><td colspan="5" class="table-placeholder">没有已完成任务</td></tr></tbody></table></div><div id="evaluation-per-case" class="evaluation-cases"></div></section>
+          <section class="panel identity-panel"><div class="panel-heading"><div><span class="section-kicker">任务审计</span><h2>评测访问审计</h2></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>时间</th><th>操作者</th><th>动作</th><th>任务</th><th>摘要</th></tr></thead><tbody id="evaluation-audit-rows"><tr><td colspan="5" class="table-placeholder">连接后读取审计</td></tr></tbody></table></div></section>
+        </section>
+        <section class="page-view" id="page-calls" data-title="调用日志">
+          <div class="page-heading"><div><div class="eyebrow">请求记录</div><h1>调用日志</h1><p>查看当前可审计记录中的时间、入口、目标、耗时与状态。</p></div><div class="heading-actions"><button class="button button-secondary" id="refresh-calls">↻ 刷新日志</button></div></div>
+          <section class="panel log-coverage"><div class="coverage-heading"><div><span class="section-kicker">记录范围与隐私</span><strong>日志记录范围</strong></div><span class="coverage-state" id="calls-coverage-state">等待读取</span></div><div class="coverage-grid"><article><span class="coverage-dot" id="http-coverage-dot"></span><div><strong>HTTP 管理请求</strong><p id="http-coverage-copy">等待读取覆盖范围</p></div></article><article><span class="coverage-dot" id="mcp-coverage-dot"></span><div><strong>MCP 调用</strong><p id="mcp-coverage-copy">等待读取覆盖范围</p></div></article></div><div class="privacy-note"><span>◈</span><span>本页不记录或展示查询正文、来源路径、会话或客户端哈希、原始错误文本及证据正文。覆盖状态可能受服务配置、文件缺失或日志截断影响；不可用状态不代表“没有调用”。</span></div></section>
+          <div class="toolbar panel calls-toolbar"><label class="select-field"><span>入口</span><select id="call-type-filter"><option value="all">全部入口</option><option value="http">HTTP</option><option value="mcp">MCP</option></select></label><label class="select-field"><span>结果</span><select id="call-status-filter"><option value="all">全部结果</option><option value="success">成功</option><option value="error">失败</option></select></label><label class="search-field target-filter"><span>⌕</span><input id="call-target-filter" type="search" placeholder="操作 / route 精确筛选" autocomplete="off"></label><label class="search-field target-filter"><span>⌕</span><input id="call-retrieval-filter" type="search" placeholder="检索目标 ID 精确筛选" autocomplete="off"></label><span class="toolbar-count" id="call-count">—</span></div>
+          <section class="panel table-panel"><div class="table-wrap"><table class="data-table calls-table"><thead><tr><th>时间</th><th>入口</th><th>操作 / route</th><th>检索目标</th><th>耗时</th><th>结果</th><th>HTTP / 错误码</th><th>request_id</th></tr></thead><tbody id="call-rows"><tr><td colspan="8" class="table-placeholder">连接后读取调用日志</td></tr></tbody></table></div><div class="empty-state hidden" id="calls-empty"><div class="empty-illustration">⌁</div><strong>当前筛选没有匹配记录</strong><p>调整过滤条件，或检查日志覆盖范围。</p></div></section>
+          <div class="pagination"><span id="call-page-note">每页最多 50 条记录</span><div><button class="button button-secondary" id="calls-prev" disabled>← 上一页</button><button class="button button-secondary" id="calls-next" disabled>下一页 →</button></div></div>
+        </section>
+
+        <section class="page-view" id="page-roadmap" data-title="能力与路线">
+          <div class="page-heading"><div><div class="eyebrow">功能路线</div><h1>能力与迭代路线</h1><p>把当前可用能力和待建设的管理能力分开呈现。</p></div></div>
+          <div class="capability-banner"><div class="capability-mark">W</div><div><span class="section-kicker">当前功能边界</span><h2>管理功能与服务配置分开</h2><p>管理页面支持文件管理、单文件检索、共享资料库版本管理和固定开发题集评测。服务运行配置仍通过受控配置与命令行管理。</p></div></div>
+          <div class="roadmap-columns">
+            <section class="panel roadmap-panel"><div class="panel-heading"><div><span class="section-kicker">当前可用</span><h2>当前可用</h2></div><span class="status-tag status-active">已接入服务 API</span></div><div class="capability-list">
+              <article class="capability-item"><span class="cap-icon cap-green">▤</span><div><strong>受管文件生命周期</strong><p>上传、版本替换、删除、接管旧资料、原文下载与索引资源核对。</p><span class="cap-foot">每个文件都有稳定编号；当前版本决定检索与下载内容。</span></div><span class="cap-check">●</span></article>
+              <article class="capability-item"><span class="cap-icon cap-blue">◷</span><div><strong>持久任务跟踪</strong><p>查询服务记录的状态、阶段、进度和处理结果。</p><span class="cap-foot">只有服务标记为可重试的失败任务才可重新执行</span></div><span class="cap-check">●</span></article>
+              <article class="capability-item"><span class="cap-icon cap-violet">⌕</span><div><strong>资料库证据检索</strong><p>检索共享只读资料或受管文件，展示正文、版本和来源定位。</p><span class="cap-foot">返回证据，不生成最终答案</span></div><span class="cap-check">●</span></article>
+              <article class="capability-item"><span class="cap-icon cap-sand">◉</span><div><strong>Bearer 管理认证</strong><p>按服务配置输入管理凭据；无 token 的本机服务仍可直接连接。</p><span class="cap-foot">凭据仅保留在当前页面内存</span></div><span class="cap-check">●</span></article>
+            </div></section>
+            <section class="panel roadmap-panel"><div class="panel-heading"><div><span class="section-kicker">后续迭代</span><h2>后续迭代</h2></div><span class="status-tag status-planned">计划中</span></div><div class="capability-list roadmap-list">
+              <article class="capability-item"><span class="roadmap-index">01</span><div><strong>权限策略管理</strong><p>细化资料库和单文件的访问范围，并提供策略检查。</p><span class="cap-foot">当前：资料库用户授权已接入；更细粒度策略管理仍待建设</span></div><span class="planned-mark">待建设</span></article>
+              <article class="capability-item"><span class="roadmap-index">02</span><div><strong>索引发布与运行期健康监控</strong><p>共享资料库版本的准备、完整性检查、切换和回退已在版本管理页接入。</p><span class="cap-foot">更广泛的运行期监控仍待建设</span></div><span class="planned-mark">持续完善</span></article>
+              <article class="capability-item"><span class="roadmap-index">03</span><div><strong>检索评测工作台</strong><p>管理员可提交固定开发题集，对比四种检索方式并查看每题证据。</p><span class="cap-foot">边界：需管理员与资料库读取授权；冻结评测集不开放</span></div><span class="planned-mark">开发验证</span></article>
+              <article class="capability-item"><span class="roadmap-index">04</span><div><strong>服务与运行配置</strong><p>查看健康状态、上传限制及依赖就绪情况，逐步支持安全变更。</p><span class="cap-foot">当前：启动参数 / 环境配置；在线修改 API 未提供</span></div><span class="planned-mark">待建设</span></article>
+            </div></section>
+          </div>
+          <section class="panel roadmap-note"><span class="roadmap-note-icon">↗</span><div><strong>管理界面会随服务能力逐步扩展</strong><p>每项操作都需要对应的服务端权限校验、状态合同和验证证据。未接入 API 的项目不会显示可提交的编辑表单。</p></div></section>
+        </section>
+      </div>
+      <footer class="app-footer"><span>问津 <i>·</i> RAG 管理中心</span><span id="footer-config">连接中 · 配置读取后显示上传上限</span><span>本地数据 · 管理员操作</span></footer>
+    </main>
+  </div>
+
+  <dialog id="identity-login-dialog" class="auth-dialog">
+    <form id="identity-login-form" method="dialog" class="auth-form">
+      <div class="dialog-heading"><span class="section-kicker">本机账户</span><h2>登录问津</h2><p id="identity-login-hint">使用本机管理员创建的账户登录。</p></div>
+      <label>用户名<input name="username" autocomplete="username" maxlength="64" required></label>
+      <label>密码<input name="password" type="password" autocomplete="current-password" maxlength="1024" required></label>
+      <p id="identity-login-error" class="error-text"></p>
+      <div class="dialog-actions"><button class="button button-primary" id="identity-login-submit">登录</button></div>
+    </form>
+  </dialog>
+  <dialog id="identity-password-dialog" class="auth-dialog">
+    <form id="identity-password-form" method="dialog" class="auth-form">
+      <div class="dialog-heading"><span class="section-kicker">需要修改密码</span><h2>先修改临时密码</h2><p>完成前不能检索资料或创建 Agent 凭据。</p></div>
+      <label>当前密码<input name="old_password" type="password" autocomplete="current-password" maxlength="1024" required></label>
+      <label>新密码<input name="new_password" type="password" autocomplete="new-password" minlength="12" maxlength="1024" required></label>
+      <p id="identity-password-error" class="error-text"></p>
+      <div class="dialog-actions"><button class="button button-primary">修改密码</button><button class="button button-secondary" id="identity-force-logout" type="button">退出登录</button></div>
+    </form>
+  </dialog>
+
+  <input id="upload-input" class="visually-hidden" type="file">
+  <dialog class="modal" id="upload-dialog"><div class="modal-card auth-card" id="upload-form"><button class="modal-x" id="upload-close-button" type="button" aria-label="关闭">×</button><span class="modal-eyebrow">资料归属</span><h2>上传资料</h2><p class="modal-intro">选择一个已有逻辑资料库，或先创建资料库。新文件按原格式解析，并建立独立的受管索引。</p><label class="field-label" for="upload-library">保存到资料库 <em>必选</em></label><select class="control" id="upload-library"><option value="">连接后读取资料库</option></select><label class="field-label" for="upload-display-name">资料显示名称 <span class="optional">可留空，默认使用原文件名</span></label><input class="control" id="upload-display-name" maxlength="240" placeholder="例如：检索部署操作手册"><details class="create-library-details"><summary>新建资料库</summary><div class="create-library-fields"><label class="field-label" for="new-library-name">资料库名称</label><input class="control" id="new-library-name" maxlength="120" placeholder="例如：部署手册"><button class="button button-secondary" id="create-library-button" type="button">创建资料库</button></div></details><div class="security-note"><span>◈</span><span>新资料库创建后不会自动授权。需要检索的用户仍须在“身份与授权”中获得读取权限。</span></div><div class="modal-actions"><button class="button button-secondary" id="upload-cancel-button" type="button">取消</button><button class="button button-primary" id="choose-upload-file" type="button">选择文件并上传</button></div></div></dialog>
+  <dialog class="modal" id="auth-dialog"><form method="dialog" class="modal-card auth-card" id="auth-form"><button class="modal-x" value="cancel" aria-label="关闭">×</button><span class="modal-eyebrow">服务连接</span><h2>连接管理服务</h2><p class="modal-intro">同源服务地址由当前页面提供。需要认证时输入管理 Bearer；凭据不会写入浏览器存储。</p><label class="field-label" for="admin-token">管理 token <span class="optional">可留空</span></label><input class="control" id="admin-token" type="password" autocomplete="off" placeholder="输入管理 Bearer token"><div class="security-note"><span>◈</span><span>此凭据只保留在当前页面内存。刷新页面后需要重新输入。</span></div><div class="modal-actions"><button class="button button-secondary hidden" id="disconnect-button" type="button">断开连接</button><button class="button button-secondary" value="cancel">取消</button><button class="button button-primary" id="connect-button" value="default">连接服务</button></div></form></dialog>
+
+  <dialog class="modal modal-wide" id="detail-dialog"><div class="modal-card detail-card"><button class="modal-x" data-close="detail-dialog" aria-label="关闭">×</button><div id="detail-content"></div></div></dialog>
+  <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="false"></div>
+</body>
+</html>

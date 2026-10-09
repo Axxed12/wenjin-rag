@@ -1,13 +1,16 @@
 """使用 LlamaIndex 的 Embedding 适配器，把 chunk 写入 Qdrant。"""
 
 import uuid
+from typing import TYPE_CHECKING, Any
 
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from qdrant_client import QdrantClient, models
+
+if TYPE_CHECKING:
+    from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 
 def embed_chunks(
-    embedder: HuggingFaceEmbedding, chunks: list, *, batch_size: int = 16
+    embedder: "HuggingFaceEmbedding | Any", chunks: list, *, batch_size: int = 16
 ) -> list[list[float]]:
     """按批次计算文档向量；返回顺序与 chunks 完全一致。"""
     vectors = []
@@ -78,7 +81,7 @@ def dense_query_vector(
 
 def dense_query(
     client: QdrantClient,
-    embedder: HuggingFaceEmbedding,
+    embedder: "HuggingFaceEmbedding | Any",
     collection_name: str,
     query: str,
     *,

@@ -101,6 +101,10 @@ class SourceRecord:
     retrieval_eligible: bool
     indexable: bool
     encoding: str | None = None
+    canonical_sha256: str | None = None
+    normalization: str | None = None
+    parser: str | None = None
+    multiformat_input: bool = False
 
     @property
     def is_text(self) -> bool:
@@ -162,12 +166,17 @@ def encode_relative_path(relative: str) -> str:
     return "/".join(quote(part, safe="") for part in relative.split("/"))
 
 
-def download_path_for(corpus_id: str, relative: str) -> str:
+def download_path_for(
+    corpus_id: str, relative: str, *, release_id: str | None = None
+) -> str:
     """生成取件URL；`relative`必须是manifest登记路径。
 
     只做拼接、不做鉴权：鉴权发生在请求真正打向端点的时候。
     """
-    return f"{DOWNLOAD_PREFIX}/{quote(corpus_id, safe='')}/{encode_relative_path(relative)}"
+    path = f"{DOWNLOAD_PREFIX}/{quote(corpus_id, safe='')}/{encode_relative_path(relative)}"
+    if release_id:
+        return f"{path}?release_id={quote(release_id, safe='')}"
+    return path
 
 
 class CorpusSources:
@@ -216,6 +225,11 @@ class CorpusSources:
                 ),
                 indexable=bool(entry.get("indexable", False)),
                 encoding=entry.get("encoding"),
+                canonical_sha256=(str(entry["canonical_sha256"]).lower()
+                                  if entry.get("canonical_sha256") else None),
+                normalization=entry.get("normalization"),
+                parser=str(entry["parser"]) if entry.get("parser") else None,
+                multiformat_input="retrieval_eligible" in entry,
             )
             for entry in manifest.get("files", [])
             if entry.get("path")
@@ -324,7 +338,12 @@ class AttachmentResult:
         return {"count": len(self.dropped), "reasons": counts}
 
 
-def attach_download_paths(evidence: list[dict], sources: CorpusSources) -> AttachmentResult:
+def attach_download_paths(
+    evidence: list[dict],
+    sources: CorpusSources,
+    *,
+    release_id: str | None = None,
+) -> AttachmentResult:
     """给每条证据补上取件链接。
 
     两条硬约束：
@@ -364,6 +383,8 @@ def attach_download_paths(evidence: list[dict], sources: CorpusSources) -> Attac
             continue
         copied["corpus_id"] = sources.corpus_id
         copied["source_relative_path"] = record.relative
-        copied["download_path"] = download_path_for(sources.corpus_id, record.relative)
+        copied["download_path"] = download_path_for(
+            sources.corpus_id, record.relative, release_id=release_id
+        )
         kept.append(copied)
     return AttachmentResult(kept, dropped)

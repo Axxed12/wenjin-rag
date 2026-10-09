@@ -48,7 +48,7 @@ def _make_chunk(
 ) -> Chunk:
     """从原文行切片；start/end 使用 Python 切片的左闭右开下标。
 
-    text 只在单行内部硬切时传入：此时多个片段共享同一原始行号，无法由行下标重建文本。
+    显式传入的 text 供特殊调用方保留定制正文；标准切片按行号重建完整原文。
     chunk_id 里的 index 在单个文档（PDF 为单页）内递增，因此片段仍然拥有唯一 ID。
     """
     text = "".join(lines[start:end]) if text is None else text
@@ -119,10 +119,10 @@ def fixed_chunks(document: dict, *, size: int = 1200, overlap: int = 120) -> lis
 def _split_long_block(
     lines: list[str], start: int, end: int, max_chars: int
 ) -> list[tuple[int, int, str | None]]:
-    """把一个超过 max_chars 的连续块切成若干片段，返回 (start, end, text)。
+    """在行边界拆分超长连续块，返回 (start, end, text)。
 
-    片段之间不重叠，按原文顺序连起来就是整块，因此联合覆盖可以由文本精确重建。
-    单行本身超过 max_chars 时按字符硬切，这些片段共享同一原始行号，必须显式携带 text。
+    片段之间不重叠，按原文顺序连起来就是整块。超长单行作为独立完整片段保留，
+    因为当前证据契约只用行号定位，按字符切开就无法表达原文中的字符偏移。
     """
     pieces: list[tuple[int, int, str | None]] = []
     piece_start = start
@@ -134,8 +134,7 @@ def _split_long_block(
             if piece_chars:
                 pieces.append((piece_start, index, None))
                 piece_chars = 0
-            for offset in range(0, len(line), max_chars):
-                pieces.append((index, index + 1, line[offset : offset + max_chars]))
+            pieces.append((index, index + 1, None))
             piece_start = index + 1
         else:
             if piece_chars + len(line) > max_chars:
@@ -157,8 +156,9 @@ def block_chunks(
     这比固定字符窗口更可能保留一段注释和紧随其后的声明，但不能理解 C++ 语法。
     `split_oversized=False` 保留旧基线行为：超过 max_chars 的单个块整块成片，
     所以上限只是目标而不是保证；该默认值是 OSG active 和 001 候选的可复现契约。
-    `split_oversized=True`（策略名 `blocks-split`）改为硬上限：超长块按行、必要时
-    按字符切成不超过 max_chars 的连续片段，并保留原始行号/物理页码和唯一 chunk ID。
+    `split_oversized=True`（策略名 `blocks-split`）会把超长块按行拆成连续片段，并保留
+    原始行号/物理页码和唯一 chunk ID。单行超过 max_chars 时仍作为完整行保留，因此
+    max_chars 是一般片段合并目标，超长单行是明确例外。
     """
     if max_chars <= 0:
         raise ValueError("max_chars must be positive")

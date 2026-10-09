@@ -37,6 +37,17 @@ def test_bm25_returns_exact_identifier_candidate(tmp_path: Path):
     assert result[0]["score"] > 0
 
 
+def test_bm25_exact_source_path_filter_does_not_treat_like_metacharacters_as_wildcards(tmp_path: Path):
+    chunks = [
+        Chunk("literal", "docs/a%_guide.txt", "1.0", 1, 1, "amberwidget marker", "blocks"),
+        Chunk("neighbor", "docs/aXXguide.txt", "1.0", 1, 1, "amberwidget marker", "blocks"),
+    ]
+    path = tmp_path / "bm25.sqlite"
+    build_bm25_index(path, chunks)
+    result = bm25_query(path, "amberwidget", source_path="docs/a%_guide.txt")
+    assert [item["chunk_id"] for item in result] == ["literal"]
+
+
 def test_bm25_round_trips_page_and_logical_document(tmp_path: Path):
     chunks = [Chunk(
         "page", "standard.pdf", "1.0", 1, 3, "GetMap VERSION 1.3.0", "blocks",

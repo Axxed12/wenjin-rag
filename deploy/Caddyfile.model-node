@@ -1,0 +1,4 @@
+{$MODEL_NODE_TLS_NAME} {
+	tls /run/tls/model-node.crt /run/tls/model-node.key
+	reverse_proxy model-api:8765
+}

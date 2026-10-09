@@ -114,6 +114,7 @@ def bm25_query(
     top_k: int = 5,
     terms_override: list[str] | None = None,
     source_prefix: str | None = None,
+    source_path: str | None = None,
 ) -> list[dict]:
     """返回关键词候选；SQLite 原生 bm25 越小越好，展示时转为 higher-is-better。
 
@@ -137,12 +138,34 @@ def bm25_query(
         # "没有这列"和"确认不是 OCR"是两件事，后者不能由缺失推断出来。
         parser_select = "parser" if "parser" in columns else "NULL AS parser"
         ocr_select = "ocr_derived" if "ocr_derived" in columns else "NULL AS ocr_derived"
-        source_clause = " AND source_path LIKE ?" if source_prefix else ""
-        parameters = (expression, source_prefix, top_k) if source_prefix else (expression, top_k)
+        # 结构metadata的router会将dense和BM25候选合并后送入reranker。
+        # BM25独有候选也必须携带索引中已登记的三类Hash；缺列旧库只返回None，
+        # 上游严格profile会拒绝伪造来源身份，而不会从候选正文反推source Hash。
+        identity_selects = {
+            name: name if name in columns else f"NULL AS {name}"
+            for name in (
+                "content_sha256", "source_raw_sha256", "source_canonical_sha256",
+                "normalization",
+            )
+        }
+        clauses = []
+        filter_parameters = []
+        if source_prefix:
+            clauses.append("source_path LIKE ?")
+            filter_parameters.append(source_prefix)
+        if source_path is not None:
+            clauses.append("source_path = ?")
+            filter_parameters.append(source_path)
+        source_clause = "".join(f" AND {clause}" for clause in clauses)
+        parameters = (expression, *filter_parameters, top_k)
         rows = database.execute(
             f"""
             SELECT chunk_id, source_path, version, start_line, end_line, strategy,
                    {page_select}, {logical_select}, {parser_select}, {ocr_select},
+                   {identity_selects['content_sha256']},
+                   {identity_selects['source_raw_sha256']},
+                   {identity_selects['source_canonical_sha256']},
+                   {identity_selects['normalization']},
                    raw_text, bm25(chunks) AS raw_bm25
             FROM chunks
             WHERE chunks MATCH ?
@@ -166,6 +189,10 @@ def bm25_query(
             "logical_document_id": row["logical_document_id"],
             "parser": row["parser"],
             "ocr_derived": None if row["ocr_derived"] is None else bool(row["ocr_derived"]),
+            "content_sha256": row["content_sha256"],
+            "source_raw_sha256": row["source_raw_sha256"],
+            "source_canonical_sha256": row["source_canonical_sha256"],
+            "normalization": row["normalization"],
             "text": row["raw_text"],
             "matched_terms": terms,
         }

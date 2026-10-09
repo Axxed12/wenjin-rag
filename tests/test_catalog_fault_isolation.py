@@ -348,7 +348,7 @@ def test_list_corpora_does_not_leak_quarantined_directory_names(tmp_path, bad_sh
     """
     from fastmcp import Client
 
-    from wenjin import mcp_server as module
+    from wenjin.mcp import tools
 
     label, directory, declared, _ = bad_shape
     write_good_corpus(tmp_path)
@@ -362,7 +362,7 @@ def test_list_corpora_does_not_leak_quarantined_directory_names(tmp_path, bad_sh
             warnings.append(record.getMessage())
 
     handler = Capture()
-    module.catalog_logger.addHandler(handler)
+    tools.catalog_logger.addHandler(handler)
     try:
         async def scenario() -> dict:
             async with Client(server) as client:
@@ -370,7 +370,7 @@ def test_list_corpora_does_not_leak_quarantined_directory_names(tmp_path, bad_sh
 
         data = asyncio.run(scenario())
     finally:
-        module.catalog_logger.removeHandler(handler)
+        tools.catalog_logger.removeHandler(handler)
 
     assert [item["corpus_id"] for item in data["corpora"]] == [GOOD_ID], label
     assert data["count"] == 1
@@ -395,7 +395,7 @@ def test_a_broken_log_handler_cannot_fail_the_tool(tmp_path, bad_shape):
     """
     from fastmcp import Client
 
-    from wenjin import mcp_server as module
+    from wenjin.mcp import tools
 
     label, directory, declared, _ = bad_shape
     write_good_corpus(tmp_path)
@@ -407,7 +407,7 @@ def test_a_broken_log_handler_cannot_fail_the_tool(tmp_path, bad_shape):
             raise RuntimeError("handler 坏了")
 
     exploding = Exploding()
-    module.catalog_logger.addHandler(exploding)
+    tools.catalog_logger.addHandler(exploding)
     try:
         async def scenario() -> dict:
             async with Client(server) as client:
@@ -415,7 +415,7 @@ def test_a_broken_log_handler_cannot_fail_the_tool(tmp_path, bad_shape):
 
         data = asyncio.run(scenario())
     finally:
-        module.catalog_logger.removeHandler(exploding)
+        tools.catalog_logger.removeHandler(exploding)
 
     assert [item["corpus_id"] for item in data["corpora"]] == [GOOD_ID], label
     assert data["count"] == 1, label

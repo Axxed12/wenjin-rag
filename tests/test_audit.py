@@ -58,3 +58,60 @@ def test_disabled_audit_returns_request_id_without_output():
     audit.close()
     assert len(request_id) == 32
     assert stream.getvalue() == ""
+
+
+def test_audit_target_is_safe_and_backward_compatible():
+    stream = StringIO()
+    audit = SearchAudit(stream=stream)
+    audit.record(
+        query="private", version="3.6.5", top_k=5, context_char_budget=8000,
+        session_id=None, elapsed_seconds=0.01,
+        result={"managed_file": {"file_id": "0123456789abcdef0123456789abcdef"}},
+    )
+    audit.record(
+        query="private", version="routed", top_k=5, context_char_budget=8000,
+        session_id=None, elapsed_seconds=0.01,
+        result={"routed_libraries": [
+            {"target_id": "osg-3.6.5-active"}, {"target_id": "tiles-003"},
+            {"target_id": "unsafe/private/path"},
+        ]},
+    )
+    audit.record(
+        query="private", version="unknown", top_k=5, context_char_budget=8000,
+        session_id=None, elapsed_seconds=0.01,
+        result={"index_target_id": "../private/source"},
+    )
+    audit.record(
+        query="private", version="unknown", top_k=5, context_char_budget=8000,
+        session_id=None, elapsed_seconds=0.01, error=ValueError("must not be logged"),
+    )
+    audit.close()
+    rows = [json.loads(line) for line in stream.getvalue().splitlines()]
+    assert rows[0]["retrieval_target"] == "file:0123456789abcdef0123456789abcdef"
+    assert rows[1]["retrieval_target"] == "routed:osg-3.6.5-active,tiles-003"
+    assert rows[2]["retrieval_target"] == "unknown"
+    assert rows[3]["retrieval_target"] == "unknown"
+    assert "private" not in stream.getvalue()
+    assert "unsafe/private/path" not in stream.getvalue()
+    assert "must not be logged" not in stream.getvalue()
+
+
+def test_configured_relative_audit_path_is_rooted_at_project(tmp_path, monkeypatch):
+    project_root = tmp_path / "project"
+    unrelated_cwd = tmp_path / "other-working-directory"
+    project_root.mkdir()
+    unrelated_cwd.mkdir()
+    monkeypatch.chdir(unrelated_cwd)
+    monkeypatch.setenv("WENJIN_AUDIT_SINK", "file")
+    monkeypatch.setenv("WENJIN_AUDIT_PATH", "artifacts/custom-audit.jsonl")
+
+    audit = SearchAudit.from_environment(project_root)
+    audit.record(
+        query="query", version="3.6.5", top_k=5, context_char_budget=8000,
+        session_id=None, elapsed_seconds=0.01,
+    )
+    audit.close()
+
+    expected = project_root / "artifacts" / "custom-audit.jsonl"
+    assert expected.is_file()
+    assert not (unrelated_cwd / "artifacts" / "custom-audit.jsonl").exists()

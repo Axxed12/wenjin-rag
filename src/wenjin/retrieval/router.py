@@ -17,13 +17,19 @@ from threading import Lock
 from typing import Any, Callable
 
 from wenjin.index_audit import admit_index
-from wenjin.index_registry import IndexTarget, resolve_project_path
+from wenjin.index_registry import IndexTarget, resolve_project_path, target_raw_data_root
 from wenjin.indexing.bm25 import bm25_query, query_terms
 from wenjin.indexing.dense import dense_query_vector
 from wenjin.retrieval.fusion import rrf_fuse
 from wenjin.retrieval.rerank import candidate_document, rank_candidates
 from wenjin.retrieval.service import evidence_record, load_source_urls, select_context
+from wenjin.retrieval.source_context import (
+    VerifiedSourceContextCache,
+    reviewed_profile_for_target,
+)
 from wenjin.serving import CorpusSources, attach_download_paths
+
+DEFAULT_MULTI_CORPUS_ROUTE = Path("configs/indexes/multicorpus-candidates-003.json")
 
 
 def normalize_library(name: str) -> str:
@@ -68,7 +74,9 @@ class RoutedIndex:
     collection: str
     bm25_path: Path
     source_urls: dict[str, str]
-    sources: CorpusSources
+    sources: CorpusSources | None
+    source_context_cache: VerifiedSourceContextCache | None = None
+    release_id: str | None = None
 
     @property
     def library(self) -> str:
@@ -131,6 +139,7 @@ class MultiCorpusRouter:
         reranker: Any | None = None,
         dense_search: Callable[..., list] = dense_query_vector,
         keyword_search: Callable[..., list[dict]] = bm25_query,
+        search_lock: Any | None = None,
     ) -> None:
         if not indices:
             raise ValueError("路由至少需要一个已校验索引")
@@ -146,8 +155,9 @@ class MultiCorpusRouter:
         self.reranker = reranker
         self.dense_search = dense_search
         self.keyword_search = keyword_search
-        # 与单库服务一致：本地模型串行执行，避免并发显存峰值。
-        self._search_lock = Lock()
+        # 锁跟随模型执行资源共享；请求级授权子路由必须沿用这把锁。
+        # 未注入时仍为独立实例创建锁，保持独立路由的既有用法。
+        self.search_lock = search_lock if search_lock is not None else Lock()
 
     @classmethod
     def from_route_file(
@@ -158,36 +168,63 @@ class MultiCorpusRouter:
         qdrant_client: Any,
         embedder: Any,
         reranker: Any | None = None,
+        search_lock: Any | None = None,
     ) -> "MultiCorpusRouter":
         """读取候选清单并逐个校验；任一候选不通过就不建立路由。"""
         route = json.loads(route_path.read_text(encoding="utf-8-sig"))
         if route.get("schema_version") != 1 or not route.get("candidates"):
             raise ValueError("路由清单schema或候选列表无效")
+        targets = [IndexTarget.from_dict(item) for item in route["candidates"]]
+        return cls.from_targets(
+            targets,
+            root=root,
+            qdrant_client=qdrant_client,
+            embedder=embedder,
+            reranker=reranker,
+            search_lock=search_lock,
+        )
+
+    @classmethod
+    def from_targets(
+        cls,
+        targets: list[IndexTarget],
+        *,
+        root: Path,
+        qdrant_client: Any,
+        embedder: Any,
+        reranker: Any | None = None,
+        search_lock: Any | None = None,
+    ) -> "MultiCorpusRouter":
+        """从调用方筛选后的目标构造路由；每个target仍执行完整准入。"""
         indices = []
-        for item in route["candidates"]:
-            target = IndexTarget.from_dict(item)
+        for target in targets:
             # 与启动、切换同一份完整准入；不合格的候选不得进入路由。
             admit_index(target, root=root, qdrant_client=qdrant_client)
-            indices.append(
-                RoutedIndex(
-                    target=target,
-                    collection=target.dense_collection,
-                    bm25_path=resolve_project_path(root, target.bm25_path),
-                    source_urls=load_source_urls(
-                        resolve_project_path(root, target.manifest_path)
-                    ),
-                    sources=CorpusSources.from_manifest(
-                        resolve_project_path(root, target.manifest_path),
-                        raw_root=root / "raw_data",
-                        expected_corpus_id=target.corpus_identity(),
-                    ),
-                )
+            sources = CorpusSources.from_manifest(
+                resolve_project_path(root, target.manifest_path),
+                raw_root=target_raw_data_root(root, target),
+                expected_corpus_id=target.corpus_identity(),
             )
+            context_profile = reviewed_profile_for_target(target)
+            indices.append(RoutedIndex(
+                target=target,
+                collection=target.dense_collection,
+                bm25_path=resolve_project_path(root, target.bm25_path),
+                source_urls=load_source_urls(resolve_project_path(root, target.manifest_path)),
+                sources=sources,
+                source_context_cache=(
+                    VerifiedSourceContextCache(sources, profile=context_profile)
+                    if context_profile else None
+                ),
+            ))
+        if not indices:
+            raise ValueError("路由至少需要一个已校验索引")
         return cls(
             qdrant_client=qdrant_client,
             embedder=embedder,
             indices=indices,
             reranker=reranker,
+            search_lock=search_lock,
         )
 
     def catalog(self) -> list[dict]:
@@ -280,7 +317,7 @@ class MultiCorpusRouter:
         config: RouteConfig | None = None,
     ) -> dict:
         """执行检索并返回各阶段候选；不生成答案，也不判定证据是否充分。"""
-        with self._search_lock:
+        with self.search_lock:
             return self._retrieve_unlocked(
                 query, library=library, version=version, target_id=target_id, config=config
             )
@@ -375,10 +412,19 @@ class MultiCorpusRouter:
         ]
         fusion_seconds = time.perf_counter() - fusion_started
         rerank_started = time.perf_counter()
+        source_context_statuses: dict[str, int] = {}
         if self.reranker is not None and fused:
-            scores = self.reranker.score(
-                query, [candidate_document(candidate) for candidate in fused]
-            )
+            indices_by_target = {index.target_id: index for index in selected}
+            documents = []
+            for candidate in fused:
+                index = indices_by_target[candidate["target_id"]]
+                if index.source_context_cache is None:
+                    document, status = candidate_document(candidate), "unregistered_target_profile"
+                else:
+                    document, status = index.source_context_cache.document_for_candidate(candidate)
+                documents.append(document)
+                source_context_statuses[status] = source_context_statuses.get(status, 0) + 1
+            scores = self.reranker.score(query, documents)
             ranked = rank_candidates(fused, scores)
         else:
             ranked = fused
@@ -399,6 +445,7 @@ class MultiCorpusRouter:
             "per_library": per_library,
             "bm25_terms": terms,
             "reranker_used": self.reranker is not None,
+            "source_context_diagnostics": source_context_statuses,
             "timing_seconds": {
                 "query_embedding": round(embedding_seconds, 6),
                 "fusion": round(fusion_seconds, 6),
@@ -438,7 +485,9 @@ class MultiCorpusRouter:
             record["index_target_id"] = index.target_id
             record["corpus_id"] = index.corpus_identity
             # 取件链接按manifest登记路径生成；映射不到本库的片段会被丢弃并报告。
-            attachment = attach_download_paths([record], index.sources)
+            attachment = attach_download_paths(
+                [record], index.sources, release_id=index.release_id
+            )
             if attachment.dropped:
                 dropped_details.extend(attachment.dropped)
                 continue
@@ -449,11 +498,16 @@ class MultiCorpusRouter:
             "routed_libraries": retrieval["routed_libraries"],
             "skipped_libraries": retrieval["skipped_libraries"],
             "retrieval": {
+                "candidate_k": config.candidate_k,
+                "rerank_pool": config.rerank_pool,
+                "top_k": config.top_k,
+                "context_char_budget": config.context_char_budget,
                 "dense_returned": len(retrieval["dense_candidates"]),
                 "bm25_returned": len(retrieval["bm25_candidates"]),
                 "bm25_terms": retrieval["bm25_terms"],
                 "fused_candidates": len(retrieval["fused_candidates"]),
                 "reranker_used": retrieval["reranker_used"],
+                "source_context_diagnostics": retrieval.get("source_context_diagnostics", {}),
                 "per_library": retrieval["per_library"],
                 "timing_seconds": retrieval["timing_seconds"],
             },

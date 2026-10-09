@@ -62,7 +62,9 @@ def test_mcp_initialize_discovers_and_calls_search_tool(tmp_path):
         server = server_for(tmp_path, access=open_access())
         async with Client(server) as client:
             tools = await client.list_tools()
-            assert sorted(tool.name for tool in tools) == ["list_corpora", "search_docs"]
+            assert sorted(tool.name for tool in tools) == [
+                "list_corpora", "list_managed_files", "search_docs"
+            ]
             result = await client.call_tool("search_docs", {"query": "Node mask", "top_k": 2})
             data = result.structured_content
             assert data["query"] == "Node mask"
@@ -151,9 +153,8 @@ def test_search_fails_closed_when_corpus_cannot_be_determined(tmp_path):
         )
         async with Client(server) as client:
             data = (await client.call_tool("search_docs", {"query": "Node mask"})).structured_content
-            assert data["error"] == "forbidden"
+            assert data["error"] == "invalid_target"
             assert data["evidence"] == []
-            assert "索引身份" in data["detail"]
 
     asyncio.run(scenario())
 

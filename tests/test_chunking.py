@@ -50,16 +50,14 @@ def test_blocks_split_caps_multi_line_block_and_keeps_line_numbers():
     assert "".join(chunk.text for chunk in chunks) == text
 
 
-def test_blocks_split_hard_splits_one_overlong_line_with_unique_ids():
+def test_blocks_split_keeps_one_overlong_line_whole_for_exact_line_evidence():
     line = "".join(chr(ord("a") + index) * 25 for index in range(10)) + "\n"
     chunks = block_chunks(document(line), max_chars=100, split_oversized=True)
-    assert [len(chunk.text) for chunk in chunks] == [100, 100, 51]
-    # 同一原始行的多个片段共享行号，但必须拥有不同 chunk ID 和不同内容 Hash。
-    assert {chunk.start_line for chunk in chunks} == {1}
-    assert {chunk.end_line for chunk in chunks} == {1}
-    assert len({chunk.chunk_id for chunk in chunks}) == 3
-    assert len({chunk.content_sha256 for chunk in chunks}) == 3
-    assert "".join(chunk.text for chunk in chunks) == line
+    assert [len(chunk.text) for chunk in chunks] == [251]
+    # 单行超预算时正文仍等于声明的完整行；字符切片无法由现有行号精确定位。
+    assert chunks[0].start_line == chunks[0].end_line == 1
+    assert chunks[0].text == line
+    assert chunks[0].strategy == "blocks-split"
 
 
 def test_blocks_split_counts_blank_lines_inside_merged_chunk():

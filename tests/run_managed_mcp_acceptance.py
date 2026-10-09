@@ -1,0 +1,93 @@
+"""旧 tests.run_managed_mcp_acceptance 路径兼容入口；权威实现位于 tests.acceptance.run_managed_mcp_acceptance。"""
+
+import sys
+from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+from tests.acceptance.run_managed_mcp_acceptance import (  # noqa: E402
+    AUTHORIZED,
+    EVIDENCE,
+    HELPER,
+    MARKER_V1,
+    MARKER_V2,
+    MCP_PATH,
+    QUERY_3DTILES,
+    QUERY_OSG,
+    REPO,
+    Acceptance,
+    Any,
+    AsyncExitStack,
+    IndexRegistryStore,
+    Path,
+    QdrantClient,
+    Settings,
+    argparse,
+    asyncio,
+    create_qdrant_client,
+    datetime,
+    free_port,
+    hashlib,
+    httpx,
+    json,
+    main,
+    os,
+    quote,
+    resolve_corpus_identity,
+    resolve_project_path,
+    run,
+    secrets,
+    sha256,
+    socket,
+    structured,
+    subprocess,
+    sys,
+    time,
+    timezone,
+)
+
+__all__ = [
+    'argparse',
+    'asyncio',
+    'hashlib',
+    'json',
+    'os',
+    'secrets',
+    'socket',
+    'subprocess',
+    'sys',
+    'time',
+    'AsyncExitStack',
+    'datetime',
+    'timezone',
+    'Path',
+    'Any',
+    'quote',
+    'httpx',
+    'QdrantClient',
+    'IndexRegistryStore',
+    'resolve_corpus_identity',
+    'resolve_project_path',
+    'create_qdrant_client',
+    'Settings',
+    'REPO',
+    'EVIDENCE',
+    'HELPER',
+    'MCP_PATH',
+    'AUTHORIZED',
+    'QUERY_OSG',
+    'QUERY_3DTILES',
+    'MARKER_V1',
+    'MARKER_V2',
+    'sha256',
+    'free_port',
+    'structured',
+    'Acceptance',
+    'run',
+    'main',
+]
+
+if __name__ == "__main__":
+    raise SystemExit(main())

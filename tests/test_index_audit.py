@@ -57,7 +57,9 @@ def build_assets(tmp_path: Path) -> dict:
     # 写出来源文件：行号范围校验要拿它的实际行数做上界。
     raw_file = tmp_path / "raw_data" / "osg" / "3.6.5" / FILE_PATH
     raw_file.parent.mkdir(parents=True, exist_ok=True)
-    raw_file.write_text(CHUNK_TEXT, encoding="utf-8")
+    # 语料来源的Hash按这组UTF-8字节计算；write_text在Windows会写入CRLF，
+    # 因而这里显式write_bytes，避免夹具声明的raw_hash与实际来源不一致。
+    raw_file.write_bytes(CHUNK_TEXT.encode("utf-8"))
 
     bm25_path = tmp_path / "candidate.sqlite"
     payload = {
@@ -190,12 +192,7 @@ def test_tampered_strategy_is_caught(assets):
 
 
 def test_tampered_text_is_caught(assets):
-    """正文被改而Hash没跟着改：这是本检查能抓到的形态。
-
-    边界（已知且不隐瞒）：如果篡改者连 `content_sha256` 一起改，本检查抓不到——
-    那需要按来源文件重新切片比对，属于重建级校验。这里断言的是
-    "正文必须与它自己携带的Hash对得上"。
-    """
+    """正文被改但Hash未改时，Hash自检和原文切片核验都能发现。"""
     tampered = "class Node;\nvoid removed();\n"
     payload = {**assets["payload"], "text": tampered}  # 故意保留原content_sha256
     write_bm25(assets["bm25_path"], payload)
@@ -581,17 +578,17 @@ def test_every_entry_point_uses_full_admission():
     """
     root = Path(__file__).resolve().parents[1]
     expectations = {
-        "src/wenjin/mcp_server.py": "admit_index",
+        "src/wenjin/mcp/runtime.py": "admit_index",
         "src/wenjin/retrieval/router.py": "admit_index",
-        "scripts/manage_indexes.py": "admit_index",
-        "scripts/verify_candidate_indexes.py": "audit_index",
+        "scripts/operations/manage_indexes.py": "admit_index",
+        "scripts/operations/verify_candidate_indexes.py": "audit_index",
     }
     for relative, required in expectations.items():
         text = (root / relative).read_text(encoding="utf-8")
         assert required in text, f"{relative} 未使用统一准入 {required}"
 
     # 启动、路由与切换/回退不能再出现"只做基础校验"的调用。
-    for relative in ("src/wenjin/mcp_server.py", "src/wenjin/retrieval/router.py"):
+    for relative in ("src/wenjin/mcp/runtime.py", "src/wenjin/retrieval/router.py"):
         text = (root / relative).read_text(encoding="utf-8")
         assert "validate_target(" not in text, f"{relative} 仍直接调用基础校验"
 
@@ -603,8 +600,9 @@ def make_two_file_corpus(tmp_path: Path, *, same_content: bool = True) -> dict:
     """登记两个文件；内容相同则Hash相同，用来测"Hash相同但来源不同"。"""
     raw_dir = tmp_path / "raw_data" / "osg" / "3.6.5" / "include" / "osg"
     raw_dir.mkdir(parents=True, exist_ok=True)
-    (raw_dir / "Node").write_text(CHUNK_TEXT, encoding="utf-8")
-    (raw_dir / "OtherNode").write_text(CHUNK_TEXT, encoding="utf-8")
+    # manifest中的raw_hash基于UTF-8 LF字节；Windows文本模式会把LF写成CRLF。
+    (raw_dir / "Node").write_bytes(CHUNK_TEXT.encode("utf-8"))
+    (raw_dir / "OtherNode").write_bytes(CHUNK_TEXT.encode("utf-8"))
 
     corpus_dir = tmp_path / "corpora" / CORPUS_DIR
     corpus_dir.mkdir(parents=True, exist_ok=True)
@@ -690,7 +688,9 @@ def make_pdf_corpus(tmp_path: Path, *, pages: int = 1) -> dict:
     pdf_path = raw_dir / "spec.pdf"
     document = pymupdf.open()
     for _ in range(pages):
-        document.new_page()
+        page = document.new_page()
+        # 文本层页审计现在会逐字重放页正文；夹具应提供与chunk一致的实际PDF文字。
+        page.insert_text((72, 72), "page text")
     document.save(pdf_path)
     document.close()
     digest = hashlib.sha256(pdf_path.read_bytes()).hexdigest()
@@ -709,7 +709,7 @@ def make_pdf_corpus(tmp_path: Path, *, pages: int = 1) -> dict:
     manifest["retrieval_content_sha256"] = manifest_module.retrieval_fingerprint(manifest)
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
-    text = "page text\n"
+    text = "page text"
     payload = {
         "chunk_id": "1.1:spec.pdf:page-1:blocks:0000", "source_path": "raw_data/ogc-3dtiles/1.1/spec.pdf",
         "version": "1.1", "start_line": 1, "end_line": 1, "strategy": "blocks",
@@ -806,7 +806,9 @@ def make_ocr_corpus(tmp_path: Path, *, declared: str, unit_parser: str,
     pdf_path = raw_dir / "doc.pdf"
     document = pymupdf.open()
     for _ in range(max(page_number, 1)):
-        document.new_page()
+        page = document.new_page()
+        # OCR页正文仍只作为识别结果标记；文本层页则需能与实际PDF正文逐字对照。
+        page.insert_text((72, 72), "ocr body text")
     document.save(pdf_path)
     document.close()
     digest = hashlib.sha256(pdf_path.read_bytes()).hexdigest()
@@ -832,7 +834,7 @@ def make_ocr_corpus(tmp_path: Path, *, declared: str, unit_parser: str,
     manifest["retrieval_content_sha256"] = manifest_module.retrieval_fingerprint(manifest)
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
-    text = "ocr body text\n"
+    text = "ocr body text"
     derived = unit_parser == "mineru-ocr-page-v1"
     payload = {
         "chunk_id": f"1.0:doc.pdf:page-{page_number}:blocks:0000",
@@ -935,7 +937,7 @@ def test_review4_hybrid_file_follows_the_recorded_per_page_plan(tmp_path):
     """
     cases = [
         (1, "mineru-ocr-page-v1", [1]),   # 计划说第1页是扫描页 -> 必须标 OCR
-        (1, "pymupdf-page-v1", [2]),      # 计划说第1页不是扫描页 -> 必须标文本层
+        (1, "pymupdf-page-v1", []),       # 空扫描页列表表示第1页走文本层
     ]
     for page, unit_parser, plan in cases:
         directory = tmp_path / f"p{page}-{unit_parser}"

@@ -218,26 +218,31 @@ def test_private_target_leaves_identifiers_in_the_registry(tmp_path):
     )
 
 
-# --- 公开说明必须与当前行为一致 ---
+# --- 历史评测文档必须保持其证据口径 ---
 #
-# 这几条把已经改正的措辞钉住：文档退回旧说法时测试会失败，而不是等读者发现。
+# README 只提供历史文档导航；这些合同锁定被迁出的结果说明，不要求把历史正文放回 README。
 
 
 def readme() -> str:
     return (ROOT / "README.md").read_text(encoding="utf-8")
 
 
-def test_readme_splits_the_evidence_coverage_by_basis():
+def retrieval_experiments_doc() -> str:
+    """历史评测事实归档在实验文档，README 只负责提供导航。"""
+    return (ROOT / "docs/retrieval-experiments.md").read_text(encoding="utf-8")
+
+
+def test_retrieval_experiments_doc_splits_the_evidence_coverage_by_basis():
     """64 个区间里只有 51 个是文本级；13 个页级不能说成"联合完整覆盖"。"""
-    text = readme()
+    text = retrieval_experiments_doc()
     assert "64 个证据区间，**按判定依据拆开看**" in text
     assert "不是证据原文覆盖" in text
     assert "64 个证据区间都由 chunk 联合完整覆盖" not in text
 
 
-def test_readme_labels_the_retrieval_table_as_a_mixed_basis():
+def test_retrieval_experiments_doc_labels_the_retrieval_table_as_a_mixed_basis():
     """"全证据@5" 混了行级与 PDF 页级两种判定，必须就地说明。"""
-    text = readme()
+    text = retrieval_experiments_doc()
     assert '"全证据@5" 是混合口径' in text
     assert "只能判" in text and "该页有 chunk" in text
 
@@ -340,7 +345,7 @@ def test_build_entry_point_runs_without_a_registry(tmp_path, script):
 def test_build_entry_points_do_not_read_the_runtime_registry():
     """把"不依赖注册表"写成静态不变量，避免以后又被加回来。"""
     for script in BUILD_ENTRY_POINTS:
-        source = (ROOT / "scripts" / script).read_text(encoding="utf-8")
+        source = (ROOT / "scripts/operations" / script).read_text(encoding="utf-8")
         assert "IndexRegistryStore" not in source, f"{script} 又读回了运行时注册表"
         assert "index-registry.json" not in source, f"{script} 又写死了注册表路径"
 
@@ -466,28 +471,28 @@ def test_bm25_script_writes_every_artifact_under_the_given_root(tmp_path):
 # 必须并列出现、且指明该引用哪个"钉住，避免以后又退回只报 0.96。
 
 
-def test_readme_reports_both_splits_with_the_test_number_as_the_headline():
-    text = readme()
+def test_retrieval_experiments_doc_reports_both_splits_with_the_test_number_as_the_headline():
+    text = retrieval_experiments_doc()
     assert "两套数字要分开读" in text
     assert "对外的预期性能应引用 test 的数字" in text
     assert "0.96" in text and "0.750" in text
 
 
-def test_readme_does_not_claim_the_validation_number_as_the_result():
+def test_retrieval_experiments_doc_does_not_claim_the_validation_number_as_the_result():
     """validation 那行必须标出"偏乐观"，不能光秃秃地当结论。"""
-    text = readme()
+    text = retrieval_experiments_doc()
     section = text.split("## 评测结果", 1)[1].split("### 冻结 test", 1)[0]
     assert "偏乐观" in section
 
 
-def test_readme_states_the_frozen_test_was_run_once_and_is_now_spent():
-    text = readme()
+def test_retrieval_experiments_doc_states_the_frozen_test_was_run_once_and_is_now_spent():
+    text = retrieval_experiments_doc()
     assert "首次也是唯一一次运行" in text
     assert "不再作为未用过的考卷" in text
 
 
-def test_readme_records_the_pre_run_dataset_revision():
+def test_retrieval_experiments_doc_records_the_pre_run_dataset_revision():
     """跑之前改过一列，必须写出来，并说明改在见到结果之前。"""
-    text = readme()
+    text = retrieval_experiments_doc()
     assert "ogc-3dtiles" in text
     assert "改在见到任何结果之前" in text

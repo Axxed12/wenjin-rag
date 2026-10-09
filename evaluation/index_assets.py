@@ -1,10 +1,22 @@
-"""让评测脚本与线上检索读取同一个active索引注册表。"""
+"""旧 evaluation.index_assets 模块/命令的兼容入口；权威实现位于 evaluation.quality.index_assets。"""
 
+import sys
 from pathlib import Path
 
-from wenjin.index_registry import IndexRegistryStore, IndexTarget
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
+from evaluation.quality.index_assets import (  # noqa: E402
+    IndexRegistryStore,
+    IndexTarget,
+    Path,
+    active_index_assets,
+)
 
-def active_index_assets(root: Path) -> tuple[IndexTarget, Path]:
-    target = IndexRegistryStore(root / "data/indexes/index-registry.json").active()
-    return target, root / target.bm25_path
+__all__ = [
+    'Path',
+    'IndexRegistryStore',
+    'IndexTarget',
+    'active_index_assets',
+]

@@ -32,12 +32,17 @@ class FakeService:
 
     qdrant_client = SimpleNamespace()
     supported_version = "3.6.5"
+    index_target_id = "osg-target"
+
+    def __init__(self):
+        self.calls = []
 
     def search(self, query, *, config):
         # 与真实 RetrievalService._search_unlocked 同样地校验版本。桩里不照做的话，
         # "不带 version 时送错了版本"这个缺陷在测试里根本表现不出来。
         if config.version != self.supported_version:
             raise ValueError(f"当前active索引只包含 {self.supported_version}")
+        self.calls.append((query, config.version))
         return {"query": query, "version": config.version, "evidence": [],
                 "answer_status": "not_generated"}
 
@@ -290,6 +295,74 @@ def test_default_path_still_uses_the_osg_service(tmp_path):
     data = call(server, "search_docs", {"query": "q"})
     assert "routed_libraries" not in data
     assert data["version"] == "3.6.5"
+
+
+@pytest.mark.parametrize("arguments", [
+    {"query": "q"},
+    {"query": "q", "library": "osg"},
+    {"query": "q", "target_id": "osg-target"},
+    {"query": "q", "library": "osg", "version": "3.6.5",
+     "target_id": "osg-target"},
+])
+def test_explicit_active_osg_addresses_the_same_service(tmp_path, arguments):
+    """不传参数、按 active library 或 active target_id 都应落到同一服务。"""
+    make_osg_corpus(tmp_path)
+    service = FakeService()
+    # 即使多库route里有另一个 OSG candidate，也不能盖过当前 active target。
+    route = build_router([make_index("osg", "3.6.5", "osg-3.6.5")])
+    server = build_server(
+        tmp_path, access=policies("osg-3.6.5"), router=route, service=service
+    )
+
+    data = call(server, "search_docs", arguments)
+
+    assert "error" not in data
+    assert "routed_libraries" not in data
+    assert service.calls == [("q", "3.6.5")]
+
+
+@pytest.mark.parametrize("arguments", [
+    {"query": "q", "library": "osg", "version": "3.6.4"},
+    {"query": "q", "target_id": "osg-target", "version": "3.6.4"},
+])
+def test_active_osg_version_conflict_is_explicitly_rejected(tmp_path, arguments):
+    make_osg_corpus(tmp_path)
+    service = FakeService()
+    server = build_server(
+        tmp_path, access=policies("osg-3.6.5"),
+        router=build_router([make_index("osg", "3.6.4", "osg-3.6.4")]),
+        service=service,
+    )
+
+    data = call(server, "search_docs", arguments)
+
+    assert data["error"] == "invalid_target"
+    assert data["evidence"] == []
+    assert data["evidence_status"] == "not_retrieved"
+    assert service.calls == []
+
+
+def test_active_osg_target_with_conflicting_library_is_rejected(tmp_path):
+    make_osg_corpus(tmp_path)
+    server = build_server(tmp_path, access=policies("osg-3.6.5"))
+
+    data = call(server, "search_docs", {
+        "query": "q", "library": "alpha", "target_id": "osg-target",
+    })
+
+    assert data["error"] == "invalid_target"
+    assert data["evidence"] == []
+
+
+def test_explicit_active_osg_still_checks_the_active_corpus_acl(tmp_path):
+    make_osg_corpus(tmp_path)
+    service = FakeService()
+    server = build_server(tmp_path, access=policies(ALPHA), service=service)
+
+    data = call(server, "search_docs", {"query": "q", "library": "osg"})
+
+    assert data["error"] == "forbidden"
+    assert service.calls == []
 
 
 # --- F1：丢弃明细不能回给客户端 ---

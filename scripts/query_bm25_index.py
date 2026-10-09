@@ -1,30 +1,31 @@
-"""查询 FTS5/BM25 索引；默认打印摘要，--raw 输出完整 JSON。"""
+"""兼容入口；权威实现位于 scripts.demos.query_bm25_index。"""
 
-import argparse
-import json
+import sys
 from pathlib import Path
 
-from query_dense_index import format_human_result
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
-from wenjin.indexing.bm25 import bm25_query
+from scripts.demos.query_bm25_index import (  # noqa: E402
+    ROOT,
+    Path,
+    argparse,
+    bm25_query,
+    format_human_result,
+    json,
+    main,
+)
 
-ROOT = Path(__file__).resolve().parents[1]
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("query")
-    parser.add_argument("--strategy", choices=["fixed", "blocks"], default="blocks")
-    parser.add_argument("--top-k", type=int, default=5)
-    parser.add_argument("--raw", action="store_true")
-    args = parser.parse_args()
-    path = ROOT / "data/indexes" / f"osg_3_6_5_bm25_{args.strategy}.sqlite"
-    results = bm25_query(path, args.query, top_k=args.top_k)
-    if args.raw:
-        print(json.dumps(results, ensure_ascii=False, indent=2))
-    else:
-        print(format_human_result(args.query, args.strategy, results).replace("向量相似度排序分数", "BM25 排名分数"))
-
+__all__ = [
+    "Path",
+    "ROOT",
+    "argparse",
+    "bm25_query",
+    "format_human_result",
+    "json",
+    "main",
+]
 
 if __name__ == "__main__":
     main()

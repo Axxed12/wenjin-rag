@@ -5,6 +5,7 @@ import json
 import os
 import re
 import sqlite3
+from contextlib import closing
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -37,6 +38,9 @@ class IndexTarget:
     # 语料身份显式记录，避免多个模块各自从manifest路径推导目录名这一隐式约定。
     # 旧配置没有这个字段，回退到"manifest所在目录名"以保持兼容。
     corpus_id: str | None = None
+    # 发布快照中的原文可与当前raw_data隔离；None保持所有旧target的路径语义。
+    # manifest.raw_data_subdir与chunk.source_path不变，只替换其所属的raw根目录。
+    raw_snapshot_root: str | None = None
 
     def corpus_identity(self) -> str:
         return self.corpus_id or Path(self.manifest_path).parent.name
@@ -56,6 +60,9 @@ class IndexTarget:
             r"[0-9a-f]{64}", target.canonical_corpus_sha256
         ):
             raise ValueError("canonical_corpus_sha256必须是小写SHA256")
+        if target.raw_snapshot_root is not None:
+            if not target.raw_snapshot_root or Path(target.raw_snapshot_root).is_absolute():
+                raise ValueError("raw_snapshot_root必须是项目内相对路径")
         return target
 
 
@@ -69,6 +76,13 @@ def resolve_project_path(root: Path, relative: str) -> Path:
     if not resolved.is_relative_to(resolved_root):
         raise ValueError(f"注册表路径超出项目目录：{relative}")
     return resolved
+
+
+def target_raw_data_root(root: Path, target: IndexTarget) -> Path:
+    """返回target绑定的可信原文根；旧target继续使用项目`raw_data/`。"""
+    if target.raw_snapshot_root is None:
+        return (root / "raw_data").resolve()
+    return resolve_project_path(root, target.raw_snapshot_root)
 
 
 def resolve_corpus_identity(target: IndexTarget, *, root: Path) -> CorpusIdentity:
@@ -124,7 +138,9 @@ def validate_target(target: IndexTarget, *, root: Path, qdrant_client) -> dict:
         declared = manifest.get("retrieval_content_sha256")
         if declared and declared != recomputed:
             raise ValueError("manifest声明的检索指纹与按记录重算的结果不一致")
-    with sqlite3.connect(bm25_path) as database:
+    # Connection上下文只负责提交/回滚，不会关闭SQLite文件句柄；Windows删除或重建
+    # candidate BM25时需要明确释放句柄。
+    with closing(sqlite3.connect(bm25_path)) as database:
         bm25_count = database.execute("SELECT COUNT(*) FROM chunks").fetchone()[0]
         versions = {row[0] for row in database.execute("SELECT DISTINCT version FROM chunks")}
         strategies = {row[0] for row in database.execute("SELECT DISTINCT strategy FROM chunks")}
