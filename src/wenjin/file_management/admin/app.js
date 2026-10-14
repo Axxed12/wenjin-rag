@@ -12,7 +12,7 @@
     searchTarget: null,
     expandedLibraries: new Set(), lastFileAutoExpanded: false,
     searchRevision: 0, lastSearchLibraryId: null, lastSearchTarget: null,
-    pollTimer: null, busy: new Set(), lastSearch: null, generation: 0, detailRevision: 0,
+    pollTimer: null, busy: new Set(), libraryClassificationSaving: new Set(), lastSearch: null, generation: 0, detailRevision: 0,
     fileLoadRevision: 0, libraryLoadRevision: 0, fileCatalogSignature: null, fileCatalogDirty: false,
     libraryRefreshPromise: null, libraryRefreshGeneration: null, libraryRefreshQueued: false,
     libraryRetryTimer: null, libraryRetryAttempted: false,
@@ -72,6 +72,44 @@
       $('#connection-banner').classList.remove('hidden');
     } else {
       $('#connection-banner').classList.add('hidden');
+    }
+    renderAccountMenu();
+  }
+
+  function renderAccountMenu() {
+    const identity = window.WenjinIdentity;
+    const inAccountMode = identity?.mode === 'accounts';
+    const user = inAccountMode ? identity.user : null;
+    const avatar = $('#account-avatar');
+    const name = $('#account-menu-name');
+    const role = $('#account-menu-role');
+    const session = $('#account-menu-session');
+    const switchButton = $('#account-switch-account');
+    const logoutButton = $('#account-logout');
+    const connectButton = $('#account-connect');
+    const disconnectButton = $('#account-disconnect');
+    if (inAccountMode) {
+      const roleLabel = user?.role === 'admin' ? '管理员' : user ? '只读用户' : '等待登录';
+      name.textContent = user?.username || '本机账户';
+      role.textContent = roleLabel;
+      avatar.textContent = user?.role === 'admin' ? '管' : user?.username?.slice(0, 1) || '问';
+      avatar.setAttribute('aria-label', user ? `${user.username}，${roleLabel}` : '未登录账户');
+      session.textContent = user ? '本机账号会话 · 凭据绑定当前账号' : '登录后可切换账号或退出登录';
+      switchButton.classList.toggle('hidden', !user);
+      logoutButton.classList.toggle('hidden', !user);
+      connectButton.classList.add('hidden');
+      disconnectButton.classList.add('hidden');
+    } else {
+      const label = state.token ? 'Bearer 管理连接' : state.connected ? '本机管理服务' : '服务未连接';
+      name.textContent = label;
+      role.textContent = state.token ? '旧版 Bearer 认证' : state.connected ? '无需账号的本机连接' : '连接管理服务';
+      avatar.textContent = '管';
+      avatar.setAttribute('aria-label', label);
+      session.textContent = state.token ? 'Bearer 凭据只保留在当前页面内存，不会写入浏览器存储或 URL。' : '此服务使用管理连接，不显示独立用户账号。';
+      switchButton.classList.add('hidden');
+      logoutButton.classList.add('hidden');
+      connectButton.classList.remove('hidden');
+      disconnectButton.classList.toggle('hidden', !state.connected && !state.token);
     }
   }
 
@@ -134,6 +172,7 @@
     state.evaluationSelectedId = null;
     state.evaluationComparison = null;
     state.lastPermissionRefreshAt = 0;
+    state.libraryClassificationSaving.clear();
     if (state.evaluationPollTimer) window.clearInterval(state.evaluationPollTimer);
     state.evaluationPollTimer = null;
     $('#evaluation-template')?.replaceChildren(new Option('读取允许的评测模板…', ''));
@@ -442,6 +481,156 @@
     return [source.source_type, source.corpus_id || '', source.file_id || '', source.version_id || '', source.index_target_id || ''].join('|');
   }
 
+  function isPrivateSharedSource(source) {
+    const privateVisibility = ['private', 'internal'].includes(String(source?.source_visibility || '').toLowerCase());
+    return source?.source_type === 'shared' && (privateVisibility
+      || source?.source_scope === 'private_config' || source?.source_scope === 'private_candidate');
+  }
+
+  function sourceReadable(source) { return source?.readable !== false; }
+
+  function sourceSearchable(source) {
+    // 未发布的私域候选不能检索；已发布或release中的私域索引按目录明确能力判断。
+    const candidate = source?.source_scope === 'private_candidate'
+      || (source?.source_scope === 'private_config' && source?.publication_status !== 'published');
+    return sourceReadable(source) && source?.searchable !== false && !candidate;
+  }
+
+  function sourceDisplayName(source) {
+    return isPrivateSharedSource(source) ? '私域共享资料' : source?.source_type === 'shared' ? '共享资料' : '受管文件';
+  }
+
+  function sourcePublicationLabel(source) {
+    if (!isPrivateSharedSource(source)) return '';
+    if (source.publication_status === 'published' && source.is_active === true) return '已发布 · 当前使用';
+    if (source.source_scope === 'release_active' && source.is_active === true && source.searchable !== false) return '当前使用 · 私域来源';
+    if (source.publication_status === 'ambiguous') return '目标不明确 · 需检查';
+    if (source.publication_status === 'needs_review') return '需检查后发布';
+    return '尚未发布 · 暂不可检索';
+  }
+
+  function canManageLibraryClassification() {
+    const identity = window.WenjinIdentity;
+    return state.connected && (identity?.mode !== 'accounts' || identity.user?.role === 'admin');
+  }
+
+  function renderLibraryClassificationControl(library) {
+    if (!canManageLibraryClassification()) return null;
+    const classification = library.classification;
+    const value = classification?.classification === 'public' ? 'public' : 'private';
+    const control = node('div', 'library-classification-control');
+    const heading = node('div', 'library-classification-heading');
+    append(heading,
+      node('span', 'library-classification-label', '资料库分类'),
+      node('strong', `library-classification-state ${value}`, value === 'public' ? '公开资料' : '私有资料'));
+    if (classification?.defaulted) heading.append(node('small', 'library-classification-defaulted', '默认分类'));
+    const select = node('select', 'library-classification-select');
+    select.setAttribute('aria-label', `设置${text(library.library)}的资料库分类`);
+    for (const [optionValue, label] of [['private', '私有资料'], ['public', '公开资料']]) {
+      const option = node('option', '', label); option.value = optionValue; select.append(option);
+    }
+    select.value = value;
+    const key = `library-classification:${library.library_id}`;
+    const isBusy = state.libraryClassificationSaving.has(key);
+    select.disabled = !classification || isBusy;
+    const refresh = node('button', 'library-classification-refresh', '刷新分类');
+    refresh.type = 'button'; refresh.disabled = isBusy;
+    refresh.setAttribute('aria-label', `刷新${text(library.library)}分类`);
+    refresh.addEventListener('click', () => refreshLibraryClassification(library.library_id));
+    const save = node('button', 'library-classification-save', '保存分类');
+    save.type = 'button'; save.disabled = !classification || isBusy || select.value === classification?.classification;
+    select.addEventListener('change', () => { save.disabled = !classification || isBusy || select.value === classification?.classification; });
+    save.addEventListener('click', () => saveLibraryClassification(library, select.value));
+    const note = node('small', 'library-classification-note', '公开/私有仅作管理分类，不授予或撤销读取权限；普通账号的文件查看和检索仍按逐人授权执行。');
+    control.append(heading);
+    const actions = node('div', 'library-classification-actions');
+    append(actions, select, refresh, save);
+    control.append(actions, note);
+    return control;
+  }
+
+  function renderLibraryClassificationBadge(library) {
+    const value = library?.classification?.classification;
+    if (!['public', 'private'].includes(value)) return null;
+    return node('span', `library-classification-badge ${value}`, value === 'public' ? '公开资料' : '私有资料');
+  }
+
+  function libraryChevron() {
+    const wrapper = node('span', 'library-chevron');
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.setAttribute('viewBox', '0 0 16 16');
+    icon.setAttribute('aria-hidden', 'true');
+    icon.setAttribute('focusable', 'false');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M3.5 5.5 8 10l4.5-4.5');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', 'currentColor');
+    path.setAttribute('stroke-width', '1.7');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+    icon.append(path);
+    wrapper.append(icon);
+    return wrapper;
+  }
+
+  async function refreshLibraryClassification(libraryId) {
+    if (!canManageLibraryClassification()) return;
+    const generation = state.generation;
+    const actorId = window.WenjinIdentity?.user?.user_id || null;
+    const key = `library-classification:${libraryId}`;
+    if (state.libraryClassificationSaving.has(key)) return;
+    state.libraryClassificationSaving.add(key);
+    try {
+      const { body } = await api(`/api/admin/libraries/${encodeURIComponent(libraryId)}/classification`);
+      if (generation !== state.generation || actorId !== (window.WenjinIdentity?.user?.user_id || null)) return;
+      state.libraries = state.libraries.map((library) => library.library_id === libraryId
+        ? { ...library, classification: body?.classification || null } : library);
+      renderAll();
+    } catch (error) {
+      if (generation === state.generation && error?.status !== 0) showApiError(error, '读取资料库分类失败：');
+    } finally {
+      if (generation === state.generation) {
+        state.libraryClassificationSaving.delete(key);
+        renderFiles();
+      }
+    }
+  }
+
+  async function saveLibraryClassification(library, classificationValue) {
+    const classification = library.classification;
+    if (!canManageLibraryClassification() || !classification || !['private', 'public'].includes(classificationValue)) return;
+    if (classificationValue === classification.classification) return;
+    const generation = state.generation;
+    const actorId = window.WenjinIdentity?.user?.user_id || null;
+    const libraryId = library.library_id;
+    const key = `library-classification:${libraryId}`;
+    if (state.libraryClassificationSaving.has(key)) return;
+    state.libraryClassificationSaving.add(key);
+    renderFiles();
+    try {
+      await api(`/api/admin/libraries/${encodeURIComponent(libraryId)}/classification`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classification: classificationValue, expected_revision: classification.revision }),
+      });
+      if (generation !== state.generation || actorId !== (window.WenjinIdentity?.user?.user_id || null)) return;
+      await loadLibraries({ quiet: true });
+      if (generation !== state.generation || actorId !== (window.WenjinIdentity?.user?.user_id || null)) return;
+      toast(`已更新“${text(library.library)}”分类：${classificationValue === 'public' ? '公开资料' : '私有资料'}`);
+    } catch (error) {
+      if (generation !== state.generation || error?.status === 0) return;
+      if (error?.status === 409) {
+        state.libraryClassificationSaving.delete(key);
+        await refreshLibraryClassification(libraryId);
+        if (generation === state.generation) toast('资料库分类已被其他管理员更新，已刷新当前值；请核对后再保存。', 'error');
+      } else showApiError(error, '保存资料库分类失败：');
+    } finally {
+      if (generation === state.generation) {
+        state.libraryClassificationSaving.delete(key);
+        renderFiles();
+      }
+    }
+  }
+
   function legacyForDocument(source, document) {
     if (source.source_type !== 'shared') return null;
     const baseName = String(document.source_path || '').split(/[\\/]/).pop();
@@ -455,9 +644,12 @@
   function catalogGroups() {
     const query = $('#file-search').value.trim().toLocaleLowerCase();
     const statusFilter = $('#file-status-filter').value;
-    const sourceFilter = $('#file-source-filter').value;
+    const classificationFilter = $('#file-classification-filter').value;
     return state.libraries.map((library) => {
-      const sources = (library.sources || []).filter((source) => sourceFilter === 'all' || source.source_type === sourceFilter);
+      if (classificationFilter !== 'all' && library.classification?.classification !== classificationFilter) {
+        return null;
+      }
+      const sources = library.sources || [];
       const rendered = [];
       for (const source of sources) {
         const documents = (source.documents || []).map((document) => ({ source, document })).filter(({ source, document }) => {
@@ -465,20 +657,20 @@
           const file = managed
             ? state.files.find((item) => item.file_id === source.file_id)
             : legacyForDocument(source, document);
-      const status = file?.status || (managed ? 'active' : 'legacy_unmanaged');
+      const status = file?.status || (source.readable === false || document.readable === false ? 'unauthorized' : managed ? 'active' : 'legacy_unmanaged');
       const extension = String(document.display_name || document.source_path || '').split('.').pop().toLowerCase();
       const fileType = extension === 'pdf' ? 'pdf' : ['txt', 'md', 'markdown', 'csv', 'json'].includes(extension) ? 'text' : ['html', 'htm'].includes(extension) ? 'html' : extension === 'xml' ? 'xml' : 'other';
           const haystack = [library.library_id, library.library, source.corpus_id, source.file_id, source.version, document.display_name, document.document_id, document.source_path].filter(Boolean).join(' ').toLocaleLowerCase();
           const typeFilter = $('#file-type-filter')?.value || 'all';
           return (!query || haystack.includes(query))
             && (statusFilter === 'all' || status === statusFilter)
-            && (typeFilter === 'all' || typeFilter === fileType)
-            && (sourceFilter === 'all' || source.source_type === sourceFilter);
+            && (typeFilter === 'all' || typeFilter === fileType);
         });
         if (documents.length) rendered.push({ source, documents });
       }
       return { ...library, rendered, visibleCount: rendered.reduce((total, item) => total + item.documents.length, 0) };
-    }).filter((group) => group.visibleCount > 0 || (!$('#file-search').value.trim() && $('#file-source-filter').value !== 'shared' && group.library_id === 'managed-files'));
+    }).filter((group) => group && (group.visibleCount > 0 || (!query && group.managed_library === true
+      && !(group.sources || []).some((source) => (source.documents || []).length > 0))));
   }
 
   function renderFiles() {
@@ -488,18 +680,20 @@
     if (!state.lastFileAutoExpanded) state.expandedLibraries = new Set([...state.expandedLibraries, ...expandedNow]);
     state.lastFileAutoExpanded = queryActive;
     const groups = catalogGroups();
-    const total = groups.reduce((sum, group) => sum + group.visibleCount, 0);
-    $('#file-count').textContent = state.connected ? `${formatNumber(total)} 条目录文档 · ${formatNumber(groups.length)} 个资料库` : '—';
     container.replaceChildren();
-    if (!state.connected) { container.append(node('div', 'panel table-placeholder', '连接管理服务后读取真实资料库目录')); return; }
+    if (!state.connected) { $('#file-count').textContent = '—'; container.append(node('div', 'panel table-placeholder', '连接管理服务后读取真实资料库目录')); return; }
     const catalogFileIds = new Set(state.libraries.flatMap((library) => (library.sources || []).filter((source) => source.source_type === 'managed').map((source) => source.file_id)));
+    const classificationFilter = $('#file-classification-filter').value;
     const pending = state.files.filter((file) => isManaged(file) && !catalogFileIds.has(file.file_id)
       && (file.status !== 'deleted')
       && (statusFilterForPending(file, queryActive))
-      && ($('#file-source-filter').value === 'all' || $('#file-source-filter').value === 'managed'));
+      && (classificationFilter === 'all' || state.libraries.find((library) => library.library_id === (file.library_id || 'managed-files'))?.classification?.classification === classificationFilter));
+    const total = groups.reduce((sum, group) => sum + group.visibleCount, 0);
+    const visibleLibraryIds = new Set([...groups.map((group) => group.library_id), ...pending.map((file) => file.library_id || 'managed-files')]);
+    $('#file-count').textContent = `${formatNumber(total)} 条目录文档 · ${formatNumber(visibleLibraryIds.size)} 个资料库`;
     if (!groups.length && !pending.length) {
       const empty = node('div', 'panel library-empty');
-      append(empty, node('div', 'empty-illustration', '⌕'), node('strong', '', state.libraries.length ? '没有匹配的文档' : '没有可用资料库'), node('p', '', '调整来源筛选或搜索词；目录中的共享库可直接检索。'));
+      append(empty, node('div', 'empty-illustration', '⌕'), node('strong', '', state.libraries.length ? '没有匹配的文档' : '没有可用资料库'), node('p', '', '调整资料库类型、状态、文档类型或搜索词；分类标签不改变读取权限。'));
       container.append(empty);
       return;
     }
@@ -517,8 +711,13 @@
       append(summaryMain, node('strong', '', text(group.library)));
       summaryMain.title = `资料库编号：${group.library_id}`;
       const count = node('span', 'library-summary-count', `${formatNumber(group.visibleCount)} 文档`);
-      append(summary, node('span', 'library-chevron', '⌄'), summaryMain, count);
+      append(summary, libraryChevron(), summaryMain);
+      const classificationBadge = renderLibraryClassificationBadge(group);
+      if (classificationBadge) summary.append(classificationBadge);
+      summary.append(count);
       details.append(summary);
+      const classificationControl = renderLibraryClassificationControl(group);
+      if (classificationControl) details.append(classificationControl);
       for (const entry of group.rendered) details.append(renderSourceGroup(group, entry.source, entry.documents));
       container.append(details);
     }
@@ -541,8 +740,16 @@
         const summary = node('summary', 'library-summary');
         const libraryTitle = node('span', 'library-summary-main', text(library?.library || files[0]?.library_name, '资料库名称未记录'));
         libraryTitle.title = `资料库编号：${libraryId}`;
-        append(summary, node('span', 'library-chevron', '⌄'), libraryTitle, node('span', 'library-summary-count', `${files.length} 个未就绪`));
-        group.append(summary); container.append(group);
+        append(summary, libraryChevron(), libraryTitle);
+        const classificationBadge = renderLibraryClassificationBadge(library);
+        if (classificationBadge) summary.append(classificationBadge);
+        summary.append(node('span', 'library-summary-count', `${files.length} 个未就绪`));
+        group.append(summary);
+        if (library) {
+          const classificationControl = renderLibraryClassificationControl(library);
+          if (classificationControl) group.append(classificationControl);
+        }
+        container.append(group);
       } else {
         const count = $('.library-summary-count', group);
         count.textContent = `${formatNumber(Number(count.textContent.match(/^\d+/)?.[0] || 0) + files.length)} 文档 · ${files.length} 个未就绪`;
@@ -572,10 +779,14 @@
 
   function renderSourceGroup(library, source, documents) {
     const section = node('section', `source-group source-${source.source_type}`);
-    const title = source.source_type === 'shared' ? `共享索引 · 版本 ${text(source.version)}` : `${fileLabel(state.files.find((file) => file.file_id === source.file_id) || { display_name: '名称未记录' })}`;
+    const publication = sourcePublicationLabel(source);
+    const title = source.source_type === 'shared' ? `${sourceDisplayName(source)} · 版本 ${text(source.version, publication ? '未发布' : '—')}` : `${fileLabel(state.files.find((file) => file.file_id === source.file_id) || { display_name: '名称未记录' })}`;
     const head = node('div', 'source-heading');
     head.title = `corpus_id：${text(source.corpus_id)} · file_id：${text(source.file_id)} · index_target_id：${text(source.index_target_id)}`;
-    append(head, node('span', `source-kind ${source.source_type}`, source.source_type === 'shared' ? '共享只读' : '受管文件'), node('strong', '', title), node('span', 'source-version', `版本 ${text(source.version)}`), node('span', 'source-count', `${documents.length} 文档`));
+    append(head, node('span', `source-kind ${source.source_type}`, source.source_type === 'shared' ? sourceDisplayName(source) : '受管文件'), node('strong', '', title));
+    if (publication) head.append(node('span', `source-publication-status${source.publication_status === 'published' ? ' published' : ''}`, publication));
+    if (source.version) head.append(node('span', 'source-version', `版本 ${text(source.version)}`));
+    head.append(node('span', 'source-count', `${documents.length} 文档`));
     section.append(head);
     section.append(makeLibraryTable(documents.map(({ source: itemSource, document }) => ({ file: itemSource.source_type === 'managed' ? state.files.find((file) => file.file_id === itemSource.file_id) : legacyForDocument(itemSource, document), doc: document, source: itemSource, library })), sourceKey(source)));
     return section;
@@ -608,8 +819,9 @@
       append(copy, name, node('small', '', text(doc.source_path, managed ? file?.file_id : doc.document_id)));
       append(identity, glyph, copy); identityCell.append(identity);
       const statusCell = node('td');
-      statusCell.append(managed ? badge(file?.status || 'active') : node('span', 'status-badge status-legacy_unmanaged', '共享只读'));
-      const searchCell = node('td', '', doc.searchable === false || source.searchable === false ? '不可检索' : '可检索');
+      statusCell.append(managed ? badge(file?.status || 'active') : source.readable === false || doc.readable === false ? node('span', 'status-badge status-unauthorized', '未获读取授权') : node('span', 'status-badge status-legacy_unmanaged', '共享只读'));
+      const canSearch = doc.readable !== false && doc.searchable !== false && sourceSearchable(source);
+      const searchCell = node('td', '', !sourceReadable(source) || doc.readable === false ? '未获读取授权' : canSearch ? '可检索' : sourcePublicationLabel(source) || '不可检索');
       const chunksCell = node('td', '', managed ? formatNumber(file?.chunk_count) : '—');
       const actionCell = node('td', 'align-right');
       const actions = node('div', 'row-actions');
@@ -623,14 +835,13 @@
         source,
         document_id: doc.document_id,
       };
-      const canSearch = doc.searchable !== false && source.searchable !== false;
       actions.append(actionButton('检索', 'search', doc.document_id, false, !canSearch, target));
       if (managed && file) {
         if (doc.replaceable && source.manageable && !['importing', 'deleting'].includes(file.status)) actions.append(actionButton('替换', 'replace', file.file_id));
         if (doc.deletable && source.manageable && file.status !== 'deleting') actions.append(actionButton('删除', 'delete', file.file_id, true));
         actions.append(actionButton('详情', 'detail', file.file_id));
       } else if (file?.legacy_id || String(file?.file_id || '').startsWith('legacy:')) {
-        actions.append(actionButton('转为受管副本', 'adopt', file.file_id));
+        actions.append(actionButton('创建可管理副本', 'adopt', file.file_id));
       }
       actionCell.append(actions);
       row.append(identityCell, statusCell, searchCell, chunksCell, actionCell);
@@ -679,15 +890,22 @@
     const content = $('#detail-content');
     content.replaceChildren();
     const isShared = source.source_type === 'shared';
+    const privateSource = isPrivateSharedSource(source);
+    const publication = sourcePublicationLabel(source);
+    const canSearch = doc.readable !== false && doc.searchable !== false && sourceSearchable(source);
     const head = node('header', 'detail-head');
     append(head,
-      node('span', 'section-kicker', isShared ? '共享只读资料' : '受管资料'),
+      node('span', 'section-kicker', isShared ? sourceDisplayName(source) : '受管资料'),
       node('h2', '', text(doc.display_name, doc.document_id)));
     const tags = node('div', 'detail-tags');
-    tags.append(node('span', 'status-badge status-retained', isShared ? '共享只读' : text(file?.status, '目录记录')));
-    tags.append(node('span', 'meta-chip', `版本 ${text(source.version)}`));
+    tags.append(node('span', 'status-badge status-retained', isShared ? source.readable === false || doc.readable === false ? '未获读取授权' : '共享只读' : text(file?.status, '目录记录')));
+    if (source.version) tags.append(node('span', 'meta-chip', `版本 ${text(source.version)}`));
+    if (publication) tags.append(node('span', `source-publication-status${source.publication_status === 'published' ? ' published' : ''}`, publication));
     append(head, tags, node('p', '', isShared
-      ? '此文档来自资料库目录，管理界面仅提供查看和证据检索，不提供下载、替换或删除。'
+      ? source.readable === false || doc.readable === false
+        ? '当前账号可查看目录元数据，但尚未获得资料读取授权；本资料不可检索，也不提供下载或修改操作。'
+        : privateSource ? '这是已发布的私域共享资料。管理界面提供目录查看和证据检索，不提供下载、替换或删除。'
+          : '此文档来自资料库目录，管理界面仅提供查看和证据检索，不提供下载、替换或删除。'
       : '目录中存在此受管文档，但当前文件详情记录不可用；此处仅展示目录字段。'));
     content.append(head);
     const section = appendSection(content, '目录详情');
@@ -695,8 +913,9 @@
     append(grid,
       detailField('资料库', library?.library),
       detailField('library_id', library?.library_id),
-      detailField('来源类型', isShared ? '共享只读' : '受管文件'),
-      detailField('版本状态', source.is_active === true ? '当前生效' : '目录可用版本'),
+      detailField('来源类型', isShared ? sourceDisplayName(source) : '受管文件'),
+      detailField('发布状态', publication || (source.is_active === true ? '当前生效' : '目录版本')),
+      detailField('读取授权', source.readable === false || doc.readable === false ? '未获读取授权' : '可读取'),
       detailField('file_id', source.file_id),
       detailField('corpus_id', source.corpus_id),
       detailField('版本', source.version),
@@ -704,10 +923,10 @@
       detailField('index_target_id', source.index_target_id),
       detailField('文档 ID', doc.document_id),
       detailField('目录相对路径', doc.source_path),
-      detailField('可检索', doc.searchable !== false && source.searchable !== false ? '是' : '否'));
+      detailField('可检索', canSearch ? '是' : '否'));
     section.append(grid);
     const actions = node('div', 'detail-actions');
-    if (doc.searchable !== false && source.searchable !== false) {
+    if (canSearch) {
       const target = {
         library_id: library?.library_id,
         source_type: source.source_type,
@@ -803,7 +1022,7 @@
     renderUploadLibraries();
     renderJobs();
     renderCalls();
-    $('#disconnect-button').classList.toggle('hidden', !state.connected);
+    $('#disconnect-button').classList.toggle('hidden', !state.connected || window.WenjinIdentity?.mode === 'accounts');
   }
 
   async function loadFiles({ quiet = false } = {}) {
@@ -901,13 +1120,13 @@
     const selectedDocumentId = $('#search-document').value;
     const nextSelected = nextLibraries.find((item) => item.library_id === selectedLibraryId);
     const nextSource = (nextSelected?.sources || []).find((source) => sourceKey(source) === selectedSourceKey);
-    const selectedSourceStillVisible = !selectedSourceKey || Boolean(nextSource);
-    const selectedDocumentStillVisible = !selectedDocumentId || (nextSource?.documents || []).some((doc) => doc.document_id === selectedDocumentId && doc.searchable !== false);
+    const selectedSourceStillVisible = !selectedSourceKey || Boolean(nextSource && sourceSearchable(nextSource));
+    const selectedDocumentStillVisible = !selectedDocumentId || (nextSource?.documents || []).some((doc) => doc.document_id === selectedDocumentId && doc.searchable !== false && doc.readable !== false);
     const lastSearchTarget = state.lastSearchTarget;
     const lastTargetLibrary = nextLibraries.find((item) => item.library_id === lastSearchTarget?.library_id);
     const lastTargetSource = (lastTargetLibrary?.sources || []).find((source) => sourceKey(source) === lastSearchTarget?.source_key);
-    const lastSearchStillVisible = !lastSearchTarget || Boolean(lastTargetSource
-      && (!lastSearchTarget.document_id || (lastTargetSource.documents || []).some((doc) => doc.document_id === lastSearchTarget.document_id && doc.searchable !== false)));
+    const lastSearchStillVisible = !lastSearchTarget || Boolean(lastTargetSource && sourceSearchable(lastTargetSource)
+      && (!lastSearchTarget.document_id || (lastTargetSource.documents || []).some((doc) => doc.document_id === lastSearchTarget.document_id && doc.searchable !== false && doc.readable !== false)));
     const selectionInvalid = Boolean(selectedLibraryId && (!nextSelected || !selectedSourceStillVisible || !selectedDocumentStillVisible));
     if (selectionInvalid || !lastSearchStillVisible) {
       state.searchRevision += 1;
@@ -1239,12 +1458,12 @@
     const select = $('#search-source');
     const previous = select.value;
     select.replaceChildren();
-    const sources = (library?.sources || []).filter((source) => source.searchable !== false && (source.documents || []).some((doc) => doc.searchable !== false))
+    const sources = (library?.sources || []).filter((source) => sourceSearchable(source) && (source.documents || []).some((doc) => doc.searchable !== false && doc.readable !== false))
       .sort((left, right) => Number(right.is_active === true) - Number(left.is_active === true));
     const option = node('option', '', library ? sources.length ? '选择来源与版本' : '该资料库当前没有可检索版本' : '先选择资料库'); option.value = ''; select.append(option);
     for (const source of sources) {
       const label = source.source_type === 'shared'
-        ? `共享资料 · 版本 ${text(source.version)}${source.is_active ? ' · 当前使用' : ''}`
+        ? `${sourceDisplayName(source)} · 版本 ${text(source.version)}${source.is_active ? ' · 当前使用' : ''}`
         : `受管文件 · ${fileLabel(state.files.find((file) => file.file_id === source.file_id) || { display_name: source.display_name || '名称未记录' })} · ${text(source.version)}`;
       const item = node('option', '', label);
       item.value = sourceKey(source);
@@ -1264,10 +1483,10 @@
     select.replaceChildren();
     const option = node('option', '', source ? '检索所选版本中的全部文档' : '先选择资料版本'); option.value = ''; select.append(option);
     for (const doc of source?.documents || []) {
-      if (doc.searchable === false) continue;
+      if (doc.readable === false || doc.searchable === false) continue;
       const item = node('option', '', text(doc.display_name, doc.document_id)); item.value = doc.document_id; select.append(item);
     }
-    select.disabled = !source || (source.documents || []).filter((doc) => doc.searchable !== false).length === 0;
+    select.disabled = !source || (source.documents || []).filter((doc) => doc.readable !== false && doc.searchable !== false).length === 0;
     if ([...select.options].some((item) => item.value === previous)) select.value = previous;
   }
 
@@ -1389,6 +1608,36 @@
     }
   }
 
+  async function switchAccountOrSignOut() {
+    const identity = window.WenjinIdentity;
+    if (!identity?.user || state.busy.has('identity-session-change')) return;
+    state.busy.add('identity-session-change');
+    $('#account-switch-account').disabled = true;
+    $('#account-logout').disabled = true;
+    $('#account-menu').open = false;
+    try { await identity.signOut(); }
+    catch (error) { if (error?.status !== 0) toast(`账号操作失败：${error.message}`, 'error'); }
+    finally {
+      state.busy.delete('identity-session-change');
+      $('#account-switch-account').disabled = false;
+      $('#account-logout').disabled = false;
+      renderAccountMenu();
+    }
+  }
+
+  function disconnectLegacyConnection() {
+    if (window.WenjinIdentity?.mode === 'accounts') return;
+    $('#account-menu').open = false;
+    $('#auth-dialog').close();
+    clearSensitiveState({ disconnected: true });
+    toast('管理连接已断开，页面数据和 Bearer token 已清除');
+  }
+
+  function openConnectionSettings() {
+    $('#account-menu').open = false;
+    $('#auth-dialog').showModal();
+  }
+
   function updatePolling() {
     const hasActive = state.jobs.some((job) => ACTIVE_JOBS.has(job.status));
     if (hasActive && !state.pollTimer) {
@@ -1466,7 +1715,7 @@
     const tags = node('div', 'detail-tags'); tags.append(badge(file.status));
     tags.append(node('span', 'meta-chip', `版本 ${text(file.version)}`));
     tags.append(node('span', 'meta-chip', `${formatNumber(file.chunk_count)} 个片段`));
-    append(head, tags, node('p', '', isManaged(file) ? '文件管理器登记的受管文件。替换和删除作用于该文件的全部受管版本与对应索引资源。' : '此条目来自历史共享资料清单，原始文件及旧索引仍由原资料库管理。转为受管副本会保留旧条目。'));
+    append(head, tags, node('p', '', isManaged(file) ? '文件管理器登记的受管文件。替换和删除作用于该文件的全部受管版本与对应索引资源。' : '此条目来自历史共享资料清单，原始文件及旧索引仍由原资料库管理。创建可管理副本会复制原文并建立独立受管索引，不修改旧库，也不会自动授予读取权限；只有需要单独替换或删除时才使用。'));
     const actions = node('div', 'detail-actions');
     if (isManaged(file)) {
       const canReadActive = file.status === 'active' && Boolean(file.active_version_id);
@@ -1475,7 +1724,7 @@
       actions.append(actionButton('替换版本', 'replace', file.file_id, false, !canReplace));
       actions.append(actionButton('检索调试', 'search', file.file_id, false, !canReadActive));
       actions.append(actionButton('删除受管文件', 'delete', file.file_id, true, file.status === 'deleting'));
-    } else actions.append(actionButton('转为受管副本', 'adopt', file.file_id));
+    } else actions.append(actionButton('创建可管理副本', 'adopt', file.file_id));
     const identity = appendSection(content, '文件身份');
     const grid = node('div', 'detail-grid');
     append(grid, detailField('资料库名称', file.library_name || file.library || '名称未记录'), detailField('资料显示名称', file.display_name), detailField('原文件名', file.original_filename || '名称未记录'), detailField('file_id', file.file_id), detailField('library_id', file.library_id), detailField('active version_id', file.active_version_id), detailField('最近更新', file.updated_at ? formatDate(file.updated_at) : '历史条目'));
@@ -1673,14 +1922,14 @@
 
   async function adoptFile(file) {
     if (!file || isManaged(file) || state.busy.has(`adopt-${file.file_id}`)) return;
-    if (!window.confirm(`确认将「${fileLabel(file)}」转为受管副本？\n\n系统会校验历史原文 SHA，并导入为新的受管副本。旧 manifest、原件和旧索引会继续保留；后续替换或删除仅影响此受管副本。`)) return;
+    if (!window.confirm(`确认创建「${fileLabel(file)}」的可管理副本？\n\n系统会复制历史原文并建立独立的受管索引。原文件、旧资料库和旧索引保持不变；这不会授予任何账号读取权限。仅在需要单独替换或删除时创建。`)) return;
     const key = `adopt-${file.file_id}`; setBusy(key, true);
     try {
       const { body } = await api(`/api/files/${escPath(file.file_id)}/adopt`, { method: 'POST' });
       await Promise.all([loadFiles({ quiet: true }), loadJobs({ offset: 0, quiet: true })]);
       toast(`已提交接管任务 ${body.job_id}`);
       await openJobDetail(body.job_id);
-    } catch (error) { showApiError(error, '转为受管副本失败：'); }
+    } catch (error) { showApiError(error, '创建可管理副本失败：'); }
     finally { setBusy(key, false); }
   }
 
@@ -1766,8 +2015,8 @@
     const budget = Number($('#search-budget').value);
     if (!library || !source) { toast('请先选择资料库和可检索版本', 'error'); return; }
     if (!query) { toast('请输入检索问题', 'error'); return; }
-    if (source.searchable === false || !(source.documents || []).some((doc) => doc.searchable !== false)) { toast('所选版本当前不可检索，请刷新资料库清单', 'error'); return; }
-    if (documentId && !(source.documents || []).some((doc) => doc.document_id === documentId && doc.searchable !== false)) { toast('限定文档已不属于当前版本，请重新选择', 'error'); return; }
+    if (!sourceSearchable(source) || !(source.documents || []).some((doc) => doc.readable !== false && doc.searchable !== false)) { toast('所选资料尚未发布或当前账号未获读取授权，暂不可检索', 'error'); return; }
+    if (documentId && !(source.documents || []).some((doc) => doc.document_id === documentId && doc.readable !== false && doc.searchable !== false)) { toast('限定文档已不属于当前版本或当前账号未获读取授权，请刷新后重选', 'error'); return; }
     const target = { library_id: library.library_id, source_type: source.source_type, corpus_id: source.corpus_id, file_id: source.file_id, version_id: source.version_id, index_target_id: source.index_target_id, document_id: documentId };
     const button = $('#run-search'); button.disabled = true; button.textContent = '正在检索…';
     const generation = state.generation;
@@ -1888,7 +2137,7 @@
     const selected = select.value;
     select.replaceChildren(new Option('选择固定模板…', ''));
     for (const item of state.evaluationTemplates) {
-      const access = item.can_submit === false ? `；缺少${item.missing_library_count || 0}项读取授权` : '';
+      const access = item.can_submit === false ? `；${item.missing_library_count || 0}项资料检查未通过` : '';
       select.add(new Option(`${item.title}（${item.max_cases}题以内${access}）`, item.experiment_id));
     }
     if (state.evaluationTemplates.some((item) => item.experiment_id === selected)) select.value = selected;
@@ -1917,15 +2166,12 @@
     button.disabled = blocked;
     const note = $('#evaluation-template-note'); note.replaceChildren();
     if (blocked) {
-      append(note, node('span', '', `当前账号缺少${selected.missing_library_count || 0}项读取授权。`));
+      append(note, node('span', '', `当前题集有${selected.missing_library_count || 0}项资料检查未通过；管理员可读取所有资料库，此状态由服务端题集校验决定。`));
       const visibleMissing = selected.discoverable_missing_libraries || [];
       if (visibleMissing.length) append(note, node('span', '', ` 可检查的逻辑资料库：${visibleMissing.join('、')}。`));
       if (visibleMissing.length < (selected.missing_library_count || 0)) append(note, node('span', '', ' 其余固定输入授权项暂不可在当前资源目录中显示。'));
-      const link = node('button', 'button button-secondary', '前往身份与授权');
-      link.type = 'button'; link.addEventListener('click', () => navigate('identity')); note.append(' ', link);
-      append(note, node('span', '', ' 系统不会自动授予权限。'));
     } else {
-      note.textContent = '提交时会再次核验管理员身份和每个题目资料库的读取授权；任务运行期间若授权撤销，任务会停止。结果中的候选数量和耗时用于检索诊断。';
+      note.textContent = '提交时会由服务端再次核验管理员身份和题集状态；结果中的候选数量和耗时用于检索诊断。';
     }
   }
 
@@ -2058,6 +2304,7 @@
       const user = window.WenjinIdentity.user;
       const avatar = $('.avatar');
       if (avatar && user) { avatar.textContent = user.role === 'admin' ? '管' : user.username.slice(0, 1); avatar.setAttribute('aria-label', user.role === 'admin' ? '管理员' : '只读用户'); }
+      renderAccountMenu();
       refreshAll({ quiet: true }).catch((error) => showApiError(error));
     });
     window.addEventListener('wenjin-user-directory-ready', () => { renderEvaluationJobs(); renderEvaluationAudit(); });
@@ -2085,27 +2332,46 @@
       }
       loadLibraries({quiet: true}).catch((error) => showApiError(error, '更新资料库列表失败：'));
     });
+    window.addEventListener('wenjin-access-catalog-invalidated', () => {
+      // 迟到的授权写入不携带旧账号/授权详情，只清除当前页面证据并重读当前账号目录。
+      if (!state.connected || !window.WenjinIdentity?.user) return;
+      state.searchRevision += 1;
+      state.libraryLoadRevision += 1;
+      state.lastSearch = null;
+      state.lastSearchLibraryId = null;
+      state.lastSearchTarget = null;
+      state.searchTarget = null;
+      $('#results-meta').replaceChildren();
+      $('#results-meta').classList.add('hidden');
+      $('#evidence-list').replaceChildren(evidenceEmpty('资料库授权状态已更新', '目录正在刷新，请重新选择资料库后检索。'));
+      $('#evidence-state').textContent = '目录正在刷新';
+      $('#evidence-state').className = 'evidence-state';
+      $('#search-library').value = '';
+      $('#search-source').value = '';
+      $('#search-document').value = '';
+      loadLibraries({quiet: true}).catch((error) => showApiError(error, '更新资料库列表失败：'));
+    });
     window.addEventListener('focus', () => refreshAuthorizedCatalog().catch((error) => showApiError(error, '更新资料库列表失败：')));
     $('#search-library').addEventListener('focus', () => refreshAuthorizedCatalog().catch((error) => showApiError(error, '更新资料库列表失败：')));
     $$('.nav-item').forEach((button) => button.addEventListener('click', () => navigate(button.dataset.page)));
     $('.brand').addEventListener('click', (event) => { event.preventDefault(); navigate('overview'); });
     $$('[data-goto]').forEach((button) => button.addEventListener('click', () => navigate(button.dataset.goto)));
     $$('[data-action="upload"]').forEach((button) => button.addEventListener('click', () => chooseUpload()));
-    $('#open-auth').addEventListener('click', () => $('#auth-dialog').showModal());
-    $('#banner-connect').addEventListener('click', () => $('#auth-dialog').showModal());
+    $('#open-auth').addEventListener('click', openConnectionSettings);
+    $('#account-connect').addEventListener('click', openConnectionSettings);
+    $('#account-disconnect').addEventListener('click', disconnectLegacyConnection);
+    $('#account-switch-account').addEventListener('click', switchAccountOrSignOut);
+    $('#account-logout').addEventListener('click', switchAccountOrSignOut);
+    $('#banner-connect').addEventListener('click', openConnectionSettings);
     $('#dismiss-banner').addEventListener('click', () => $('#connection-banner').classList.add('hidden'));
     $('#auth-form').addEventListener('submit', (event) => {
       if (event.submitter?.id !== 'connect-button') return;
       event.preventDefault();
       connectWithToken($('#admin-token').value.trim());
     });
-    $('#disconnect-button').addEventListener('click', () => {
-      clearSensitiveState({ disconnected: true });
-      $('#auth-dialog').close();
-      toast('已断开连接，token 和页面敏感数据已清除');
-    });
+    $('#disconnect-button').addEventListener('click', disconnectLegacyConnection);
     $('#refresh-files').addEventListener('click', () => loadFiles().catch((error) => showApiError(error)));
-    $('#file-source-filter').addEventListener('change', renderFiles);
+    $('#file-classification-filter').addEventListener('change', renderFiles);
     $('#file-type-filter').addEventListener('change', renderFiles);
     $('#refresh-jobs').addEventListener('click', () => loadJobs({ offset: 0 }).catch((error) => showApiError(error)));
     $('#file-search').addEventListener('input', renderFiles);
@@ -2202,13 +2468,14 @@
       $('#open-auth').classList.add('hidden');
       $('#identity-logout').classList.remove('hidden');
       const user = window.WenjinIdentity.user;
-      const avatar = document.querySelector('.avatar');
+      const avatar = document.querySelector('#account-avatar');
       avatar.textContent = user?.role === 'admin' ? '管' : user?.username?.slice(0, 1) || '用';
       avatar.setAttribute('aria-label', user?.role === 'admin' ? '管理员' : '只读用户');
     }
   }
   wireEvents();
   renderAll();
+  renderAccountMenu();
   setConnection('idle');
   refreshAll({ quiet: true }).then((connected) => {
     if (!connected && !$('#connection-banner').classList.contains('hidden')) $('#banner-title').textContent = '无法连接管理服务';

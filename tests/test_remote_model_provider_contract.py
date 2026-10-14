@@ -80,7 +80,7 @@ class _SyntheticReranker:
         pass
 
 
-def _identity(embed_id=_EMBED_ID, rerank_id=_RERANK_ID):
+def _identity(embed_id=_EMBED_ID, rerank_id=_RERANK_ID, *, max_wait_seconds=30.0):
     return {
         "protocol": PROTOCOL,
         "implementation_sha256": "c" * 64,
@@ -98,6 +98,7 @@ def _identity(embed_id=_EMBED_ID, rerank_id=_RERANK_ID):
             "batch_size": 3,
         },
         "limits": {"max_batch_size": 2, "max_text_chars": 1000, "max_documents": 8},
+        "admission": {"active": 1, "max_waiting": 8, "max_wait_seconds": max_wait_seconds},
     }
 
 
@@ -350,7 +351,7 @@ def test_remote_timeout_is_a_safe_provider_error():
     def handler(request):
         observed_timeouts.append(request.extensions.get("timeout"))
         if request.url.path == "/v1/identity":
-            return httpx.Response(200, json=_identity())
+            return httpx.Response(200, json=_identity(max_wait_seconds=0.1))
         raise httpx.ReadTimeout("synthetic token/query/path must not escape", request=request)
 
     client = RemoteModelClient(
@@ -364,7 +365,7 @@ def test_remote_timeout_is_a_safe_provider_error():
     try:
         with pytest.raises(ModelProviderError) as error:
             client.embed(["synthetic private query"], input_kind="query")
-        assert error.value.code == "model_provider_unavailable"
+        assert error.value.code == "model_provider_read_timeout"
         assert "synthetic" not in str(error.value)
         assert len(observed_timeouts) == 2
         assert all(timeout["read"] == 0.25 for timeout in observed_timeouts)

@@ -10,7 +10,7 @@ _METADATA_KEYS = frozenset({
     "role", "revision", "resource_kind", "active", "credential_prefix",
     "reason_code", "username_sha256", "principal_kind", "previous_revision",
     "previous_role", "previous_active", "previous_allowed", "allowed",
-    "principal_id", "user_id",
+    "principal_id", "user_id", "classification", "previous_classification",
 })
 
 

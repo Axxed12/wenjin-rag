@@ -20,12 +20,15 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 
+from wenjin.model_api.admission import ModelAdmission, ModelAdmissionError
 from wenjin.models.providers import PROTOCOL
 
 _MAX_BODY_BYTES = 8 * 1024 * 1024
 _MAX_BATCH_SIZE = 128
 _MAX_DOCUMENTS = 128
 _MAX_TEXT_CHARS = 100_000
+_DEFAULT_MAX_WAITING = 8
+_DEFAULT_MAX_WAIT_SECONDS = 30.0
 
 
 class ModelAPIRuntime:
@@ -47,18 +50,30 @@ class ModelAPIRuntime:
         with self.inference_lock:
             if input_kind == "query":
                 query_batch = getattr(self.embedder, "get_query_embedding_batch", None)
-                vectors = (query_batch(inputs, show_progress=False) if callable(query_batch)
-                           else [self.embedder.get_query_embedding(text) for text in inputs])
+                vectors = (
+                    query_batch(inputs, show_progress=False)
+                    if callable(query_batch)
+                    else [self.embedder.get_query_embedding(text) for text in inputs]
+                )
             else:
                 vectors = self.embedder.get_text_embedding_batch(inputs, show_progress=False)
         return [[float(component) for component in vector] for vector in vectors]
 
-    def rerank_scores(self, query: str, documents: list[str], *, max_length: int, batch_size: int) -> list[float]:
-        if (self.reranker is None or max_length != self.reranker.max_length
-                or batch_size != self.reranker.batch_size):
+    def rerank_scores(
+        self, query: str, documents: list[str], *, max_length: int, batch_size: int
+    ) -> list[float]:
+        if (
+            self.reranker is None
+            or max_length != self.reranker.max_length
+            or batch_size != self.reranker.batch_size
+        ):
             raise ValueError("model request rejected")
         with self.inference_lock:
             return [float(score) for score in self.reranker.score(query, documents)]
+
+
+class _ClientDisconnected(Exception):
+    """排队时客户端断开；仅用于停止该HTTP等待者。"""
 
 
 def _loopback(host: str) -> bool:
@@ -78,6 +93,7 @@ def _implementation_fingerprint() -> str:
     for relative in (
         "models/providers.py",
         "model_api/server.py",
+        "model_api/admission.py",
         "settings.py",
         "retrieval/lazy_reranker.py",
         "retrieval/rerank.py",
@@ -161,6 +177,15 @@ def _build_runtime(root: Path, settings: Any, token: str) -> ModelAPIRuntime:
                 "max_text_chars": _MAX_TEXT_CHARS,
                 "max_documents": _MAX_DOCUMENTS,
             },
+            "admission": {
+                "active": 1,
+                "max_waiting": int(
+                    getattr(settings, "model_api_max_waiting", _DEFAULT_MAX_WAITING)
+                ),
+                "max_wait_seconds": float(
+                    getattr(settings, "model_api_max_wait_seconds", _DEFAULT_MAX_WAIT_SECONDS)
+                ),
+            },
         }
         runtime = ModelAPIRuntime(embedder=embedder, reranker=reranker, identity=identity)
         runtime.token = token
@@ -180,6 +205,16 @@ def create_model_api_app(
     """构造可注入合成runtime的HTTP应用；正常服务通过lifespan拥有模型。"""
     if not token or len(token) < 24:
         raise ValueError("WENJIN_MODEL_API_TOKEN必须至少24个字符")
+    max_waiting = getattr(settings, "model_api_max_waiting", _DEFAULT_MAX_WAITING)
+    max_wait_seconds = getattr(settings, "model_api_max_wait_seconds", _DEFAULT_MAX_WAIT_SECONDS)
+    if (
+        type(max_waiting) is not int
+        or not 0 <= max_waiting <= 128
+        or type(max_wait_seconds) not in {int, float}
+        or not math.isfinite(max_wait_seconds)
+        or not 0 < max_wait_seconds <= 300
+    ):
+        raise ValueError("模型API准入队列配置无效")
 
     @asynccontextmanager
     async def lifespan(app: Starlette):
@@ -187,9 +222,14 @@ def create_model_api_app(
         app.state.model_runtime = runtime or await run_in_threadpool(
             _build_runtime, Path(root), settings, token
         )
+        app.state.inference_admission = ModelAdmission(
+            max_waiting=max_waiting, max_wait_seconds=float(max_wait_seconds)
+        )
         try:
             yield
         finally:
+            # 先停止队列并等待已启动线程结束，再关闭它们正在使用的模型对象。
+            await app.state.inference_admission.close()
             if owned:
                 await run_in_threadpool(app.state.model_runtime.close)
 
@@ -199,7 +239,9 @@ def create_model_api_app(
             return False
         authorization = values[0]
         scheme, separator, supplied = authorization.partition(" ")
-        return bool(separator and scheme.lower() == "bearer" and hmac.compare_digest(supplied, token))
+        return bool(
+            separator and scheme.lower() == "bearer" and hmac.compare_digest(supplied, token)
+        )
 
     async def body_json(request: Request) -> dict[str, Any] | None:
         length = request.headers.get("content-length")
@@ -228,8 +270,39 @@ def create_model_api_app(
             return JSONResponse({"error": "unauthorized"}, status_code=401)
         try:
             return await handler(request)
+        except ModelAdmissionError as exc:
+            detail = {
+                "model_queue_full": "模型服务等待队列已满，请稍后重试",
+                "model_queue_timeout": "模型服务排队超过等待时限，请稍后重试",
+                "model_service_shutting_down": "模型服务正在关闭，请稍后重试",
+            }.get(exc.code, "模型服务暂不可用，请稍后重试")
+            return JSONResponse(
+                {"error": exc.code, "detail": detail, "evidence_status": "not_retrieved"},
+                status_code=503,
+            )
+        except _ClientDisconnected:
+            return JSONResponse({"error": "client_disconnected"}, status_code=499)
         except Exception:
             return JSONResponse({"error": "model_request_failed"}, status_code=503)
+
+    async def admitted(request: Request, operation, *args, **kwargs):
+        """监视ASGI disconnect；Starlette通常不会因http.disconnect取消handler task。"""
+        task = asyncio.create_task(app.state.inference_admission.submit(operation, *args, **kwargs))
+        try:
+            while not task.done():
+                if await request.is_disconnected():
+                    task.cancel()
+                    await asyncio.gather(task, return_exceptions=True)
+                    raise _ClientDisconnected
+                done, _ = await asyncio.wait({task}, timeout=0.05)
+                if done:
+                    break
+            return await task
+        except BaseException:
+            if not task.done():
+                task.cancel()
+                await asyncio.gather(task, return_exceptions=True)
+            raise
 
     async def health(request: Request):
         if not await authenticate(request):
@@ -244,75 +317,120 @@ def create_model_api_app(
     async def embeddings(request: Request):
         async def execute(_request: Request):
             value = await body_json(request)
-            if (value is None or value.get("protocol") != PROTOCOL
-                    or value.get("model_id") != settings.resolved_embedding_model_id
-                    or value.get("input_kind") not in {"query", "document"}):
+            if (
+                value is None
+                or value.get("protocol") != PROTOCOL
+                or value.get("model_id") != settings.resolved_embedding_model_id
+                or value.get("input_kind") not in {"query", "document"}
+            ):
                 return JSONResponse({"error": "invalid_request"}, status_code=400)
-            if value.get("asset_sha256") != app.state.model_runtime.identity["embedding"]["asset_sha256"]:
+            if (
+                value.get("asset_sha256")
+                != app.state.model_runtime.identity["embedding"]["asset_sha256"]
+            ):
                 return JSONResponse({"error": "model_identity_mismatch"}, status_code=409)
-            if value.get("implementation_sha256") != app.state.model_runtime.identity["implementation_sha256"]:
+            if (
+                value.get("implementation_sha256")
+                != app.state.model_runtime.identity["implementation_sha256"]
+            ):
                 return JSONResponse({"error": "model_identity_mismatch"}, status_code=409)
             inputs = value.get("inputs")
-            if (not isinstance(inputs, list) or not inputs or len(inputs) > _MAX_BATCH_SIZE
-                    or any(not isinstance(item, str) or not item or len(item) > _MAX_TEXT_CHARS for item in inputs)):
-                return JSONResponse({"error": "invalid_request"}, status_code=400)
-            gate = app.state.inference_gate
-            if gate.locked():
-                return JSONResponse({"error": "inference_busy"}, status_code=503)
-            async with gate:
-                vectors = await run_in_threadpool(
-                    app.state.model_runtime.embed, inputs, value["input_kind"]
+            if (
+                not isinstance(inputs, list)
+                or not inputs
+                or len(inputs) > _MAX_BATCH_SIZE
+                or any(
+                    not isinstance(item, str) or not item or len(item) > _MAX_TEXT_CHARS
+                    for item in inputs
                 )
+            ):
+                return JSONResponse({"error": "invalid_request"}, status_code=400)
+            vectors = await admitted(
+                request, app.state.model_runtime.embed, inputs, value["input_kind"]
+            )
             dimensions = app.state.model_runtime.identity["embedding"]["dimensions"]
             if len(vectors) != len(inputs) or any(
-                len(vector) != dimensions or not all(math.isfinite(x) for x in vector)
+                len(vector) != dimensions
+                or not all(math.isfinite(x) for x in vector)
                 or abs(math.sqrt(sum(x * x for x in vector)) - 1.0) > 0.01
                 for vector in vectors
             ):
                 return JSONResponse({"error": "model_output_invalid"}, status_code=503)
-            return JSONResponse({
-                "protocol": PROTOCOL, "model_id": settings.resolved_embedding_model_id,
-                "asset_sha256": app.state.model_runtime.identity["embedding"]["asset_sha256"],
-                "implementation_sha256": app.state.model_runtime.identity["implementation_sha256"],
-                "input_kind": value["input_kind"], "dimensions": dimensions,
-                "normalized": True, "data": vectors,
-            })
+            return JSONResponse(
+                {
+                    "protocol": PROTOCOL,
+                    "model_id": settings.resolved_embedding_model_id,
+                    "asset_sha256": app.state.model_runtime.identity["embedding"]["asset_sha256"],
+                    "implementation_sha256": app.state.model_runtime.identity[
+                        "implementation_sha256"
+                    ],
+                    "input_kind": value["input_kind"],
+                    "dimensions": dimensions,
+                    "normalized": True,
+                    "data": vectors,
+                }
+            )
+
         return await auth_then(request, execute)
 
     async def rerank(request: Request):
         async def execute(_request: Request):
             value = await body_json(request)
-            if (value is None or value.get("protocol") != PROTOCOL
-                    or value.get("model_id") != settings.resolved_reranker_model_id):
+            if (
+                value is None
+                or value.get("protocol") != PROTOCOL
+                or value.get("model_id") != settings.resolved_reranker_model_id
+            ):
                 return JSONResponse({"error": "invalid_request"}, status_code=400)
-            if value.get("asset_sha256") != app.state.model_runtime.identity["reranker"]["asset_sha256"]:
+            if (
+                value.get("asset_sha256")
+                != app.state.model_runtime.identity["reranker"]["asset_sha256"]
+            ):
                 return JSONResponse({"error": "model_identity_mismatch"}, status_code=409)
-            if value.get("implementation_sha256") != app.state.model_runtime.identity["implementation_sha256"]:
+            if (
+                value.get("implementation_sha256")
+                != app.state.model_runtime.identity["implementation_sha256"]
+            ):
                 return JSONResponse({"error": "model_identity_mismatch"}, status_code=409)
             query, documents = value.get("query"), value.get("documents")
             max_length, batch_size = value.get("max_length"), value.get("batch_size")
-            if (not isinstance(query, str) or not query or len(query) > _MAX_TEXT_CHARS
-                    or not isinstance(documents, list) or not documents
-                    or len(documents) > _MAX_DOCUMENTS
-                    or any(not isinstance(doc, str) or not doc or len(doc) > _MAX_TEXT_CHARS for doc in documents)
-                    or type(max_length) is not int or type(batch_size) is not int):
-                return JSONResponse({"error": "invalid_request"}, status_code=400)
-            gate = app.state.inference_gate
-            if gate.locked():
-                return JSONResponse({"error": "inference_busy"}, status_code=503)
-            async with gate:
-                scores = await run_in_threadpool(
-                    app.state.model_runtime.rerank_scores, query, documents,
-                    max_length=max_length, batch_size=batch_size,
+            if (
+                not isinstance(query, str)
+                or not query
+                or len(query) > _MAX_TEXT_CHARS
+                or not isinstance(documents, list)
+                or not documents
+                or len(documents) > _MAX_DOCUMENTS
+                or any(
+                    not isinstance(doc, str) or not doc or len(doc) > _MAX_TEXT_CHARS
+                    for doc in documents
                 )
+                or type(max_length) is not int
+                or type(batch_size) is not int
+            ):
+                return JSONResponse({"error": "invalid_request"}, status_code=400)
+            scores = await admitted(
+                request,
+                app.state.model_runtime.rerank_scores,
+                query,
+                documents,
+                max_length=max_length,
+                batch_size=batch_size,
+            )
             if len(scores) != len(documents) or not all(math.isfinite(score) for score in scores):
                 return JSONResponse({"error": "model_output_invalid"}, status_code=503)
-            return JSONResponse({
-                "protocol": PROTOCOL, "model_id": settings.resolved_reranker_model_id,
-                "asset_sha256": app.state.model_runtime.identity["reranker"]["asset_sha256"],
-                "implementation_sha256": app.state.model_runtime.identity["implementation_sha256"],
-                "scores": scores,
-            })
+            return JSONResponse(
+                {
+                    "protocol": PROTOCOL,
+                    "model_id": settings.resolved_reranker_model_id,
+                    "asset_sha256": app.state.model_runtime.identity["reranker"]["asset_sha256"],
+                    "implementation_sha256": app.state.model_runtime.identity[
+                        "implementation_sha256"
+                    ],
+                    "scores": scores,
+                }
+            )
+
         return await auth_then(request, execute)
 
     app = Starlette(
@@ -325,5 +443,5 @@ def create_model_api_app(
         lifespan=lifespan,
     )
     app.state.model_runtime = runtime
-    app.state.inference_gate = asyncio.Lock()
+    app.state.inference_admission = None
     return app

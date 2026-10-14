@@ -1,8 +1,64 @@
 /* 账户登录与管理UI；CSRF值只保存在本页内存。 */
 (() => {
-  const state = { mode: 'legacy', user: null, csrf: null, clearPageState: null, ready: null, generation: 0, reauth: null, users: [], usersLoaded: false, sessionPolicy: null };
+  const state = { mode: 'legacy', user: null, csrf: null, clearPageState: null, ready: null, generation: 0, reauth: null, signingOut: false, users: [], usersLoaded: false, sessionPolicy: null, adminCredentialSelectionRevision: 0, adminCredentialListRevision: 0, adminCredentialPending: false, personalCredentialPending: false };
   const $ = (selector) => document.querySelector(selector);
+  const deliveryRevisions = new Map([['credential',0],['admin-credential',0]]);
   const h = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const beijingDateTime = (value) => {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (!Number.isFinite(date.getTime())) return '—';
+    const parts = new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(date);
+    const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    return `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute}:${values.second}`;
+  };
+  function clearCredentialDelivery(prefix) {
+    deliveryRevisions.set(prefix, (deliveryRevisions.get(prefix) || 0) + 1);
+    const panel = $(`#${prefix}-delivery`);
+    const token = $(`#${prefix}-token`);
+    const meta = $(`#${prefix}-delivery-meta`);
+    const copyStatus = $(`#${prefix}-copy-status`);
+    if (token) token.value = '';
+    if (meta) meta.textContent = '';
+    if (copyStatus) copyStatus.textContent = '';
+    panel?.classList.add('hidden');
+  }
+  function showCredentialDelivery(prefix, credential, owner, label) {
+    const token = $(`#${prefix}-token`);
+    const panel = $(`#${prefix}-delivery`);
+    if (!token || !panel) return;
+    deliveryRevisions.set(prefix, (deliveryRevisions.get(prefix) || 0) + 1);
+    token.value = credential.token;
+    $(`#${prefix}-delivery-meta`).textContent = `所属账号：${owner}；名称：${label}；用途：Agent 使用部署提供的 MCP 地址并通过 Bearer 凭据连接；到期：${credential.expires_at ? beijingDateTime(credential.expires_at) : '不自动过期'}`;
+    $(`#${prefix}-copy-status`).textContent = '请现在安全保存完整凭据；本页面关闭或切换账号后无法恢复。';
+    panel.classList.remove('hidden');
+    token.focus(); token.select();
+  }
+  async function copyCredential(prefix) {
+    const token = $(`#${prefix}-token`);
+    const status = $(`#${prefix}-copy-status`);
+    if (!token?.value) return;
+    const value = token.value; const generation = state.generation; const revision = deliveryRevisions.get(prefix);
+    const stillCurrent = () => generation === state.generation && revision === deliveryRevisions.get(prefix) && token.value === value;
+    try {
+      const clipboard = window.navigator?.clipboard;
+      if (!clipboard?.writeText) throw new Error('clipboard unavailable');
+      await clipboard.writeText(value);
+      if (stillCurrent()) status.textContent = '凭据已复制到剪贴板；请按组织要求安全保存。';
+    } catch {
+      if (!stillCurrent()) return;
+      token.focus(); token.select();
+      status.textContent = '无法自动复制。完整凭据已选中，请按 Ctrl+C（或在移动设备上使用复制菜单）；完成后请清除交付区。';
+    }
+  }
+  function credentialStatus(item) {
+    if (item.revoked_at) return '已撤销';
+    if (item.expires_at) {
+      const expires = new Date(item.expires_at);
+      if (Number.isFinite(expires.getTime()) && expires.getTime() <= Date.now()) return '已过期';
+    }
+    return '有效';
+  }
   const identityActionLabel = (action) => ({
     bootstrap_first_admin:'创建首位管理员', user_created:'创建用户', user_role_changed:'调整用户角色',
     user_renamed:'修改用户名', user_activation_changed:'启用或停用用户', user_password_reset:'重置用户密码',
@@ -21,7 +77,7 @@
     }
     const response = await fetch(path, {...options, method, headers, credentials: 'same-origin', cache: 'no-store'});
     const payload = (response.headers.get('content-type') || '').includes('application/json') ? await response.json() : null;
-    if (generation !== state.generation) throw Object.assign(new Error('账号状态已变化，已忽略旧请求。'), {status: 0, stale: true});
+    if (generation !== state.generation) throw Object.assign(new Error('账号状态已变化，已忽略旧请求。'), {status: 0, stale: true, responseOk: response.ok, responseStatus: response.status});
     if (!response.ok) {
       const messages = {
         current_password_invalid: '当前密码不正确，请重新输入。',
@@ -35,31 +91,55 @@
 
   function clearState() {
     state.generation += 1;
+    state.adminCredentialSelectionRevision += 1;
+    state.adminCredentialListRevision += 1;
+    state.adminCredentialPending = false;
+    state.personalCredentialPending = false;
     state.user = null;
     state.csrf = null;
     state.users = [];
     state.usersLoaded = false;
     $('#identity-admin-panel').classList.add('hidden');
     $('#identity-self-panel').classList.add('hidden');
+    $('#identity-session-panel').classList.add('hidden');
     document.querySelectorAll('[data-page="files"],[data-page="jobs"],[data-page="calls"],[data-page="overview"],[data-page="roadmap"],[data-page="releases"],[data-page="evaluations"]').forEach((item) => item.classList.add('hidden'));
     $('#identity-current-user').textContent = '';
     $('#identity-users').replaceChildren();
     $('#identity-grants').replaceChildren();
     $('#identity-audit').replaceChildren();
     $('#my-credentials').replaceChildren();
-    $('#credential-reveal').replaceChildren();
-    $('#credential-reveal').classList.add('hidden');
+    $('#admin-user-credentials').replaceChildren();
+    $('#admin-credential-user').value = '';
+    $('#credential-status').textContent = '';
+    $('#admin-credential-status').textContent = '';
+    $('#admin-credential-target-note').textContent = '请选择所属用户。';
+    clearCredentialDelivery('credential');
+    clearCredentialDelivery('admin-credential');
+    $('#credential-form').querySelector('button').disabled = false;
+    $('#admin-credential-form').querySelector('button').disabled = true;
+    $('#admin-credential-user').disabled = false;
+    $('#admin-credential-refresh').disabled = true;
     if (state.clearPageState) state.clearPageState();
   }
 
   function setUser(user) {
+    clearCredentialDelivery('credential');
+    clearCredentialDelivery('admin-credential');
+    $('#credential-status').textContent = '';
+    $('#admin-credential-status').textContent = '';
+    state.adminCredentialSelectionRevision += 1;
+    state.adminCredentialListRevision += 1;
+    state.adminCredentialPending = false;
+    state.personalCredentialPending = false;
     if (state.user?.user_id !== user.user_id) {
       state.users = [];
       state.usersLoaded = false;
     }
     state.generation += 1;
     state.user = user;
-    $('#identity-self-panel').classList.remove('hidden');
+    // 管理员统一通过“用户 MCP 凭据”选择账号管理，包括自己的账号，避免出现两套容易混淆的列表。
+    $('#identity-self-panel').classList.toggle('hidden', user.role === 'admin');
+    $('#identity-session-panel').classList.remove('hidden');
     $('#identity-current-user').replaceChildren();
     $('#identity-current-user').append(document.createTextNode(user.username));
     const roleBadge = document.createElement('span');
@@ -156,10 +236,16 @@
   }
 
   async function signOut() {
-    $('#identity-password-dialog').close();
-    try { await request('/api/auth/logout', {method: 'POST'}); } catch {}
-    clearState();
-    await loginPrompt();
+    if (state.signingOut) return;
+    state.signingOut = true;
+    try {
+      $('#identity-password-dialog').close();
+      // 先发出携带当前 CSRF 的撤销请求，再立即推进代次并清理页面；慢响应不能让旧证据留在界面或重新回填。
+      const logoutRequest = request('/api/auth/logout', {method: 'POST'}).catch(() => {});
+      clearState();
+      await logoutRequest;
+      await loginPrompt();
+    } finally { state.signingOut = false; }
   }
 
   async function refreshCsrf() {
@@ -167,27 +253,132 @@
     state.csrf = body.csrf_token;
   }
 
-  async function loadCredentials() {
-    const generation = state.generation;
-    const body = await request('/api/auth/credentials');
-    if (generation !== state.generation) return;
-    const host = $('#my-credentials');
+  function renderCredentialTable(host, credentials, targetUserId, adminManaged) {
     host.replaceChildren();
-    const table = document.createElement('table');
-    table.className = 'data-table';
-    table.innerHTML = '<thead><tr><th>名称</th><th>前缀</th><th>创建时间</th><th>有效期</th><th>状态</th><th></th></tr></thead>';
-    const rows = document.createElement('tbody');
-    for (const item of body.credentials || []) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${h(item.label)}</td><td><code>${h(item.token_prefix)}</code></td><td>${h(item.created_at)}</td><td>${h(item.expires_at || '不自动过期')}</td><td>${item.revoked_at ? '已撤销' : '有效'}</td><td></td>`;
-      if (!item.revoked_at) {
-        const button = document.createElement('button'); button.className = 'button button-secondary'; button.textContent = '撤销';
-        button.onclick = async () => { await request(`/api/auth/credentials/${encodeURIComponent(item.credential_id)}`, {method: 'DELETE'}); await loadCredentials(); };
-        tr.lastElementChild.append(button);
-      }
-      rows.append(tr);
+    if (!credentials.length) {
+      const empty = document.createElement('p'); empty.className = 'credential-empty'; empty.textContent = '该账号暂无 MCP 凭据。'; host.append(empty); return;
     }
-    table.append(rows); host.append(table);
+    const table = document.createElement('table'); table.className = 'data-table credential-table';
+    const thead = document.createElement('thead'); const heading = document.createElement('tr');
+    for (const label of ['名称','安全前缀','状态','时间（北京时间）','操作']) {
+      const th = document.createElement('th'); th.textContent = label;
+      if (label === '操作') th.className = 'credential-action';
+      heading.append(th);
+    }
+    thead.append(heading); const tbody = document.createElement('tbody');
+    for (const item of credentials) {
+      const row = document.createElement('tr');
+      const status = credentialStatus(item);
+      for (const [field, value] of [['credential-name', item.label], ['credential-prefix', item.token_prefix], ['credential-state', status]]) {
+        const cell = document.createElement('td'); cell.className = field; cell.textContent = value || '—';
+        if (field === 'credential-prefix') { const code = document.createElement('code'); code.textContent = item.token_prefix || '—'; cell.replaceChildren(code); }
+        if (field === 'credential-state') cell.className = `credential-state ${status === '有效' ? 'is-active' : status === '已撤销' ? 'is-revoked' : 'is-expired'}`;
+        row.append(cell);
+      }
+      const dates = document.createElement('td'); dates.className = 'credential-dates';
+      dates.textContent = `创建：${beijingDateTime(item.created_at)}\n到期：${item.expires_at ? beijingDateTime(item.expires_at) : '不自动过期'}`
+        + (item.revoked_at ? `\n撤销：${beijingDateTime(item.revoked_at)}` : '');
+      row.append(dates);
+      const actions = document.createElement('td'); actions.className = 'credential-action';
+      if (!item.revoked_at) {
+        const revoke = document.createElement('button'); revoke.type = 'button'; revoke.className = 'button button-secondary'; revoke.textContent = '撤销凭据';
+        revoke.onclick = async () => {
+          const owner = adminManaged ? (state.users.find((user) => user.user_id === targetUserId)?.username || '所选用户') : (state.user?.username || '当前账号');
+          if (!window.confirm(`确认撤销“${item.label}”（前缀 ${item.token_prefix}）？\n所属账号：${owner}\n该凭据之后将不能连接 MCP。`)) return;
+          const generation = state.generation;
+          const selectionRevision = state.adminCredentialSelectionRevision;
+          revoke.disabled = true;
+          try {
+            const endpoint = adminManaged ? '/api/admin/credentials/' : '/api/auth/credentials/';
+            await request(`${endpoint}${encodeURIComponent(item.credential_id)}`, {method:'DELETE'});
+            if (generation !== state.generation || (adminManaged && (selectionRevision !== state.adminCredentialSelectionRevision || $('#admin-credential-user').value !== targetUserId))) return;
+            const statusHost = $(adminManaged ? '#admin-credential-status' : '#credential-status');
+            statusHost.textContent = `已撤销“${item.label}”（${item.token_prefix}）。`;
+            if (adminManaged) await loadAdminCredentials(targetUserId); else await loadCredentials();
+          } catch (error) {
+            if (error.stale || generation !== state.generation) return;
+            revoke.disabled = false;
+            (adminManaged ? $('#admin-credential-status') : $('#credential-status')).textContent = `撤销失败：${error.message}`;
+          }
+        };
+        actions.append(revoke);
+      } else actions.textContent = '—';
+      row.append(actions); tbody.append(row);
+    }
+    table.append(thead, tbody); host.append(table);
+  }
+
+  async function loadCredentials() {
+    if (!state.user || state.user.role === 'admin') return false;
+    const generation = state.generation;
+    const revision = (state.personalCredentialListRevision || 0) + 1;
+    state.personalCredentialListRevision = revision;
+    try {
+      const body = await request('/api/auth/credentials');
+      if (generation !== state.generation || revision !== state.personalCredentialListRevision) return false;
+      renderCredentialTable($('#my-credentials'), body.credentials || [], state.user?.user_id, false);
+      return true;
+    } catch (error) {
+      if (!error.stale && generation === state.generation) $('#my-credentials').textContent = `读取凭据列表失败：${error.message}`;
+      return false;
+    }
+  }
+
+  async function loadAdminCredentials(userId = $('#admin-credential-user').value) {
+    if (!userId || state.user?.role !== 'admin') return false;
+    const generation = state.generation;
+    const selectionRevision = state.adminCredentialSelectionRevision;
+    const revision = ++state.adminCredentialListRevision;
+    $('#admin-credential-refresh').disabled = true;
+    try {
+      const body = await request(`/api/admin/users/${encodeURIComponent(userId)}/credentials`);
+      if (generation !== state.generation || selectionRevision !== state.adminCredentialSelectionRevision
+          || revision !== state.adminCredentialListRevision || $('#admin-credential-user').value !== userId) return false;
+      renderCredentialTable($('#admin-user-credentials'), body.credentials || [], userId, true);
+      return true;
+    } catch (error) {
+      if (!error.stale && generation === state.generation && selectionRevision === state.adminCredentialSelectionRevision
+          && $('#admin-credential-user').value === userId) {
+        $('#admin-user-credentials').textContent = `读取所选用户凭据失败：${error.message}`;
+      }
+      return false;
+    } finally {
+      if (generation === state.generation && selectionRevision === state.adminCredentialSelectionRevision
+          && $('#admin-credential-user').value === userId && !state.adminCredentialPending) $('#admin-credential-refresh').disabled = false;
+    }
+  }
+
+  function renderAdminCredentialUsers(users) {
+    const select = $('#admin-credential-user');
+    const previousId = select.value;
+    select.replaceChildren();
+    const placeholder = document.createElement('option'); placeholder.value = ''; placeholder.textContent = '选择用户'; select.append(placeholder);
+    for (const user of users) {
+      const option = document.createElement('option'); option.value = user.user_id;
+      option.textContent = `${user.username} · ${user.active ? '启用' : '停用'}${user.must_change_password ? ' · 待首次改密' : ''}`;
+      select.append(option);
+    }
+    select.value = users.some((user) => user.user_id === previousId) ? previousId : '';
+    if (!select.value && previousId) {
+      state.adminCredentialSelectionRevision += 1;
+      state.adminCredentialListRevision += 1;
+      clearCredentialDelivery('admin-credential');
+      $('#admin-user-credentials').replaceChildren();
+    }
+    updateAdminCredentialTarget();
+  }
+
+  function updateAdminCredentialTarget() {
+    const user = state.users.find((item) => item.user_id === $('#admin-credential-user').value);
+    const blocked = !user || !user.active || user.must_change_password;
+    const button = $('#admin-credential-form').querySelector('button');
+    button.disabled = blocked || state.adminCredentialPending;
+    $('#admin-credential-refresh').disabled = !user || state.adminCredentialPending;
+    if (!user) $('#admin-credential-target-note').textContent = '请选择所属用户。';
+    else if (!user.active) $('#admin-credential-target-note').textContent = `${user.username}账号已停用，后端不允许签发；仍可查看或撤销已有凭据。`;
+    else if (user.must_change_password) $('#admin-credential-target-note').textContent = `${user.username}需先完成首次密码修改，之后才能签发 MCP 凭据。`;
+    else if (user.role === 'admin') $('#admin-credential-target-note').textContent = `${user.username}是管理员：该凭据绑定管理员身份，可读取所有有效资料库。请勿将管理员账号凭据分发给普通用户；MCP 地址由部署提供，Agent 使用 Bearer 凭据连接。`;
+    else $('#admin-credential-target-note').textContent = `凭据将绑定到 ${user.username}（${user.user_id}），用途为 Agent 使用部署提供的 MCP 地址并通过 Bearer 凭据连接；资料库读取仍按该普通用户的授权决定。`;
   }
 
   async function loadAdmin() {
@@ -218,23 +409,10 @@
       rename.onclick = async () => { const username = prompt('输入新的用户名', user.username); if (username) { await request(`/api/admin/users/${user.user_id}`, {method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,expected_revision:user.revision})}); await loadAdmin(); } };
       const reset = document.createElement('button'); reset.className = 'button button-secondary'; reset.textContent = '重置密码';
       reset.onclick = async () => { const password = prompt('输入新临时密码（用户下次登录须修改）'); if (password) { await request(`/api/admin/users/${user.user_id}/reset-password`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({new_password:password,expected_revision:user.revision})}); await loadAdmin(); } };
-      const creds = document.createElement('button'); creds.className = 'button button-secondary'; creds.textContent = 'MCP凭据';
-      creds.onclick = async () => {
-        const label = prompt(`为 ${user.username} 签发个人MCP凭据的名称`);
-        if (label) {
-          const issued = await request(`/api/admin/users/${user.user_id}/credentials`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({label})});
-          alert(`请立即保存此凭据（仅显示一次）：\n${issued.credential.token}`);
-        }
-        const listed = await request(`/api/admin/users/${user.user_id}/credentials`);
-        const active = listed.credentials.filter((item) => !item.revoked_at);
-        if (active.length) {
-          const choice = prompt(`有效凭据：\n${active.map((item) => `${item.label} · ${item.token_prefix} · ${item.credential_id}`).join('\n')}\n输入要撤销的credential_id；留空取消`);
-          if (choice && active.some((item) => item.credential_id === choice)) await request(`/api/admin/credentials/${encodeURIComponent(choice)}`, {method:'DELETE'});
-        }
-      };
-      actions.append(role, active, rename, reset, creds); userRows.append(tr);
+      actions.append(role, active, rename, reset); userRows.append(tr);
     }
     userTable.append(userRows); userHost.append(userTable);
+    renderAdminCredentialUsers(users);
     const create = $('#identity-create-user');
     create.onsubmit = async (event) => {
       event.preventDefault(); const form = new FormData(create);
@@ -243,102 +421,145 @@
     };
     const libraryRows = (resourceBody.resources || []).filter((item) => item.resource_kind === 'library' && item.active);
     const grantHost = $('#identity-grants'); grantHost.replaceChildren();
-    const grantTable = document.createElement('table'); grantTable.className = 'grant-table data-table';
-    grantTable.innerHTML = '<thead><tr><th>逻辑资料库</th><th>用户授权</th></tr></thead>';
-    const grantBody = document.createElement('tbody');
+    const adminNotice = document.createElement('p');
+    adminNotice.className = 'privacy-note grant-admin-note';
+    adminNotice.textContent = '管理员可读取所有有效资料库；普通用户按逐库授权。公开/私有分类不改变读取权限。';
+    grantHost.append(adminNotice);
+    const knownUsers = new Map(users.map((user) => [user.user_id, user]));
+    const readerUsers = users.filter((user) => user.role === 'reader');
     for (const library of libraryRows) {
-      const tableRow = document.createElement('tr');
-      const libraryCell = document.createElement('td');
-      const title = document.createElement('h3');
-      title.textContent = library.display_name || library.resource_id;
+      const current = grants.filter((grant) => grant.resource_kind === 'library'
+        && grant.resource_id === library.resource_id && grant.principal_kind === 'user');
+      const currentByUser = new Map(current.map((grant) => [grant.principal_id, grant]));
+      const grantedReaders = readerUsers.filter((user) => currentByUser.get(user.user_id)?.allowed === true).length;
+      const card = document.createElement('details'); card.className = 'grant-library-card';
+      const header = document.createElement('summary'); header.className = 'grant-library-summary';
+      const title = document.createElement('h3'); title.textContent = library.display_name || library.resource_id;
       title.title = `资料库编号：${library.resource_id}`;
-      title.setAttribute('aria-label', `资料库：${title.textContent}`);
-      libraryCell.append(title);
-      const permissionCell = document.createElement('td');
-      const details = document.createElement('details'); details.className = 'grant-user-picker';
-      const current = grants.filter((grant) => grant.resource_kind === 'library' && grant.resource_id === library.resource_id && grant.principal_kind === 'user');
-      const allowedCount = current.filter((grant) => grant.allowed).length;
-      const summary = document.createElement('summary'); summary.textContent = `管理用户授权 · ${allowedCount} 人已允许`;
-      details.append(summary);
-      const form = document.createElement('form'); form.className = 'identity-form grant-batch-form';
-      const label = document.createElement('label'); label.textContent = '选择一个或多个用户';
-      const select = document.createElement('select'); select.multiple = true; select.size = Math.min(6, Math.max(3, users.length)); select.setAttribute('aria-label', `为${library.resource_id}选择用户`);
-      for (const user of users.filter((item) => item.active)) {
-        const option = new Option(`${user.username}（${user.role === 'admin' ? '管理员' : '只读用户'}）`, user.user_id);
-        select.add(option);
+      const count = document.createElement('span'); count.className = 'grant-library-count';
+      count.textContent = `${grantedReaders} 人已授权`;
+      const editHint = document.createElement('span'); editHint.className = 'grant-edit-hint'; editHint.textContent = '编辑授权';
+      const chevron = document.createElement('span'); chevron.className = 'grant-chevron'; chevron.setAttribute('aria-hidden', 'true');
+      header.append(title, count, editHint, chevron);
+      card.append(header);
+
+      const checklist = document.createElement('div'); checklist.className = 'grant-user-checklist';
+      const checkboxRows = [];
+      for (const user of readerUsers) {
+        const existing = currentByUser.get(user.user_id);
+        const allowed = existing?.allowed === true;
+        const row = document.createElement('label'); row.className = 'grant-user-checkbox-row';
+        const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.checked = allowed;
+        checkbox.value = user.user_id;
+        checkbox.disabled = !user.active && !allowed;
+        checkbox.setAttribute('aria-label', `${user.username}，${user.active ? '启用' : '停用'}`);
+        const name = document.createElement('span'); name.className = 'grant-user-name'; name.textContent = user.username;
+        const status = document.createElement('small'); status.className = user.active ? 'grant-user-status active' : 'grant-user-status inactive';
+        status.textContent = user.active ? '启用' : (allowed ? '停用 · 可撤销' : '停用');
+        row.append(checkbox, name, status); checklist.append(row);
+        checkboxRows.push({ user, checkbox, existing, initial: allowed });
+        checkbox.addEventListener('change', () => {
+          if (!user.active && !allowed && checkbox.checked) {
+            checkbox.checked = false;
+            $('#identity-grants-status').textContent = `“${user.username}”账号已停用，不能新增读取授权；启用后可再授权。`;
+          }
+          updateGrantButtons();
+        });
       }
-      label.append(select);
-      const grantButton = document.createElement('button'); grantButton.className = 'button button-primary'; grantButton.textContent = '授予读取';
-      form.append(label, grantButton);
-      const accessList = document.createElement('div'); accessList.className = 'grant-access-list';
-      const knownUsers = new Map(users.map((user) => [user.user_id, user]));
-      for (const grant of current) {
-        const user = knownUsers.get(grant.principal_id);
-        const row = document.createElement('div'); row.className = 'grant-access-row';
-        const userLabel = user ? `${user.username}${user.role === 'admin' ? ' · 管理员' : ''}` : '已删除账号';
-        const name = document.createElement('span'); name.textContent = userLabel;
-        if (!user) { const detail = document.createElement('small'); detail.textContent = grant.principal_id; name.append(' ', detail); }
-        const stateLabel = document.createElement('span'); stateLabel.className = grant.allowed ? 'grant-allowed' : 'grant-denied'; stateLabel.textContent = grant.allowed ? '允许读取' : '显式拒绝';
-        row.append(name, stateLabel);
-        if (user) {
-          const change = document.createElement('button'); change.type = 'button'; change.className = 'button button-secondary';
-          change.textContent = grant.allowed ? '撤销此权限' : '重新允许';
-          change.addEventListener('click', async () => {
-            const operationGeneration = state.generation;
-            try {
-              await request('/api/admin/grants', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({resource_kind:'library',resource_id:library.resource_id,user_id:user.user_id,allowed:!grant.allowed,expected_revision:grant.revision})});
-              if (operationGeneration !== state.generation) return;
-              window.dispatchEvent(new CustomEvent('wenjin-grants-changed', {detail:{user_ids:[user.user_id], library_id:library.resource_id, allowed:!grant.allowed}}));
-            } catch (error) {
-              if (operationGeneration === state.generation && error.status !== 0) $('#identity-grants-status').textContent = error.message;
-            }
-            if (operationGeneration === state.generation) await loadAdmin();
-          });
-          row.append(change);
+      if (!readerUsers.length) checklist.append(Object.assign(document.createElement('p'), {className:'privacy-note',textContent:'当前没有普通用户账号。'}));
+      const unknown = current.filter((grant) => !knownUsers.has(grant.principal_id));
+      if (unknown.length) {
+        const unknownDetails = document.createElement('details'); unknownDetails.className = 'grant-unknown-details';
+        const unknownSummary = document.createElement('summary');
+        unknownSummary.textContent = `${unknown.length} 条账号目录中未匹配的授权；本次不会修改`;
+        const unknownList = document.createElement('ul');
+        for (const grant of unknown) {
+          const item = document.createElement('li');
+          item.textContent = `${grant.principal_id} · ${grant.allowed ? '允许读取' : '显式拒绝'}（保留）`;
+          unknownList.append(item);
         }
-        accessList.append(row);
+        unknownDetails.append(unknownSummary, unknownList); checklist.append(unknownDetails);
       }
-      if (!current.length) accessList.append(Object.assign(document.createElement('p'), {className:'privacy-note',textContent:'目前没有已记录的用户授权。'}));
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const selected = Array.from(select.selectedOptions, (option) => option.value);
-        if (!selected.length) { $('#identity-grants-status').textContent = '请先选择至少一位用户。'; return; }
-        const batchGeneration = state.generation;
-        const stillCurrent = () => batchGeneration === state.generation && state.user?.role === 'admin';
-        grantButton.disabled = true;
+      card.append(checklist);
+
+      const actions = document.createElement('div'); actions.className = 'grant-editor-actions';
+      const save = document.createElement('button'); save.type = 'button'; save.className = 'button button-primary'; save.textContent = '保存修改';
+      const cancel = document.createElement('button'); cancel.type = 'button'; cancel.className = 'button button-secondary'; cancel.textContent = '取消';
+      const hasChanges = () => checkboxRows.some(({ checkbox, initial }) => checkbox.checked !== initial);
+      const updateGrantButtons = () => { save.disabled = !hasChanges(); };
+      updateGrantButtons();
+      cancel.addEventListener('click', () => {
+        for (const { checkbox, initial } of checkboxRows) checkbox.checked = initial;
+        updateGrantButtons();
+        $('#identity-grants-status').textContent = '已恢复为上次读取的服务端授权状态。';
+      });
+      save.addEventListener('click', async () => {
+        if (save.disabled) return;
+        const changes = checkboxRows.filter(({ checkbox, initial }) => checkbox.checked !== initial);
+        if (!changes.length) return;
+        const operationGeneration = state.generation;
+        const stillCurrent = () => operationGeneration === state.generation && state.user?.role === 'admin';
         const failures = [], changed = [];
+        let refreshFailed = false;
+        for (const button of [save, cancel]) button.disabled = true;
+        for (const { checkbox } of checkboxRows) checkbox.disabled = true;
         try {
-          for (const userId of selected) {
+          for (const { user, checkbox, existing } of changes) {
             if (!stillCurrent()) return;
-            const existing = current.find((grant) => grant.principal_id === userId);
-            if (existing?.allowed) continue;
-            const user = knownUsers.get(userId);
+            const allowed = checkbox.checked;
+            if (allowed && !user.active) {
+              failures.push(`${user.username}：账号已停用，不能新增授权`);
+              continue;
+            }
             try {
-              await request('/api/admin/grants', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({resource_kind:'library',resource_id:library.resource_id,user_id:userId,allowed:true,expected_revision:existing?.revision ?? 0})});
+              await request('/api/admin/grants', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({resource_kind:'library',resource_id:library.resource_id,user_id:user.user_id,allowed,expected_revision:existing?.revision ?? 0})});
               if (!stillCurrent()) return;
-              changed.push(userId);
+              changed.push({user_id:user.user_id, allowed});
+              window.dispatchEvent(new CustomEvent('wenjin-grants-changed', {detail:{user_ids:[user.user_id], library_id:library.resource_id, allowed}}));
             } catch (error) {
-              if (!stillCurrent() || error.status === 0 || error.stale || error.status === 401) return;
-              failures.push(`${user?.username || '所选用户'}：${error.message}`);
+              if (error.stale) {
+                // 账号已切换时不再发布旧账号授权详情；已提交的迟到写入只要求新账号刷新目录。
+                if (error.responseOk) window.dispatchEvent(new CustomEvent('wenjin-access-catalog-invalidated'));
+                return;
+              }
+              if (!stillCurrent()) return;
+              if (error.status === 401) {
+                failures.push(`${user.username}：登录会话已失效，请重新登录后刷新授权清单`);
+                break;
+              }
+              failures.push(`${user.username}：${error.status === 409 ? '授权已被其他管理员更新，请刷新后核对' : error.message || '保存失败'}`);
+              if (!error.status || error.status === 0) break;
             }
           }
           if (!stillCurrent()) return;
-          window.dispatchEvent(new CustomEvent('wenjin-grants-changed', {detail:{user_ids:changed, library_id:library.resource_id}}));
-          $('#identity-grants-status').textContent = failures.length
-            ? `部分授权未保存：${failures.join('；')}。页面已重新读取服务端授权状态。`
-            : changed.length ? `已为${changed.length}位用户授予读取权限。` : '所选用户已拥有此资料库读取权限。';
+          let reloadError = null;
+          try { await loadAdmin(); } catch (error) { reloadError = error; }
+          if (!stillCurrent()) return;
+          if (reloadError) {
+            refreshFailed = true;
+            $('#identity-grants-status').textContent = `授权操作已结束，但未能重新读取服务端状态（${reloadError.message}）；当前清单已锁定，请刷新后再编辑。`;
+            for (const { checkbox } of checkboxRows) checkbox.disabled = true;
+            save.disabled = true; cancel.disabled = true;
+          } else if (failures.length) {
+            $('#identity-grants-status').textContent = `部分授权未保存：${failures.join('；')}。已重新读取服务端当前状态。`;
+          } else {
+            $('#identity-grants-status').textContent = changed.length
+              ? `已保存 ${changed.length} 项普通用户授权修改，并刷新了服务端状态。`
+              : '没有需要保存的授权修改。';
+          }
         } finally {
-          grantButton.disabled = false;
-          if (stillCurrent()) await loadAdmin();
+          if (stillCurrent() && !refreshFailed) {
+            for (const { user, checkbox, initial } of checkboxRows) checkbox.disabled = !user.active && !initial;
+            cancel.disabled = false;
+            updateGrantButtons();
+          }
         }
       });
-      details.append(form, accessList);
-      permissionCell.append(details);
-      tableRow.append(libraryCell, permissionCell);
-      grantBody.append(tableRow);
+      actions.append(save, cancel);
+      card.append(actions);
+      grantHost.append(card);
     }
-    if (!libraryRows.length) grantHost.textContent = '当前没有活动资料库资源。';
-    else { grantTable.append(grantBody); grantHost.append(grantTable); }
+    if (!libraryRows.length) grantHost.append(Object.assign(document.createElement('p'), {className:'privacy-note',textContent:'当前没有活动资料库资源。'}));
     const auditHost = $('#identity-audit'); auditHost.replaceChildren();
     const auditTable = document.createElement('table'); auditTable.className = 'data-table';
     auditTable.innerHTML = '<thead><tr><th>时间</th><th>操作者</th><th>动作</th><th>目标</th><th>结果/摘要</th></tr></thead>';
@@ -374,17 +595,90 @@
       await loginPrompt();
     }
     $('#credential-form').onsubmit = async (event) => {
-      event.preventDefault(); const form = new FormData(event.currentTarget);
-      const result = await request('/api/auth/credentials', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({label:form.get('label'),expires_in_seconds:Number(form.get('expires')) || null})});
-      $('#credential-reveal').textContent = result.credential.token;
-      $('#credential-reveal').classList.remove('hidden'); event.currentTarget.reset(); await loadCredentials();
+      event.preventDefault();
+      if (state.personalCredentialPending || !state.user) return;
+      const formElement = event.currentTarget; const form = new FormData(formElement);
+      const button = formElement.querySelector('button'); const generation = state.generation;
+      state.personalCredentialPending = true; button.disabled = true;
+      $('#credential-status').textContent = '正在签发个人 MCP 凭据…';
+      try {
+        const result = await request('/api/auth/credentials', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({label:form.get('label'),expires_in_seconds:Number(form.get('expires')) || null})});
+        if (generation !== state.generation || !state.user) return;
+        showCredentialDelivery('credential', result.credential, state.user.username, form.get('label'));
+        formElement.reset();
+        const loaded = await loadCredentials();
+        if (generation !== state.generation) return;
+        $('#credential-status').textContent = loaded
+          ? '凭据已签发，列表已刷新。完整凭据只显示在上方交付区。'
+          : '凭据已签发，但列表刷新失败；上方的一次性交付区仍保留完整凭据，可点“刷新列表”重试。';
+      } catch (error) {
+        if (!error.stale && generation === state.generation) $('#credential-status').textContent = `签发失败：${error.message}`;
+      } finally {
+        if (generation === state.generation) { state.personalCredentialPending = false; button.disabled = false; }
+      }
     };
+    $('#credential-copy').onclick = () => copyCredential('credential');
+    $('#credential-hide').onclick = () => clearCredentialDelivery('credential');
+    $('#credential-refresh').onclick = async () => {
+      const button = $('#credential-refresh'); button.disabled = true;
+      await loadCredentials();
+      if (state.user) button.disabled = false;
+    };
+    $('#admin-credential-user').addEventListener('change', () => {
+      state.adminCredentialSelectionRevision += 1;
+      state.adminCredentialListRevision += 1;
+      clearCredentialDelivery('admin-credential');
+      $('#admin-credential-status').textContent = '';
+      $('#admin-user-credentials').replaceChildren();
+      updateAdminCredentialTarget();
+      if ($('#admin-credential-user').value) loadAdminCredentials().catch(() => {});
+    });
+    $('#admin-credential-form').onsubmit = async (event) => {
+      event.preventDefault();
+      if (state.adminCredentialPending || state.user?.role !== 'admin') return;
+      const userId = $('#admin-credential-user').value;
+      const user = state.users.find((item) => item.user_id === userId);
+      if (!user || !user.active || user.must_change_password) { updateAdminCredentialTarget(); return; }
+      const formElement = event.currentTarget; const form = new FormData(formElement);
+      const button = formElement.querySelector('button');
+      const generation = state.generation; const selectionRevision = state.adminCredentialSelectionRevision;
+      state.adminCredentialPending = true; $('#admin-credential-user').disabled = true; updateAdminCredentialTarget();
+      $('#admin-credential-status').textContent = `正在为 ${user.username} 签发 MCP 凭据…`;
+      try {
+        const result = await request(`/api/admin/users/${encodeURIComponent(userId)}/credentials`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({label:form.get('label'),expires_in_seconds:Number(form.get('expires')) || null})});
+        if (generation !== state.generation || state.user?.role !== 'admin') return;
+        if (selectionRevision !== state.adminCredentialSelectionRevision || $('#admin-credential-user').value !== userId) {
+          $('#admin-credential-status').textContent = '签发请求已结束，但所属用户已切换，出于安全原因未显示完整凭据。如需确认，请回到原用户列表检查并按需撤销，再重新签发。';
+          return;
+        }
+        showCredentialDelivery('admin-credential', result.credential, user.username, form.get('label'));
+        formElement.reset();
+        const loaded = await loadAdminCredentials(userId);
+        if (generation !== state.generation || selectionRevision !== state.adminCredentialSelectionRevision || $('#admin-credential-user').value !== userId) return;
+        $('#admin-credential-status').textContent = loaded
+          ? `已为 ${user.username} 签发凭据，列表已刷新。完整凭据只显示在上方交付区。`
+          : `已为 ${user.username} 签发凭据，但列表刷新失败；上方的一次性交付区仍保留完整凭据，可点“刷新列表”重试。`;
+      } catch (error) {
+        if (!error.stale && generation === state.generation && selectionRevision === state.adminCredentialSelectionRevision) {
+          $('#admin-credential-status').textContent = `签发失败：${error.message}`;
+          if (error.status === 403 || error.status === 409) {
+            $('#admin-credential-target-note').textContent = `${user.username}当前不可签发。请检查账号是否停用或仍需完成首次密码修改；界面不会绕过服务端限制。`;
+          }
+        }
+      } finally {
+        if (generation === state.generation) { state.adminCredentialPending = false; $('#admin-credential-user').disabled = false; updateAdminCredentialTarget(); }
+      }
+    };
+    $('#admin-credential-copy').onclick = () => copyCredential('admin-credential');
+    $('#admin-credential-hide').onclick = () => clearCredentialDelivery('admin-credential');
+    $('#admin-credential-refresh').onclick = () => loadAdminCredentials().catch(() => {});
     $('#identity-logout').onclick = signOut;
     $('#identity-force-logout').onclick = signOut;
     $('#identity-password-form').addEventListener('submit', (event) => { event.currentTarget.elements.new_password.setCustomValidity(''); });
     document.querySelectorAll('[data-page="identity"]').forEach((button) => button.addEventListener('click', () => {
       loadCredentials().catch((error) => { $('#my-credentials').textContent = error.message; });
       loadAdmin().catch((error) => { $('#identity-audit').textContent = error.message; });
+      if ($('#admin-credential-user').value) loadAdminCredentials().catch(() => {});
     }));
     window.addEventListener('wenjin-managed-library-created', () => {
       if (state.user?.role === 'admin') loadAdmin().catch((error) => { $('#identity-grants-status').textContent = error.message; });
@@ -408,6 +702,8 @@
     },
     get sessionPolicy() { return state.sessionPolicy; },
     setClearPageState(callback) { state.clearPageState = callback; },
+    signOut,
+    switchAccount: signOut,
     async unauthorized() {
       if (state.reauth) return state.reauth;
       state.reauth = (async () => {

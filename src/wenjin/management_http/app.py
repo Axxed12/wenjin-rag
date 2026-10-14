@@ -71,6 +71,9 @@ from wenjin.management_http.identity_http import (
     grants as _identity_grants,
 )
 from wenjin.management_http.identity_http import (
+    library_classification as _identity_library_classification,
+)
+from wenjin.management_http.identity_http import (
     login as _identity_login,
 )
 from wenjin.management_http.identity_http import (
@@ -218,6 +221,7 @@ def _routes():
         Route("/api/admin/credentials/{credential_id:str}", _route(_identity_revoke_credential), methods=["DELETE"]),
         Route("/api/admin/resources", _route(_identity_resources), methods=["GET"]),
         Route("/api/admin/grants", _route(_identity_grants), methods=["POST"]),
+        Route("/api/admin/libraries/{library_id:str}/classification", _route(_identity_library_classification), methods=["GET", "PUT"]),
         Route("/api/admin/identity-audit", _route(_identity_audit), methods=["GET"]),
         Route("/api/mcp/libraries", _route(_mcp_libraries, access="mcp"), methods=["GET"]),
         Route("/api/mcp/files", _route(_mcp_file_list, access="mcp"), methods=["GET"]),

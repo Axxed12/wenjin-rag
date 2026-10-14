@@ -32,7 +32,7 @@ from wenjin.identity.policy import (
 )
 from wenjin.identity.tokens import issue_token, require_token_kind
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 DEFAULT_IDLE_SECONDS = 30 * 60
 DEFAULT_ABSOLUTE_SECONDS = 12 * 60 * 60
 _USERNAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{1,63}$")
@@ -78,6 +78,9 @@ class IdentityStore:
                     raise RuntimeError("身份数据库版本高于当前代码，拒绝降级打开")
                 if version == 0:
                     self._create_schema(connection)
+                    connection.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
+                elif version == 1:
+                    self._migrate_v1_to_v2(connection)
                     connection.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
                 connection.commit()
             except Exception:
@@ -171,6 +174,14 @@ class IdentityStore:
             );
             CREATE INDEX resource_grants_user_idx ON resource_grants(principal_kind, principal_id, allowed);
 
+            CREATE TABLE library_classifications (
+                library_id TEXT PRIMARY KEY,
+                classification TEXT NOT NULL CHECK(classification IN ('public','private')),
+                revision INTEGER NOT NULL CHECK(revision >= 1),
+                updated_at TEXT NOT NULL,
+                updated_by TEXT NOT NULL REFERENCES users(user_id)
+            );
+
             CREATE TABLE audit_events (
                 event_id TEXT PRIMARY KEY,
                 occurred_at TEXT NOT NULL,
@@ -189,6 +200,17 @@ class IdentityStore:
         for statement in schema.split(";"):
             if statement.strip():
                 connection.execute(statement)
+
+    @staticmethod
+    def _migrate_v1_to_v2(connection: sqlite3.Connection) -> None:
+        connection.execute(
+            "CREATE TABLE library_classifications ("
+            "library_id TEXT PRIMARY KEY,"
+            "classification TEXT NOT NULL CHECK(classification IN ('public','private')),"
+            "revision INTEGER NOT NULL CHECK(revision >= 1),"
+            "updated_at TEXT NOT NULL,"
+            "updated_by TEXT NOT NULL REFERENCES users(user_id))"
+        )
 
     @contextmanager
     def _transaction(self, *, write: bool = False) -> Iterator[sqlite3.Connection]:
@@ -820,6 +842,63 @@ class IdentityStore:
             expected_revision=expected_revision,
         )
 
+    def get_library_classification(self, library_id: str) -> dict | None:
+        """读取管理员维护的展示分类，不参与权限判断。"""
+        _resource_kind, library_id = self._resource("library", library_id)
+        with self._transaction() as connection:
+            row = connection.execute(
+                "SELECT classification,revision "
+                "FROM library_classifications WHERE library_id=?",
+                (library_id,),
+            ).fetchone()
+            return dict(row) if row is not None else None
+
+    def set_library_classification(
+        self, actor: Principal, *, library_id: str, classification: str,
+        expected_revision: int,
+    ) -> dict:
+        """CAS更新展示分类并写审计；不创建/修改任何grant。"""
+        _resource_kind, library_id = self._resource("library", library_id)
+        if not isinstance(classification, str) or classification not in {"public", "private"}:
+            raise ValueError("资料库分类只能是public或private")
+        if (not isinstance(expected_revision, int) or isinstance(expected_revision, bool)
+                or expected_revision < 0):
+            raise ValueError("expected_revision必须是非负整数")
+        now = self._stamp(self._now())
+        with self._transaction(write=True) as connection:
+            admin = self._require_admin(connection, actor)
+            row = connection.execute(
+                "SELECT classification,revision FROM library_classifications WHERE library_id=?",
+                (library_id,),
+            ).fetchone()
+            current_revision = int(row["revision"]) if row else 0
+            if current_revision != expected_revision:
+                raise Conflict("资料库分类已变化，请刷新后重试")
+            revision = current_revision + 1
+            connection.execute(
+                "INSERT INTO library_classifications(library_id,classification,revision,updated_at,updated_by) "
+                "VALUES(?,?,?,?,?) ON CONFLICT(library_id) DO UPDATE SET "
+                "classification=excluded.classification,revision=excluded.revision,"
+                "updated_at=excluded.updated_at,updated_by=excluded.updated_by",
+                (library_id, classification, revision, now, admin["user_id"]),
+            )
+            self._event(
+                connection, admin["user_id"], "library_classification_changed", "library", library_id,
+                metadata={
+                    "classification": classification,
+                    "previous_classification": row["classification"] if row else None,
+                    "previous_revision": current_revision,
+                    "revision": revision,
+                },
+            )
+            return {
+                "library_id": library_id,
+                "classification": classification,
+                "revision": revision,
+                "updated_at": now,
+                "updated_by": admin["user_id"],
+            }
+
     def _set_grant(
         self, actor: Principal, *, resource_kind: str, resource_id: str,
         principal_kind: str, principal_id: str, allowed: bool, expected_revision: int,
@@ -975,6 +1054,8 @@ class AccessSnapshot:
         key = (resource_kind, resource_id)
         if key not in self.active_resources:
             return False
+        if self.principal.role == "admin":
+            return True
         specific = self.grants.get((resource_kind, resource_id, "user"))
         if specific is not None:
             # 明确拒绝优先于“所有已认证账户”授权。
@@ -985,6 +1066,8 @@ class AccessSnapshot:
         """文件精确allow/deny优先；缺少文件规则才继承库授权。"""
         if ("managed_file", file_id) not in self.active_resources:
             return False
+        if self.principal.role == "admin":
+            return True
         for principal_kind in ("user", "authenticated"):
             exact = self.grants.get(("managed_file", file_id, principal_kind))
             if exact is not None:

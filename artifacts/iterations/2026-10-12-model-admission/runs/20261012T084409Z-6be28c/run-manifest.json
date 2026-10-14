@@ -1,0 +1,102 @@
+{
+  "run_id": "20261012T084409Z-6be28c",
+  "project": "wenjin-concurrency-40157423",
+  "started_utc": "2026-10-12T08:45:28.581209+00:00",
+  "source_tree_sha256": "c0aa7dfcdb151c0f7f957a66b889bb3ba1406c4ffa1f3d5e671d6b7154f5a674",
+  "runner_sha256": "94158d6b49964c45ff2cec4044b13ec061feab5f3bb47e4de137b50443865625",
+  "compose_file_sha256": {
+    "compose.base.yaml": "8012f190e5cc5811ab71bdf6b045f88cf9696f350430dead769148e1c2cfa496",
+    "compose.local.yaml": "dad72a13b0101aafe24e5747679d6958d08f9111e178f1ad50893511b99bb585",
+    "compose.model-node.yaml": "8a0e7313ef87a2106e6ddd12d55f78a6f5487dbcb198994f5b199d9984064f32"
+  },
+  "images": {
+    "backend": "sha256:53e2dacc8798c137e0421b616219b9025143f944003e6d51f3b0d3e5c2d6a066",
+    "model_node": "sha256:c9d4e5172eca901fcec1d3389c8c119183eacd8b8788e4a3fbb8838dc2fdca3e"
+  },
+  "runtime_source_attestation": [
+    {
+      "service": "management",
+      "wenjin_file": "/app/src/wenjin/__init__.py",
+      "source_root": "/app/src",
+      "sha256": "c0aa7dfcdb151c0f7f957a66b889bb3ba1406c4ffa1f3d5e671d6b7154f5a674",
+      "matches_host_source": true
+    },
+    {
+      "service": "mcp",
+      "wenjin_file": "/app/src/wenjin/__init__.py",
+      "source_root": "/app/src",
+      "sha256": "c0aa7dfcdb151c0f7f957a66b889bb3ba1406c4ffa1f3d5e671d6b7154f5a674",
+      "matches_host_source": true
+    },
+    {
+      "service": "model-node",
+      "wenjin_file": "/app/src/wenjin/__init__.py",
+      "source_root": "/app/src",
+      "sha256": "c0aa7dfcdb151c0f7f957a66b889bb3ba1406c4ffa1f3d5e671d6b7154f5a674",
+      "matches_host_source": true
+    }
+  ],
+  "model_identity": {
+    "embedding_model_id": "Qwen3-Embedding-0.6B",
+    "embedding_asset_sha256": "5ae1f47974e5cf691019d4e5dd1bcd898bd3af4988cec056a01eebef2617ae5b",
+    "reranker_model_id": "Qwen3-Reranker-0.6B",
+    "reranker_asset_sha256": "6ad4361283792c8ecdadb5fb5d7e3ed34866dc869238d76ea4c66a3531525a99",
+    "implementation_sha256": "246afbaea64502d9b02b7ee4dc5b0d78e3419f971994564df30af9f7e1d64310",
+    "admission": {
+      "active": 1,
+      "max_waiting": 8,
+      "max_wait_seconds": 30.0
+    }
+  },
+  "settings": {
+    "model_read_seconds": 90,
+    "queue_waiting": 8,
+    "queue_wait_seconds": 30,
+    "management_bridge_read_seconds": 210
+  },
+  "weights_read_only": true,
+  "one_gpu_model_node": true,
+  "fixture": {
+    "shared": {
+      "library": "synthetic-concurrency",
+      "version": "1.0",
+      "corpus_id": "synthetic-concurrency-1.0",
+      "target_id": "synthetic-concurrency-1.0-target",
+      "collection": "concurrency_shared_v1",
+      "marker": "synthetic_concurrency_evidence_only",
+      "raw_sha256": "14a5bbd12e5776beb3820d6c42338dbc215987ff863c60b20ef63de831ea2bba",
+      "manifest_sha256": "91e7532c786de15d66b0511a6370515813ed095e59eda856ebcc9efab7f33816",
+      "registry_sha256": "e6bb2cce8534914f6517b5c5d77fe93f7b4e083e0a65721f22f4ca3945289961",
+      "vector_dimension": 1024,
+      "fixture": "synthetic; real remote embedding; Qdrant belongs to current temporary compose project"
+    },
+    "managed": {
+      "file_id": "40632945b7a64f57935bbcf9a602854d",
+      "library_id": "managed-6892b2bee0d1",
+      "version_id": "5354c5bc7e924ec2a2789bee2d0ed441",
+      "marker": "synthetic_managed_admission_v1",
+      "content_sha256": "8e3975562a7ebc749bd4f858e5f471e0be6aa33df85392f736bc474da74f7bfd",
+      "grant_results": [
+        {
+          "resource_kind": "library",
+          "resource_id_sha256": "4a1a1a169ebc6e36eb0a01dc1ebdfd164a975db2a9b72486cb8f1b40c05fd272",
+          "allowed": true,
+          "revision": 1
+        },
+        {
+          "resource_kind": "library",
+          "resource_id_sha256": "bb3d9b84df9f232afac089b68642955ece731ae8224bb84265efabf83062de44",
+          "allowed": true,
+          "revision": 1
+        },
+        {
+          "resource_kind": "managed_file",
+          "resource_id_sha256": "2a1c2f0e93089f74fbb4923c9e77112029ac0bfc4842c137dc2155b842e2af24",
+          "allowed": true,
+          "revision": 1
+        }
+      ]
+    }
+  },
+  "protocol": "2025-11-25"
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import re
 import sys
@@ -12,6 +13,7 @@ from urllib.parse import urlencode
 
 from fastmcp import Context, FastMCP
 from fastmcp.server.dependencies import get_http_headers, get_http_request
+from fastmcp.tools import ToolResult
 
 from wenjin.access import AccessDenied, AccessRegistry, AccessSnapshotError, load_snapshot
 from wenjin.auth import TRUSTED_CLIENT_HEADER_NAME
@@ -21,13 +23,16 @@ from wenjin.identity.mcp_auth import identity_from_context, managed_bridge_heade
 from wenjin.index_audit import preflight_target
 from wenjin.index_registry import IndexTarget, resolve_project_path
 from wenjin.mcp.managed_client import (
+    ManagedBridgeReadTimeout,
     ManagedFileConflict,
     ManagedFileHTTPClient,
     ManagedFileServiceError,
+    ManagedModelProviderError,
     require_managed_file_access,
     visible_managed_files,
 )
 from wenjin.mcp.runtime import EXPECTED_PROTOCOL_VERSION, RuntimeIdentity
+from wenjin.models.providers import ModelProviderError, model_provider_error_detail
 from wenjin.releases.resolver import release_corpus_entry
 from wenjin.retrieval.router import normalize_library
 from wenjin.retrieval.search_policy import SearchPolicy
@@ -43,6 +48,29 @@ if not catalog_logger.handlers:
 
 security_logger = logging.getLogger("wenjin.security")
 
+
+def _model_tool_error(code: str, query: str, *, request_id: str | None = None) -> ToolResult:
+    """以MCP工具错误语义返回稳定码和无证据payload，不伪装成空结果。"""
+    payload: dict[str, Any] = {
+        "error": code,
+        "detail": (
+            "管理服务读取超时，请稍后重试"
+            if code == "management_bridge_read_timeout"
+            else model_provider_error_detail(code)
+        ),
+        "query": query,
+        "evidence": [],
+        "evidence_status": "not_retrieved",
+        "answer_status": "not_generated",
+        "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
+    }
+    if request_id:
+        payload["request_id"] = request_id
+    # FastMCP ToolResult同时生成MCP isError=true和structuredContent。
+    serialized = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+    return ToolResult(content=serialized, structured_content=payload, is_error=True)
+
+
 def log_identity_problems(report) -> None:
     """把被隔离的目录写进服务端日志；这是网络接口**不**外发它们之后的可见性出口。
 
@@ -53,13 +81,16 @@ def log_identity_problems(report) -> None:
     for problem in report.problems:
         try:
             catalog_logger.warning(
-                "语料身份无法确定，已隔离：%s reason=%s visibility=%s declared_id=%s "
-                "detail=%s",
-                problem.location, problem.reason, problem.visibility,
-                problem.declared_id, problem.detail,
+                "语料身份无法确定，已隔离：%s reason=%s visibility=%s declared_id=%s detail=%s",
+                problem.location,
+                problem.reason,
+                problem.visibility,
+                problem.declared_id,
+                problem.detail,
             )
         except Exception:  # noqa: BLE001 - 日志失败不影响工具可用性，见 docstring
             pass
+
 
 def policy_unavailable(exc: Exception, *, tool: str) -> str:
     """记下策略快照加载失败，返回**可以外发**的客户端说明。
@@ -71,12 +102,11 @@ def policy_unavailable(exc: Exception, *, tool: str) -> str:
     被隔离的身份只走服务端日志。
     """
     try:
-        security_logger.warning(
-            "访问策略快照加载失败，已整体拒绝：tool=%s error=%s", tool, exc
-        )
+        security_logger.warning("访问策略快照加载失败，已整体拒绝：tool=%s error=%s", tool, exc)
     except Exception:  # noqa: BLE001 - 日志失败不能把一次拒绝变成崩溃
         pass
     return "访问策略不可用，已拒绝本次请求"
+
 
 def client_identity(*, bearer_enabled: bool) -> str | None:
     """取得已认证的客户端ID。
@@ -89,24 +119,34 @@ def client_identity(*, bearer_enabled: bool) -> str | None:
     if not bearer_enabled:
         return None
     # get_http_headers 要的是str，不是ASGI scope用的bytes。
-    return get_http_headers(include={TRUSTED_CLIENT_HEADER_NAME}).get(
-        TRUSTED_CLIENT_HEADER_NAME
-    )
+    return get_http_headers(include={TRUSTED_CLIENT_HEADER_NAME}).get(TRUSTED_CLIENT_HEADER_NAME)
+
 
 def register_tools(
-    mcp: FastMCP, *, root, raw_root_path, audit, access, access_dir,
-    bearer_enabled, identity, service, corpus_router, release_resolver, managed_bridge,
-    identity_store=None, search_policy_holder=None,
+    mcp: FastMCP,
+    *,
+    root,
+    raw_root_path,
+    audit,
+    access,
+    access_dir,
+    bearer_enabled,
+    identity,
+    service,
+    corpus_router,
+    release_resolver,
+    managed_bridge,
+    identity_store=None,
+    search_policy_holder=None,
 ) -> tuple[Any, Any]:
     search_policy_holder = search_policy_holder or {
-        "value": getattr(service, "search_policy", None) or SearchPolicy(
-            reranker_enabled=getattr(service, "reranker", None) is not None
-        )
+        "value": getattr(service, "search_policy", None)
+        or SearchPolicy(reranker_enabled=getattr(service, "reranker", None) is not None)
     }
+
     def current_access() -> AccessRegistry:
         """每个请求开始取一份完整策略快照；注入的注册表直接沿用。"""
         return access if access is not None else load_snapshot(access_dir)
-
 
     def current_release_resolver(ctx: Context | None = None):
         resolver = release_resolver() if callable(release_resolver) else release_resolver
@@ -117,11 +157,9 @@ def register_tools(
                 resolver = None
         return resolver
 
-
     def current_release_request(ctx: Context | None = None):
         resolver = current_release_resolver(ctx)
         return resolver.begin_request() if resolver is not None else None
-
 
     def sources_for(corpus_id: str, *, release_id: str | None = None) -> CorpusSources:
         """按语料身份找manifest，建立登记记录视图。"""
@@ -137,7 +175,6 @@ def register_tools(
             expected_corpus_id=corpus_id,
         )
 
-
     def current_service(ctx: Context | None):
         """本次请求的检索服务；不在这里新建，也不读注册表。"""
         runtime = service
@@ -147,7 +184,6 @@ def register_tools(
             runtime = ctx.lifespan_context["retrieval_service"]
         return runtime
 
-
     def current_router(ctx: Context | None):
         """本次请求的多语料路由；未配置时返回 None。"""
         if corpus_router is not None:
@@ -156,14 +192,12 @@ def register_tools(
             return None
         return ctx.lifespan_context.get("corpus_router")
 
-
     def current_managed_bridge(ctx: Context | None) -> ManagedFileHTTPClient | None:
         if managed_bridge is not None:
             return managed_bridge
         if ctx is None:
             return None
         return ctx.lifespan_context.get("managed_file_bridge")
-
 
     def request_principal(ctx: Context | None):
         if identity_store is None:
@@ -172,14 +206,12 @@ def register_tools(
             raise RuntimeError("account MCP请求缺少Context")
         return identity_from_context(ctx).principal
 
-
     def request_bridge_authorization(ctx: Context | None) -> str | None:
         if identity_store is None:
             return None
         if ctx is None:
             raise RuntimeError("account MCP请求缺少Context")
         return managed_bridge_headers(get_http_request().scope)["Authorization"]
-
 
     def authorized_library_ids(ctx: Context | None) -> set[str]:
         """通过当前个人凭据同步授权目录，并按本地最新grant筛选稳定library。"""
@@ -193,16 +225,19 @@ def register_tools(
         visible = set()
         for item in catalog:
             library_id = item.get("library_id")
-            if (isinstance(library_id, str)
-                    and identity_store.can_read(principal, "library", library_id)):
+            if isinstance(library_id, str) and identity_store.can_read(
+                principal, "library", library_id
+            ):
                 visible.add(normalize_library(library_id))
         return visible
 
-
     def effective_client_id(ctx: Context | None) -> str | None:
         principal = request_principal(ctx)
-        return principal.user_id if principal is not None else client_identity(bearer_enabled=bearer_enabled)
-
+        return (
+            principal.user_id
+            if principal is not None
+            else client_identity(bearer_enabled=bearer_enabled)
+        )
 
     def audit_session_id(ctx: Context | None) -> str | None:
         try:
@@ -212,7 +247,6 @@ def register_tools(
         if session_id and identity_store is not None:
             return hashlib.sha256(session_id.encode("utf-8")).hexdigest()[:16]
         return session_id
-
 
     def managed_unavailable(query: str, *, error: str = "file_not_available") -> dict:
         return {
@@ -229,11 +263,15 @@ def register_tools(
             "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
         }
 
-
     def search_managed_file(
-        *, file_id: str, query: str, version: str | None, top_k: int,
-        context_char_budget: int, ctx: Context | None,
-    ) -> dict:
+        *,
+        file_id: str,
+        query: str,
+        version: str | None,
+        top_k: int,
+        context_char_budget: int,
+        ctx: Context | None,
+    ) -> Any:
         started = time.perf_counter()
         session_id = audit_session_id(ctx)
         client_id = effective_client_id(ctx)
@@ -241,10 +279,15 @@ def register_tools(
 
         def finish(result: dict, *, error: Exception | None = None) -> dict:
             request_id = audit.record(
-                query=query, version=audit_version, top_k=top_k,
-                context_char_budget=context_char_budget, session_id=session_id,
-                client_id=client_id, elapsed_seconds=time.perf_counter() - started,
-                result=result if error is None else None, error=error,
+                query=query,
+                version=audit_version,
+                top_k=top_k,
+                context_char_budget=context_char_budget,
+                session_id=session_id,
+                client_id=client_id,
+                elapsed_seconds=time.perf_counter() - started,
+                result=result if error is None else None,
+                error=error,
             )
             result["request_id"] = request_id
             result["mcp_protocol"] = EXPECTED_PROTOCOL_VERSION
@@ -252,8 +295,10 @@ def register_tools(
 
         if not query.strip() or len(query) > 2000:
             return finish(
-                {**managed_unavailable(query, error="invalid_query"),
-                 "detail": "query长度必须在1到2000字符之间"},
+                {
+                    **managed_unavailable(query, error="invalid_query"),
+                    "detail": "query长度必须在1到2000字符之间",
+                },
                 error=ValueError("invalid managed query"),
             )
         if identity_store is None:
@@ -283,14 +328,27 @@ def register_tools(
             return finish(managed_unavailable(query), error=exc)
         except ManagedFileConflict as exc:
             return finish(
-                {**managed_unavailable(query, error="invalid_target"),
-                 "detail": "请求版本不是当前active版本，或检索参数无效"},
+                {
+                    **managed_unavailable(query, error="invalid_target"),
+                    "detail": "请求版本不是当前active版本，或检索参数无效",
+                },
                 error=exc,
             )
-        except (ManagedFileServiceError, OSError) as exc:
-            return finish(
-                managed_unavailable(query, error="unavailable"), error=exc
+        except (ManagedModelProviderError, ManagedBridgeReadTimeout) as exc:
+            result = finish(
+                {
+                    **managed_unavailable(query, error=exc.code),
+                    "detail": (
+                        "管理服务读取超时，请稍后重试"
+                        if isinstance(exc, ManagedBridgeReadTimeout)
+                        else model_provider_error_detail(exc.code)
+                    ),
+                },
+                error=exc,
             )
+            return _model_tool_error(exc.code, query, request_id=result.get("request_id"))
+        except (ManagedFileServiceError, OSError) as exc:
+            return finish(managed_unavailable(query, error="unavailable"), error=exc)
         managed_identity = result.get("managed_file", {})
         actual_version = managed_identity.get("version")
         version_id = managed_identity.get("version_id")
@@ -298,14 +356,12 @@ def register_tools(
             audit_version = actual_version
         if isinstance(version_id, str) and re.fullmatch(r"[0-9a-f]{32,64}", version_id):
             download_path = (
-                f"{DOWNLOAD_PREFIX}/managed/{file_id}?"
-                f"{urlencode({'version_id': version_id})}"
+                f"{DOWNLOAD_PREFIX}/managed/{file_id}?{urlencode({'version_id': version_id})}"
             )
             for evidence in result.get("evidence", []):
                 if isinstance(evidence, dict):
                     evidence["download_path"] = download_path
         return finish(result)
-
 
     def _index_state(entry, *, ctx: Context | None) -> dict:
         """这份语料的索引现在能不能用。
@@ -315,8 +371,11 @@ def register_tools(
         逐 target 做一次廉价预检（见 `preflight_target`），把两种状态分开报。
         """
         if not entry.index_targets:
-            return {"index_state": "no_index_config", "index_usable_targets": [],
-                    "index_failures": []}
+            return {
+                "index_state": "no_index_config",
+                "index_usable_targets": [],
+                "index_failures": [],
+            }
         configs = index_target_configs(root)
         try:
             client = current_service(ctx).qdrant_client
@@ -347,13 +406,11 @@ def register_tools(
             "index_failures": failures,
         }
 
-
     def request_identity(ctx: Context | None) -> RuntimeIdentity | None:
         """本次请求对应的索引身份；不在这里读注册表。"""
         if service is not None or ctx is None:
             return identity
         return ctx.lifespan_context.get("identity", identity)
-
 
     def forbidden(detail: str, *, corpus_id: str | None, query: str | None = None) -> dict:
         payload: dict[str, Any] = {
@@ -369,14 +426,21 @@ def register_tools(
             payload["query"] = query
         return payload
 
-
     def _search_routed(
-        *, query: str, library: str | None, version: str | None, target_id: str | None,
-        top_k: int, context_char_budget: int, ctx: Context | None,
-        client_id: str | None, session_id: str | None, started: float,
+        *,
+        query: str,
+        library: str | None,
+        version: str | None,
+        target_id: str | None,
+        top_k: int,
+        context_char_budget: int,
+        ctx: Context | None,
+        client_id: str | None,
+        session_id: str | None,
+        started: float,
         router_override=None,
         release_resolver_override=None,
-    ) -> dict:
+    ) -> Any:
         """多语料检索：按 library(+version) 或唯一 target_id 寻址，并按权限过滤。
 
         **先按权限过滤、再解析目标**。顺序反过来会有两处问题：一是会去实际查询无权读取
@@ -392,9 +456,13 @@ def register_tools(
             # 否则审计里"快照坏了"会伪装成一次普通的无权访问。`error` 只取类型名入行，
             # 正文不外发也不入日志行。
             audit.record(
-                query=query, version=version or "routed", top_k=top_k,
-                context_char_budget=context_char_budget, session_id=session_id,
-                client_id=client_id, elapsed_seconds=time.perf_counter() - started,
+                query=query,
+                version=version or "routed",
+                top_k=top_k,
+                context_char_budget=context_char_budget,
+                session_id=session_id,
+                client_id=client_id,
+                elapsed_seconds=time.perf_counter() - started,
                 error=error or AccessDenied(detail),
             )
             return forbidden(detail, corpus_id=None, query=query)
@@ -408,7 +476,8 @@ def register_tools(
                 visible_libraries = authorized_library_ids(ctx)
                 principal = request_principal(ctx)
                 allowed = [
-                    index for index in router.indices
+                    index
+                    for index in router.indices
                     if normalize_library(index.library) in visible_libraries
                     and identity_store.can_read(
                         principal, "library", normalize_library(index.library)
@@ -422,16 +491,19 @@ def register_tools(
             except AccessSnapshotError as exc:
                 return denied(policy_unavailable(exc, tool="search_docs"), error=exc)
             allowed = [
-                index for index in router.indices
+                index
+                for index in router.indices
                 if registry.check(index.corpus_identity, client_id)
             ]
         # 被权限挡掉的数量只进服务端审计：语料名本身就不该给无权方看到。
         if len(allowed) != len(router.indices):
             audit.record_dropped_evidence_details(
                 query=query,
-                dropped=[{"code": "not_authorized",
-                          "corpus_id": index.corpus_identity} for index in router.indices
-                         if index not in allowed],
+                dropped=[
+                    {"code": "not_authorized", "corpus_id": index.corpus_identity}
+                    for index in router.indices
+                    if index not in allowed
+                ],
                 client_id=client_id,
             )
         if not allowed:
@@ -458,9 +530,7 @@ def register_tools(
             if release_resolver_override is not None:
                 selected_indices = scoped._resolve_request(library, version, target_id)
                 materialized = release_resolver_override.materialize_indices(selected_indices)
-                replacements = {
-                    index.target_id: index for index in materialized
-                }
+                replacements = {index.target_id: index for index in materialized}
                 scoped = MultiCorpusRouter(
                     qdrant_client=router.qdrant_client,
                     embedder=router.embedder,
@@ -471,20 +541,37 @@ def register_tools(
                     search_lock=router.search_lock,
                 )
             result = scoped.search(
-                query, library=library, version=version, target_id=target_id,
-                config=active_policy.route_config(
-                    top_k, context_char_budget=context_char_budget
-                ),
+                query,
+                library=library,
+                version=version,
+                target_id=target_id,
+                config=active_policy.route_config(top_k, context_char_budget=context_char_budget),
             )
             result["retrieval_config"] = active_policy.public_config(
                 top_k, context_char_budget=context_char_budget
             )
+        except ModelProviderError as exc:
+            request_id = audit.record(
+                query=query,
+                version=version or "routed",
+                top_k=top_k,
+                context_char_budget=context_char_budget,
+                session_id=session_id,
+                client_id=client_id,
+                elapsed_seconds=time.perf_counter() - started,
+                error=exc,
+            )
+            return _model_tool_error(exc.code, query, request_id=request_id)
         except SourceContextIntegrityError as exc:
             # 来源信任失败是服务端安全问题，不是调用方目标用法错误；绝不回传路径/Hash详情。
             audit.record(
-                query=query, version=version or "routed", top_k=top_k,
-                context_char_budget=context_char_budget, session_id=session_id,
-                client_id=client_id, elapsed_seconds=time.perf_counter() - started,
+                query=query,
+                version=version or "routed",
+                top_k=top_k,
+                context_char_budget=context_char_budget,
+                session_id=session_id,
+                client_id=client_id,
+                elapsed_seconds=time.perf_counter() - started,
                 error=exc,
             )
             return {
@@ -498,9 +585,13 @@ def register_tools(
             }
         except ReleaseValidationError as exc:
             audit.record(
-                query=query, version=version or "routed", top_k=top_k,
-                context_char_budget=context_char_budget, session_id=session_id,
-                client_id=client_id, elapsed_seconds=time.perf_counter() - started,
+                query=query,
+                version=version or "routed",
+                top_k=top_k,
+                context_char_budget=context_char_budget,
+                session_id=session_id,
+                client_id=client_id,
+                elapsed_seconds=time.perf_counter() - started,
                 error=exc,
             )
             return {
@@ -529,20 +620,21 @@ def register_tools(
         # "某个语料里有个叫 X 的文件"本身就是机密。与 OSG 单库路径同一口径。
         details = result.pop("evidence_dropped_details", [])
         if details:
-            audit.record_dropped_evidence_details(
-                query=query, dropped=details, client_id=client_id
-            )
+            audit.record_dropped_evidence_details(query=query, dropped=details, client_id=client_id)
 
         request_id = audit.record(
-            query=query, version=version or "routed", top_k=top_k,
-            context_char_budget=context_char_budget, session_id=session_id,
-            client_id=client_id, elapsed_seconds=time.perf_counter() - started,
+            query=query,
+            version=version or "routed",
+            top_k=top_k,
+            context_char_budget=context_char_budget,
+            session_id=session_id,
+            client_id=client_id,
+            elapsed_seconds=time.perf_counter() - started,
             result=result,
         )
         result["request_id"] = request_id
         result["mcp_protocol"] = EXPECTED_PROTOCOL_VERSION
         return result
-
 
     @mcp.tool(
         name="search_docs",
@@ -564,7 +656,7 @@ def register_tools(
         target_id: str | None = None,
         file_id: str | None = None,
         ctx: Context | None = None,
-    ) -> dict:
+    ) -> Any:
         """检索证据；ctx只用于取得服务生命周期对象，不充当每请求协议身份。
 
         默认和显式指定 active OSG走active单库服务；library/target_id走多库路由；
@@ -607,10 +699,14 @@ def register_tools(
         try:
             request_release = current_release_request(ctx)
         except Exception as exc:
-            audit.record(
-                query=query, version=version or "release-catalog", top_k=top_k,
-                context_char_budget=context_char_budget, session_id=session_id,
-                client_id=client_id, elapsed_seconds=time.perf_counter() - started,
+            request_id = audit.record(
+                query=query,
+                version=version or "release-catalog",
+                top_k=top_k,
+                context_char_budget=context_char_budget,
+                session_id=session_id,
+                client_id=client_id,
+                elapsed_seconds=time.perf_counter() - started,
                 error=exc,
             )
             return {
@@ -625,8 +721,8 @@ def register_tools(
 
         current = request_identity(ctx)
         active_version = getattr(runtime, "supported_version", None)
-        active_target_id = current.target_id if current is not None else getattr(
-            runtime, "index_target_id", None
+        active_target_id = (
+            current.target_id if current is not None else getattr(runtime, "index_target_id", None)
         )
         active_library = None
         if current is not None:
@@ -675,8 +771,8 @@ def register_tools(
         active_target_requested = target_id is not None and target_id == active_target_id
         active_library_requested = False
         if library is not None and active_library is not None:
-            active_library_requested = (
-                normalize_library(library) == normalize_library(active_library)
+            active_library_requested = normalize_library(library) == normalize_library(
+                active_library
             )
 
         if active_target_requested and library is not None and not active_library_requested:
@@ -684,15 +780,23 @@ def register_tools(
                 "target_id 指向当前 active 索引时，library 必须与该索引所属资料库一致。"
             )
         if active_library_requested and target_id is not None and not active_target_requested:
-            return invalid_target(
-                "library 与 target_id 不能同时用于选择不同的索引目标。"
-            )
-        if not active_target_requested and not active_library_requested \
-                and (library is not None or target_id is not None):
+            return invalid_target("library 与 target_id 不能同时用于选择不同的索引目标。")
+        if (
+            not active_target_requested
+            and not active_library_requested
+            and (library is not None or target_id is not None)
+        ):
             return _search_routed(
-                query=query, library=library, version=version, target_id=target_id,
-                top_k=top_k, context_char_budget=context_char_budget,
-                ctx=ctx, client_id=client_id, session_id=session_id, started=started,
+                query=query,
+                library=library,
+                version=version,
+                target_id=target_id,
+                top_k=top_k,
+                context_char_budget=context_char_budget,
+                ctx=ctx,
+                client_id=client_id,
+                session_id=session_id,
+                started=started,
             )
 
         # 默认或显式选择当前 active 时都走单库服务，版本动态绑定到当前运行时。
@@ -715,23 +819,30 @@ def register_tools(
                 raise AccessDenied("无法确定服务对应的索引身份，拒绝检索")
             if identity_store is not None:
                 visible_libraries = authorized_library_ids(ctx)
-                if (active_library is None
-                        or normalize_library(active_library) not in visible_libraries):
+                if (
+                    active_library is None
+                    or normalize_library(active_library) not in visible_libraries
+                ):
                     raise AccessDenied("当前账号没有该资料库的读取授权")
             else:
                 current_access().require(corpus_id, client_id)
         except (AccessDenied, AccessSnapshotError) as exc:
             audit.record(
-                query=query, version=version, top_k=top_k,
-                context_char_budget=context_char_budget, session_id=session_id,
+                query=query,
+                version=version,
+                top_k=top_k,
+                context_char_budget=context_char_budget,
+                session_id=session_id,
                 client_id=client_id,
-                elapsed_seconds=time.perf_counter() - started, error=exc,
+                elapsed_seconds=time.perf_counter() - started,
+                error=exc,
             )
             # AccessDenied 说的是**本服务绑定**的那个语料，调用方本来就在跟它打交道，
             # 原样回；策略快照的异常带着别的语料身份，只能给通用说明。
             detail = (
                 policy_unavailable(exc, tool="search_docs")
-                if isinstance(exc, AccessSnapshotError) else str(exc)
+                if isinstance(exc, AccessSnapshotError)
+                else str(exc)
             )
             return forbidden(detail, corpus_id=corpus_id, query=query)
 
@@ -754,12 +865,18 @@ def register_tools(
                 top_k, context_char_budget=context_char_budget
             )
         except Exception as exc:
-            audit.record(
-                query=query, version=version, top_k=top_k,
-                context_char_budget=context_char_budget, session_id=session_id,
+            request_id = audit.record(
+                query=query,
+                version=version,
+                top_k=top_k,
+                context_char_budget=context_char_budget,
+                session_id=session_id,
                 client_id=client_id,
-                elapsed_seconds=time.perf_counter() - started, error=exc,
+                elapsed_seconds=time.perf_counter() - started,
+                error=exc,
             )
+            if isinstance(exc, ModelProviderError):
+                return _model_tool_error(exc.code, query, request_id=request_id)
             raise
 
         # 补取件链接；映射不到本语料的证据会被丢弃并单独报告，绝不重标成当前语料。
@@ -773,24 +890,28 @@ def register_tools(
                 query=query, dropped=attachment.dropped, client_id=client_id
             )
             audit.record(
-                query=query, version=version, top_k=top_k,
-                context_char_budget=context_char_budget, session_id=session_id,
+                query=query,
+                version=version,
+                top_k=top_k,
+                context_char_budget=context_char_budget,
+                session_id=session_id,
                 client_id=client_id,
                 elapsed_seconds=time.perf_counter() - started,
-                error=RuntimeError(
-                    f"{len(attachment.dropped)}条证据不属于当前语料，已丢弃"
-                ),
+                error=RuntimeError(f"{len(attachment.dropped)}条证据不属于当前语料，已丢弃"),
             )
         request_id = audit.record(
-            query=query, version=version, top_k=top_k,
-            context_char_budget=context_char_budget, session_id=session_id,
+            query=query,
+            version=version,
+            top_k=top_k,
+            context_char_budget=context_char_budget,
+            session_id=session_id,
             client_id=client_id,
-            elapsed_seconds=time.perf_counter() - started, result=result,
+            elapsed_seconds=time.perf_counter() - started,
+            result=result,
         )
         result["request_id"] = request_id
         result["mcp_protocol"] = EXPECTED_PROTOCOL_VERSION
         return result
-
 
     @mcp.tool(
         name="list_corpora",
@@ -823,9 +944,13 @@ def register_tools(
             try:
                 registry = current_access()
             except AccessSnapshotError as exc:
-                return {"corpora": [], "count": 0, "error": "unavailable",
-                        "detail": policy_unavailable(exc, tool="list_corpora"),
-                        "mcp_protocol": EXPECTED_PROTOCOL_VERSION}
+                return {
+                    "corpora": [],
+                    "count": 0,
+                    "error": "unavailable",
+                    "detail": policy_unavailable(exc, tool="list_corpora"),
+                    "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
+                }
         report = corpus_catalog_report(root)
         log_identity_problems(report)
         request_release = current_release_request(ctx)
@@ -839,7 +964,8 @@ def register_tools(
                 for index in (request_release.router.indices if request_release.router else [])
             }
             entry_by_corpus = {
-                corpus_id: entry for corpus_id, entry in entry_by_corpus.items()
+                corpus_id: entry
+                for corpus_id, entry in entry_by_corpus.items()
                 if corpus_id in active_corpus_ids
             }
         if request_release is not None:
@@ -876,20 +1002,26 @@ def register_tools(
                         str(release_record["target"]["target_id"])
                     )
                     current_release_resolver(ctx).materialize_indices([index])
-                    payload.update({
-                        "index_state": "usable",
-                        "index_usable_targets": [index.target_id],
-                        "index_failures": [],
-                    })
+                    payload.update(
+                        {
+                            "index_state": "usable",
+                            "index_usable_targets": [index.target_id],
+                            "index_failures": [],
+                        }
+                    )
                 except Exception:
-                    payload.update({
-                        "index_state": "unusable",
-                        "index_usable_targets": [],
-                        "index_failures": [{
-                            "target_id": release_record["target"]["target_id"],
-                            "reason": "release_validation_failed",
-                        }],
-                    })
+                    payload.update(
+                        {
+                            "index_state": "unusable",
+                            "index_usable_targets": [],
+                            "index_failures": [
+                                {
+                                    "target_id": release_record["target"]["target_id"],
+                                    "reason": "release_validation_failed",
+                                }
+                            ],
+                        }
+                    )
             entries.append(payload)
         usable = sum(1 for item in entries if item["index_state"] == "usable")
         return {
@@ -914,7 +1046,6 @@ def register_tools(
             "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
         }
 
-
     @mcp.tool(
         name="list_managed_files",
         description=(
@@ -929,7 +1060,9 @@ def register_tools(
         bridge = current_managed_bridge(ctx)
         if bridge is None:
             return {
-                "files": [], "count": 0, "error": "unavailable",
+                "files": [],
+                "count": 0,
+                "error": "unavailable",
                 "detail": "managed文件服务暂不可用",
                 "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
             }
@@ -940,17 +1073,19 @@ def register_tools(
                 registry = current_access()
                 files = visible_managed_files(bridge, registry, client_id)
         except AccessSnapshotError as exc:
-            logging.getLogger(__name__).error(
-                "managed文件访问策略不可用：%s", type(exc).__name__
-            )
+            logging.getLogger(__name__).error("managed文件访问策略不可用：%s", type(exc).__name__)
             return {
-                "files": [], "count": 0, "error": "unavailable",
+                "files": [],
+                "count": 0,
+                "error": "unavailable",
                 "detail": "managed文件访问策略暂不可用",
                 "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
             }
         except ManagedFileServiceError:
             return {
-                "files": [], "count": 0, "error": "unavailable",
+                "files": [],
+                "count": 0,
+                "error": "unavailable",
                 "detail": "managed文件服务暂不可用",
                 "mcp_protocol": EXPECTED_PROTOCOL_VERSION,
             }

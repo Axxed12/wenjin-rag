@@ -7,6 +7,7 @@ FileManagementService，因为同一项目root的管理器受单进程锁保护�
 from __future__ import annotations
 
 import ipaddress
+import math
 import os
 import re
 from dataclasses import dataclass
@@ -16,6 +17,36 @@ import httpx
 
 DEFAULT_MANAGEMENT_URL = "http://127.0.0.1:8777"
 _FILE_ID_RE = re.compile(r"^[0-9a-f]{32}$")
+
+
+def _bridge_timeout_from_environment() -> httpx.Timeout:
+    """受管桥read预算不能先于remote模型client的单次read预算耗尽。"""
+
+    def configured(name: str, default: float, maximum: float) -> float:
+        raw = os.getenv(name, str(default))
+        try:
+            value = float(raw)
+        except ValueError:
+            raise ManagedFileServiceError("文件管理桥接超时配置无效") from None
+        if not 0 < value <= maximum:
+            raise ManagedFileServiceError("文件管理桥接超时配置无效")
+        return value
+
+    read_timeout = configured("WENJIN_FILE_MANAGEMENT_READ_TIMEOUT_SECONDS", 210.0, 600.0)
+    if os.getenv("WENJIN_MODEL_PROVIDER", "local").strip() == "remote":
+        try:
+            model_read_timeout = float(os.getenv("WENJIN_MODEL_API_TIMEOUT_SECONDS", "90"))
+        except ValueError:
+            raise ManagedFileServiceError("模型服务读取超时配置无效") from None
+        if not math.isfinite(model_read_timeout) or not 0 < model_read_timeout <= 300:
+            raise ManagedFileServiceError("模型服务读取超时配置无效")
+        if read_timeout <= model_read_timeout:
+            raise ManagedFileServiceError("管理桥读取预算必须大于模型服务读取预算")
+    return httpx.Timeout(
+        read_timeout,
+        connect=configured("WENJIN_FILE_MANAGEMENT_CONNECT_TIMEOUT_SECONDS", 5.0, 60.0),
+        pool=configured("WENJIN_FILE_MANAGEMENT_POOL_TIMEOUT_SECONDS", 5.0, 60.0),
+    )
 
 
 class ManagedFileServiceError(RuntimeError):
@@ -32,6 +63,20 @@ class ManagedFileForbidden(ManagedFileServiceError):
 
 class ManagedFileUnauthorized(ManagedFileServiceError):
     """透传credential在桥接请求时已失效。"""
+
+
+class ManagedModelProviderError(ManagedFileServiceError):
+    """管理搜索下游模型服务的稳定错误码。"""
+
+    def __init__(self, code: str) -> None:
+        self.code = code
+        super().__init__(code)
+
+
+class ManagedBridgeReadTimeout(ManagedFileServiceError):
+    """MCP到管理服务的读取超时，与模型排队超时分开报告。"""
+
+    code = "management_bridge_read_timeout"
 
 
 @dataclass(frozen=True)
@@ -79,8 +124,11 @@ class ManagedFile:
             version_id=version_id,
             chunk_count=chunk_count,
             updated_at=updated_at,
-            library_id=(value.get("library_id") if isinstance(value.get("library_id"), str)
-                        else "managed-files"),
+            library_id=(
+                value.get("library_id")
+                if isinstance(value.get("library_id"), str)
+                else "managed-files"
+            ),
         )
 
     def to_dict(self) -> dict:
@@ -113,7 +161,7 @@ class ManagedFileHTTPClient:
         account_mode: bool = False,
         allow_private_http: bool = False,
         client: httpx.Client | None = None,
-        timeout: httpx.Timeout | float = 60.0,
+        timeout: httpx.Timeout | float = httpx.Timeout(210.0, connect=5.0, pool=5.0),
     ) -> None:
         normalized = base_url.strip().rstrip("/")
         if not normalized.startswith(("http://", "https://")):
@@ -148,6 +196,7 @@ class ManagedFileHTTPClient:
         if not account_mode and not token:
             raise ManagedFileServiceError("文件管理桥接未配置服务端凭据")
         base_url = os.getenv("WENJIN_FILE_MANAGEMENT_URL", DEFAULT_MANAGEMENT_URL)
+        timeout = _bridge_timeout_from_environment()
         # 仅部署者显式声明内部私网拓扑时放行服务间明文HTTP；不根据hostname猜测可信。
         allow_private_http = (
             os.getenv("WENJIN_FILE_MANAGEMENT_ALLOW_PRIVATE_HTTP", "").strip() == "1"
@@ -158,6 +207,7 @@ class ManagedFileHTTPClient:
                 token,
                 account_mode=account_mode,
                 allow_private_http=allow_private_http,
+                timeout=timeout,
             )
         except ValueError as exc:
             raise ManagedFileServiceError("文件管理桥接配置无效") from exc
@@ -175,6 +225,8 @@ class ManagedFileHTTPClient:
             kwargs["headers"] = {**kwargs.get("headers", {}), "Authorization": authorization}
         try:
             response = self._client.request(method, f"{self.base_url}{path}", **kwargs)
+        except httpx.ReadTimeout as exc:
+            raise ManagedBridgeReadTimeout("management_bridge_read_timeout") from exc
         except httpx.HTTPError as exc:
             raise ManagedFileServiceError("文件管理服务暂不可用") from exc
         if response.status_code == 401:
@@ -187,6 +239,14 @@ class ManagedFileHTTPClient:
             raise ManagedFileConflict("managed文件版本或检索参数与当前状态不匹配")
         if response.status_code == 422:
             raise ManagedFileConflict("managed文件检索参数无效")
+        if response.status_code == 503:
+            try:
+                payload = response.json()
+            except ValueError:
+                payload = None
+            code = payload.get("error") if isinstance(payload, dict) else None
+            if isinstance(code, str) and re.fullmatch(r"model_[a-z0-9_]{1,80}", code):
+                raise ManagedModelProviderError(code)
         if not response.is_success:
             raise ManagedFileServiceError("文件管理服务请求失败")
         return response
@@ -240,8 +300,11 @@ class ManagedFileHTTPClient:
             payload["version"] = version
         if self.account_mode:
             current = next(
-                (item for item in self.list_files(authorization=authorization)
-                 if item.file_id == file_id),
+                (
+                    item
+                    for item in self.list_files(authorization=authorization)
+                    if item.file_id == file_id
+                ),
                 None,
             )
             if current is None:

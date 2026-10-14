@@ -1,0 +1,13 @@
+{
+  "source_sha256": "c0aa7dfcdb151c0f7f957a66b889bb3ba1406c4ffa1f3d5e671d6b7154f5a674",
+  "live_source_sha256": "c0aa7dfcdb151c0f7f957a66b889bb3ba1406c4ffa1f3d5e671d6b7154f5a674",
+  "runner_sha256": "94158d6b49964c45ff2cec4044b13ec061feab5f3bb47e4de137b50443865625",
+  "docker_compose_config_checked": true,
+  "services_started": false,
+  "model_weights_read_only": true,
+  "gpu_free_mib": 10259,
+  "host_free_ram_mib": 11693,
+  "recorded_utc": "2026-10-12",
+  "runner_scope": "single shared, single managed, one simultaneous mixed pair, auth/version/evidence, query scheduling with ingest, and post-ingest MCP readback; no load matrix",
+  "query_ingest_competition_claim": "client scheduling/HTTP interval only; no server-side queue wait or actual model inference competition observed"
+}

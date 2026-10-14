@@ -288,28 +288,90 @@ async def synchronize_resources(request: Request):
     await run_in_threadpool(store.synchronize_resource_catalog, active)
 
 
-async def visible_catalog(request: Request, catalog: dict) -> dict:
+def _source_visibility(library: dict) -> str:
+    values = set()
+    for source in library.get("sources", []):
+        raw = source.get("source_visibility", source.get("visibility"))
+        if raw == "public":
+            values.add("public")
+        elif raw in {"private", "internal"}:
+            values.add("private")
+    if not values:
+        return "unknown"
+    return next(iter(values)) if len(values) == 1 else "mixed"
+
+
+async def _classification_view(store, library: dict) -> dict:
+    library_id = library["library_id"]
+    source_visibility = _source_visibility(library)
+    saved = await run_in_threadpool(store.get_library_classification, library_id)
+    if saved is None:
+        value = "public" if source_visibility == "public" else "private"
+        revision, defaulted = 0, True
+    else:
+        value = saved["classification"]
+        revision, defaulted = saved["revision"], False
+    return {
+        "classification": value,
+        "revision": revision,
+        "defaulted": defaulted,
+        "source_visibility": source_visibility,
+    }
+
+
+async def _attach_classifications(request: Request, catalog: dict) -> dict:
+    store = getattr(request.app.state, "identity_store", None)
+    if store is None:
+        return catalog
+    libraries = []
+    for library in catalog.get("libraries", []):
+        libraries.append({
+            **library,
+            "classification": await _classification_view(store, library),
+            "source_visibility": _source_visibility(library),
+        })
+    return {**catalog, "libraries": libraries}
+
+
+async def visible_catalog(
+    request: Request, catalog: dict, *, admin_discovery: bool = False
+) -> dict:
     store = getattr(request.app.state, "identity_store", None)
     if store is None:
         return catalog
     principal = request.state.principal
+    # 管理员目录用于资料库管理；实际读取权限由当前IdentityStore快照决定。
+    admin_discovery = admin_discovery and principal.role == "admin"
     output = []
     for library in catalog.get("libraries", []):
         library_id = library.get("library_id")
         visible_sources = []
+        readable_library = await run_in_threadpool(
+            store.can_read, principal, "library", library_id
+        )
         for source in library.get("sources", []):
             if source.get("source_type") == "managed":
                 allowed = await run_in_threadpool(
                     store.can_read_managed_file, principal, library_id, source.get("file_id", "")
                 )
             else:
-                if not source.get("is_active"):
+                if not source.get("is_active") and not admin_discovery:
                     continue
-                allowed = await run_in_threadpool(store.can_read, principal, "library", library_id)
-            if allowed:
-                visible_sources.append(source)
-        if visible_sources or await run_in_threadpool(store.can_read, principal, "library", library_id):
-            output.append({**library, "sources": visible_sources})
+                allowed = readable_library
+                if source.get("source_scope") == "private_candidate" and not admin_discovery:
+                    continue
+            if allowed or admin_discovery:
+                visible_sources.append({
+                    **source,
+                    "readable": allowed,
+                    "searchable": bool(source.get("searchable") and allowed),
+                })
+        if visible_sources or readable_library or admin_discovery:
+            output.append({
+                **library,
+                "readable": readable_library,
+                "sources": visible_sources,
+            })
     return {**catalog, "libraries": output}
 
 
@@ -321,22 +383,66 @@ async def authorized_libraries(request: Request):
     response = await _admin_libraries(request)
     if getattr(request.app.state, "identity_store", None) is None:
         return response
-    catalog = json.loads(response.body)
-    visible = await visible_catalog(request, catalog)
+    catalog = await _attach_classifications(request, json.loads(response.body))
+    visible = await visible_catalog(request, catalog, admin_discovery=True)
     known = {item.get("library_id") for item in visible.get("libraries", [])}
     for library in await run_in_threadpool(request.app.state.manager.list_libraries):
         library_id = library["library_id"]
         if library_id in known:
             continue
-        if await run_in_threadpool(_store(request).can_read, request.state.principal, "library", library_id):
+        readable = await run_in_threadpool(
+            _store(request).can_read, request.state.principal, "library", library_id
+        )
+        if readable or request.state.principal.role == "admin":
             visible.setdefault("libraries", []).append({
                 "library_id": library_id,
                 "library": library["display_name"],
                 "sources": [],
                 "source_count": 0,
                 "managed_library": True,
+                "readable": readable,
+                "classification": await _classification_view(_store(request), library),
+                "source_visibility": _source_visibility(library),
             })
     return JSONResponse(visible)
+
+
+async def library_classification(request: Request):
+    store, actor = _store(request), request.state.principal
+    library_id = request.path_params["library_id"]
+    from wenjin.management_http.search import _admin_libraries
+
+    current = await _admin_libraries(request)
+    catalog = json.loads(current.body)
+    library = next(
+        (item for item in catalog.get("libraries", []) if item.get("library_id") == library_id),
+        None,
+    )
+    if library is None:
+        raise HTTPException(404, "资料库不存在")
+
+    if request.method == "GET":
+        view = await _classification_view(store, library)
+        return JSONResponse({"classification": {"library_id": library_id, **view}})
+
+    payload = await _payload(request)
+    value = payload.get("classification")
+    if not isinstance(value, str) or value not in {"public", "private"}:
+        raise HTTPException(422, "classification必须是public或private")
+    saved = await run_in_threadpool(
+        store.set_library_classification,
+        actor,
+        library_id=library_id,
+        classification=value,
+        expected_revision=_revision(payload),
+    )
+    return JSONResponse({"classification": {
+        "library_id": library_id,
+        "classification": saved["classification"],
+        "revision": saved["revision"],
+        "defaulted": False,
+        "source_visibility": _source_visibility(library),
+    }})
 
 
 async def authorized_search(request: Request):

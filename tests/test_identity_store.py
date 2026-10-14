@@ -104,9 +104,9 @@ def test_web_and_mcp_tokens_are_separate_and_both_expire(tmp_path, monkeypatch):
     session = store.login("rootadmin", ADMIN_PASSWORD)
     credential = store.issue_mcp_credential(actor, label="test-client", expires_in_seconds=60)
 
-    with pytest.raises(ValueError, match="用途不匹配"):
+    with pytest.raises(AuthenticationFailed, match="MCP凭据不可用"):
         store.resolve_mcp_credential(session.token)
-    with pytest.raises(ValueError, match="用途不匹配"):
+    with pytest.raises(AuthenticationFailed, match="会话不可用"):
         store.resolve_session(credential.token)
 
     original_now = store._now()
@@ -230,6 +230,91 @@ def test_grant_revision_cas_and_self_lockout_protection(tmp_path):
     users = store.list_users(refreshed_admin)
     root_record = next(user for user in users if user.user_id == refreshed_admin.user_id)
     assert root_record.active is True and root_record.role == "admin"
+
+
+def test_library_classification_is_audited_metadata_and_does_not_change_grants(tmp_path):
+    store = make_store(tmp_path / "identity.sqlite")
+    admin = bootstrap_admin(store)
+    reader = create_ready_user(store, admin)
+    store.synchronize_resource("library", "library-labels", active=True)
+
+    assert store.get_library_classification("library-labels") is None
+    assert store.can_read(reader, "library", "library-labels") is False
+    public = store.set_library_classification(
+        admin,
+        library_id="library-labels",
+        classification="public",
+        expected_revision=0,
+    )
+    assert public["revision"] == 1
+    assert store.can_read(reader, "library", "library-labels") is False
+    assert store.list_grants(admin, resource_kind="library", resource_id="library-labels") == []
+
+    store.set_grant(
+        admin,
+        resource_kind="library",
+        resource_id="library-labels",
+        user_id=reader.user_id,
+        allowed=True,
+        expected_revision=0,
+    )
+    private = store.set_library_classification(
+        admin,
+        library_id="library-labels",
+        classification="private",
+        expected_revision=1,
+    )
+    assert private["revision"] == 2
+    assert store.can_read(reader, "library", "library-labels") is True
+    with pytest.raises(Conflict, match="资料库分类已变化"):
+        store.set_library_classification(
+            admin,
+            library_id="library-labels",
+            classification="public",
+            expected_revision=1,
+        )
+    events = store.list_audit(admin)
+    event = next(item for item in events if item["action"] == "library_classification_changed")
+    assert event["metadata"]["classification"] == "private"
+
+
+def test_admin_can_read_only_active_resources_without_grants(tmp_path):
+    store = make_store(tmp_path / "identity.sqlite")
+    admin = bootstrap_admin(store)
+    reader = create_ready_user(store, admin)
+    store.synchronize_resource_catalog({
+        ("library", "library-private"),
+        ("managed_file", "file-active"),
+        ("managed_library", "managed-active"),
+    })
+
+    assert store.can_read(admin, "library", "library-private") is True
+    assert store.can_read_managed_file(admin, "managed-active", "file-active") is True
+    assert store.can_read(reader, "library", "library-private") is False
+    assert store.can_read_managed_file(reader, "managed-active", "file-active") is False
+
+    store.synchronize_resource("library", "library-private", active=False)
+    assert store.can_read(admin, "library", "library-private") is False
+    assert store.can_read_managed_file(admin, "managed-active", "file-missing") is False
+
+
+def test_identity_schema_v1_migrates_classification_table(tmp_path):
+    path = (tmp_path / "identity.sqlite").resolve()
+    store = make_store(path)
+    with store._connect() as connection:
+        connection.execute("DROP TABLE library_classifications")
+        connection.execute("PRAGMA user_version=1")
+
+    upgraded = IdentityStore(path)
+    upgraded.initialize()
+    assert upgraded.db_path == path
+    with upgraded._connect() as connection:
+        assert int(connection.execute("PRAGMA user_version").fetchone()[0]) == 2
+        columns = {
+            item["name"]
+            for item in connection.execute("PRAGMA table_info(library_classifications)")
+        }
+    assert {"library_id", "classification", "revision", "updated_by"} <= columns
 
 
 def test_user_change_and_audit_append_share_one_transaction(tmp_path, monkeypatch):

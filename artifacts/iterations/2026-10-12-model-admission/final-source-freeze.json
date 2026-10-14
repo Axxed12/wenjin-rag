@@ -1,0 +1,12 @@
+{
+  "source_tree_sha256": "c0aa7dfcdb151c0f7f957a66b889bb3ba1406c4ffa1f3d5e671d6b7154f5a674",
+  "source_file_count": 99,
+  "compose_files": {
+    "compose.base.yaml": "8012f190e5cc5811ab71bdf6b045f88cf9696f350430dead769148e1c2cfa496",
+    "compose.local.yaml": "dad72a13b0101aafe24e5747679d6958d08f9111e178f1ad50893511b99bb585",
+    "compose.model-node.yaml": "8a0e7313ef87a2106e6ddd12d55f78a6f5487dbcb198994f5b199d9984064f32"
+  },
+  "source_hash_algorithm": "baseline source_tree_hash: sorted src/**/*.py; relative POSIX UTF-8 path + NUL + raw bytes + NUL",
+  "read_only_mount_target": "/app/src",
+  "business_source_frozen_by_dev": true
+}

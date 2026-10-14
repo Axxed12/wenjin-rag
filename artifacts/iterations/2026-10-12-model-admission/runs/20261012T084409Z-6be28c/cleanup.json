@@ -1,0 +1,11 @@
+{
+  "attempted": true,
+  "compose_down": "completed",
+  "containers": 0,
+  "volumes": 0,
+  "networks": 0,
+  "resources_remaining": false,
+  "temporary_root_removed": true,
+  "credentials_removed": true,
+  "source_hash_matches_freeze_after_run": true
+}

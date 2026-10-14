@@ -1,5 +1,6 @@
 """统一读取本地配置；密钥不提供 repr，也不打印。"""
 
+import math
 from pathlib import Path
 
 from pydantic import Field, SecretStr, model_validator
@@ -10,7 +11,9 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=ROOT / ".env", env_file_encoding="utf-8-sig", extra="ignore",
+        env_file=ROOT / ".env",
+        env_file_encoding="utf-8-sig",
+        extra="ignore",
         populate_by_name=True,
     )
     qdrant_url: str = "http://127.0.0.1:6333"
@@ -18,12 +21,24 @@ class Settings(BaseSettings):
     # 远程模式明确通过模型API；默认仍是原来的本地模式。
     model_provider: str = Field(default="local", validation_alias="WENJIN_MODEL_PROVIDER")
     model_api_url: str | None = Field(default=None, validation_alias="WENJIN_MODEL_API_URL")
-    model_api_token: SecretStr | None = Field(default=None, validation_alias="WENJIN_MODEL_API_TOKEN")
+    model_api_token: SecretStr | None = Field(
+        default=None, validation_alias="WENJIN_MODEL_API_TOKEN"
+    )
     model_api_ca_bundle: Path | None = Field(
         default=None, validation_alias="WENJIN_MODEL_API_CA_BUNDLE"
     )
     model_api_timeout_seconds: float = Field(
-        default=30.0, validation_alias="WENJIN_MODEL_API_TIMEOUT_SECONDS"
+        default=90.0, validation_alias="WENJIN_MODEL_API_TIMEOUT_SECONDS"
+    )
+    model_api_connect_timeout_seconds: float = Field(
+        default=5.0, validation_alias="WENJIN_MODEL_API_CONNECT_TIMEOUT_SECONDS"
+    )
+    model_api_pool_timeout_seconds: float = Field(
+        default=5.0, validation_alias="WENJIN_MODEL_API_POOL_TIMEOUT_SECONDS"
+    )
+    model_api_max_waiting: int = Field(default=8, validation_alias="WENJIN_MODEL_API_MAX_WAITING")
+    model_api_max_wait_seconds: float = Field(
+        default=30.0, validation_alias="WENJIN_MODEL_API_MAX_WAIT_SECONDS"
     )
     managed_raw_data_root: Path | None = Field(
         default=None, validation_alias="WENJIN_MANAGED_RAW_DATA_ROOT"
@@ -52,8 +67,29 @@ class Settings(BaseSettings):
     def validate_model_provider(self) -> None:
         if self.model_provider not in {"local", "remote"}:
             raise ValueError("WENJIN_MODEL_PROVIDER必须为local或remote")
-        if self.model_api_timeout_seconds <= 0 or self.model_api_timeout_seconds > 300:
+        if (
+            not math.isfinite(self.model_api_timeout_seconds)
+            or self.model_api_timeout_seconds <= 0
+            or self.model_api_timeout_seconds > 300
+        ):
             raise ValueError("WENJIN_MODEL_API_TIMEOUT_SECONDS必须在0到300秒之间")
+        if (
+            not math.isfinite(self.model_api_connect_timeout_seconds)
+            or not 0 < self.model_api_connect_timeout_seconds <= 60
+        ):
+            raise ValueError("WENJIN_MODEL_API_CONNECT_TIMEOUT_SECONDS必须在0到60秒之间")
+        if (
+            not math.isfinite(self.model_api_pool_timeout_seconds)
+            or not 0 < self.model_api_pool_timeout_seconds <= 60
+        ):
+            raise ValueError("WENJIN_MODEL_API_POOL_TIMEOUT_SECONDS必须在0到60秒之间")
+        if not 0 <= self.model_api_max_waiting <= 128:
+            raise ValueError("WENJIN_MODEL_API_MAX_WAITING必须在0到128之间")
+        if (
+            not math.isfinite(self.model_api_max_wait_seconds)
+            or not 0 < self.model_api_max_wait_seconds <= 300
+        ):
+            raise ValueError("WENJIN_MODEL_API_MAX_WAIT_SECONDS必须在0到300秒之间")
         if self.model_provider == "remote":
             if not self.model_api_url or not self.model_api_url.strip():
                 raise ValueError("远程模型模式缺少WENJIN_MODEL_API_URL")
@@ -99,7 +135,8 @@ class Settings(BaseSettings):
 
         model_path = (
             self.resolved_model_path("embedding_model_path", root=root)
-            if root is not None else Path(self.embedding_model_path)
+            if root is not None
+            else Path(self.embedding_model_path)
         )
         return HuggingFaceEmbedding(
             model_name=str(model_path),

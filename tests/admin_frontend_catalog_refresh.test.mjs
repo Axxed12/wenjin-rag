@@ -35,7 +35,7 @@ class Element {
     if (!this.listeners.has(name)) this.listeners.set(name, []);
     this.listeners.get(name).push(callback);
   }
-  setAttribute() {}
+  setAttribute(name, value) { (this.attributes ||= {})[name] = String(value); }
   click() {
     return Promise.all((this.listeners.get('click') || []).map((callback) => callback({
       target: this,
@@ -72,6 +72,7 @@ function makeApp(fetchHandler, identity = null) {
     },
     querySelectorAll() { return []; },
     createElement(tagName) { const element = new Element(); element.tagName = tagName; return element; },
+    createElementNS(_namespace, tagName) { const element = new Element(); element.tagName = tagName; return element; },
     createTextNode(text) { return { textContent: text }; },
     body: new Element(),
   };
@@ -125,7 +126,7 @@ function makeApp(fetchHandler, identity = null) {
     setTimeout,
     clearTimeout,
   };
-  const marker = /\n\s*wireEvents\(\);\s*renderAll\(\);\s*setConnection\('idle'\);[\s\S]*?\n\}\)\(\);\s*$/;
+  const marker = /\n\s*wireEvents\(\);\s*renderAll\(\);\s*(?:renderAccountMenu\(\);\s*)?setConnection\('idle'\);[\s\S]*?\n\}\)\(\);\s*$/;
   const hook = `
   wireEvents();
   renderAll = () => {};
@@ -134,7 +135,7 @@ function makeApp(fetchHandler, identity = null) {
   openJobDetail = async () => {};
   showApiError = (error) => { globalThis.__testError = error; };
   updatePolling = () => {};
-  globalThis.__admin = { state, api, clearSensitiveState, loadFiles, loadLibraries, loadJobs, refreshAll, setRefreshAll: (fn) => { refreshAll = fn; }, scheduleLibraryRefresh, chooseUpload, startUploadPicker, deleteFile, retryJob, downloadFile, renderJobs, renderSearchLibraries, renderSearchSources, renderSearchDocuments, runSearch, sourceKey, loadEvaluations, loadEvaluationResult, loadEvaluationCase, evaluationAction, renderEvaluationJobs, renderReleaseLibraryOptions, syncReleaseAccess, lastError: () => globalThis.__testError };
+  globalThis.__admin = { state, api, clearSensitiveState, loadFiles, loadLibraries, loadJobs, refreshAll, setRefreshAll: (fn) => { refreshAll = fn; }, scheduleLibraryRefresh, chooseUpload, startUploadPicker, deleteFile, retryJob, downloadFile, renderFiles, renderJobs, renderSearchLibraries, renderSearchSources, renderSearchDocuments, runSearch, sourceKey, sourceSearchable, sourceDisplayName, sourcePublicationLabel, loadEvaluations, loadEvaluationResult, loadEvaluationCase, evaluationAction, renderEvaluationJobs, renderReleaseLibraryOptions, syncReleaseAccess, lastError: () => globalThis.__testError };
 })();`;
   assert.match(appSource, marker, 'test hook must replace only app startup, leaving product functions intact');
   vm.runInNewContext(appSource.replace(marker, hook), context, { filename: appPath });
@@ -592,6 +593,216 @@ test('self grant refreshes an authorized search option and revoke clears old evi
   assert.equal(elements.get('#results-meta').children.length, 0);
   assert.equal(requests.filter((request) => request.path === '/api/admin/search').length, 1);
   assert.equal(app.state.libraries.length, 0);
+});
+
+test('a neutral access-catalog invalidation clears evidence and reloads the current account catalog', async () => {
+  let libraryReads = 0;
+  const { app, elements, window, document } = makeApp(async ({ path }) => {
+    if (path === '/api/admin/libraries') {
+      libraryReads += 1;
+      return response({ libraries: libraryWith(managedFile('active', 'version-current')) });
+    }
+    throw new Error(`unexpected request ${path}`);
+  });
+  window.WenjinIdentity = { user: { user_id: 'reader-current', role: 'reader' }, mode: 'accounts' };
+  app.state.connected = true;
+  await app.loadLibraries();
+  app.state.lastSearch = { evidence: [{ text: 'old account evidence' }] };
+  app.state.lastSearchTarget = { library_id: 'docs', source_key: 'managed:active' };
+  app.state.lastSearchLibraryId = 'docs';
+  elements.get('#search-library').value = 'docs';
+  elements.get('#search-source').value = 'managed:active';
+  elements.get('#search-document').value = 'active';
+  document.querySelector('#evidence-list').append({ textContent: 'old evidence' });
+  const beforeRevision = app.state.searchRevision;
+
+  window.dispatchEvent(new CustomEvent('wenjin-access-catalog-invalidated'));
+  for (let index = 0; index < 10 && libraryReads < 2; index += 1) await new Promise((resolve) => setImmediate(resolve));
+
+  assert.equal(libraryReads, 2, 'the current account catalog is reread after the delayed write commits');
+  assert.equal(app.state.searchRevision, beforeRevision + 1, 'in-flight retrieval responses are invalidated');
+  assert.equal(app.state.lastSearch, null);
+  assert.equal(app.state.lastSearchTarget, null);
+  assert.equal(elements.get('#search-library').value, '');
+  assert.equal(elements.get('#search-source').value, '');
+  assert.equal(elements.get('#search-document').value, '');
+  assert.equal(elements.get('#evidence-list').children.length, 1, 'old evidence is replaced by the refresh prompt');
+  assert.equal(app.state.connected, true, 'a neutral catalog refresh does not masquerade as disconnecting');
+});
+
+test('private catalog candidates stay out of search and lost readability clears evidence and drops a late result', async () => {
+  let revoked = false;
+  let searchStarted;
+  let releaseSearch;
+  const source = (candidate = false, readable = true) => ({
+    source_type: 'shared', source_scope: candidate ? 'private_candidate' : 'private_config',
+    publication_status: candidate ? 'needs_review' : 'published',
+    corpus_id: candidate ? 'candidate-corpus' : 'private-corpus',
+    index_target_id: candidate ? 'candidate-target' : 'private-target',
+    version: candidate ? null : 'v2', version_id: candidate ? null : 'private-version-v2',
+    is_active: !candidate, readable, searchable: !candidate && readable,
+    documents: [{ document_id: candidate ? 'candidate-doc' : 'private-doc', display_name: candidate ? '候选说明.md' : '私域说明.md', source_path: candidate ? 'candidate.md' : 'private.md', readable: !candidate && readable, searchable: !candidate && readable }],
+  });
+  const catalog = (readable = true) => [{
+    library_id: 'private-docs', library: '内部资料',
+    sources: [source(false, readable), source(true, false)],
+  }];
+  const { app, elements } = makeApp(async ({ path }) => {
+    if (path === '/api/admin/libraries') return response({ libraries: catalog(!revoked) });
+    if (path === '/api/admin/search') {
+      searchStarted?.();
+      return await new Promise((resolve) => {
+        releaseSearch = () => resolve(response({
+          query: 'synthetic private query', context_char_budget: 1000,
+          retrieval: {}, evidence_status: 'verified',
+          evidence: [{ rank: 1, source_path: 'private.md', version: 'v2', text: 'late private evidence' }],
+        }));
+      });
+    }
+    throw new Error(`unexpected catalog/search path ${path}`);
+  });
+  app.state.connected = true;
+  await app.loadLibraries();
+  app.renderSearchLibraries();
+  elements.get('#search-library').value = 'private-docs';
+  app.renderSearchSources();
+  const searchOptions = elements.get('#search-source').options;
+  assert.equal(searchOptions.length, 2, 'only the placeholder and published private version are selectable');
+  assert.match(searchOptions[1].textContent, /私域共享资料/);
+  assert.doesNotMatch(searchOptions.map((item) => item.textContent).join(' '), /候选/);
+  for (const selector of ['#search-query', '#search-top-k', '#search-budget']) {
+    if (!elements.has(selector)) elements.set(selector, new Element());
+  }
+  elements.get('#search-query').value = 'synthetic private query';
+  elements.get('#search-top-k').value = '5';
+  elements.get('#search-budget').value = '1000';
+  let resolveStarted;
+  const started = new Promise((resolve) => { resolveStarted = resolve; });
+  searchStarted = resolveStarted;
+  const pendingSearch = app.runSearch({ preventDefault() {} });
+  await started;
+  while (!releaseSearch) await new Promise((resolve) => setImmediate(resolve));
+
+  const selectedSourceKey = app.sourceKey(source(false));
+  app.state.lastSearch = { evidence: [{ text: 'previous private evidence' }] };
+  app.state.lastSearchLibraryId = 'private-docs';
+  app.state.lastSearchTarget = { library_id: 'private-docs', source_key: selectedSourceKey, document_id: 'private-doc' };
+  const oldEvidence = new Element(); oldEvidence.textContent = 'previous private evidence';
+  elements.get('#evidence-list').append(oldEvidence);
+  revoked = true;
+  await app.loadLibraries();
+  assert.equal(elements.get('#search-source').value, '', 'the revoked source selection is cleared while its library may remain visible');
+  assert.equal(app.state.lastSearch, null, 'cached evidence is removed as soon as the refreshed catalog reports revocation');
+  assert.doesNotMatch(elements.get('#evidence-list').children.map((item) => item.textContent || '').join(' '), /previous private evidence/, 'previous evidence is no longer rendered');
+  releaseSearch();
+  await pendingSearch;
+  assert.equal(app.state.lastSearch, null, 'a late response cannot restore evidence after the access snapshot changed');
+  assert.doesNotMatch(elements.get('#evidence-list').children.map((item) => item.textContent || '').join(' '), /late private evidence/);
+});
+
+test('library classification uses revision CAS and remains separate from per-user grants', async () => {
+  let current = { classification: 'private', revision: 7, defaulted: true, source_visibility: 'private' };
+  let putPayload = null;
+  const library = () => ({
+    library_id: 'engineering', library: '工程资料', classification: { ...current },
+    sources: [{
+      source_type: 'shared', source_scope: 'public_index', corpus_id: 'engineering-v2',
+      version: '2.0', version_id: 'engineering-v2-id', index_target_id: 'engineering-index',
+      searchable: true, readable: true,
+      documents: [{ document_id: 'guide', display_name: 'guide.md', searchable: true, readable: true }],
+    }],
+  });
+  const identity = { mode: 'accounts', user: { user_id: 'admin-1', username: '管理员', role: 'admin' }, csrf: 'csrf-admin' };
+  const { app, elements, requests, window } = makeApp(async ({ path, method, options }) => {
+    if (path === '/api/admin/libraries' && method === 'GET') return response({ libraries: [library()] });
+    if (path === '/api/admin/libraries/engineering/classification' && method === 'GET') return response({ classification: { ...current } });
+    if (path === '/api/admin/libraries/engineering/classification' && method === 'PUT') {
+      putPayload = JSON.parse(options.body);
+      current = { classification: putPayload.classification, revision: current.revision + 1, defaulted: false, source_visibility: 'private' };
+      return response({ classification: { ...current } });
+    }
+    throw new Error(`unexpected classification request ${method} ${path}`);
+  });
+  window.WenjinIdentity = identity;
+  app.state.connected = true;
+  app.state.libraries = [library()];
+  elements.set('#file-search', new Element());
+  elements.set('#file-classification-filter', new Element()); elements.get('#file-classification-filter').value = 'private';
+  elements.set('#file-status-filter', new Element()); elements.get('#file-status-filter').value = 'all';
+  elements.set('#file-type-filter', new Element()); elements.get('#file-type-filter').value = 'all';
+  app.renderFiles();
+  const details = elements.get('#library-groups').children[0];
+  const summary = details.children[0];
+  const control = details.children.find((child) => child.className === 'library-classification-control');
+  assert.equal(details.tagName, 'details');
+  assert.ok(summary.children.some((child) => child.className?.startsWith('library-classification-badge ')), 'the collapsed summary shows a compact category badge');
+  assert.equal(summary.children[0].children[0].tagName, 'svg', 'the summary uses the shared inline SVG chevron');
+  assert.ok(control, `an administrator sees the classification editor inside the expandable library group (connected=${app.state.connected}, role=${window.WenjinIdentity.user.role}, children=${JSON.stringify(details?.children?.map((item) => item.className))})`);
+  assert.match(control.children[2].textContent, /不授予或撤销读取权限/);
+  await control.children[1].children[1].click();
+  assert.ok(requests.some((item) => item.path === '/api/admin/libraries/engineering/classification' && item.method === 'GET'), 'refresh reads the current classification metadata');
+  const refreshedDetails = elements.get('#library-groups').children[0];
+  const refreshedControl = refreshedDetails.children.find((child) => child.className === 'library-classification-control');
+  const select = refreshedControl.children[1].children[0];
+  const save = refreshedControl.children[1].children[2];
+  select.value = 'public';
+  for (const handler of select.listeners.get('change') || []) handler({});
+  await save.click();
+
+  assert.deepEqual(putPayload, { classification: 'public', expected_revision: 7 });
+  assert.equal(app.state.libraries[0].classification.classification, 'public');
+  assert.equal(app.state.libraries[0].classification.revision, 8);
+  assert.ok(requests.some((item) => item.path === '/api/admin/libraries'), 'the saved category is synchronized from the directory');
+  assert.equal(requests.some((item) => item.path.includes('/grants')), false, 'classification changes do not mutate per-user grants');
+  assert.equal(elements.get('#library-groups').children[0].className, 'panel library-empty', 'saving the category redraws the active classification filter');
+});
+
+test('file list hides the default empty managed-files group and filters pending content by classification, search, and status', () => {
+  const { app, elements } = makeApp(async () => response({}));
+  app.state.connected = true;
+  app.state.libraries = [
+    { library_id: 'managed-files', library: '受管文件', classification: { classification: 'private' }, sources: [] },
+    { library_id: 'new-empty', library: '新建空库', managed_library: true, classification: { classification: 'public' }, sources: [] },
+  ];
+  app.state.files = [];
+  elements.set('#file-search', new Element());
+  elements.set('#file-classification-filter', new Element()); elements.get('#file-classification-filter').value = 'all';
+  elements.set('#file-status-filter', new Element()); elements.get('#file-status-filter').value = 'all';
+  elements.set('#file-type-filter', new Element()); elements.get('#file-type-filter').value = 'all';
+  app.renderFiles();
+  assert.deepEqual(elements.get('#library-groups').children.map((item) => item.dataset.libraryId), ['new-empty'], 'the default placeholder is hidden while a created empty library remains');
+
+  app.state.files = [{ managed: true, file_id: 'pending-private-1', library_id: 'managed-files', library: '受管文件', display_name: 'pending-needle.md', status: 'importing', version: '1', active_version_id: null }];
+  elements.get('#file-classification-filter').value = 'public';
+  app.renderFiles();
+  assert.deepEqual(elements.get('#library-groups').children.map((item) => item.dataset.libraryId), ['new-empty'], 'the pending private file is excluded by the public category filter');
+
+  elements.get('#file-classification-filter').value = 'private';
+  app.renderFiles();
+  assert.deepEqual(elements.get('#library-groups').children.map((item) => item.dataset.libraryId), ['managed-files'], 'pending content keeps its default group visible although its active catalog is empty');
+  elements.get('#file-search').value = 'needle';
+  app.renderFiles();
+  assert.equal(elements.get('#library-groups').children[0].dataset.libraryId, 'managed-files', 'pending files match the same text search');
+  elements.get('#file-search').value = 'missing';
+  app.renderFiles();
+  assert.equal(elements.get('#library-groups').children[0].className, 'panel library-empty', 'pending files obey text search');
+  elements.get('#file-search').value = '';
+  elements.get('#file-status-filter').value = 'failed';
+  app.renderFiles();
+  assert.equal(elements.get('#library-groups').children[0].className, 'panel library-empty', 'pending files obey status filter');
+});
+
+test('private release sources use source visibility for labels and keep directory searchability separate from library classification', () => {
+  const { app } = makeApp(async () => response({}));
+  const privateRelease = {
+    source_type: 'shared', source_scope: 'release_active', source_visibility: 'private',
+    searchable: true, readable: true, is_active: true,
+    publication_status: null,
+  };
+  assert.equal(app.sourceDisplayName(privateRelease), '私域共享资料');
+  assert.equal(app.sourcePublicationLabel(privateRelease), '当前使用 · 私域来源');
+  assert.equal(app.sourceSearchable(privateRelease), true);
+  assert.equal(app.sourceSearchable({ ...privateRelease, source_scope: 'private_candidate' }), false);
 });
 
 test('forbidden evaluation responses are presented in Chinese instead of the raw error code', async () => {

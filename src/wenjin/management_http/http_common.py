@@ -13,10 +13,18 @@ from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from wenjin.identity.policy import AuthenticationFailed, Conflict, CurrentPasswordIncorrect, Forbidden, NotFound
+from wenjin.identity.policy import (
+    AuthenticationFailed,
+    Conflict,
+    CurrentPasswordIncorrect,
+    Forbidden,
+    NotFound,
+)
+from wenjin.models.providers import ModelProviderError, model_provider_error_detail
 from wenjin.retrieval.errors import StaleSnapshotError
 
 DEFAULT_MAX_UPLOAD_BYTES = 100 * 1024 * 1024
+
 
 def _jsonable(value):
     if is_dataclass(value):
@@ -31,6 +39,15 @@ def _jsonable(value):
 
 
 def _error_response(exc: Exception) -> JSONResponse:
+    if isinstance(exc, ModelProviderError):
+        return JSONResponse(
+            {
+                "error": exc.code,
+                "detail": model_provider_error_detail(exc.code),
+                "evidence_status": "not_retrieved",
+            },
+            status_code=503,
+        )
     if isinstance(exc, CurrentPasswordIncorrect):
         return JSONResponse(
             {"error": "current_password_invalid", "detail": "当前密码不正确，请重新输入。"},
@@ -55,7 +72,9 @@ def _error_response(exc: Exception) -> JSONResponse:
     if isinstance(exc, KeyError):
         return JSONResponse({"error": "not_found"}, status_code=404)
     if isinstance(exc, ValueError):
-        return JSONResponse({"error": "conflict_or_invalid_state", "detail": str(exc)}, status_code=409)
+        return JSONResponse(
+            {"error": "conflict_or_invalid_state", "detail": str(exc)}, status_code=409
+        )
     if isinstance(exc, (OSError, RuntimeError)):
         return JSONResponse({"error": "operation_failed", "detail": str(exc)}, status_code=503)
     return JSONResponse({"error": "internal_error"}, status_code=500)
@@ -87,9 +106,12 @@ async def _authorize(request: Request, access: str = "admin") -> None:
         supplied = request.headers.get("authorization", "")
         candidate = supplied.removeprefix("Bearer ") if supplied.startswith("Bearer ") else ""
         try:
-            request.state.principal = await run_in_threadpool(identity.resolve_mcp_credential, candidate)
+            request.state.principal = await run_in_threadpool(
+                identity.resolve_mcp_credential, candidate
+            )
         except Exception as exc:
             from wenjin.identity.policy import AuthenticationFailed
+
             if isinstance(exc, AuthenticationFailed):
                 raise HTTPException(401, "需要有效的个人MCP凭据") from exc
             raise
@@ -104,6 +126,7 @@ async def _authorize(request: Request, access: str = "admin") -> None:
             principal = await run_in_threadpool(identity.resolve_session, token)
         except Exception as exc:
             from wenjin.identity.policy import AuthenticationFailed
+
             if isinstance(exc, AuthenticationFailed):
                 raise HTTPException(401, "会话不可用或已过期") from exc
             raise
@@ -113,7 +136,10 @@ async def _authorize(request: Request, access: str = "admin") -> None:
             raise HTTPException(403, "首次登录必须先修改密码")
         if access == "admin" and principal.role != "admin":
             raise HTTPException(403, "仅管理员可访问")
-        if request.method not in {"GET", "HEAD", "OPTIONS"} and access not in {"me", "csrf_refresh"}:
+        if request.method not in {"GET", "HEAD", "OPTIONS"} and access not in {
+            "me",
+            "csrf_refresh",
+        }:
             origin = request.headers.get("origin")
             if not origin:
                 raise HTTPException(403, "状态变更请求必须包含同源Origin")
@@ -123,7 +149,10 @@ async def _authorize(request: Request, access: str = "admin") -> None:
                 parsed = urlsplit(origin)
             except ValueError as exc:
                 raise HTTPException(403, "Origin无效") from exc
-            if parsed.scheme != request.url.scheme or parsed.netloc.lower() != request.headers.get("host", "").lower():
+            if (
+                parsed.scheme != request.url.scheme
+                or parsed.netloc.lower() != request.headers.get("host", "").lower()
+            ):
                 raise HTTPException(403, "跨源状态变更已拒绝")
             csrf = request.headers.get(CSRF_HEADER, "")
             if not csrf or not identity.verify_csrf(token, csrf):
@@ -135,7 +164,9 @@ async def _authorize(request: Request, access: str = "admin") -> None:
     supplied = request.headers.get("authorization", "")
     candidate = supplied.removeprefix("Bearer ") if supplied.startswith("Bearer ") else ""
     if not hmac.compare_digest(candidate, expected):
-        raise HTTPException(401, "需要有效的管理 Bearer token", headers={"WWW-Authenticate": "Bearer"})
+        raise HTTPException(
+            401, "需要有效的管理 Bearer token", headers={"WWW-Authenticate": "Bearer"}
+        )
 
 
 async def _guarded(request: Request, handler, access: str = "admin"):
@@ -143,7 +174,11 @@ async def _guarded(request: Request, handler, access: str = "admin"):
         await _authorize(request, access)
         return await handler(request)
     except HTTPException as exc:
-        return JSONResponse({"error": "request_rejected", "detail": exc.detail}, status_code=exc.status_code, headers=exc.headers)
+        return JSONResponse(
+            {"error": "request_rejected", "detail": exc.detail},
+            status_code=exc.status_code,
+            headers=exc.headers,
+        )
     except Exception as exc:  # noqa: BLE001 - 统一映射core异常，避免路径/traceback外泄
         return _error_response(exc)
 

@@ -1,0 +1,657 @@
+{
+  "run_id": "20261012T084409Z-6be28c",
+  "scenario": "targeted_model_admission_postfix",
+  "passed": true,
+  "source_tree_sha256": "c0aa7dfcdb151c0f7f957a66b889bb3ba1406c4ffa1f3d5e671d6b7154f5a674",
+  "runner_sha256": "94158d6b49964c45ff2cec4044b13ec061feab5f3bb47e4de137b50443865625",
+  "scenarios": {
+    "single_shared": {
+      "passed": true,
+      "http_status": 200,
+      "mcp_is_error": false,
+      "evidence_count": 1,
+      "marker_match": true,
+      "identity_match": true,
+      "request_id": "d2f3c0f8009a4d0bb9b2ea46da56cda9",
+      "evidence_identity": [
+        {
+          "library": "synthetic-concurrency",
+          "version": "1.0",
+          "index_target_id": "synthetic-concurrency-1.0-target"
+        }
+      ]
+    },
+    "single_managed": {
+      "passed": true,
+      "http_status": 200,
+      "mcp_is_error": false,
+      "evidence_count": 1,
+      "marker_match": true,
+      "identity_match": true,
+      "request_id": "06a8f3d02a6144b5a3e1ab84206056ba",
+      "evidence_identity": [
+        {
+          "version": "v1",
+          "file_id": "40632945b7a64f57935bbcf9a602854d",
+          "version_id": "5354c5bc7e924ec2a2789bee2d0ed441"
+        }
+      ]
+    },
+    "mixed_collision": {
+      "passed": true,
+      "results": [
+        {
+          "link": "shared",
+          "http_status": 200,
+          "request_id": "a79b859021324f45a8cd7ed814799fa3",
+          "evidence_count": 1,
+          "expected_marker_match": true,
+          "expected_identity_match": true,
+          "model_busy_rejection": false,
+          "success": true,
+          "error_category": null,
+          "mcp_tool_error": null,
+          "mcp_rpc": {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"query\":\"synthetic concurrency evidence\",\"requested\":{\"library\":null,\"version\":null,\"target_id\":\"synthetic-concurrency-1.0-target\"},\"routed_libraries\":[{\"library\":\"synthetic-concurrency\",\"version\":\"1.0\",\"target_id\":\"synthetic-concurrency-1.0-target\"}],\"skipped_libraries\":[],\"retrieval\":{\"candidate_k\":10,\"rerank_pool\":30,\"top_k\":1,\"context_char_budget\":8000,\"dense_returned\":1,\"bm25_returned\":1,\"bm25_terms\":[\"synthetic\",\"concurrency\",\"evidence\"],\"fused_candidates\":1,\"reranker_used\":true,\"source_context_diagnostics\":{\"unregistered_target_profile\":1},\"per_library\":[{\"library\":\"synthetic-concurrency\",\"version\":\"1.0\",\"target_id\":\"synthetic-concurrency-1.0-target\",\"dense_returned\":1,\"bm25_returned\":1,\"timing_seconds\":{\"dense\":0.002233,\"bm25\":0.010111}}],\"timing_seconds\":{\"query_embedding\":0.065612,\"fusion\":0.000018,\"rerank\":0.026858,\"total\":0.104872}},\"context_char_budget\":8000,\"context_chars_used\":160,\"evidence\":[{\"rank\":1,\"chunk_id\":\"1.0:guide.txt:blocks-split:0000\",\"version\":\"1.0\",\"source_path\":\"guide.txt\",\"source_url\":\"urn:synthetic:synthetic-concurrency:1.0/guide.txt\",\"start_line\":1,\"end_line\":3,\"page_number\":null,\"logical_document_id\":\"synthetic-concurrency-1.0:guide.txt\",\"parser\":\"text-line-v1\",\"ocr_derived\":false,\"text\":\"Synthetic concurrency baseline corpus.\\nUnique evidence marker: synthetic_concurrency_evidence_only.\\nThis content exists only in the isolated benchmark fixture.\\n\",\"rrf_score\":0.03278688524590164,\"rerank_score\":0.9994683861732483,\"retrieval_ranks\":{\"synthetic-concurrency-1.0-target:dense\":1,\"synthetic-concurrency-1.0-target:bm25\":1},\"library\":\"synthetic-concurrency\",\"index_target_id\":\"synthetic-concurrency-1.0-target\",\"corpus_id\":\"synthetic-concurrency-1.0\",\"source_relative_path\":\"guide.txt\",\"download_path\":\"/files/synthetic-concurrency-1.0/guide.txt\"}],\"evidence_dropped\":{\"count\":0,\"reasons\":{}},\"evidence_status\":\"unverified\",\"evidence_guidance\":\"The router returned ranked passages from verified indexes but did not verify that they jointly support every part of the query. The client must inspect evidence before answering.\",\"answer_status\":\"not_generated\",\"score_note\":\"RRF/reranker scores are ranking signals, not answer confidence; BM25 scores are not comparable across libraries\",\"retrieval_config\":{\"candidate_k\":10,\"base_candidate_k\":10,\"rerank_pool\":30,\"top_k\":1,\"context_char_budget\":8000,\"reranker_enabled\":true,\"reranker_model_id\":\"Qwen3-Reranker-0.6B\",\"reranker_max_length\":1024,\"reranker_batch_size\":2,\"rrf_k\":60,\"max_libraries\":5},\"request_id\":\"a79b859021324f45a8cd7ed814799fa3\",\"mcp_protocol\":\"2025-11-25\"}"
+                }
+              ],
+              "structuredContent": {
+                "query": "synthetic concurrency evidence",
+                "requested": {
+                  "library": null,
+                  "version": null,
+                  "target_id": "synthetic-concurrency-1.0-target"
+                },
+                "routed_libraries": [
+                  {
+                    "library": "synthetic-concurrency",
+                    "version": "1.0",
+                    "target_id": "synthetic-concurrency-1.0-target"
+                  }
+                ],
+                "skipped_libraries": [],
+                "retrieval": {
+                  "candidate_k": 10,
+                  "rerank_pool": 30,
+                  "top_k": 1,
+                  "context_char_budget": 8000,
+                  "dense_returned": 1,
+                  "bm25_returned": 1,
+                  "bm25_terms": [
+                    "synthetic",
+                    "concurrency",
+                    "evidence"
+                  ],
+                  "fused_candidates": 1,
+                  "reranker_used": true,
+                  "source_context_diagnostics": {
+                    "unregistered_target_profile": 1
+                  },
+                  "per_library": [
+                    {
+                      "library": "synthetic-concurrency",
+                      "version": "1.0",
+                      "target_id": "synthetic-concurrency-1.0-target",
+                      "dense_returned": 1,
+                      "bm25_returned": 1,
+                      "timing_seconds": {
+                        "dense": 0.002233,
+                        "bm25": 0.010111
+                      }
+                    }
+                  ],
+                  "timing_seconds": {
+                    "query_embedding": 0.065612,
+                    "fusion": 1.8e-05,
+                    "rerank": 0.026858,
+                    "total": 0.104872
+                  }
+                },
+                "context_char_budget": 8000,
+                "context_chars_used": 160,
+                "evidence": [
+                  {
+                    "rank": 1,
+                    "chunk_id": "1.0:guide.txt:blocks-split:0000",
+                    "version": "1.0",
+                    "source_path": "guide.txt",
+                    "source_url": "urn:synthetic:synthetic-concurrency:1.0/guide.txt",
+                    "start_line": 1,
+                    "end_line": 3,
+                    "page_number": null,
+                    "logical_document_id": "synthetic-concurrency-1.0:guide.txt",
+                    "parser": "text-line-v1",
+                    "ocr_derived": false,
+                    "text": "Synthetic concurrency baseline corpus.\nUnique evidence marker: synthetic_concurrency_evidence_only.\nThis content exists only in the isolated benchmark fixture.\n",
+                    "rrf_score": 0.03278688524590164,
+                    "rerank_score": 0.9994683861732483,
+                    "retrieval_ranks": {
+                      "synthetic-concurrency-1.0-target:dense": 1,
+                      "synthetic-concurrency-1.0-target:bm25": 1
+                    },
+                    "library": "synthetic-concurrency",
+                    "index_target_id": "synthetic-concurrency-1.0-target",
+                    "corpus_id": "synthetic-concurrency-1.0",
+                    "source_relative_path": "guide.txt",
+                    "download_path": "/files/synthetic-concurrency-1.0/guide.txt"
+                  }
+                ],
+                "evidence_dropped": {
+                  "count": 0,
+                  "reasons": {}
+                },
+                "evidence_status": "unverified",
+                "evidence_guidance": "The router returned ranked passages from verified indexes but did not verify that they jointly support every part of the query. The client must inspect evidence before answering.",
+                "answer_status": "not_generated",
+                "score_note": "RRF/reranker scores are ranking signals, not answer confidence; BM25 scores are not comparable across libraries",
+                "retrieval_config": {
+                  "candidate_k": 10,
+                  "base_candidate_k": 10,
+                  "rerank_pool": 30,
+                  "top_k": 1,
+                  "context_char_budget": 8000,
+                  "reranker_enabled": true,
+                  "reranker_model_id": "Qwen3-Reranker-0.6B",
+                  "reranker_max_length": 1024,
+                  "reranker_batch_size": 2,
+                  "rrf_k": 60,
+                  "max_libraries": 5
+                },
+                "request_id": "a79b859021324f45a8cd7ed814799fa3",
+                "mcp_protocol": "2025-11-25"
+              },
+              "isError": false
+            }
+          },
+          "raw_response_text": null,
+          "transport_parse_error": null,
+          "http_error_category": "http_error",
+          "session_sha256": "9c4978191d31c8b61b47fff3893d373ccae8c15376039fece145b8de4267506f",
+          "evidence_identity": [
+            {
+              "library": "synthetic-concurrency",
+              "version": "1.0",
+              "index_target_id": "synthetic-concurrency-1.0-target"
+            }
+          ],
+          "server_timing_seconds": {}
+        },
+        {
+          "link": "managed",
+          "http_status": 200,
+          "request_id": "4e83fd284acf45d391118ae97fa011d4",
+          "evidence_count": 1,
+          "expected_marker_match": true,
+          "expected_identity_match": true,
+          "model_busy_rejection": false,
+          "success": true,
+          "error_category": null,
+          "mcp_tool_error": null,
+          "mcp_rpc": {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"query\":\"synthetic managed marker\",\"version\":\"v1\",\"retrieval\":{\"candidate_k\":10,\"rerank_pool\":30,\"dense_returned\":1,\"bm25_returned\":1,\"bm25_terms\":[\"synthetic\",\"managed\",\"marker\"],\"fused_candidates\":1,\"reranker_used\":false,\"source_context_diagnostics\":{},\"timing_seconds\":{\"dense\":0.036937,\"bm25\":0.01352,\"fusion\":0.000026,\"rerank\":1e-6}},\"context_char_budget\":8000,\"context_chars_used\":116,\"evidence\":[{\"rank\":1,\"chunk_id\":\"v1:raw_data/file-management-40632945b7a64f57935bbcf9a602854d/v1/source.txt:blocks-split:0000\",\"version\":\"v1\",\"source_path\":\"raw_data/file-management-40632945b7a64f57935bbcf9a602854d/v1/source.txt\",\"start_line\":1,\"end_line\":3,\"page_number\":null,\"logical_document_id\":\"5354c5bc7e924ec2a2789bee2d0ed441:source.txt\",\"parser\":\"text-line-v1\",\"ocr_derived\":false,\"text\":\"Synthetic managed concurrency source.\\nUnique marker: synthetic_managed_admission_v1.\\nTemporary benchmark data only.\\n\",\"rrf_score\":0.03278688524590164,\"rerank_score\":null,\"retrieval_ranks\":{\"dense\":1,\"bm25\":1},\"file_id\":\"40632945b7a64f57935bbcf9a602854d\",\"version_id\":\"5354c5bc7e924ec2a2789bee2d0ed441\",\"source_sha256\":\"8e3975562a7ebc749bd4f858e5f471e0be6aa33df85392f736bc474da74f7bfd\",\"download_path\":\"/files/managed/40632945b7a64f57935bbcf9a602854d?version_id=5354c5bc7e924ec2a2789bee2d0ed441\"}],\"evidence_status\":\"unverified\",\"evidence_guidance\":\"The retrieval service found ranked passages but did not verify that they jointly support every part of the query. The client must inspect evidence before answering.\",\"answer_status\":\"not_generated\",\"score_note\":\"RRF/reranker scores are ranking signals, not answer confidence\",\"managed_file\":{\"file_id\":\"40632945b7a64f57935bbcf9a602854d\",\"version_id\":\"5354c5bc7e924ec2a2789bee2d0ed441\",\"version\":\"v1\",\"source_sha256\":\"8e3975562a7ebc749bd4f858e5f471e0be6aa33df85392f736bc474da74f7bfd\"},\"file_id\":\"40632945b7a64f57935bbcf9a602854d\",\"request_id\":\"4e83fd284acf45d391118ae97fa011d4\",\"mcp_protocol\":\"2025-11-25\"}"
+                }
+              ],
+              "structuredContent": {
+                "query": "synthetic managed marker",
+                "version": "v1",
+                "retrieval": {
+                  "candidate_k": 10,
+                  "rerank_pool": 30,
+                  "dense_returned": 1,
+                  "bm25_returned": 1,
+                  "bm25_terms": [
+                    "synthetic",
+                    "managed",
+                    "marker"
+                  ],
+                  "fused_candidates": 1,
+                  "reranker_used": false,
+                  "source_context_diagnostics": {},
+                  "timing_seconds": {
+                    "dense": 0.036937,
+                    "bm25": 0.01352,
+                    "fusion": 2.6e-05,
+                    "rerank": 1e-06
+                  }
+                },
+                "context_char_budget": 8000,
+                "context_chars_used": 116,
+                "evidence": [
+                  {
+                    "rank": 1,
+                    "chunk_id": "v1:raw_data/file-management-40632945b7a64f57935bbcf9a602854d/v1/source.txt:blocks-split:0000",
+                    "version": "v1",
+                    "source_path": "raw_data/file-management-40632945b7a64f57935bbcf9a602854d/v1/source.txt",
+                    "start_line": 1,
+                    "end_line": 3,
+                    "page_number": null,
+                    "logical_document_id": "5354c5bc7e924ec2a2789bee2d0ed441:source.txt",
+                    "parser": "text-line-v1",
+                    "ocr_derived": false,
+                    "text": "Synthetic managed concurrency source.\nUnique marker: synthetic_managed_admission_v1.\nTemporary benchmark data only.\n",
+                    "rrf_score": 0.03278688524590164,
+                    "rerank_score": null,
+                    "retrieval_ranks": {
+                      "dense": 1,
+                      "bm25": 1
+                    },
+                    "file_id": "40632945b7a64f57935bbcf9a602854d",
+                    "version_id": "5354c5bc7e924ec2a2789bee2d0ed441",
+                    "source_sha256": "8e3975562a7ebc749bd4f858e5f471e0be6aa33df85392f736bc474da74f7bfd",
+                    "download_path": "/files/managed/40632945b7a64f57935bbcf9a602854d?version_id=5354c5bc7e924ec2a2789bee2d0ed441"
+                  }
+                ],
+                "evidence_status": "unverified",
+                "evidence_guidance": "The retrieval service found ranked passages but did not verify that they jointly support every part of the query. The client must inspect evidence before answering.",
+                "answer_status": "not_generated",
+                "score_note": "RRF/reranker scores are ranking signals, not answer confidence",
+                "managed_file": {
+                  "file_id": "40632945b7a64f57935bbcf9a602854d",
+                  "version_id": "5354c5bc7e924ec2a2789bee2d0ed441",
+                  "version": "v1",
+                  "source_sha256": "8e3975562a7ebc749bd4f858e5f471e0be6aa33df85392f736bc474da74f7bfd"
+                },
+                "file_id": "40632945b7a64f57935bbcf9a602854d",
+                "request_id": "4e83fd284acf45d391118ae97fa011d4",
+                "mcp_protocol": "2025-11-25"
+              },
+              "isError": false
+            }
+          },
+          "raw_response_text": null,
+          "transport_parse_error": null,
+          "http_error_category": "http_error",
+          "session_sha256": "4573fe3c785f2ff00a1eb3ea4fd68955096d9f2b484e8c433e0d249cbb160f1b",
+          "evidence_identity": [
+            {
+              "version": "v1",
+              "file_id": "40632945b7a64f57935bbcf9a602854d",
+              "version_id": "5354c5bc7e924ec2a2789bee2d0ed441"
+            }
+          ],
+          "server_timing_seconds": {}
+        }
+      ],
+      "interpretation": "one simultaneous shared+managed pair; both must return positive correct evidence"
+    },
+    "stale_version": {
+      "passed": true,
+      "http_status": 200,
+      "mcp_is_error": false,
+      "error": "invalid_target",
+      "evidence_count": 0
+    },
+    "query_ingest": {
+      "passed": true,
+      "ingest_status": "completed",
+      "ingest_started_utc": "2026-10-12T08:45:31.759348+00:00",
+      "ingest_accepted_utc": "2026-10-12T08:45:31.924403+00:00",
+      "query_started_utc": "2026-10-12T08:45:31.924403+00:00",
+      "query_ended_utc": "2026-10-12T08:45:32.540230+00:00",
+      "query_http_status": 200,
+      "query_mcp_is_error": false,
+      "query_evidence_count": 1,
+      "ingest_request_and_query_were_concurrently_scheduled": true,
+      "interpretation": "client scheduling/HTTP operation overlap only; model API queue wait and actual inference competition were not observed",
+      "model_queue_competition_observed": false,
+      "model_queue_wait_seconds_observed": false,
+      "ingest_job_file_id": "1153a1b85c8944da9c1375e1e763a5d8",
+      "ingest_active_version_id": "d81dd540bb7044348c1efdfaa01c8e43",
+      "ingest_content_sha256": "c14c6ab2e913af352ccfd35a1a48268396f4fe5ccf293edb2b2f2eede022439b",
+      "client_operation_interval_overlap_seconds": 0.609,
+      "mcp_readback": {
+        "passed": true,
+        "http_status": 200,
+        "mcp_is_error": false,
+        "error": null,
+        "marker_match": true,
+        "identity_match": true,
+        "evidence_count": 1,
+        "file_id": "1153a1b85c8944da9c1375e1e763a5d8",
+        "active_version_id": "d81dd540bb7044348c1efdfaa01c8e43",
+        "tool_file_id": "1153a1b85c8944da9c1375e1e763a5d8",
+        "tool_version_id": "d81dd540bb7044348c1efdfaa01c8e43",
+        "evidence_identity": [
+          {
+            "file_id": "1153a1b85c8944da9c1375e1e763a5d8",
+            "version_id": "d81dd540bb7044348c1efdfaa01c8e43"
+          }
+        ],
+        "request_id": "0651033d42ea44a69f5a1ea684173a8b"
+      }
+    },
+    "query_ingest_fixture": {
+      "job_status": "completed",
+      "file_id": "1153a1b85c8944da9c1375e1e763a5d8",
+      "active_version_id": "d81dd540bb7044348c1efdfaa01c8e43",
+      "marker": "synthetic_query_ingest_competition_v1",
+      "mcp_readback_passed": true
+    }
+  },
+  "identity_probe": {
+    "authorization_path": "reader B personal credential; no grants",
+    "authorized_session_sha256": "cc8fed1a2b3068fa0f64d57be490af840a6693589e9d591c6e526152b25aad77",
+    "unprivileged_session_sha256": "0baccb73cdebf244170e12023a593397f2e5a0a2710855d91e2cd7087307d432",
+    "scenario": "one authorized A request and one unprivileged B request sent concurrently per link using distinct sessions",
+    "checks": [
+      {
+        "case": "shared-authorized-A",
+        "http_status": 200,
+        "request_id": "469c4dac03384c1c9a3a88c3c0ba0356",
+        "evidence_count": 1,
+        "expected_marker_match": true,
+        "expected_identity_match": true,
+        "session_sha256": "cc8fed1a2b3068fa0f64d57be490af840a6693589e9d591c6e526152b25aad77",
+        "evidence_identity": [
+          {
+            "library": "synthetic-concurrency",
+            "version": "1.0",
+            "index_target_id": "synthetic-concurrency-1.0-target"
+          }
+        ],
+        "rpc": {
+          "jsonrpc": "2.0",
+          "id": 2,
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"query\":\"synthetic concurrency evidence\",\"requested\":{\"library\":null,\"version\":null,\"target_id\":\"synthetic-concurrency-1.0-target\"},\"routed_libraries\":[{\"library\":\"synthetic-concurrency\",\"version\":\"1.0\",\"target_id\":\"synthetic-concurrency-1.0-target\"}],\"skipped_libraries\":[],\"retrieval\":{\"candidate_k\":10,\"rerank_pool\":30,\"top_k\":1,\"context_char_budget\":8000,\"dense_returned\":1,\"bm25_returned\":1,\"bm25_terms\":[\"synthetic\",\"concurrency\",\"evidence\"],\"fused_candidates\":1,\"reranker_used\":true,\"source_context_diagnostics\":{\"unregistered_target_profile\":1},\"per_library\":[{\"library\":\"synthetic-concurrency\",\"version\":\"1.0\",\"target_id\":\"synthetic-concurrency-1.0-target\",\"dense_returned\":1,\"bm25_returned\":1,\"timing_seconds\":{\"dense\":0.008322,\"bm25\":0.008609}}],\"timing_seconds\":{\"query_embedding\":0.04137,\"fusion\":0.000019,\"rerank\":14.494096,\"total\":14.552524}},\"context_char_budget\":8000,\"context_chars_used\":160,\"evidence\":[{\"rank\":1,\"chunk_id\":\"1.0:guide.txt:blocks-split:0000\",\"version\":\"1.0\",\"source_path\":\"guide.txt\",\"source_url\":\"urn:synthetic:synthetic-concurrency:1.0/guide.txt\",\"start_line\":1,\"end_line\":3,\"page_number\":null,\"logical_document_id\":\"synthetic-concurrency-1.0:guide.txt\",\"parser\":\"text-line-v1\",\"ocr_derived\":false,\"text\":\"Synthetic concurrency baseline corpus.\\nUnique evidence marker: synthetic_concurrency_evidence_only.\\nThis content exists only in the isolated benchmark fixture.\\n\",\"rrf_score\":0.03278688524590164,\"rerank_score\":0.9994683861732483,\"retrieval_ranks\":{\"synthetic-concurrency-1.0-target:dense\":1,\"synthetic-concurrency-1.0-target:bm25\":1},\"library\":\"synthetic-concurrency\",\"index_target_id\":\"synthetic-concurrency-1.0-target\",\"corpus_id\":\"synthetic-concurrency-1.0\",\"source_relative_path\":\"guide.txt\",\"download_path\":\"/files/synthetic-concurrency-1.0/guide.txt\"}],\"evidence_dropped\":{\"count\":0,\"reasons\":{}},\"evidence_status\":\"unverified\",\"evidence_guidance\":\"The router returned ranked passages from verified indexes but did not verify that they jointly support every part of the query. The client must inspect evidence before answering.\",\"answer_status\":\"not_generated\",\"score_note\":\"RRF/reranker scores are ranking signals, not answer confidence; BM25 scores are not comparable across libraries\",\"retrieval_config\":{\"candidate_k\":10,\"base_candidate_k\":10,\"rerank_pool\":30,\"top_k\":1,\"context_char_budget\":8000,\"reranker_enabled\":true,\"reranker_model_id\":\"Qwen3-Reranker-0.6B\",\"reranker_max_length\":1024,\"reranker_batch_size\":2,\"rrf_k\":60,\"max_libraries\":5},\"request_id\":\"469c4dac03384c1c9a3a88c3c0ba0356\",\"mcp_protocol\":\"2025-11-25\"}"
+              }
+            ],
+            "structuredContent": {
+              "query": "synthetic concurrency evidence",
+              "requested": {
+                "library": null,
+                "version": null,
+                "target_id": "synthetic-concurrency-1.0-target"
+              },
+              "routed_libraries": [
+                {
+                  "library": "synthetic-concurrency",
+                  "version": "1.0",
+                  "target_id": "synthetic-concurrency-1.0-target"
+                }
+              ],
+              "skipped_libraries": [],
+              "retrieval": {
+                "candidate_k": 10,
+                "rerank_pool": 30,
+                "top_k": 1,
+                "context_char_budget": 8000,
+                "dense_returned": 1,
+                "bm25_returned": 1,
+                "bm25_terms": [
+                  "synthetic",
+                  "concurrency",
+                  "evidence"
+                ],
+                "fused_candidates": 1,
+                "reranker_used": true,
+                "source_context_diagnostics": {
+                  "unregistered_target_profile": 1
+                },
+                "per_library": [
+                  {
+                    "library": "synthetic-concurrency",
+                    "version": "1.0",
+                    "target_id": "synthetic-concurrency-1.0-target",
+                    "dense_returned": 1,
+                    "bm25_returned": 1,
+                    "timing_seconds": {
+                      "dense": 0.008322,
+                      "bm25": 0.008609
+                    }
+                  }
+                ],
+                "timing_seconds": {
+                  "query_embedding": 0.04137,
+                  "fusion": 1.9e-05,
+                  "rerank": 14.494096,
+                  "total": 14.552524
+                }
+              },
+              "context_char_budget": 8000,
+              "context_chars_used": 160,
+              "evidence": [
+                {
+                  "rank": 1,
+                  "chunk_id": "1.0:guide.txt:blocks-split:0000",
+                  "version": "1.0",
+                  "source_path": "guide.txt",
+                  "source_url": "urn:synthetic:synthetic-concurrency:1.0/guide.txt",
+                  "start_line": 1,
+                  "end_line": 3,
+                  "page_number": null,
+                  "logical_document_id": "synthetic-concurrency-1.0:guide.txt",
+                  "parser": "text-line-v1",
+                  "ocr_derived": false,
+                  "text": "Synthetic concurrency baseline corpus.\nUnique evidence marker: synthetic_concurrency_evidence_only.\nThis content exists only in the isolated benchmark fixture.\n",
+                  "rrf_score": 0.03278688524590164,
+                  "rerank_score": 0.9994683861732483,
+                  "retrieval_ranks": {
+                    "synthetic-concurrency-1.0-target:dense": 1,
+                    "synthetic-concurrency-1.0-target:bm25": 1
+                  },
+                  "library": "synthetic-concurrency",
+                  "index_target_id": "synthetic-concurrency-1.0-target",
+                  "corpus_id": "synthetic-concurrency-1.0",
+                  "source_relative_path": "guide.txt",
+                  "download_path": "/files/synthetic-concurrency-1.0/guide.txt"
+                }
+              ],
+              "evidence_dropped": {
+                "count": 0,
+                "reasons": {}
+              },
+              "evidence_status": "unverified",
+              "evidence_guidance": "The router returned ranked passages from verified indexes but did not verify that they jointly support every part of the query. The client must inspect evidence before answering.",
+              "answer_status": "not_generated",
+              "score_note": "RRF/reranker scores are ranking signals, not answer confidence; BM25 scores are not comparable across libraries",
+              "retrieval_config": {
+                "candidate_k": 10,
+                "base_candidate_k": 10,
+                "rerank_pool": 30,
+                "top_k": 1,
+                "context_char_budget": 8000,
+                "reranker_enabled": true,
+                "reranker_model_id": "Qwen3-Reranker-0.6B",
+                "reranker_max_length": 1024,
+                "reranker_batch_size": 2,
+                "rrf_k": 60,
+                "max_libraries": 5
+              },
+              "request_id": "469c4dac03384c1c9a3a88c3c0ba0356",
+              "mcp_protocol": "2025-11-25"
+            },
+            "isError": false
+          }
+        }
+      },
+      {
+        "case": "shared-unprivileged-B",
+        "http_status": 200,
+        "request_id": null,
+        "evidence_count": 0,
+        "marker_leaked": false,
+        "session_sha256": "0baccb73cdebf244170e12023a593397f2e5a0a2710855d91e2cd7087307d432",
+        "error": "forbidden",
+        "evidence_identity": [],
+        "rpc": {
+          "jsonrpc": "2.0",
+          "id": 2,
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"error\":\"forbidden\",\"detail\":\"没有可检索的语料\",\"corpus_id\":null,\"evidence\":[],\"evidence_status\":\"not_retrieved\",\"answer_status\":\"not_generated\",\"mcp_protocol\":\"2025-11-25\",\"query\":\"synthetic concurrency evidence\"}"
+              }
+            ],
+            "structuredContent": {
+              "error": "forbidden",
+              "detail": "没有可检索的语料",
+              "corpus_id": null,
+              "evidence": [],
+              "evidence_status": "not_retrieved",
+              "answer_status": "not_generated",
+              "mcp_protocol": "2025-11-25",
+              "query": "synthetic concurrency evidence"
+            },
+            "isError": false
+          }
+        }
+      },
+      {
+        "case": "managed-authorized-A",
+        "http_status": 200,
+        "request_id": "14a6eee595f34c6c802be5a942c028dd",
+        "evidence_count": 1,
+        "expected_marker_match": true,
+        "expected_identity_match": true,
+        "session_sha256": "cc8fed1a2b3068fa0f64d57be490af840a6693589e9d591c6e526152b25aad77",
+        "evidence_identity": [
+          {
+            "version": "v1",
+            "file_id": "40632945b7a64f57935bbcf9a602854d",
+            "version_id": "5354c5bc7e924ec2a2789bee2d0ed441"
+          }
+        ],
+        "rpc": {
+          "jsonrpc": "2.0",
+          "id": 3,
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"query\":\"synthetic managed marker\",\"version\":\"v1\",\"retrieval\":{\"candidate_k\":10,\"rerank_pool\":30,\"dense_returned\":1,\"bm25_returned\":1,\"bm25_terms\":[\"synthetic\",\"managed\",\"marker\"],\"fused_candidates\":1,\"reranker_used\":false,\"source_context_diagnostics\":{},\"timing_seconds\":{\"dense\":0.050982,\"bm25\":0.012191,\"fusion\":0.000059,\"rerank\":1e-6}},\"context_char_budget\":8000,\"context_chars_used\":116,\"evidence\":[{\"rank\":1,\"chunk_id\":\"v1:raw_data/file-management-40632945b7a64f57935bbcf9a602854d/v1/source.txt:blocks-split:0000\",\"version\":\"v1\",\"source_path\":\"raw_data/file-management-40632945b7a64f57935bbcf9a602854d/v1/source.txt\",\"start_line\":1,\"end_line\":3,\"page_number\":null,\"logical_document_id\":\"5354c5bc7e924ec2a2789bee2d0ed441:source.txt\",\"parser\":\"text-line-v1\",\"ocr_derived\":false,\"text\":\"Synthetic managed concurrency source.\\nUnique marker: synthetic_managed_admission_v1.\\nTemporary benchmark data only.\\n\",\"rrf_score\":0.03278688524590164,\"rerank_score\":null,\"retrieval_ranks\":{\"dense\":1,\"bm25\":1},\"file_id\":\"40632945b7a64f57935bbcf9a602854d\",\"version_id\":\"5354c5bc7e924ec2a2789bee2d0ed441\",\"source_sha256\":\"8e3975562a7ebc749bd4f858e5f471e0be6aa33df85392f736bc474da74f7bfd\",\"download_path\":\"/files/managed/40632945b7a64f57935bbcf9a602854d?version_id=5354c5bc7e924ec2a2789bee2d0ed441\"}],\"evidence_status\":\"unverified\",\"evidence_guidance\":\"The retrieval service found ranked passages but did not verify that they jointly support every part of the query. The client must inspect evidence before answering.\",\"answer_status\":\"not_generated\",\"score_note\":\"RRF/reranker scores are ranking signals, not answer confidence\",\"managed_file\":{\"file_id\":\"40632945b7a64f57935bbcf9a602854d\",\"version_id\":\"5354c5bc7e924ec2a2789bee2d0ed441\",\"version\":\"v1\",\"source_sha256\":\"8e3975562a7ebc749bd4f858e5f471e0be6aa33df85392f736bc474da74f7bfd\"},\"file_id\":\"40632945b7a64f57935bbcf9a602854d\",\"request_id\":\"14a6eee595f34c6c802be5a942c028dd\",\"mcp_protocol\":\"2025-11-25\"}"
+              }
+            ],
+            "structuredContent": {
+              "query": "synthetic managed marker",
+              "version": "v1",
+              "retrieval": {
+                "candidate_k": 10,
+                "rerank_pool": 30,
+                "dense_returned": 1,
+                "bm25_returned": 1,
+                "bm25_terms": [
+                  "synthetic",
+                  "managed",
+                  "marker"
+                ],
+                "fused_candidates": 1,
+                "reranker_used": false,
+                "source_context_diagnostics": {},
+                "timing_seconds": {
+                  "dense": 0.050982,
+                  "bm25": 0.012191,
+                  "fusion": 5.9e-05,
+                  "rerank": 1e-06
+                }
+              },
+              "context_char_budget": 8000,
+              "context_chars_used": 116,
+              "evidence": [
+                {
+                  "rank": 1,
+                  "chunk_id": "v1:raw_data/file-management-40632945b7a64f57935bbcf9a602854d/v1/source.txt:blocks-split:0000",
+                  "version": "v1",
+                  "source_path": "raw_data/file-management-40632945b7a64f57935bbcf9a602854d/v1/source.txt",
+                  "start_line": 1,
+                  "end_line": 3,
+                  "page_number": null,
+                  "logical_document_id": "5354c5bc7e924ec2a2789bee2d0ed441:source.txt",
+                  "parser": "text-line-v1",
+                  "ocr_derived": false,
+                  "text": "Synthetic managed concurrency source.\nUnique marker: synthetic_managed_admission_v1.\nTemporary benchmark data only.\n",
+                  "rrf_score": 0.03278688524590164,
+                  "rerank_score": null,
+                  "retrieval_ranks": {
+                    "dense": 1,
+                    "bm25": 1
+                  },
+                  "file_id": "40632945b7a64f57935bbcf9a602854d",
+                  "version_id": "5354c5bc7e924ec2a2789bee2d0ed441",
+                  "source_sha256": "8e3975562a7ebc749bd4f858e5f471e0be6aa33df85392f736bc474da74f7bfd",
+                  "download_path": "/files/managed/40632945b7a64f57935bbcf9a602854d?version_id=5354c5bc7e924ec2a2789bee2d0ed441"
+                }
+              ],
+              "evidence_status": "unverified",
+              "evidence_guidance": "The retrieval service found ranked passages but did not verify that they jointly support every part of the query. The client must inspect evidence before answering.",
+              "answer_status": "not_generated",
+              "score_note": "RRF/reranker scores are ranking signals, not answer confidence",
+              "managed_file": {
+                "file_id": "40632945b7a64f57935bbcf9a602854d",
+                "version_id": "5354c5bc7e924ec2a2789bee2d0ed441",
+                "version": "v1",
+                "source_sha256": "8e3975562a7ebc749bd4f858e5f471e0be6aa33df85392f736bc474da74f7bfd"
+              },
+              "file_id": "40632945b7a64f57935bbcf9a602854d",
+              "request_id": "14a6eee595f34c6c802be5a942c028dd",
+              "mcp_protocol": "2025-11-25"
+            },
+            "isError": false
+          }
+        }
+      },
+      {
+        "case": "managed-unprivileged-B",
+        "http_status": 200,
+        "request_id": "b4c5ba0a6f8a41aaabb3be0a1fe5a5b9",
+        "evidence_count": 0,
+        "marker_leaked": false,
+        "session_sha256": "0baccb73cdebf244170e12023a593397f2e5a0a2710855d91e2cd7087307d432",
+        "error": "file_not_available",
+        "evidence_identity": [],
+        "rpc": {
+          "jsonrpc": "2.0",
+          "id": 3,
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"error\":\"file_not_available\",\"detail\":\"该文件不可用或当前客户端无权访问\",\"query\":\"synthetic managed marker\",\"evidence\":[],\"evidence_status\":\"not_retrieved\",\"answer_status\":\"not_generated\",\"mcp_protocol\":\"2025-11-25\",\"request_id\":\"b4c5ba0a6f8a41aaabb3be0a1fe5a5b9\"}"
+              }
+            ],
+            "structuredContent": {
+              "error": "file_not_available",
+              "detail": "该文件不可用或当前客户端无权访问",
+              "query": "synthetic managed marker",
+              "evidence": [],
+              "evidence_status": "not_retrieved",
+              "answer_status": "not_generated",
+              "mcp_protocol": "2025-11-25",
+              "request_id": "b4c5ba0a6f8a41aaabb3be0a1fe5a5b9"
+            },
+            "isError": false
+          }
+        }
+      }
+    ],
+    "passed": true,
+    "partial": false
+  },
+  "cleanup": {
+    "attempted": true,
+    "compose_down": "completed",
+    "containers": 0,
+    "volumes": 0,
+    "networks": 0,
+    "resources_remaining": false,
+    "temporary_root_removed": true,
+    "credentials_removed": true,
+    "source_hash_matches_freeze_after_run": true
+  }
+}

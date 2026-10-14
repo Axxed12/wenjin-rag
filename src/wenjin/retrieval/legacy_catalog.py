@@ -142,8 +142,90 @@ class LegacySearchService:
             )
         return list(entries.values())
 
+    def _private_config_view(self) -> tuple[dict[str, dict[str, IndexTarget]], set[str], dict[str, tuple[IndexTarget, str]]]:
+        """读取私域候选及显式route选择；裸target只作候选，绝不隐式发布。"""
+        private_dir = self.root / "configs" / "indexes-private"
+        route_targets: dict[str, dict[str, IndexTarget]] = {}
+        ambiguous: set[str] = set()
+        candidates: dict[str, tuple[IndexTarget, str]] = {}
+        candidate_conflicts: set[str] = set()
+        if not private_dir.is_dir():
+            return route_targets, ambiguous, candidates
+
+        for path in sorted(private_dir.glob("*.json")):
+            try:
+                data = json.loads(path.read_text(encoding="utf-8-sig"))
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+                continue
+            if not isinstance(data, dict):
+                continue
+            raw_items = data.get("candidates")
+            if isinstance(raw_items, list):
+                parsed: list[IndexTarget] = []
+                try:
+                    for item in raw_items:
+                        if not isinstance(item, dict):
+                            raise ValueError("route candidate必须是对象")
+                        target = IndexTarget.from_dict(item)
+                        if not target.manifest_path.startswith("corpora-private/"):
+                            raise ValueError("private route只能选择私域manifest")
+                        parsed.append(target)
+                except (KeyError, TypeError, ValueError):
+                    continue
+                if data.get("schema_version") != 1 or not parsed:
+                    # 格式错误的显式route可在管理员目录里检查，但不生效。
+                    for target in parsed:
+                        candidates[target.target_id] = (target, "needs_review")
+                    continue
+                for target in parsed:
+                    existing_candidate = candidates.get(target.target_id)
+                    if existing_candidate is not None and existing_candidate[0] != target:
+                        candidate_conflicts.add(target.target_id)
+                        ambiguous.add(normalize_library(target.library))
+                    else:
+                        candidates[target.target_id] = (target, "candidate")
+                    library_id = normalize_library(target.library)
+                    by_id = route_targets.setdefault(library_id, {})
+                    existing = by_id.get(target.target_id)
+                    if existing is not None and existing != target:
+                        ambiguous.add(library_id)
+                    by_id[target.target_id] = target
+                continue
+
+            # 独立target文件只供管理员查看，需另有私域route显式选择。
+            if "manifest_path" in data:
+                try:
+                    target = IndexTarget.from_dict(data)
+                except (KeyError, TypeError, ValueError):
+                    continue
+                if target.manifest_path.startswith("corpora-private/"):
+                    existing = candidates.get(target.target_id)
+                    if existing is not None and existing[0] != target:
+                        candidate_conflicts.add(target.target_id)
+                        ambiguous.add(normalize_library(target.library))
+                    else:
+                        candidates.setdefault(target.target_id, (target, "candidate"))
+
+        # route内和独立配置中的同一target去重；真正被唯一route选中的target不再显示为候选。
+        unique_by_id: dict[str, IndexTarget] = {}
+        for library_id, targets in route_targets.items():
+            if len(targets) > 1 or any(target_id in candidate_conflicts for target_id in targets):
+                ambiguous.add(library_id)
+                for target in targets.values():
+                    candidates[target.target_id] = (target, "ambiguous")
+            elif targets and library_id not in ambiguous:
+                target = next(iter(targets.values()))
+                unique_by_id[target.target_id] = target
+                candidates.pop(target.target_id, None)
+        return route_targets, ambiguous, candidates | {
+            target_id: (target, "selected") for target_id, target in unique_by_id.items()
+        }
+
     def _effective_targets(
-        self, release_snapshot: dict | None = None
+        self,
+        release_snapshot: dict | None = None,
+        *,
+        private_view: tuple[dict[str, dict[str, IndexTarget]], set[str], dict[str, tuple[IndexTarget, str]]] | None = None,
     ) -> dict[str, tuple[IndexTarget, str]]:
         """release catalog是迁移库权威；仅对未迁移库回退registry/route/private配置。"""
         selected: dict[str, tuple[IndexTarget, str]] = {}
@@ -185,17 +267,17 @@ class LegacySearchService:
                     if normalize_library(str(item.get("library", ""))) not in migrated_libraries:
                         add(item, "default_route")
 
-        private_dir = self.root / "configs" / "indexes-private"
-        if private_dir.is_dir():
-            for path in sorted(private_dir.glob("*.json")):
-                data = json.loads(path.read_text(encoding="utf-8-sig"))
-                for item in data.get("candidates") or [data]:
-                    if not isinstance(item, dict) or not str(item.get("manifest_path", "")).startswith(
-                        "corpora-private/"
-                    ):
-                        continue
-                    if normalize_library(str(item.get("library", ""))) not in migrated_libraries:
-                        add(item, "private_config")
+        routed_private, ambiguous_private, _candidates = (
+            private_view if private_view is not None else self._private_config_view()
+        )
+        for library_id, targets_for_library in routed_private.items():
+            # 多target代表没有唯一effective版本；重复声明同一target已在dict中去重。
+            if library_id in ambiguous_private or len(targets_for_library) != 1:
+                continue
+            if library_id in migrated_libraries:
+                continue
+            target = next(iter(targets_for_library.values()))
+            add(target.__dict__, "private_config")
         return selected
 
     def _entry_targets(self, entry: CorpusEntry, targets: dict[str, tuple[IndexTarget, str]]):
@@ -353,7 +435,14 @@ class LegacySearchService:
     def catalog(self, managed_files: list | None = None) -> dict:
         release_snapshot = self._release_snapshot()
         entries = self._corpus_entries(release_snapshot)
-        effective = self._effective_targets(release_snapshot)
+        private_view = self._private_config_view()
+        effective = self._effective_targets(release_snapshot, private_view=private_view)
+        _private_routes, _ambiguous, private_candidates = private_view
+        release_owned = {
+            normalize_library(str(library.get("library_id", "")))
+            for library in release_snapshot["libraries"].values()
+            if library.get("active") is not None or library.get("ever_activated")
+        }
         groups: dict[str, dict] = {}
         for entry in entries:
             library_id = normalize_library(entry.library)
@@ -363,21 +452,56 @@ class LegacySearchService:
             )
             targets = self._entry_targets(entry, effective)
             if not targets:
-                group["sources"].append(
-                    {
-                        "source_type": "shared",
-                        "corpus_id": entry.corpus_id,
-                        "version": entry.version,
-                        "version_id": None,
-                        "index_target_id": None,
-                        "source_scope": "not_active",
-                        "is_active": False,
-                        "validation_scope": "manifest_only",
-                        "searchable": False,
-                        "manageable": False,
-                        "documents": self._documents(entry, None),
-                    }
-                )
+                candidates_for_entry = [
+                    (target, status)
+                    for target, status in private_candidates.values()
+                    if target.corpus_identity() == entry.corpus_id
+                    and normalize_library(target.library) not in release_owned
+                    and status != "selected"
+                ]
+                if candidates_for_entry:
+                    for target, status in candidates_for_entry:
+                        publication_status = (
+                            status if status in {"ambiguous", "needs_review"} else "candidate"
+                        )
+                        group["sources"].append({
+                            "source_type": "shared",
+                            "source_visibility": entry.visibility,
+                            "corpus_id": entry.corpus_id,
+                            "version": entry.version,
+                            "version_id": None,
+                            "index_target_id": target.target_id,
+                            "source_scope": "private_candidate",
+                            "publication_status": publication_status,
+                            "is_active": False,
+                            "validation_scope": "not_selected_for_service",
+                            "searchable": False,
+                            "availability_message": (
+                                "尚未明确选定服务版本"
+                                if publication_status == "candidate"
+                                else "存在多个服务版本声明或配置需检查"
+                            ),
+                            "manageable": False,
+                            "documents": self._documents(entry, None),
+                        })
+                else:
+                    group["sources"].append(
+                        {
+                            "source_type": "shared",
+                            "source_visibility": entry.visibility,
+                            "corpus_id": entry.corpus_id,
+                            "version": entry.version,
+                            "version_id": None,
+                            "index_target_id": None,
+                            "source_scope": "not_active",
+                            "publication_status": "not_selected",
+                            "is_active": False,
+                            "validation_scope": "manifest_only",
+                            "searchable": False,
+                            "manageable": False,
+                            "documents": self._documents(entry, None),
+                        }
+                    )
             for target, origin in targets:
                 version_id = None
                 searchable = False
@@ -396,12 +520,24 @@ class LegacySearchService:
                 group["sources"].append(
                     {
                         "source_type": "shared",
+                        "source_visibility": entry.visibility,
                         "corpus_id": entry.corpus_id,
                         "version": entry.version,
                         "version_id": version_id,
                         "index_target_id": target.target_id,
                         "source_scope": origin,
-                        "is_active": origin in {"registry_active", "default_route", "release_active"},
+                        "publication_status": (
+                            "published" if origin == "private_config" and searchable
+                            else "needs_review" if origin == "private_config"
+                            else "published" if searchable else "needs_review"
+                        ),
+                        # 活动标记要求声明来源明确且快速校验通过；full admission仍在检索前执行。
+                        "is_active": (
+                            searchable
+                            and origin in {
+                                "registry_active", "default_route", "release_active", "private_config"
+                            }
+                        ),
                         "validation_scope": "quick_target_validation; full_admission_on_search",
                         "searchable": searchable,
                         "availability_message": None if searchable else "索引或原文状态需管理员检查",
@@ -427,6 +563,7 @@ class LegacySearchService:
             group["sources"].append(
                 {
                     "source_type": "managed",
+                    "source_visibility": "private",
                     "corpus_id": None,
                     "file_id": record.file_id,
                     "version": record.version,
@@ -455,7 +592,7 @@ class LegacySearchService:
         for group in groups.values():
             group["sources"].sort(
                 key=lambda source: (
-                    0 if source.get("source_scope") in {"registry_active", "default_route", "release_active"} else 1,
+                    0 if source.get("is_active") else 1,
                     source["source_type"],
                     source.get("corpus_id") or source.get("file_id") or "",
                     source.get("index_target_id") or "",

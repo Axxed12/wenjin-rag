@@ -144,7 +144,12 @@ def test_identity_http_scopes_auth_grants_and_revocation_across_admin_and_mcp_ro
             # 一次性静态Bearer只用来bootstrap；之后的管理员API必须使用账号session。
             mode = base_client.get("/api/auth/mode")
             assert mode.status_code == 200
-            assert mode.json() == {"mode": "accounts", "bootstrap_open": True}
+            assert mode.json()["mode"] == "accounts"
+            assert mode.json()["bootstrap_open"] is True
+            assert mode.json()["session_policy"] == {
+                "idle_seconds": 1800,
+                "absolute_seconds": 43200,
+            }
             bootstrap = base_client.post(
                 "/api/auth/bootstrap",
                 headers={
@@ -362,7 +367,7 @@ def test_identity_http_scopes_auth_grants_and_revocation_across_admin_and_mcp_ro
                     "library_id": file_record.library_id,
                     "source_type": "managed",
                     "file_id": job.file_id,
-                    "version_id": file_record.active_version_id,
+                    "version_id": replacement_record.active_version_id,
                     "query": "http_private_marker",
                 },
             )

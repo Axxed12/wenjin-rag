@@ -64,7 +64,21 @@ def test_document_catalog_includes_excluded_files_and_keeps_prefixed_index_path_
         corpus_id=corpus_id,
         manifest_path=f"corpora/{corpus_id}/source-manifest.json",
     )
-    target = SimpleNamespace(bm25_path="data/demo.sqlite")
+    manifest_path = manifest_dir / "source-manifest.json"
+    target = IndexTarget(
+        target_id="demo-target",
+        library="demo",
+        version="1.0",
+        strategy="blocks-split",
+        dense_collection="demo_collection",
+        bm25_path="data/demo.sqlite",
+        manifest_path=f"corpora/{corpus_id}/source-manifest.json",
+        manifest_sha256=hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+        chunk_count=1,
+        vector_dimension=2,
+        embedding_model="synthetic-test-embedder",
+        corpus_id=corpus_id,
+    )
     service = LegacySearchService(tmp_path, qdrant_client=None, embedder=None)
 
     public_documents = service._documents(entry, target)
