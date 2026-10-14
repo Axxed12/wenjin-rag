@@ -30,3 +30,7 @@
 - 收尾纠正：pytest tmp_path并非自动清空，1129/1130/1131各保留一个无真实资料的合成identity.sqlite；未删除共享pytest目录，未提交数据库。合成测试服务/客户端已退出。依赖.venv/node_modules保留用于复验且忽略。
 - Compose检查误生成91字节synthetic-only文件，内容只是临时CA文件路径；自动审批拒绝精确删除（blocked by policy），未换手段绕过，保留为集成worktree未跟踪文件，排除提交。主目录及来源目录无此临时文件。
 - 当前main仍90a7e1f且tracked干净，其他相关对话idle；incoming新增路径无本机文件碰撞，core src/根依赖与基线一致。下一步提交测试/审核记录并实际ff-only，合入结果另行更新，不以计划代替已合入。
+
+## 实际合入
+
+主目录执行ff-only成功：90a7e1f到a5341d0。合入后tracked工作树/index干净，src变化仅新增stateless_identity/server/tools；原core实现与依赖不变。收尾只增加实际交付报告和状态索引，不再改已测试源码。来源分支ab53e7f与两个worktree均保留，未推送/部署/重启。

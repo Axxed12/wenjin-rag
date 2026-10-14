@@ -4,6 +4,8 @@
 
 ## 当前能力与证据
 
+- **无状态MCP合入（2026-10-14）**：已在main执行ff-only合入独立验收后的集成分支，主分支后续功能保留；未推送/部署。提交映射、冲突处理、验证范围与工作区保留状态见[交付报告](artifacts/iterations/2026-10-14-mcp-stateless-integration/final-report.md)。
+
 - **新版MCP个人迭代（2026-10-14，合成合同通过）**：新版入口/独立依赖已整合；旧`2025-11-25`入口、主依赖和2026-07-15前叙事保持原边界。FastMCP typed error适配、身份库`query_only`/WAL、个人凭据与ACL、版本/下载校验、官方TS SDK新旧协议隔离通过；集成合同16项+6 subtests，受影响旧环境合同8项通过。合成Compose JSON确认模型90/5/5秒、队列8/30、管理桥210/5/5秒。未做本轮容器/HTTPS/GPU/真实数据/生产验收。证据见[本轮开发记录](artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)、[独立测试记录](artifacts/iterations/2026-10-14-mcp-stateless-integration/test-development-log.md)和[新版说明](docs/mcp-stateless.md)；2026-10-09容器证据为历史，不继承为本轮结果。
 
 - **本地保存（2026-10-14）**：按用户要求保存当前开发Git快照；保存检查不替代功能验收，详细范围见[保存记录](artifacts/iterations/2026-10-14-git-checkpoint/development-log.md)。

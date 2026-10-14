@@ -25,7 +25,7 @@
 - 初步静态检查：Python 3.12.14对三个`stateless_*.py`执行`py_compile`通过；`uv lock --check --project mcp-stateless`解析141个锁定包且通过；`git diff --check`通过；本轮新增/更新链接逐项检查16处全部存在；`code.md`共76行。
 - 链接检查边界：对当前`PROJECT.md`、`code.md`和`docs/development-log.md`全量扫描还发现多条本地历史artifact链接目标在该集成worktree中不存在（例：2026-10-08记录）。这些引用原已存在于`90a7e1f`，不属于本轮新增链接；未在本批伪造或重写历史证据，需root决定是否另做文档裁剪/恢复。
 
-## 状态
+## 阶段状态（历史；最终以交付报告为准）
 
 - 已完成来源代码/独立依赖/部署配置整合与首轮源码兼容审查。上述静态检查已通过；功能/协议/HTTP/容器验收尚未执行。
 - 当前未触碰真实服务、业务数据、身份数据库或部署；主代码 `models/providers.py`、根依赖和锁文件与`90a7e1f`相同。来源目录和主目录保持只读。
@@ -37,6 +37,10 @@
 - 文档基线债务：全量扫描当前worktree内已有的PROJECT/code/开发索引时，发现多条90a7e1f原有历史artifact链接目标不在该快照中。本轮新增/更新链接均已单独检查有效；root确认旧链接债务不阻塞本批，未批量复制旧日志/运行数据。
 - 下一步：等待root对集成分支作最终审核并`--ff-only`合回main。此后如继续扩展容器联验，作为新的明确批次单独准备临时合成环境，不复用2026-10-09镜像结果。
 
+## 实际交付
+
+root完成独立审核并在主目录实际执行ff-only，main从90a7e1f到a5341d0，源分支/worktree保留；交付收尾只更新文档，已验收源码不变。完整范围、提交映射和保留状态见[交付报告](final-report.md)。没有推送、部署或重启。测试日志纠正pytest临时目录默认保留；误生成synthetic-only文件的删除被自动策略拒绝，均未提交运行数据或真实凭据。
+
 - root审读要求将docs/mcp-stateless.md四段实测边界明确标为2026-10-09来源分支历史验收，并单列2026-10-14集成状态；已补充当前快照未做容器/HTTPS验收的说明。该文档澄清不改变业务源码冻结状态。
 
-- 按root要求从来源提交 b53e7f6d146df58c9c5cd9ae4b16741d76b7b73 按字节导出历史 rtifacts/iterations/2026-10-09-mcp-stateless/handoff-snapshot.json（98,621 bytes，SHA-256 5A099E9315961BACE0538F8DA7FF27C7CF85E8B989E5E79EFD55C371DFEE41BD，Git blob 6d4c6e63ff39b394125867727e1ae8fc424ad05d）。未改JSON内容，也未复制旧源码；这是2026-10-09历史快照，非本轮验证。
+- 按root要求从来源提交 ab53e7f6d146df58c9c5cd9ae4b16741d76b7b73 按字节导出历史 artifacts/iterations/2026-10-09-mcp-stateless/handoff-snapshot.json（98,621 bytes，SHA-256 5A099E9315961BACE0538F8DA7FF27C7CF85E8B989E5E79EFD55C371DFEE41BD，Git blob 6d4c6e63ff39b394125867727e1ae8fc424ad05d）。未改JSON内容，也未复制旧源码；这是2026-10-09历史快照，非本轮验证。
