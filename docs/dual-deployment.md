@@ -2,7 +2,7 @@
 
 本文面向本机维护者和部署操作者，说明两种Docker拓扑、启动方式、远程模型链路与备份边界。根目录`compose.yaml`仍是旧兼容入口；新配置位于`deploy/`，不要把两种stack同时接到同一Qdrant/数据目录。
 
-2026-10-09另行授权的个人迭代提供新版MCP2026-07-28独立服务/依赖overlay；下面旧MCP仍遵循2025-11-25。新版路径、secret/下载隔离、追加启动与回退见[新版MCP说明](mcp-stateless.md)，实际联验状态见[当轮记录](../artifacts/iterations/2026-10-09-mcp-stateless/development-log.md)。该新增能力不回写到技术叙事截止日前。
+2026-10-14用户授权将新版MCP2026-07-28个人迭代整合到当前代码快照；旧MCP仍遵循2025-11-25。新版路径、secret/下载隔离、追加启动与回退见[新版MCP说明](mcp-stateless.md)，本轮兼容状态见[整合记录](../artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)，来源SDK/容器证据见[2026-10-09历史记录](../artifacts/iterations/2026-10-09-mcp-stateless/development-log.md)。该新增能力不回写到技术叙事截止日前。
 
 ## 拓扑与职责
 

@@ -63,7 +63,7 @@ manifest（已实测自动下载 30/30）。其余 5 个语料需要按 manifest
 
 下列命令保留根目录的开发环境入口。新的本机完整Docker和云端轻量backend配置见[双部署操作说明](docs/dual-deployment.md)；云端拓扑目前是可运行配置模板与本机隔离模拟，不代表已购云主机或公网部署。
 
-2026-10-09个人迭代新增MCP2026-07-28独立无状态入口，旧状态化入口及主依赖保留；新版启动、客户端切换/回退和逐批验证边界见[新版MCP说明](docs/mcp-stateless.md)。此能力不归入2026-07-15前项目叙述，当前验收状态见[本轮记录](artifacts/iterations/2026-10-09-mcp-stateless/development-log.md)。
+2026-10-14在独立worktree整合新版MCP2026-07-28个人迭代，旧状态化入口及主依赖保留；新版启动、客户端切换/回退见[新版MCP说明](docs/mcp-stateless.md)。此能力不归入2026-07-15前项目叙述；本轮兼容状态见[整合记录](artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)，原始SDK/容器验收为2026-10-09历史证据。
 
 要求：Python 3.12、uv、Docker、NVIDIA GPU，以及本地 Qwen3-Embedding-0.6B 与
 Qwen3-Reranker-0.6B 模型目录。

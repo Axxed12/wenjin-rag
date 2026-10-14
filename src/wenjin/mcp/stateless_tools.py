@@ -39,11 +39,21 @@ def _translate_value(value: Any) -> Any:
 
 
 def _adapt_tool_result(result: Any) -> Any:
-    if not isinstance(result, dict):
+    # Legacy business handlers can return either a plain payload dict or the
+    # current FastMCP ToolResult. In particular, model admission failures use
+    # ToolResult(is_error=True, structured_content=...) so callers must retain
+    # both the MCP error bit and its stable error code/detail.
+    if isinstance(result, dict):
+        source_payload = result
+        source_is_error = False
+    else:
+        source_payload = getattr(result, "structured_content", None)
+        source_is_error = bool(getattr(result, "is_error", False))
+    if not isinstance(source_payload, dict):
         return result
 
-    payload = _translate_value(result)
-    has_business_error = bool(payload.get("error"))
+    payload = _translate_value(source_payload)
+    has_business_error = source_is_error or bool(payload.get("error"))
     return CallToolResult(
         content=[TextContent(text=json.dumps(payload, ensure_ascii=False, separators=(",", ":")))],
         structured_content=payload,

@@ -4,7 +4,7 @@
 
 ## 当前能力与证据
 
-- **新版MCP个人迭代（2026-10-14，整合开发中）**：用户授权在独立worktree新增隔离的2026-07-28无状态MCP入口；旧2025-11-25状态化入口、主环境依赖和历史项目叙事保持原边界。源码与隔离部署配置已挑取至集成worktree，当前适配和独立验收未完成；来源历史验收仅作历史证据；不操作真实业务数据或运行服务。见[本轮开发记录](artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)及[来源计划](artifacts/iterations/2026-10-09-mcp-stateless/phase-1-plan.md)。
+- **新版MCP个人迭代（2026-10-14，适配待独立验收）**：新版入口与依赖已整合；旧`2025-11-25`状态化入口、主依赖和2026-07-15前项目叙事保持原边界。已适配当前typed error及90/210/30秒模型/管理桥预算接线；身份库逐请求只读，WAL sidecar写权限配合`query_only`。独立测试尚未完成，不据2026-10-09来源证据宣称本轮验收。见[本轮开发记录](artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)、[新版说明](docs/mcp-stateless.md)和[历史来源记录](artifacts/iterations/2026-10-09-mcp-stateless/development-log.md)。
 
 - **本地保存（2026-10-14）**：按用户要求保存当前开发Git快照；保存检查不替代功能验收，详细范围见[保存记录](artifacts/iterations/2026-10-14-git-checkpoint/development-log.md)。
 

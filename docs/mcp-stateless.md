@@ -1,6 +1,6 @@
 # 新版无状态 MCP 启动、并存与回退
 
-这是2026-10-09、技术叙事截止日2026-07-15之后的个人迭代。旧入口继续使用`2025-11-25`。新版实现与每批实测状态见[开发记录](../artifacts/iterations/2026-10-09-mcp-stateless/development-log.md)、[独立测试记录](../artifacts/iterations/2026-10-09-mcp-stateless/test-development-log.md)和[方案/验收清单](../artifacts/iterations/2026-10-09-mcp-stateless/phase-1-plan.md)。
+这是2026-10-14整合的个人迭代，位于技术叙事截止日2026-07-15之后。旧入口继续使用`2025-11-25`。本轮适配与独立验证状态见[整合开发记录](../artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)；SDK/容器联验来自[2026-10-09来源记录](../artifacts/iterations/2026-10-09-mcp-stateless/development-log.md)，仅为历史证据。
 
 ## 版本与入口
 
@@ -40,6 +40,8 @@ uv sync --project mcp-stateless --locked
 
 新增[独立Dockerfile](../deploy/Dockerfile.mcp-stateless)、[Compose overlay](../deploy/compose.stateless.yaml)和[新版代理配置](../deploy/Caddyfile.stateless)。overlay叠加现有base+cloud profile，新增mcp-stateless进程；管理HTTP、Qdrant、旧MCP继续原职责。模型token由既有with-secrets读取，MCP不获取file_admin_token。数据/资料挂载只读。
 
+新版进程显式沿用当前单次模型读取预算90秒、连接/连接池5秒，模型FIFO最多8个等待位、等待上限30秒；管理桥读取210秒、连接/连接池5秒，并保留`bridge_read > model_read`配置守卫。Compose通过同名环境变量提供覆盖值，预算关系无效时服务启动失败。
+
 身份卷需要允许SQLite维护WAL/SHM sidecar文件：实际验收发现WAL模式无sidecars时，整个身份目录filesystem只读会令鉴权失败。新版采用专用`query_only`连接禁止应用账户/授权写操作，不初始化或迁移身份库，身份挂载允许SQLite维护sidecars；这与资料/索引的filesystem只读不同。不为新版切换数据库journal mode，也不使用immutable缓存热身份库。该处理的最终复验状态见当轮记录。
 
 复用独立部署环境配置，并从新增`deploy/.env.stateless.example`复制`deploy/.env.stateless`，设置外部Host allowlist及新版proxy地址。默认proxy子网`172.30.250.0/29`，edge/management/legacy/modern分别为`.2/.3/.4/.5`；冲突时同时调整整个地址组。cloud-edge先按专属前缀路由新版MCP/取件，再路由旧/mcp与/files，管理页兜底。
@@ -52,7 +54,7 @@ docker compose --project-directory . --env-file deploy/.env.cloud `
   -f deploy/compose.base.yaml -f deploy/compose.cloud.yaml `
   -f deploy/compose.stateless.yaml config --quiet
 docker build -f deploy/Dockerfile.mcp-stateless `
-  -t wenjin-mcp-stateless:2026-10-09 .
+  -t wenjin-mcp-stateless:2026-10-14 .
 ```
 
 首次部署按双部署说明准备管理、Qdrant、模型节点与显式账户授权后，才启动整个新stack。为已有兼容stack增加新版时，核对挂载与secret身份，再用上述相同Compose参数执行`up -d --no-deps mcp-stateless cloud-edge`；避免重启其他服务。本文命令没有在现有运行stack执行。配置渲染/镜像构建成功分别记录，不能代替TLS/客户端/检索验收。
