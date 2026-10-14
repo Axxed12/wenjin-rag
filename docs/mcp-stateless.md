@@ -67,10 +67,16 @@ docker build -f deploy/Dockerfile.mcp-stateless `
 
 回退顺序：把客户端URL切回旧/mcp；停止新增mcp-stateless服务；用原base+cloud配置恢复cloud-edge原Caddyfile并仅重建代理容器。保留新旧服务数据与个人授权，不重建索引，不改schema，不回退主依赖；不执行`down -v`。新版依赖目录/镜像可保留供复查，回退不要求删除它们。
 
-## 实测边界
+## 2026-10-09来源分支的历史实测边界
+
+以下四段仅记录来源分支在2026-10-09完成的隔离SDK/容器实验。它们没有在2026-10-14集成快照上重跑，不能作为当前镜像、TLS、检索或身份行为的验收证据。
 
 四批实现与合成联验完成，见[交付汇总](../artifacts/iterations/2026-10-09-mcp-stateless/acceptance-summary.md)。独立依赖/API与真实loopback SDK三RPC/协议负例通过；第三批实际SDK检索、跨用户隔离、撤权、shared release固定和managed旧版本拒绝有输入输出。旧SDK继续初始化/调用，新旧客户端连接错误入口均失败，新客户端没有自动降级。
 
 第四批使用正式镜像/CLI、临时Qdrant与合成remote embedding/rerank，经Caddy HTTPS由官方SDK搜索成功；取件200且字节/hash匹配、no-store；撤grant后下一次列表空/下载403，重授后恢复。WAL无sidecars首次鉴权、query_only拒写、无writer读段主库hash不变均通过。真实管理create_app经HTTPS保持Secure/HttpOnly Cookie，错误Origin/缺CSRF403，正确CSRF签发201。旧代理路径仅测试合成upstream转发，未在本批执行旧MCP的TLS握手。
 
 第三批使用确定性向量器和关闭的重排器；第四批实际调用合成模型API的embedding/rerank。没有执行真实模型、真实语料、冻结评测、WAN/云主机、GUI客户端或生产验收。官方SDK对非字符串protocolVersion的默认错误码与规范不一致，本项目新版入口增加局部Malformed meta校验并已通过负例复验；不能将此项目适配当作SDK自身的完整一致性认证。临时容器/网络及最终联验目录已清理；早期三处临时SQLite文件因自动审批拒绝删除而保留，见[清理记录](../artifacts/iterations/2026-10-09-mcp-stateless/cleanup-evidence.md)。
+
+## 2026-10-14集成状态
+
+本轮整合的源码适配和配置变更见[独立开发记录](../artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)。本轮未启动容器或HTTPS代理；来源分支的历史镜像与TLS结果不继承为本轮验收。独立测试结果完成后仅在本节和当轮记录更新当前证据。
