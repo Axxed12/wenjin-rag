@@ -1,6 +1,6 @@
 # 持续开发记录索引
 
-2026-10-14 [新版无状态MCP业务整合](../artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)：在独立worktree从本地保存点挑取既有隔离实现，核对模型准入、个人凭据、身份库和部署依赖兼容性；业务适配及独立验收状态以当轮记录为准。来源实验记录见[2026-10-09无状态MCP迭代](../artifacts/iterations/2026-10-09-mcp-stateless/development-log.md)。
+2026-10-14 [新版无状态MCP业务整合](../artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)：typed ToolResult与协议翻译、WAL只读身份库、当前超时/队列预算配置完成整合；官方TS SDK网络、新旧协议隔离及授权/版本/read-only合同16项+6 subtests通过，受影响旧环境合同8项通过。合成Compose JSON配置核对通过；本轮未做容器TLS、GPU、真实数据或生产验收。独立测试记录由测试Agent维护于同轮`test-development-log.md`。来源容器/SDK记录见[2026-10-09历史迭代](../artifacts/iterations/2026-10-09-mcp-stateless/development-log.md)，不得视作本轮实测。
 
 2026-10-14 [当前开发本地Git保存](../artifacts/iterations/2026-10-14-git-checkpoint/development-log.md)：保存当前代码、配置、测试及开发记录，排除运行数据库/凭据/原文，不重跑测试或推送远端；验收沿用各轮原有证据。
 

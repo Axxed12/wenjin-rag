@@ -29,7 +29,13 @@
 
 - 已完成来源代码/独立依赖/部署配置整合与首轮源码兼容审查。上述静态检查已通过；功能/协议/HTTP/容器验收尚未执行。
 - 当前未触碰真实服务、业务数据、身份数据库或部署；主代码 `models/providers.py`、根依赖和锁文件与`90a7e1f`相同。来源目录和主目录保持只读。
-- 下一步：业务源码现已冻结，可由独立测试Agent编写/运行合同测试。源码冻结后不再边测边改；若验收暴露必要修复，先与root和测试Agent协调批次，修复后重新冻结并只重验受影响合同。
+- 阶段状态：源码已冻结；测试Agent完成独立合同复验，结果见下文及测试记录。
+- 独立测试Agent最终报告：新版合同、协议、身份/release、新旧时代隔离共16 passed、6 subtests passed、0 skipped；官方TypeScript SDK 2.3.1经真实loopback网络discover/list/call，覆盖个人凭据、ACL即时撤销、凭据撤销、release绑定、managed版本替换及下载原文SHA。新旧协议隔离包含在16项内，不重复计数。单独在main旧依赖环境对受影响准入/typed wire/管理员身份凭据合同8项通过。新合同首轮有fixture缺少合成`QDRANT_API_KEY`，修正后通过；新增wire合同曾漏`io`导入，修后整体组合重验通过。4 warnings来自合成Qdrant fixture调用上游弃用API；旧环境另有5 warnings。测试命令、环境版本、源码hash和具体边界见[独立测试记录](test-development-log.md)。
+- Compose静态合同：从临时synthetic env运行base+cloud+stateless `docker compose config --format json`，断言stateless服务拿到model read/connect/pool=`90/5/5`秒、queue=`8/30`、bridge read/connect/pool=`210/5/5`秒，均匹配预期。只解析配置；未连接daemon、启动/构建容器或访问任何`.env`/真实secret。
+- 本轮最终验证仍不含容器TLS/HTTPS、GPU、真实模型/语料/身份库、生产或UI客户端。2026-10-09容器与TLS证据仅是历史来源。独立测试使用临时合成SQLite、索引、凭据和loopback服务；依赖分别在隔离`mcp-stateless/.venv`及Node package安装，不改主uv环境/锁。
+- 当前主分支 `src/wenjin/models/providers.py`、`src/wenjin/identity/store.py`、`src/wenjin/mcp/managed_client.py`、根 `pyproject.toml` 与 `uv.lock` 相对`90a7e1f`无差异。集成源码commit为`39d348e`；测试所用stateless源码hash见测试记录。新增独立身份卷允许SQLite WAL sidecar，而每连接`query_only=ON`，记录性合同通过。
+- 文档基线债务：全量扫描当前worktree内已有的PROJECT/code/开发索引时，发现多条90a7e1f原有历史artifact链接目标不在该快照中。本轮新增/更新链接均已单独检查有效；root确认旧链接债务不阻塞本批，未批量复制旧日志/运行数据。
+- 下一步：等待root对集成分支作最终审核并`--ff-only`合回main。此后如继续扩展容器联验，作为新的明确批次单独准备临时合成环境，不复用2026-10-09镜像结果。
 
 - root审读要求将docs/mcp-stateless.md四段实测边界明确标为2026-10-09来源分支历史验收，并单列2026-10-14集成状态；已补充当前快照未做容器/HTTPS验收的说明。该文档澄清不改变业务源码冻结状态。
 

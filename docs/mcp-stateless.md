@@ -79,4 +79,4 @@ docker build -f deploy/Dockerfile.mcp-stateless `
 
 ## 2026-10-14集成状态
 
-本轮整合的源码适配和配置变更见[独立开发记录](../artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)。本轮未启动容器或HTTPS代理；来源分支的历史镜像与TLS结果不继承为本轮验收。独立测试结果完成后仅在本节和当轮记录更新当前证据。
+本轮整合的源码适配和配置变更见[独立开发记录](../artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)，合同结果见[独立测试记录](../artifacts/iterations/2026-10-14-mcp-stateless-integration/test-development-log.md)。官方TS SDK新旧协议隔离、个人凭据/ACL/撤权、版本与下载校验、typed error、WAL只读合同16项及6 subtests通过；main旧环境受影响合同8项通过。合成Compose JSON预算核对通过。本轮未启动容器或HTTPS代理，也未测GPU、真实语料/身份数据或生产部署；来源分支历史镜像与TLS结果不继承为本轮验收。
