@@ -32,3 +32,5 @@
 - 下一步：业务源码现已冻结，可由独立测试Agent编写/运行合同测试。源码冻结后不再边测边改；若验收暴露必要修复，先与root和测试Agent协调批次，修复后重新冻结并只重验受影响合同。
 
 - root审读要求将docs/mcp-stateless.md四段实测边界明确标为2026-10-09来源分支历史验收，并单列2026-10-14集成状态；已补充当前快照未做容器/HTTPS验收的说明。该文档澄清不改变业务源码冻结状态。
+
+- 按root要求从来源提交 b53e7f6d146df58c9c5cd9ae4b16741d76b7b73 按字节导出历史 rtifacts/iterations/2026-10-09-mcp-stateless/handoff-snapshot.json（98,621 bytes，SHA-256 5A099E9315961BACE0538F8DA7FF27C7CF85E8B989E5E79EFD55C371DFEE41BD，Git blob 6d4c6e63ff39b394125867727e1ae8fc424ad05d）。未改JSON内容，也未复制旧源码；这是2026-10-09历史快照，非本轮验证。
