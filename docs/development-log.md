@@ -1,5 +1,7 @@
 # 持续开发记录索引
 
+2026-10-14 [MCP入口管理后端](../artifacts/iterations/2026-10-14-mcp-entry-control/development-log.md)：新增连接profile/default CAS、管理员session+CSRF路由、固定Docker broker与可轮询启停operation。仅broker启动时明确配置的Compose项目中两个MCP服务可控；管理容器无Docker socket。29项合成合同、8项相关回归及静态检查通过；未部署或操作真实容器。
+
 2026-10-14 [无状态MCP实际合入main](../artifacts/iterations/2026-10-14-mcp-stateless-integration/final-report.md)：从90a7e1f起选择性整合来源提交，兼容当前模型错误/超时/个人授权，独立验收后ff-only合入；保留新旧依赖和服务隔离，未推送部署，未执行本轮容器/HTTPS或真实模型验收。
 
 2026-10-14 [新版无状态MCP业务整合](../artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)：typed ToolResult与协议翻译、WAL只读身份库、当前超时/队列预算配置完成整合；官方TS SDK网络、新旧协议隔离及授权/版本/read-only合同16项+6 subtests通过，受影响旧环境合同8项通过。合成Compose JSON配置核对通过；本轮未做容器TLS、GPU、真实数据或生产验收。独立测试记录由测试Agent维护于同轮`test-development-log.md`。来源容器/SDK记录见[2026-10-09历史迭代](../artifacts/iterations/2026-10-09-mcp-stateless/development-log.md)，不得视作本轮实测。

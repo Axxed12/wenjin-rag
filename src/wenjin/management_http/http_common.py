@@ -89,6 +89,8 @@ async def _manager(request: Request):
 
 async def _authorize(request: Request, access: str = "admin") -> None:
     identity = getattr(request.app.state, "identity_store", None)
+    if access == "admin_session" and identity is None:
+        raise HTTPException(503, "MCP管理操作要求启用管理员身份会话")
     if access in {"public", "bootstrap"}:
         return
     if access == "mcp":
@@ -134,7 +136,7 @@ async def _authorize(request: Request, access: str = "admin") -> None:
         allowed_during_password_change = {"me", "logout", "change_password", "csrf_refresh"}
         if principal.must_change_password and access not in allowed_during_password_change:
             raise HTTPException(403, "首次登录必须先修改密码")
-        if access == "admin" and principal.role != "admin":
+        if access in {"admin", "admin_session"} and principal.role != "admin":
             raise HTTPException(403, "仅管理员可访问")
         if request.method not in {"GET", "HEAD", "OPTIONS"} and access not in {
             "me",

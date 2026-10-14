@@ -250,8 +250,9 @@ def _routes():
         Route("/api/search", _route(_authorized_managed_search, access="reader"), methods=["POST"]),
     ]
     from wenjin.management_http.evaluations import evaluation_routes
+    from wenjin.management_http.mcp_control import routes as mcp_control_routes
 
-    return routes + release_routes(_route) + evaluation_routes(_route)
+    return routes + mcp_control_routes(_route) + release_routes(_route) + evaluation_routes(_route)
 
 
 def create_app(
@@ -262,6 +263,7 @@ def create_app(
     manager=None,
     settings=None,
     identity_db: Path | None = None,
+    mcp_control_service=None,
 ) -> Starlette:
     """构造独立管理API；manager/settings仅供隔离验收注入。"""
     if max_upload_bytes < 1:
@@ -419,6 +421,11 @@ def create_app(
     app.add_middleware(BaseHTTPMiddleware, dispatch=_security_headers)
 
     app.state.root = Path(root)
+    if mcp_control_service is None:
+        from wenjin.mcp_control.management import MCPControlService
+
+        mcp_control_service = MCPControlService(Path(root))
+    app.state.mcp_control_service = mcp_control_service
     app.state.admin_token = admin_token
     app.state.identity_store = None
     app.state.evaluation_service = None

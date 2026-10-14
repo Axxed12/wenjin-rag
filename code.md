@@ -4,6 +4,8 @@
 
 ## 当前能力与证据
 
+- **MCP入口管理后端（2026-10-14）**：增加旧/新版连接配置、未来默认项CAS及受限Docker broker API；仅admin session+CSRF可访问，默认不重配既有Agent。broker仅控制显式配置Compose项目的`mcp`/`mcp-stateless`容器，管理容器无Docker socket。当前旧版原生Python进程显示`unmanaged`且不能由broker启停。29项合成合同、8项相关回归及合成secret health probe通过；部署配置静态检查见[当轮记录](artifacts/iterations/2026-10-14-mcp-entry-control/development-log.md)，未部署、未触碰真实容器或身份数据。
+
 - **无状态MCP合入（2026-10-14）**：已在main执行ff-only合入独立验收后的集成分支，主分支后续功能保留；未推送/部署。提交映射、冲突处理、验证范围与工作区保留状态见[交付报告](artifacts/iterations/2026-10-14-mcp-stateless-integration/final-report.md)。
 
 - **新版MCP个人迭代（2026-10-14，合成合同通过）**：新版入口/独立依赖已整合；旧`2025-11-25`入口、主依赖和2026-07-15前叙事保持原边界。FastMCP typed error适配、身份库`query_only`/WAL、个人凭据与ACL、版本/下载校验、官方TS SDK新旧协议隔离通过；集成合同16项+6 subtests，受影响旧环境合同8项通过。合成Compose JSON确认模型90/5/5秒、队列8/30、管理桥210/5/5秒。未做本轮容器/HTTPS/GPU/真实数据/生产验收。证据见[本轮开发记录](artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)、[独立测试记录](artifacts/iterations/2026-10-14-mcp-stateless-integration/test-development-log.md)和[新版说明](docs/mcp-stateless.md)；2026-10-09容器证据为历史，不继承为本轮结果。

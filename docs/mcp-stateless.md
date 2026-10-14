@@ -40,6 +40,8 @@ uv sync --project mcp-stateless --locked
 
 新增[独立Dockerfile](../deploy/Dockerfile.mcp-stateless)、[Compose overlay](../deploy/compose.stateless.yaml)和[新版代理配置](../deploy/Caddyfile.stateless)。overlay叠加现有base+cloud profile，新增mcp-stateless进程；管理HTTP、Qdrant、旧MCP继续原职责。模型token由既有with-secrets读取，MCP不获取file_admin_token。数据/资料挂载只读。
 
+2026-10-14另有管理端[连接入口与Docker控制API](mcp-entry-control.md)，使用独立可选overlay和broker；未部署前不会启用容器控制。
+
 新版进程显式沿用当前单次模型读取预算90秒、连接/连接池5秒，模型FIFO最多8个等待位、等待上限30秒；管理桥读取210秒、连接/连接池5秒，并保留`bridge_read > model_read`配置守卫。Compose通过同名环境变量提供覆盖值，预算关系无效时服务启动失败。
 
 身份卷需要允许SQLite维护WAL/SHM sidecar文件：实际验收发现WAL模式无sidecars时，整个身份目录filesystem只读会令鉴权失败。新版采用专用`query_only`连接禁止应用账户/授权写操作，不初始化或迁移身份库，身份挂载允许SQLite维护sidecars；这与资料/索引的filesystem只读不同。不为新版切换数据库journal mode，也不使用immutable缓存热身份库。该处理的最终复验状态见当轮记录。

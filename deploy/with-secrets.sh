@@ -18,6 +18,7 @@ load_secret() {
 load_secret WENJIN_MODEL_API_TOKEN /run/secrets/model_api_token
 load_secret WENJIN_FILE_ADMIN_TOKEN /run/secrets/file_admin_token
 load_secret QDRANT_API_KEY /run/secrets/qdrant_api_key
+load_secret WENJIN_MCP_CONTROL_TOKEN /run/secrets/mcp_control_token
 
 if [ "${WENJIN_MODEL_PROVIDER:-local}" = "remote" ] && [ -z "${WENJIN_MODEL_API_TOKEN:-}" ]; then
     echo "remote model provider requires the model API token secret" >&2
