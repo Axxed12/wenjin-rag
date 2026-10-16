@@ -38,6 +38,7 @@ from wenjin.serving import (
 
 MAX_CONCURRENT_DOWNLOADS = 2
 
+
 class SlotHoldingResponse(StarletteResponse):
     """把并发槽位持有到**正文发送结束**的响应包装。
 
@@ -100,6 +101,7 @@ class DownloadSlot:
             self._released = True
             self._release()
 
+
 def serve_download(
     *,
     corpus_id: str,
@@ -112,6 +114,7 @@ def serve_download(
     identity_store=None,
     principal=None,
     library_id: str | None = None,
+    access_snapshot=None,
 ) -> Response:
     """取件的完整判定，独立成函数以便直接测试和审计。
 
@@ -120,20 +123,36 @@ def serve_download(
     """
     started = time.perf_counter()
 
-    def finish(outcome: str, status: int, payload: dict, *, bytes_served: int | None = None,
-               detail: str | None = None, response: Response | None = None) -> Response:
+    def finish(
+        outcome: str,
+        status: int,
+        payload: dict,
+        *,
+        bytes_served: int | None = None,
+        detail: str | None = None,
+        response: Response | None = None,
+    ) -> Response:
         audit.record_download(
-            corpus_id=corpus_id, relative_path=relative_path, client_id=client_id,
-            outcome=outcome, elapsed_seconds=time.perf_counter() - started,
-            bytes_served=bytes_served, detail=detail,
+            corpus_id=corpus_id,
+            relative_path=relative_path,
+            client_id=client_id,
+            outcome=outcome,
+            elapsed_seconds=time.perf_counter() - started,
+            bytes_served=bytes_served,
+            detail=detail,
         )
         return response if response is not None else JSONResponse(payload, status_code=status)
 
     if identity_store is not None:
         try:
-            if principal is None or not library_id or not identity_store.can_read(
-                principal, "library", library_id
-            ):
+            allowed = (
+                access_snapshot.allows("library", library_id)
+                if access_snapshot is not None and library_id
+                else principal is not None
+                and library_id
+                and identity_store.can_read(principal, "library", library_id)
+            )
+            if not allowed:
                 raise AccessDenied("当前账号没有该资料库的读取授权")
         except AccessDenied as exc:
             return finish("denied", 403, {"error": "forbidden", "detail": str(exc)})
@@ -141,10 +160,12 @@ def serve_download(
         try:
             registry = current_access()
         except AccessSnapshotError as exc:
-            return finish("error", 503,
-                          {"error": "unavailable",
-                           "detail": policy_unavailable(exc, tool="download")},
-                          detail=str(exc))
+            return finish(
+                "error",
+                503,
+                {"error": "unavailable", "detail": policy_unavailable(exc, tool="download")},
+                detail=str(exc),
+            )
         try:
             registry.require(corpus_id, client_id)
         except AccessDenied as exc:
@@ -164,13 +185,17 @@ def serve_download(
         return finish("not_found", 404, {"error": "not_found", "detail": str(exc)})
     except SourceUnverified as exc:
         # 部署问题：给客户端通用说明，具体缺哪条记录只进服务端审计。
-        return finish("unverified", 409,
-                      {"error": "source_unverified", "detail": unverified_detail},
-                      detail=str(exc))
+        return finish(
+            "unverified",
+            409,
+            {"error": "source_unverified", "detail": unverified_detail},
+            detail=str(exc),
+        )
     except (CorpusIdentityError, ValueError):
         # 身份冲突或manifest损坏属于部署错误：拒绝，且不向客户端透露细节。
-        return finish("unavailable", 503, {"error": "unavailable",
-                                           "detail": "语料配置无效，请联系管理员"})
+        return finish(
+            "unavailable", 503, {"error": "unavailable", "detail": "语料配置无效，请联系管理员"}
+        )
 
     try:
         verified = sources.read_verified(relative_path)
@@ -181,14 +206,19 @@ def serve_download(
         return finish("hash_mismatch", 409, {"error": "source_modified", "detail": str(exc)})
     except SourceUnverified as exc:
         # 没有可用Hash就无法证明取回的是被引用的那份原文，只能拒绝。
-        return finish("unverified", 409,
-                      {"error": "source_unverified", "detail": unverified_detail},
-                      detail=str(exc))
+        return finish(
+            "unverified",
+            409,
+            {"error": "source_unverified", "detail": unverified_detail},
+            detail=str(exc),
+        )
     except SourceTooLarge as exc:
         return finish("too_large", 413, {"error": "too_large", "detail": str(exc)})
 
     return finish(
-        "served", 200, {},
+        "served",
+        200,
+        {},
         bytes_served=len(verified.content),
         response=StarletteResponse(
             content=verified.content,
@@ -197,14 +227,19 @@ def serve_download(
         ),
     )
 
+
 def register_download_route(
-    mcp: FastMCP, *, bearer_enabled: bool, audit: SearchAudit,
+    mcp: FastMCP,
+    *,
+    bearer_enabled: bool,
+    audit: SearchAudit,
     current_access: Callable[[], AccessRegistry],
     sources_for: Callable[[str], CorpusSources],
     identity_store=None,
     root=None,
     release_resolver=None,
     managed_bridge=None,
+    read_only_release_catalog: bool = False,
 ) -> None:
     # 槽位与后台任务集合各属于这个服务实例，绝不跨实例共享。
     download_slots = asyncio.Semaphore(MAX_CONCURRENT_DOWNLOADS)
@@ -218,10 +253,14 @@ def register_download_route(
         file_id = request.path_params["file_id"]
         version_id = request.query_params.get("version_id", "")
         if not re.fullmatch(r"[0-9a-f]{32,64}", version_id):
-            return JSONResponse({"error": "invalid_version", "detail": "必须提供完整version_id"}, status_code=422)
+            return JSONResponse(
+                {"error": "invalid_version", "detail": "必须提供完整version_id"}, status_code=422
+            )
         bridge = current_managed_bridge()
         if bridge is None:
-            return JSONResponse({"error": "unavailable", "detail": "managed文件服务暂不可用"}, status_code=503)
+            return JSONResponse(
+                {"error": "unavailable", "detail": "managed文件服务暂不可用"}, status_code=503
+            )
         authorization = None
         if identity_store is not None:
             try:
@@ -248,7 +287,8 @@ def register_download_route(
         except ManagedFileServiceError:
             return JSONResponse({"error": "unavailable"}, status_code=503)
         headers = {
-            key: value for key, value in upstream.headers.items()
+            key: value
+            for key, value in upstream.headers.items()
             if key.lower() in {"content-disposition", "cache-control", "x-content-type-options"}
         }
         return Response(
@@ -266,9 +306,12 @@ def register_download_route(
         所以丢到有界线程池执行；同时用信号量限制并发，避免多个大文件同时占满内存。
         """
         principal = None
+        access_snapshot = None
         library_id = None
         if identity_store is not None:
-            principal = identity_from_scope(request.scope).principal
+            request_identity = identity_from_scope(request.scope)
+            principal = request_identity.principal
+            access_snapshot = request_identity.access_snapshot
             from wenjin.retrieval.router import normalize_library
 
             try:
@@ -278,7 +321,9 @@ def register_download_route(
                     from wenjin.releases.catalog import ReleaseCatalog
                     from wenjin.releases.resolver import release_catalog_path
 
-                    catalog = ReleaseCatalog(release_catalog_path(root))
+                    catalog = ReleaseCatalog(
+                        release_catalog_path(root), read_only=read_only_release_catalog
+                    )
                     record = catalog.get_release(release_id)
                     target = IndexTarget.from_dict(record["target"])
                     if target.corpus_identity() != request.path_params["corpus_id"]:
@@ -318,6 +363,7 @@ def register_download_route(
                         identity_store=identity_store,
                         principal=principal,
                         library_id=library_id,
+                        access_snapshot=access_snapshot,
                     )
                 )
             finally:

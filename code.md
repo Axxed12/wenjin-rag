@@ -1,12 +1,16 @@
 # 当前开发状态
 
-更新：2026-10-14。接手先读本文、[项目目标](PROJECT.md)和[协作约定](AGENTS.md)；使用文档见[根文档导航](README.md)。本文只保留当前结论和下一步，不再累积历史流水。
+更新：2026-10-15。接手先读本文、[项目目标](PROJECT.md)和[协作约定](AGENTS.md)；使用文档见[根文档导航](README.md)。本文只保留当前结论和下一步，不再累积历史流水。
 
 ## 当前能力与证据
 
-- **MCP入口管理后端（2026-10-14）**：增加旧/新版连接配置、未来默认项CAS及受限Docker broker API；仅admin session+CSRF可访问，默认不重配既有Agent。broker仅控制显式配置Compose项目的`mcp`/`mcp-stateless`容器，管理容器无Docker socket。当前旧版原生Python进程显示`unmanaged`且不能由broker启停。29项合成合同、8项相关回归及合成secret health probe通过；部署配置静态检查见[当轮记录](artifacts/iterations/2026-10-14-mcp-entry-control/development-log.md)，未部署、未触碰真实容器或身份数据。
+- **评测界面可读性（2026-10-15）**：修复空表格DOM对象字符串，主列表隐藏内部编号/题集ID并收进详情，状态去重与换行；保留操作所需稳定ID。前端51项与静态资源200/摘要检查通过；真实桌面空状态、列表和读取已有对照结果已检查，未复验390px，不重跑模型评测；见[本轮记录](artifacts/iterations/2026-10-15-evaluation-readable-ui/development-log.md)。
 
-- **无状态MCP合入（2026-10-14）**：已在main执行ff-only合入独立验收后的集成分支，主分支后续功能保留；未推送/部署。提交映射、冲突处理、验证范围与工作区保留状态见[交付报告](artifacts/iterations/2026-10-14-mcp-stateless-integration/final-report.md)。
+- **路线页状态同步（2026-10-15）**：以“已实现与待完善”替换统一“计划中”，逐项说明授权、版本发布、评测和服务控制的实现及剩余范围；同步过时的Bearer认证说明。仅静态文案，不新增功能或提升历史验收结论；检查见[本轮记录](artifacts/iterations/2026-10-15-roadmap-status/development-log.md)。
+
+- **MCP入口与本机部署（2026-10-14）**：管理员两版入口卡、无凭据连接配置、未来推荐默认CAS、异步Docker启停已接线；默认仍旧版，原生18765不受Docker按钮控制。broker仅loopback18769；新版18768已启动，HTTP逐请求共用18777账号/凭据/ACL，不跨系统挂载身份库。独立镜像libxml2对齐2.11.9后真实索引启动准入通过；最终镜像无源码缓存/编译器。Node48项、入口/身份32项、隔离桥合同及FastMCP4合成RPC通过（组有重叠）；桌面真实启动按钮/状态轮询、broker真实启停、桌面/390px页面及配置已检查；有效真实凭据客户端检索未验收。两原生服务后续退出，原因未明，按原配置恢复后管理200、两MCP匿名401；模型身份、9条凭据/22条授权摘要保持。证据与限制见[本轮记录](artifacts/iterations/2026-10-14-mcp-entry-control-ui-deploy/development-log.md)。
+
+- **无状态MCP合入（2026-10-14）**：已在main执行ff-only合入独立验收后的集成分支，主分支后续功能保留；未推送。初轮未部署，后续本机部署边界见入口控制记录。提交映射、冲突处理、验证范围与工作区保留状态见[交付报告](artifacts/iterations/2026-10-14-mcp-stateless-integration/final-report.md)。
 
 - **新版MCP个人迭代（2026-10-14，合成合同通过）**：新版入口/独立依赖已整合；旧`2025-11-25`入口、主依赖和2026-07-15前叙事保持原边界。FastMCP typed error适配、身份库`query_only`/WAL、个人凭据与ACL、版本/下载校验、官方TS SDK新旧协议隔离通过；集成合同16项+6 subtests，受影响旧环境合同8项通过。合成Compose JSON确认模型90/5/5秒、队列8/30、管理桥210/5/5秒。未做本轮容器/HTTPS/GPU/真实数据/生产验收。证据见[本轮开发记录](artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)、[独立测试记录](artifacts/iterations/2026-10-14-mcp-stateless-integration/test-development-log.md)和[新版说明](docs/mcp-stateless.md)；2026-10-09容器证据为历史，不继承为本轮结果。
 

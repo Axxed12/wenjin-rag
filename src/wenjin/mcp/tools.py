@@ -206,6 +206,16 @@ def register_tools(
             raise RuntimeError("account MCP请求缺少Context")
         return identity_from_context(ctx).principal
 
+    def request_access_snapshot(ctx: Context | None):
+        if identity_store is None:
+            return None
+        if ctx is None:
+            raise RuntimeError("account MCP请求缺少Context")
+        identity = identity_from_context(ctx)
+        if identity.access_snapshot is not None:
+            return identity.access_snapshot
+        return identity_store.load_access_snapshot(identity.principal)
+
     def request_bridge_authorization(ctx: Context | None) -> str | None:
         if identity_store is None:
             return None
@@ -220,14 +230,12 @@ def register_tools(
         bridge = current_managed_bridge(ctx)
         if bridge is None:
             return set()
-        principal = request_principal(ctx)
+        access_snapshot = request_access_snapshot(ctx)
         catalog = bridge.list_libraries(authorization=request_bridge_authorization(ctx))
         visible = set()
         for item in catalog:
             library_id = item.get("library_id")
-            if isinstance(library_id, str) and identity_store.can_read(
-                principal, "library", library_id
-            ):
+            if isinstance(library_id, str) and access_snapshot.allows("library", library_id):
                 visible.add(normalize_library(library_id))
         return visible
 
@@ -474,14 +482,12 @@ def register_tools(
         if identity_store is not None:
             try:
                 visible_libraries = authorized_library_ids(ctx)
-                principal = request_principal(ctx)
+                access_snapshot = request_access_snapshot(ctx)
                 allowed = [
                     index
                     for index in router.indices
                     if normalize_library(index.library) in visible_libraries
-                    and identity_store.can_read(
-                        principal, "library", normalize_library(index.library)
-                    )
+                    and access_snapshot.allows("library", normalize_library(index.library))
                 ]
             except Exception as exc:
                 return denied("当前资料库授权不可用，已拒绝本次检索", error=exc)

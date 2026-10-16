@@ -20,6 +20,10 @@
     evaluationTemplates: [], evaluationJobs: [], evaluationAudit: [], evaluationSelectedId: null,
     evaluationComparison: null, evaluationGeneration: 0, evaluationPollTimer: null,
     evaluationSelectionEpoch: 0, evaluationLoadPromise: null, lastPermissionRefreshAt: 0,
+    mcpEntries: [], mcpDefaultEntry: null, mcpEntriesRevision: 0, mcpDefaultRevision: null,
+    mcpConfigs: new Map(), mcpConfigLoading: new Set(), mcpConfigRevision: 0,
+    mcpNotice: '', mcpNoticeKind: 'info', mcpDefaultSaving: false,
+    mcpActionPendingEntry: null, mcpOperation: null, mcpOperationRevision: 0, mcpReconcileRequired: new Set(),
   };
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -115,6 +119,20 @@
 
   function clearSensitiveState({ disconnected = false } = {}) {
     state.generation += 1;
+    state.mcpEntriesRevision += 1;
+    state.mcpConfigRevision += 1;
+    state.mcpOperationRevision += 1;
+    state.mcpEntries = [];
+    state.mcpDefaultEntry = null;
+    state.mcpDefaultRevision = null;
+    state.mcpConfigs.clear();
+    state.mcpConfigLoading.clear();
+    state.mcpNotice = '';
+    state.mcpNoticeKind = 'info';
+    state.mcpDefaultSaving = false;
+    state.mcpActionPendingEntry = null;
+    state.mcpOperation = null;
+    state.mcpReconcileRequired.clear();
     // 账号切换会使创建请求过期；不要让旧请求的 finally 留下禁用状态。
     $('#create-library-button').disabled = false;
     $('#new-library-name').value = '';
@@ -176,10 +194,10 @@
     if (state.evaluationPollTimer) window.clearInterval(state.evaluationPollTimer);
     state.evaluationPollTimer = null;
     $('#evaluation-template')?.replaceChildren(new Option('读取允许的评测模板…', ''));
-    $('#evaluation-job-rows')?.replaceChildren(node('tr', '', node('td', 'table-placeholder', '尚未读取评测任务')));
-    $('#evaluation-arm-rows')?.replaceChildren(node('tr', '', node('td', 'table-placeholder', '没有已完成任务')));
+    $('#evaluation-job-rows')?.replaceChildren(evaluationPlaceholder('尚未读取评测任务', 6));
+    $('#evaluation-arm-rows')?.replaceChildren(evaluationPlaceholder('没有已完成任务', 5));
     $('#evaluation-per-case')?.replaceChildren();
-    $('#evaluation-audit-rows')?.replaceChildren(node('tr', '', node('td', 'table-placeholder', '连接后读取审计')));
+    $('#evaluation-audit-rows')?.replaceChildren(evaluationPlaceholder('连接后读取审计', 5));
     if ($('#evaluation-template-note')) $('#evaluation-template-note').textContent = '结果中的候选数量和耗时用于检索诊断，不直接代表答案语义正确率。';
     const dialog = $('#detail-dialog');
     if (dialog.open) dialog.close();
@@ -298,12 +316,356 @@
   }
 
   function syncReleaseAccess() {
-    if (window.WenjinIdentity?.mode !== 'accounts') return;
-    const allowed = window.WenjinIdentity.user?.role === 'admin';
+    const allowed = window.WenjinIdentity?.mode === 'accounts' && window.WenjinIdentity.user?.role === 'admin';
     $('[data-page="releases"]')?.classList.toggle('hidden', !allowed);
     if (!allowed && $('#page-releases')?.classList.contains('active')) navigate('search');
     $('[data-page="evaluations"]')?.classList.toggle('hidden', !allowed);
     if (!allowed && $('#page-evaluations')?.classList.contains('active')) navigate('identity');
+    $('[data-page="mcp-entry"]')?.classList.toggle('hidden', !allowed);
+    if (!allowed && $('#page-mcp-entry')?.classList.contains('active')) navigate('search');
+  }
+
+  const MCP_ENTRY_META = {
+    legacy: { title: '旧版状态化 MCP', protocol: '2025-11-25', transport: 'Streamable HTTP' },
+    stateless: { title: '新版无状态 MCP', protocol: '2026-07-28', transport: 'Streamable HTTP' },
+  };
+  const MCP_STARTABLE_STATES = new Set(['created', 'exited', 'dead']);
+  function canManageMcpEntries() {
+    return state.connected && window.WenjinIdentity?.mode === 'accounts'
+      && window.WenjinIdentity.user?.role === 'admin';
+  }
+  function setMcpNotice(message, kind = 'info') {
+    state.mcpNotice = String(message || ''); state.mcpNoticeKind = kind;
+    renderMcpEntryNotice();
+  }
+  function renderMcpEntryNotice() {
+    const target = $('#mcp-entry-status');
+    if (!target) return;
+    target.textContent = state.mcpNotice || (canManageMcpEntries()
+      ? '读取的运行状态仅描述 Docker 容器，不代表 MCP 协议健康。'
+      : '请使用管理员账号连接管理服务后查看入口。');
+    target.className = `privacy-note mcp-entry-status ${state.mcpNoticeKind === 'error' ? 'is-error' : state.mcpNoticeKind === 'success' ? 'is-success' : ''}`;
+  }
+
+  function mcpConfigProjection(config) {
+    // 只投影文档约定的公开连接字段；不把服务端意外附带的其他字段展示或复制。
+    return {
+      entry_id: config.entry_id,
+      name: config.name,
+      protocol: config.protocol,
+      transport: config.transport,
+      endpoint: config.endpoint,
+      auth: {
+        scheme: config.auth?.scheme,
+        credential_source: config.auth?.credential_source,
+      },
+      requirements: Array.isArray(config.requirements) ? config.requirements.filter((item) => typeof item === 'string') : [],
+    };
+  }
+
+  function mcpActionFor(entry) {
+    if (!entry || !entry.control_configured) return { disabled: true, reason: 'Docker 控制未配置' };
+    if (entry.control_error) {
+      if (entry.control_error === 'mcp_container_not_found') {
+        return { disabled: true, reason: '未找到受管容器；原生进程不能在此启停' };
+      }
+      return { disabled: true, reason: entry.control_error_detail || 'Docker 状态读取失败，请刷新后检查' };
+    }
+    if (entry.runtime_state === 'unmanaged') return { disabled: true, reason: '原生进程 / 未受 Docker 管理，不能在此启停' };
+    if (!entry.generation) return { disabled: true, reason: '缺少容器版本标识，请刷新入口状态' };
+    if (state.mcpReconcileRequired.has(entry.entry_id)) return { disabled: true, reason: '上次结果未核实，请先刷新入口状态' };
+    if (state.mcpActionPendingEntry) return { disabled: true, reason: '有入口操作正在处理中' };
+    if (entry.runtime_state === 'running') return { disabled: false, action: 'stop', label: '停止服务' };
+    if (MCP_STARTABLE_STATES.has(entry.runtime_state)) return { disabled: false, action: 'start', label: '启动服务' };
+    return { disabled: true, reason: '当前容器状态不支持启停，请刷新后检查' };
+  }
+
+  function renderMcpEntries() {
+    const host = $('#mcp-entry-cards');
+    if (!host) return;
+    host.replaceChildren();
+    if (!canManageMcpEntries()) {
+      host.append(node('div', 'panel mcp-entry-placeholder', 'MCP入口管理仅对已登录管理员开放。'));
+      renderMcpEntryNotice();
+      return;
+    }
+    if (!state.connected) {
+      host.append(node('div', 'panel mcp-entry-placeholder', '连接管理服务后读取真实入口与 Docker 状态。'));
+      renderMcpEntryNotice();
+      return;
+    }
+    if (!state.mcpEntries.length) {
+      host.append(node('div', 'panel mcp-entry-placeholder', '尚未读取入口状态；请刷新入口状态。'));
+      renderMcpEntryNotice();
+      return;
+    }
+    for (const entryId of ['legacy', 'stateless']) {
+      const entry = state.mcpEntries.find((item) => item.entry_id === entryId);
+      if (!entry) {
+        host.append(node('article', 'panel mcp-entry-card', `服务端未返回固定入口“${entryId}”。`));
+        continue;
+      }
+      const meta = MCP_ENTRY_META[entryId];
+      const card = node('article', 'panel mcp-entry-card');
+      const head = node('div', 'mcp-entry-card-head');
+      const heading = node('div', 'mcp-entry-title');
+      append(heading, node('span', 'section-kicker', entryId === 'legacy' ? '兼容入口' : '新协议入口'), node('h2', '', entry.name || meta.title));
+      const badges = node('div', 'mcp-entry-badges');
+      append(badges, node('span', 'mcp-entry-badge', meta.protocol), node('span', 'mcp-entry-badge', meta.transport));
+      if (entry.is_default) badges.append(node('span', 'mcp-entry-badge is-default', '推荐默认'));
+      append(head, heading, badges); card.append(head);
+
+      const facts = node('div', 'mcp-entry-facts');
+      const endpoint = node('div', 'mcp-entry-fact');
+      append(endpoint, node('small', '', '连接端点'), node('code', '', entry.endpoint || '服务端未提供端点'));
+      const runtime = node('div', `mcp-entry-fact mcp-runtime ${entry.runtime_state === 'running' ? 'is-running' : ''}`);
+      append(runtime, node('small', '', 'Docker 运行状态'), node('strong', '', entry.runtime_label || '状态未知'));
+      const runtimeDetail = entry.control_error_detail || (!entry.control_configured ? 'Docker 控制尚未配置；连接信息仍可读取。' : '容器状态不是 MCP 协议健康检查。');
+      runtime.append(node('span', '', runtimeDetail));
+      append(facts, endpoint, runtime); card.append(facts);
+
+      const actions = node('div', 'mcp-entry-actions');
+      const configButton = node('button', 'button button-secondary', state.mcpConfigLoading.has(entryId) ? '读取中…' : '查看连接配置');
+      configButton.type = 'button'; configButton.disabled = state.mcpConfigLoading.has(entryId) || state.mcpDefaultSaving;
+      configButton.onclick = () => loadMcpConnectionConfig(entryId).catch((error) => setMcpNotice(`读取连接配置失败：${error.message}`, 'error'));
+      const defaultButton = node('button', entry.is_default ? 'button button-secondary' : 'button button-primary', entry.is_default ? '当前推荐默认' : '设为默认');
+      defaultButton.type = 'button'; defaultButton.disabled = entry.is_default || state.mcpDefaultSaving || Boolean(state.mcpActionPendingEntry);
+      defaultButton.onclick = () => setMcpDefaultEntry(entryId);
+      const actionInfo = mcpActionFor(entry);
+      const runtimeButton = node('button', 'button button-secondary', actionInfo.action ? actionInfo.label : actionInfo.reason);
+      runtimeButton.type = 'button'; runtimeButton.disabled = actionInfo.disabled || state.mcpDefaultSaving;
+      if (actionInfo.action) runtimeButton.onclick = () => runMcpEntryAction(entry, actionInfo.action);
+      append(actions, configButton, defaultButton, runtimeButton); card.append(actions);
+
+      const config = state.mcpConfigs.get(entryId);
+      if (config) {
+        const configPanel = node('section', 'mcp-config-panel');
+        const safeConfig = mcpConfigProjection(config);
+        const configHead = node('div', 'mcp-config-heading');
+        append(configHead, node('strong', '', '客户端连接配置（不含 MCP token）'), node('span', '', '复制后按客户端要求配置认证凭据。'));
+        const output = document.createElement('textarea'); output.className = 'mcp-config-output'; output.readOnly = true;
+        output.setAttribute('aria-label', `${entry.name || meta.title}连接配置`);
+        output.value = JSON.stringify(safeConfig, null, 2);
+        const configActions = node('div', 'mcp-config-actions');
+        const copy = node('button', 'button button-secondary', '复制配置'); copy.type = 'button';
+        const copyStatus = node('span', 'mcp-copy-status', '配置不包含访问 token。');
+        copy.onclick = () => copyMcpConfig(output, copyStatus);
+        append(configActions, copy, copyStatus);
+        append(configPanel, configHead, output, configActions); card.append(configPanel);
+      }
+      host.append(card);
+    }
+    renderMcpEntryNotice();
+  }
+
+  async function loadMcpEntries({ quiet = false } = {}) {
+    if (!canManageMcpEntries()) return false;
+    const generation = state.generation; const revision = ++state.mcpEntriesRevision;
+    state.mcpConfigs.clear(); state.mcpConfigLoading.clear(); state.mcpConfigRevision += 1;
+    if (!quiet) setMcpNotice('正在读取两个固定 MCP 入口的配置和 Docker 状态…');
+    renderMcpEntries();
+    try {
+      const { body } = await api('/api/admin/mcp/entries');
+      if (generation !== state.generation || revision !== state.mcpEntriesRevision || !canManageMcpEntries()) return false;
+      if (!Array.isArray(body?.entries) || !['legacy','stateless'].every((id) => body.entries.some((entry) => entry?.entry_id === id))
+          || !Number.isInteger(body?.revision)) {
+        state.mcpEntries = []; state.mcpDefaultEntry = null; state.mcpDefaultRevision = null;
+        setMcpNotice('服务端返回的 MCP 入口清单不完整；请刷新或检查管理服务版本。', 'error');
+        renderMcpEntries();
+        return false;
+      }
+      state.mcpEntries = body.entries;
+      state.mcpDefaultEntry = body?.default_entry || null;
+      state.mcpDefaultRevision = Number.isInteger(body?.revision) ? body.revision : null;
+      state.mcpReconcileRequired.clear();
+      renderMcpEntries();
+      if (!quiet) setMcpNotice(`已读取 ${state.mcpEntries.length} 个入口；运行状态仅描述 Docker 容器，不代表 MCP 协议或业务健康。`);
+      return true;
+    } catch (error) {
+      if (generation !== state.generation || revision !== state.mcpEntriesRevision) return false;
+      if (!quiet) setMcpNotice(`读取入口状态失败：${error.message}`, 'error');
+      renderMcpEntries();
+      return false;
+    }
+  }
+
+  async function loadMcpConnectionConfig(entryId) {
+    if (!canManageMcpEntries() || state.mcpConfigLoading.has(entryId)) return false;
+    const generation = state.generation; const entryRevision = state.mcpEntriesRevision;
+    const requestRevision = ++state.mcpConfigRevision;
+    state.mcpConfigLoading.add(entryId); renderMcpEntries();
+    try {
+      const { body } = await api(`/api/admin/mcp/connection-config?entry_id=${encodeURIComponent(entryId)}`);
+      if (generation !== state.generation || entryRevision !== state.mcpEntriesRevision || !canManageMcpEntries()) return false;
+      if (body?.entry_id !== entryId || typeof body?.endpoint !== 'string') throw new Error('服务端返回的连接配置不完整。');
+      state.mcpConfigs.set(entryId, mcpConfigProjection(body));
+      setMcpNotice(`已读取${MCP_ENTRY_META[entryId]?.title || entryId}连接配置；只含公开端点与协议要求，不含 token。`);
+      return true;
+    } catch (error) {
+      if (generation === state.generation && entryRevision === state.mcpEntriesRevision && !error.status) setMcpNotice(`读取连接配置失败：${error.message}`, 'error');
+      else if (generation === state.generation && entryRevision === state.mcpEntriesRevision && error.status) setMcpNotice(`读取连接配置失败：${error.message}`, 'error');
+      return false;
+    } finally {
+      if (generation === state.generation && entryRevision === state.mcpEntriesRevision) {
+        state.mcpConfigLoading.delete(entryId); renderMcpEntries();
+      }
+    }
+  }
+
+  async function copyMcpConfig(output, status) {
+    const generation = state.generation; const revision = state.mcpConfigRevision; const value = output.value;
+    const stillCurrent = () => generation === state.generation && revision === state.mcpConfigRevision && output.value === value;
+    try {
+      if (!window.navigator?.clipboard?.writeText) throw new Error('clipboard unavailable');
+      await window.navigator.clipboard.writeText(value);
+      if (stillCurrent()) status.textContent = '连接配置已复制；该内容不含 token。';
+    } catch {
+      if (!stillCurrent()) return;
+      output.focus(); output.select();
+      status.textContent = '无法自动复制。配置文本已选中，可手动复制；其中不含 token。';
+    }
+  }
+
+  async function setMcpDefaultEntry(entryId) {
+    if (!canManageMcpEntries() || state.mcpDefaultSaving || state.mcpActionPendingEntry || state.mcpDefaultRevision === null) return false;
+    const generation = state.generation; const revision = state.mcpDefaultRevision;
+    state.mcpDefaultSaving = true; renderMcpEntries();
+    try {
+      const { body } = await api('/api/admin/mcp/default-entry', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entry_id: entryId, expected_revision: revision }),
+      });
+      if (generation !== state.generation || !canManageMcpEntries()) return false;
+      state.mcpDefaultEntry = body?.default_entry || entryId;
+      state.mcpDefaultRevision = Number.isInteger(body?.revision) ? body.revision : revision + 1;
+      const refreshed = await loadMcpEntries({ quiet: true });
+      if (generation !== state.generation) return false;
+      setMcpNotice(refreshed
+        ? '未来连接推荐已更新；不会重配已有 Agent，也不会启动或停止服务。'
+        : '默认入口保存成功，但入口状态刷新失败；请手动刷新核对。', refreshed ? 'success' : 'error');
+      return true;
+    } catch (error) {
+      if (generation !== state.generation) return false;
+      if (error.status === 409 || error.payload?.error === 'mcp_revision_conflict') {
+        setMcpNotice('默认入口已被其他管理员修改。已尝试刷新入口与版本号，请核对当前默认后再操作。', 'error');
+        await loadMcpEntries({ quiet: true });
+        return false;
+      }
+      setMcpNotice(`切换未来推荐入口失败：${error.message}`, 'error');
+      return false;
+    } finally {
+      if (generation === state.generation) { state.mcpDefaultSaving = false; renderMcpEntries(); }
+    }
+  }
+
+  function mcpOperationCurrent(generation, revision, entryId) {
+    return generation === state.generation && revision === state.mcpOperationRevision
+      && state.mcpActionPendingEntry === entryId && canManageMcpEntries();
+  }
+
+  async function reconcileMcpEntry(entryId, generation, message) {
+    state.mcpReconcileRequired.add(entryId); renderMcpEntries();
+    const refreshed = await loadMcpEntries({ quiet: true });
+    if (generation !== state.generation) return;
+    const current = state.mcpEntries.find((entry) => entry.entry_id === entryId);
+    if (refreshed) {
+      setMcpNotice(`${message} 已刷新入口状态：${current?.runtime_label || '状态未知'}。容器状态不是 MCP 协议健康检查，请根据实际状态核实。`, 'error');
+    } else {
+      state.mcpReconcileRequired.add(entryId);
+      setMcpNotice(`${message} 且入口状态刷新失败；该入口控制已暂时禁用。请刷新入口状态核实后再操作。`, 'error');
+      renderMcpEntries();
+    }
+  }
+
+  async function pollMcpOperation(operationId, entryId, action, generation, revision) {
+    for (let attempt = 0; attempt < 90; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 850));
+      if (!mcpOperationCurrent(generation, revision, entryId)) return;
+      try {
+        const { body } = await api(`/api/admin/mcp/operations/${encodeURIComponent(operationId)}`);
+        if (!mcpOperationCurrent(generation, revision, entryId)) return;
+        state.mcpOperation = body;
+        if (body?.state === 'running') {
+          setMcpNotice(`${action === 'start' ? '启动' : '停止'}操作处理中… ${body.runtime_label || ''}`);
+          renderMcpEntries();
+          continue;
+        }
+        state.mcpActionPendingEntry = null;
+        if (body?.state === 'succeeded') {
+          setMcpNotice(`${action === 'start' ? '启动' : '停止'}操作已完成，容器状态：${body.runtime_label || body.runtime_state || '状态未知'}。这不代表 MCP 协议或业务请求健康。`, 'success');
+          await loadMcpEntries({ quiet: true });
+        } else if (body?.state === 'failed') {
+          const errorText = body.error_detail || body.error || '操作失败';
+          setMcpNotice(`入口${action === 'start' ? '启动' : '停止'}失败：${errorText}`, 'error');
+          await loadMcpEntries({ quiet: true });
+        } else if (body?.state === 'outcome_unknown') {
+          await reconcileMcpEntry(entryId, generation, '操作结果尚不确定。');
+        } else {
+          await reconcileMcpEntry(entryId, generation, '操作状态无法识别。');
+        }
+        if (generation === state.generation) { state.mcpActionPendingEntry = null; renderMcpEntries(); }
+        return;
+      } catch (error) {
+        if (generation !== state.generation) return;
+        if (error.status === 410 || error.payload?.error === 'mcp_operation_expired') {
+          state.mcpActionPendingEntry = null;
+          await reconcileMcpEntry(entryId, generation, '操作记录已过期，不能据此判断成功或失败。');
+          renderMcpEntries();
+          return;
+        }
+        if (error.status === 0) return;
+        setMcpNotice(`读取操作进度暂时失败：${error.message}；继续查询操作状态。`, 'error');
+      }
+    }
+    if (generation === state.generation && revision === state.mcpOperationRevision) {
+      state.mcpActionPendingEntry = null;
+      await reconcileMcpEntry(entryId, generation, '操作超过前端等待时间，结果尚不确定。');
+      renderMcpEntries();
+    }
+  }
+
+  async function runMcpEntryAction(entry, action) {
+    if (!canManageMcpEntries() || state.mcpActionPendingEntry || state.mcpDefaultSaving) return false;
+    const availability = mcpActionFor(entry);
+    if (availability.disabled || availability.action !== action) return false;
+    if (action === 'stop' && !window.confirm(`确认停止“${entry.name}”？这会中断该 MCP 入口上的客户端连接；不会修改已有 Agent 配置。`)) return false;
+    const generation = state.generation; const revision = ++state.mcpOperationRevision;
+    state.mcpActionPendingEntry = entry.entry_id;
+    setMcpNotice(`正在提交${action === 'start' ? '启动' : '停止'}操作…`);
+    renderMcpEntries();
+    const payload = { action };
+    // broker 对两种动作都支持generation比较；避免入口状态刷新后操作到被替换的容器。
+    payload.expected_generation = entry.generation;
+    try {
+      const { body } = await api(`/api/admin/mcp/entries/${encodeURIComponent(entry.entry_id)}/actions`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+      });
+      if (!mcpOperationCurrent(generation, revision, entry.entry_id)) return false;
+      if (typeof body?.operation_id !== 'string' || body.state !== 'running') {
+        state.mcpActionPendingEntry = null;
+        await reconcileMcpEntry(entry.entry_id, generation, '服务端没有返回有效的操作记录。');
+        renderMcpEntries();
+        return false;
+      }
+      state.mcpOperation = body;
+      setMcpNotice(`${body?.impact || (action === 'stop' ? '停止会中断此入口客户端连接。' : '启动已创建的目标容器。')} 操作正在后台执行。`);
+      await pollMcpOperation(body.operation_id, entry.entry_id, action, generation, revision);
+      return true;
+    } catch (error) {
+      if (generation !== state.generation) return false;
+      state.mcpActionPendingEntry = null;
+      if (error.status === undefined || error.status === 0 || error.status >= 500) {
+        await reconcileMcpEntry(entry.entry_id, generation, '入口操作请求未能确认是否已提交。');
+      } else if (error.status === 409 || ['mcp_revision_conflict','mcp_generation_conflict','mcp_action_outcome_unknown','mcp_action_in_progress'].includes(error.payload?.error)) {
+        state.mcpReconcileRequired.add(entry.entry_id);
+        renderMcpEntries();
+        setMcpNotice(`${error.message} 正在刷新入口状态；请核对后重试。`, 'error');
+        const refreshed = await loadMcpEntries({ quiet: true });
+        if (!refreshed && generation === state.generation) setMcpNotice(`${error.message} 但入口状态刷新失败，请手动刷新后核对。`, 'error');
+      } else setMcpNotice(`入口操作未能启动：${error.message}`, 'error');
+      renderMcpEntries();
+      return false;
+    }
   }
 
   function badge(status) {
@@ -358,7 +720,7 @@
   function evaluationDatasetLabel(datasetId, experimentId) {
     if (datasetId === 'developer-validation-2026-10-04') return '固定开发题集';
     if (datasetId === 'dv-gdal-003' || experimentId === 'gdal_dstalpha_diagnostic_v1') return 'GDAL专项题';
-    return datasetId || experimentId || '固定评测';
+    return '固定评测题集';
   }
 
   function evaluationActionLabel(action) {
@@ -1022,6 +1384,7 @@
     renderUploadLibraries();
     renderJobs();
     renderCalls();
+    renderMcpEntries();
     $('#disconnect-button').classList.toggle('hidden', !state.connected || window.WenjinIdentity?.mode === 'accounts');
   }
 
@@ -2054,24 +2417,51 @@
     } finally { button.disabled = false; button.replaceChildren(document.createTextNode('⌕ 运行检索')); }
   }
 
+  function evaluationPlaceholder(message, columns) {
+    const cell = node('td', 'table-placeholder', message);
+    cell.colSpan = columns;
+    return append(node('tr'), cell);
+  }
+
+  function evaluationOwnerLabel(userId) {
+    const label = userLabel(userId);
+    if (label.startsWith('已删除账号（')) return '已删除账号';
+    if (label.startsWith('账号名称尚未读取（')) return '账号名称待加载';
+    return label;
+  }
+
+  function evaluationDetails(fields) {
+    const detail = node('details', 'evaluation-technical-detail');
+    detail.append(node('summary', '', '任务详情'));
+    for (const [label, value] of fields) {
+      if (value) detail.append(node('small', '', `${label}：${value}`));
+    }
+    return detail;
+  }
+
   function renderEvaluationJobs() {
     const body = $('#evaluation-job-rows');
     if (!state.evaluationJobs.length) {
-      body.replaceChildren(node('tr', '', node('td', 'table-placeholder', '当前没有评测任务')));
+      body.replaceChildren(evaluationPlaceholder('当前没有评测任务', 6));
       return;
     }
     body.replaceChildren(...state.evaluationJobs.map((job) => {
       const row = node('tr');
       const title = node('td');
-      append(title, node('strong', '', job.title), node('small', 'job-id', job.job_id));
+      append(title, node('strong', '', job.title || '评测任务'), evaluationDetails([
+        ['任务编号', job.job_id], ['题集标识', job.input_snapshot?.dataset_id],
+        ['模板标识', job.experiment_id], ['操作者编号', job.owner_user_id],
+      ]));
       const status = node('td');
-      append(status, node('strong', '', evaluationStatus(job.status)), node('small', '', evaluationStage(job.stage)));
+      const statusText = evaluationStatus(job.status);
+      const stageText = evaluationStage(job.stage);
+      status.append(node('strong', '', statusText));
+      if (stageText && stageText !== statusText) status.append(node('small', '', stageText));
       const progress = node('td', '', `${job.completed_cases} / ${job.total_cases}`);
       const binding = node('td');
       append(binding, node('span', '', evaluationDatasetLabel(job.input_snapshot?.dataset_id, job.experiment_id)),
-        node('small', 'job-id', job.input_snapshot?.dataset_id || job.experiment_id),
         node('small', '', (job.input_snapshot?.profiles || []).map(profileLabel).join(' · ')),
-        node('small', '', `操作者：${userLabel(job.owner_user_id)}`));
+        node('small', '', `操作者：${evaluationOwnerLabel(job.owner_user_id)}`));
       const created = node('td', '', new Date(job.created_at).toLocaleString());
       const actions = node('td', 'evaluation-actions');
       if (['queued', 'preparing', 'running', 'cancelling'].includes(job.status)) {
@@ -2097,17 +2487,17 @@
   function renderEvaluationAudit() {
     const body = $('#evaluation-audit-rows');
     if (!state.evaluationAudit.length) {
-      body.replaceChildren(node('tr', '', node('td', 'table-placeholder', '尚无评测审计事件')));
+      body.replaceChildren(evaluationPlaceholder('尚无评测审计事件', 5));
       return;
     }
     body.replaceChildren(...state.evaluationAudit.map((event) => {
       const row = node('tr');
       append(row,
         node('td', '', new Date(event.occurred_at).toLocaleString()),
-        node('td', '', userLabel(event.actor_user_id)),
+        node('td', '', evaluationOwnerLabel(event.actor_user_id)),
         node('td', '', evaluationActionLabel(event.action)),
-        node('td', 'job-id', event.job_id || '—'),
-        node('td', '', JSON.stringify(event.metadata || {})));
+        node('td', '', state.evaluationJobs.find((job) => job.job_id === event.job_id)?.title || (event.job_id ? '历史评测任务' : '—')),
+        append(node('td'), evaluationDetails([['任务编号', event.job_id], ['操作者编号', event.actor_user_id], ['审计数据', JSON.stringify(event.metadata || {})]])));
       return row;
     }));
   }
@@ -2240,13 +2630,13 @@
         node('td', '', Number(result.mean_total_seconds || 0).toFixed(3)));
       return row;
     });
-    $('#evaluation-arm-rows').replaceChildren(...(armRows.length ? armRows : [node('tr', '', node('td', 'table-placeholder', '没有可比较的检索方式'))]));
-    meta.textContent = `任务 ${jobId}；${evaluationStatus(job?.status || 'completed')}；完成题数 ${body.case_count}；检索资料版本未变化：${body.assets_unchanged ? '是' : '否'}。这些指标用于检索诊断，不代表语义正确率。`;
+    $('#evaluation-arm-rows').replaceChildren(...(armRows.length ? armRows : [evaluationPlaceholder('没有可比较的检索方式', 5)]));
+    meta.textContent = `${job?.title || '评测任务'}；${evaluationStatus(job?.status || 'completed')}；完成题数 ${body.case_count}；检索资料版本未变化：${body.assets_unchanged ? '是' : '否'}。这些指标用于检索诊断，不代表语义正确率。`;
     const cases = node('div', 'evaluation-cases');
     for (const caseId of body.valid_case_ids || []) {
       const item = node('div', 'evaluation-case');
       const label = node('strong', '', caseId);
-      const view = node('button', 'button button-secondary', '查看各臂证据');
+      const view = node('button', 'button button-secondary', '查看各策略证据');
       view.type = 'button';
       view.addEventListener('click', () => loadEvaluationCase(jobId, caseId, generation, selectionEpoch)
         .catch((error) => showApiError(error, '读取单题证据失败：')));
@@ -2283,6 +2673,7 @@
   function navigate(page) {
     const target = $(`#page-${page}`);
     if (!target) return;
+    if (page === 'mcp-entry' && !(window.WenjinIdentity?.mode === 'accounts' && window.WenjinIdentity.user?.role === 'admin')) return;
     $$('.page-view').forEach((view) => view.classList.toggle('active', view === target));
     $$('.nav-item').forEach((item) => item.classList.toggle('active', item.dataset.page === page));
     $('#current-page-title').textContent = target.dataset.title || '管理中心';
@@ -2292,6 +2683,7 @@
     if (page === 'search' && state.connected) refreshAuthorizedCatalog().catch((error) => showApiError(error, '更新资料库列表失败：'));
     if (page === 'releases' && state.connected) loadReleaseState().catch((error) => showApiError(error, '读取发布版本失败：'));
     if (page === 'evaluations' && state.connected) loadEvaluations().catch((error) => showApiError(error, '读取评测任务失败：'));
+    if (page === 'mcp-entry' && canManageMcpEntries()) loadMcpEntries().catch((error) => setMcpNotice(`读取入口状态失败：${error.message}`, 'error'));
     if (window.matchMedia('(max-width: 850px)').matches) window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -2305,7 +2697,12 @@
       const avatar = $('.avatar');
       if (avatar && user) { avatar.textContent = user.role === 'admin' ? '管' : user.username.slice(0, 1); avatar.setAttribute('aria-label', user.role === 'admin' ? '管理员' : '只读用户'); }
       renderAccountMenu();
-      refreshAll({ quiet: true }).catch((error) => showApiError(error));
+      refreshAll({ quiet: true }).then((connected) => {
+        if (connected && $('#page-mcp-entry')?.classList.contains('active') && canManageMcpEntries()) {
+          return loadMcpEntries({ quiet: true });
+        }
+        return null;
+      }).catch((error) => showApiError(error));
     });
     window.addEventListener('wenjin-user-directory-ready', () => { renderEvaluationJobs(); renderEvaluationAudit(); });
     window.addEventListener('wenjin-grants-changed', (event) => {
@@ -2424,6 +2821,7 @@
       finally { if (generation === state.generation) button.disabled = false; }
     });
     $('#refresh-calls').addEventListener('click', () => loadCalls({ offset: 0 }).catch((error) => showApiError(error, '读取调用日志失败：')));
+    $('#mcp-entry-refresh').addEventListener('click', () => loadMcpEntries().catch((error) => setMcpNotice(`读取入口状态失败：${error.message}`, 'error')));
     $('#release-library').addEventListener('change', () => {
       state.releaseLibraryId = $('#release-library').value;
       state.releaseSnapshot = null;

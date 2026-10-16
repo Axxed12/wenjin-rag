@@ -86,6 +86,9 @@ from wenjin.management_http.identity_http import (
     mcp_file_list as _mcp_file_list,
 )
 from wenjin.management_http.identity_http import (
+    mcp_identity_snapshot as _mcp_identity_snapshot,
+)
+from wenjin.management_http.identity_http import (
     mcp_libraries as _mcp_libraries,
 )
 from wenjin.management_http.identity_http import (
@@ -224,6 +227,7 @@ def _routes():
         Route("/api/admin/libraries/{library_id:str}/classification", _route(_identity_library_classification), methods=["GET", "PUT"]),
         Route("/api/admin/identity-audit", _route(_identity_audit), methods=["GET"]),
         Route("/api/mcp/libraries", _route(_mcp_libraries, access="mcp"), methods=["GET"]),
+        Route("/api/mcp/identity/snapshot", _route(_mcp_identity_snapshot, access="mcp"), methods=["GET"]),
         Route("/api/mcp/files", _route(_mcp_file_list, access="mcp"), methods=["GET"]),
         Route("/api/mcp/search", _route(_mcp_search, access="mcp"), methods=["POST"]),
         Route("/api/mcp/files/{file_id:str}/source", _route(_mcp_download, access="mcp"), methods=["GET"]),

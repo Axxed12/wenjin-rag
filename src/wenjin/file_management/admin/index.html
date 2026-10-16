@@ -24,6 +24,7 @@
         <button class="nav-item" data-page="search"><span class="nav-icon">⌕</span>检索调试</button>
         <button class="nav-item" data-page="calls"><span class="nav-icon">⌁</span>调用日志</button>
         <button class="nav-item" data-page="releases"><span class="nav-icon">⇄</span>资料库版本</button>
+        <button class="nav-item hidden" data-page="mcp-entry"><span class="nav-icon">⌘</span>MCP入口</button>
         <button class="nav-item hidden" data-page="evaluations"><span class="nav-icon">⌁</span>检索方式对比</button>
         <button class="nav-item" data-page="identity"><span class="nav-icon">♙</span>身份与授权</button>
       </nav>
@@ -86,6 +87,12 @@
             <section class="panel identity-panel"><div class="panel-heading"><div><span class="section-kicker">审计</span><h2>身份审计</h2></div></div><div id="identity-audit"></div></section>
           </section>
           <div id="identity-empty-grants" class="notice hidden">当前账号尚未获得任何资料库授权。请管理员在“资料库读取授权”中明确授予读取权限。</div>
+        </section>
+        <section class="page-view" id="page-mcp-entry" data-title="MCP入口">
+          <div class="page-heading"><div><div class="eyebrow">服务入口</div><h1>MCP入口</h1><p>查看旧版与新版 MCP 连接信息，选择未来推荐入口，或控制受管 Docker 服务。</p></div><div class="heading-actions"><button class="button button-secondary" id="mcp-entry-refresh">刷新入口状态</button></div></div>
+          <div class="mcp-entry-notice"><strong>默认入口只影响未来推荐</strong><span>不会重配已有 Agent，也不会启动或停止服务。运行状态仅描述 Docker 容器，不代表 MCP 协议或业务请求健康。</span></div>
+          <p id="mcp-entry-status" class="privacy-note mcp-entry-status" aria-live="polite">进入页面后读取管理员入口配置。</p>
+          <div id="mcp-entry-cards" class="mcp-entry-grid"><div class="panel mcp-entry-placeholder">等待管理员入口数据</div></div>
         </section>
         <section class="page-view active" id="page-overview" data-title="总览">
           <div class="page-heading heading-overview">
@@ -188,20 +195,20 @@
         </section>
 
         <section class="page-view" id="page-roadmap" data-title="能力与路线">
-          <div class="page-heading"><div><div class="eyebrow">功能路线</div><h1>能力与迭代路线</h1><p>把当前可用能力和待建设的管理能力分开呈现。</p></div></div>
-          <div class="capability-banner"><div class="capability-mark">W</div><div><span class="section-kicker">当前功能边界</span><h2>管理功能与服务配置分开</h2><p>管理页面支持文件管理、单文件检索、共享资料库版本管理和固定开发题集评测。服务运行配置仍通过受控配置与命令行管理。</p></div></div>
+          <div class="page-heading"><div><div class="eyebrow">功能路线</div><h1>能力与迭代路线</h1><p>查看已实现的管理能力、验证范围和后续完善方向。</p></div></div>
+          <div class="capability-banner"><div class="capability-mark">W</div><div><span class="section-kicker">当前功能边界</span><h2>管理功能与服务配置分开</h2><p>管理页面已接入文件、授权、版本发布、固定题集评测和 MCP 入口控制。模型、超时和上传限制等运行参数仍通过配置或命令行管理。</p></div></div>
           <div class="roadmap-columns">
             <section class="panel roadmap-panel"><div class="panel-heading"><div><span class="section-kicker">当前可用</span><h2>当前可用</h2></div><span class="status-tag status-active">已接入服务 API</span></div><div class="capability-list">
               <article class="capability-item"><span class="cap-icon cap-green">▤</span><div><strong>受管文件生命周期</strong><p>上传、版本替换、删除、接管旧资料、原文下载与索引资源核对。</p><span class="cap-foot">每个文件都有稳定编号；当前版本决定检索与下载内容。</span></div><span class="cap-check">●</span></article>
               <article class="capability-item"><span class="cap-icon cap-blue">◷</span><div><strong>持久任务跟踪</strong><p>查询服务记录的状态、阶段、进度和处理结果。</p><span class="cap-foot">只有服务标记为可重试的失败任务才可重新执行</span></div><span class="cap-check">●</span></article>
               <article class="capability-item"><span class="cap-icon cap-violet">⌕</span><div><strong>资料库证据检索</strong><p>检索共享只读资料或受管文件，展示正文、版本和来源定位。</p><span class="cap-foot">返回证据，不生成最终答案</span></div><span class="cap-check">●</span></article>
-              <article class="capability-item"><span class="cap-icon cap-sand">◉</span><div><strong>Bearer 管理认证</strong><p>按服务配置输入管理凭据；无 token 的本机服务仍可直接连接。</p><span class="cap-foot">凭据仅保留在当前页面内存</span></div><span class="cap-check">●</span></article>
+              <article class="capability-item"><span class="cap-icon cap-sand">◉</span><div><strong>账号与授权管理</strong><p>管理用户、资料库读取授权和个人 MCP 凭据，支持切换账号与退出登录。</p><span class="cap-foot">管理员可读所有库；公开/私有仅用于分类，不改变读取权限</span></div><span class="cap-check">●</span></article>
             </div></section>
-            <section class="panel roadmap-panel"><div class="panel-heading"><div><span class="section-kicker">后续迭代</span><h2>后续迭代</h2></div><span class="status-tag status-planned">计划中</span></div><div class="capability-list roadmap-list">
-              <article class="capability-item"><span class="roadmap-index">01</span><div><strong>权限策略管理</strong><p>细化资料库和单文件的访问范围，并提供策略检查。</p><span class="cap-foot">当前：资料库逐人授权已接入；公开/私有分类只作管理标签，不改变读取权限</span></div><span class="planned-mark">待建设</span></article>
-              <article class="capability-item"><span class="roadmap-index">02</span><div><strong>索引发布与运行期健康监控</strong><p>共享资料库版本的准备、完整性检查、切换和回退已在版本管理页接入。</p><span class="cap-foot">更广泛的运行期监控仍待建设</span></div><span class="planned-mark">持续完善</span></article>
-              <article class="capability-item"><span class="roadmap-index">03</span><div><strong>检索评测工作台</strong><p>管理员可提交固定开发题集，对比四种检索方式并查看每题证据。</p><span class="cap-foot">边界：由服务校验管理员身份和题集状态；冻结评测集不开放</span></div><span class="planned-mark">开发验证</span></article>
-              <article class="capability-item"><span class="roadmap-index">04</span><div><strong>服务与运行配置</strong><p>查看健康状态、上传限制及依赖就绪情况，逐步支持安全变更。</p><span class="cap-foot">当前：启动参数 / 环境配置；在线修改 API 未提供</span></div><span class="planned-mark">待建设</span></article>
+            <section class="panel roadmap-panel"><div class="panel-heading"><div><span class="section-kicker">迭代进展</span><h2>已实现与待完善</h2></div><span class="status-tag status-planned">持续完善</span></div><div class="capability-list roadmap-list">
+              <article class="capability-item"><span class="roadmap-index">01</span><div><strong>权限策略管理</strong><p>已支持资料库逐人授权和撤权，后端已接入单文件权限判断。</p><span class="cap-foot">待完善：前端单文件授权编辑和独立策略检查界面</span></div><span class="planned-mark">基础已实现</span></article>
+              <article class="capability-item"><span class="roadmap-index">02</span><div><strong>版本发布与健康监控</strong><p>已支持共享资料库版本准备、完整性校验、切换和回退。</p><span class="cap-foot">待建设：持续健康监测、异常告警和监控面板</span></div><span class="planned-mark">发布已实现</span></article>
+              <article class="capability-item"><span class="roadmap-index">03</span><div><strong>检索评测工作台</strong><p>已支持固定开发题集、四种检索策略对比、进度、取消、恢复及逐题证据。</p><span class="cap-foot">待验证：完整浏览器操作流程；冻结评测集按约定不开放</span></div><span class="planned-mark">核心已实现</span></article>
+              <article class="capability-item"><span class="roadmap-index">04</span><div><strong>服务控制与运行配置</strong><p>已展示部分状态与限制，支持 MCP 连接配置、推荐默认切换及新版服务启停。</p><span class="cap-foot">待建设：模型、超时、上传限制等运行参数的在线编辑；旧版原生服务不可在此启停</span></div><span class="planned-mark">部分已实现</span></article>
             </div></section>
           </div>
           <section class="panel roadmap-note"><span class="roadmap-note-icon">↗</span><div><strong>管理界面会随服务能力逐步扩展</strong><p>每项操作都需要对应的服务端权限校验、状态合同和验证证据。未接入 API 的项目不会显示可提交的编辑表单。</p></div></section>

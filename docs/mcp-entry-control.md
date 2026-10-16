@@ -68,4 +68,18 @@ broker启动时必须从`WENJIN_MCP_CONTROL_PROJECT`取得一个严格校验的C
 
 不配置broker URL或token时，管理页启停控制fail closed。无账户身份库的旧式管理模式不能调用这些端点，避免匿名控制容器。旧版Python原生进程不会通过Docker broker启停；只有Docker受管容器可被控制。
 
-本轮源码检查、合成API/broker合同测试和静态部署检查状态见[当轮开发记录](../artifacts/iterations/2026-10-14-mcp-entry-control/development-log.md)；未挂载真实Docker socket、未启动或停止真实服务，也未部署新版入口。
+上述后端初轮的未部署状态见[历史开发记录](../artifacts/iterations/2026-10-14-mcp-entry-control/development-log.md)。后续页面与本机部署记录见[本轮记录](../artifacts/iterations/2026-10-14-mcp-entry-control-ui-deploy/development-log.md)，各轮验收范围分别保留。
+
+## 管理页面与本机原生部署
+
+管理员登录后从“MCP入口”进入两版入口卡片。“进入连接配置”展示并复制不含凭据的客户端配置；个人MCP凭据仍从身份与授权页面签发。“设为默认”只改变后续推荐地址，已有Agent需要自行更改客户端配置。启动/停止独立操作，停止前提示连接将中断；操作过期或结果不确定时刷新核对容器状态。
+
+本机管理服务仍在 `http://127.0.0.1:18777/admin/`，旧版原生MCP仍在 `http://127.0.0.1:18765/mcp`，不能通过Docker按钮启停。只启动控制服务使用 [本机Compose配置](../deploy/compose.mcp-control.native.yaml)：
+
+```powershell
+docker compose -p wenjin-manual-mcp -f deploy/compose.mcp-control.native.yaml up -d --no-deps mcp-control-broker
+```
+
+broker绑定 `127.0.0.1:18769`；管理进程设置 `WENJIN_MCP_CONTROL_URL=http://127.0.0.1:18769` 和同一secret的 `WENJIN_MCP_CONTROL_TOKEN` 后重载。secret保存在被Git忽略的 `deploy/secrets/manual-agent/mcp_control_token`，不要写入页面、URL或日志。新旧公开地址分别用前述PUBLIC_URL变量指定。
+
+这份本机配置与容器同网overlay不同：Docker Desktop实测internal-only网络没有路由宿主发布端口，故使用专用bridge网络并仅发布loopback端口。Docker socket仍仅挂载于broker；准确项目名固定为 `wenjin-manual-mcp`。它不能启停原生进程、创建新容器或控制模型/Qdrant。

@@ -1,0 +1,113 @@
+# Opt-in mixed profile: stateless MCP in Docker, management HTTP remains native;
+# existing model and Qdrant Docker services are reached through host ports.
+services:
+  mcp-stateless:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.mcp-stateless
+      additional_contexts:
+        lxml-static-inputs: ../data/packages/mcp-lxml-build-20261014
+    image: wenjin-mcp-stateless:2026-10-14-libxml-2.11.9
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=1g,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 30s
+    command:
+      - python
+      - -m
+      - wenjin.mcp.stateless_server
+      - --identity-mode
+      - remote
+      - --project-root
+      - /workspace
+      - --host
+      - 0.0.0.0
+      - --port
+      - "18768"
+    environment:
+      WENJIN_PROJECT_ROOT: /workspace
+      WENJIN_MCP_IDENTITY_MODE: remote
+      WENJIN_MCP_STATELESS_ALLOWED_HOSTS: 127.0.0.1:18768,localhost:18768
+      WENJIN_MCP_ALLOW_PRIVATE_HTTP: "1"
+      WENJIN_FILE_MANAGEMENT_URL: http://host.docker.internal:18777
+      WENJIN_FILE_MANAGEMENT_ALLOW_PRIVATE_HTTP: "1"
+      WENJIN_FILE_MANAGEMENT_READ_TIMEOUT_SECONDS: "210"
+      WENJIN_FILE_MANAGEMENT_CONNECT_TIMEOUT_SECONDS: "5"
+      WENJIN_FILE_MANAGEMENT_POOL_TIMEOUT_SECONDS: "5"
+      WENJIN_MODEL_PROVIDER: remote
+      WENJIN_MODEL_API_URL: http://host.docker.internal:18766
+      WENJIN_MODEL_API_TIMEOUT_SECONDS: "90"
+      WENJIN_MODEL_API_CONNECT_TIMEOUT_SECONDS: "5"
+      WENJIN_MODEL_API_POOL_TIMEOUT_SECONDS: "5"
+      WENJIN_MODEL_API_MAX_WAITING: "8"
+      WENJIN_MODEL_API_MAX_WAIT_SECONDS: "30"
+      EMBEDDING_MODEL_ID: Qwen3-Embedding-0.6B
+      RERANKER_MODEL_ID: Qwen3-Reranker-0.6B
+      QDRANT_URL: http://host.docker.internal:6333
+      WENJIN_AUDIT_SINK: stdout
+      WENJIN_AUDIT_INCLUDE_QUERY: "0"
+      FORWARDED_ALLOW_IPS: 127.0.0.1
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - type: bind
+        source: ${WENJIN_CORPORA_ROOT:-../corpora}
+        target: /workspace/corpora
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_PRIVATE_CORPORA_ROOT:-../corpora-private}
+        target: /workspace/corpora-private
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_CONFIG_ROOT:-../configs}
+        target: /workspace/configs
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_INDEX_ROOT:-../data/indexes}
+        target: /workspace/data/indexes
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_RELEASE_ROOT:-../data/releases}
+        target: /workspace/data/releases
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WENJIN_RAW_DATA_ROOT:-../raw_data}
+        target: /workspace/raw_data
+        read_only: true
+        bind:
+          create_host_path: false
+    secrets:
+      - model_api_token
+      - qdrant_api_key
+    ports:
+      - "127.0.0.1:18768:18768"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import socket; s=socket.create_connection(('127.0.0.1',18768),3); s.close()"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+secrets:
+  model_api_token:
+    file: ${WENJIN_MODEL_API_TOKEN_FILE:?Set the native model API token file}
+  qdrant_api_key:
+    file: ${WENJIN_QDRANT_API_KEY_FILE:?Set the existing Qdrant API key file}

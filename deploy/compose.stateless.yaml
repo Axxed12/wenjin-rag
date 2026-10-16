@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: deploy/Dockerfile.mcp-stateless
+      additional_contexts:
+        lxml-static-inputs: ./data/packages/mcp-lxml-build-20261014
     image: wenjin-mcp-stateless:2026-10-14
     restart: unless-stopped
     read_only: true

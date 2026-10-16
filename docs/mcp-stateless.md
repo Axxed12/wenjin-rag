@@ -55,7 +55,9 @@ docker compose --project-directory . --env-file deploy/.env.cloud `
   --env-file deploy/.env.stateless -p wenjin-cloud `
   -f deploy/compose.base.yaml -f deploy/compose.cloud.yaml `
   -f deploy/compose.stateless.yaml config --quiet
-docker build -f deploy/Dockerfile.mcp-stateless `
+uv run python deploy/prepare_lxml_sources.py
+docker build --build-context lxml-static-inputs=data/packages/mcp-lxml-build-20261014 `
+  -f deploy/Dockerfile.mcp-stateless `
   -t wenjin-mcp-stateless:2026-10-14 .
 ```
 
@@ -81,4 +83,36 @@ docker build -f deploy/Dockerfile.mcp-stateless `
 
 ## 2026-10-14集成状态
 
+### Windows管理服务与Linux容器的身份同步
+
+后续本机部署采用显式 `--identity-mode remote` / `WENJIN_MCP_IDENTITY_MODE=remote`，由同一Windows管理服务逐请求验证原MCP Bearer。身份桥 `GET /api/mcp/identity/snapshot` 在同一身份事务中验证凭据与授权，只返回当前主体及最终可读活动资源，响应 `Cache-Control: no-store`；不返回授权表、其他账号或被拒资源信息。受管文件继续由管理HTTP桥检索与取件，并再次验证当前Bearer。
+
+新版不会复制账号库、缓存用户权限或挂载真实身份SQLite。权威不可用返回503，凭据失效返回401；不回退旧快照或静态API key。remote模式拒绝同时配置 `--identity-db`、`WENJIN_IDENTITY_DB` 或 `WENJIN_MCP_API_KEY`。原local模式与旧版入口保留。
+
+这是跨操作系统部署的后续适配：合成Windows WAL writer与Linux bind reader并发测试失败，不能将先前同系统query_only合同当作跨系统并发安全证明。实际部署、身份合同与未验收边界见[本轮记录](../artifacts/iterations/2026-10-14-mcp-entry-control-ui-deploy/development-log.md)。
+
+本机混合配置为 [compose.stateless.native-identity.yaml](../deploy/compose.stateless.native-identity.yaml)，仅发布 `127.0.0.1:18768`；使用host-gateway访问管理18777、模型18766及Qdrant6333。资料和索引按必要目录只读挂载，身份库不挂载。模型secret仍通过Docker secret注入。部署时设置模型secret文件变量，不填写个人MCP token：
+
+```powershell
+$env:WENJIN_MODEL_API_TOKEN_FILE = (Resolve-Path deploy/secrets/manual-agent/model_api_token).Path
+$env:WENJIN_QDRANT_API_KEY_FILE = (Resolve-Path deploy/secrets/manual-agent/qdrant_api_key).Path
+docker compose -p wenjin-manual-mcp -f deploy/compose.stateless.native-identity.yaml config --quiet
+uv run python deploy/prepare_lxml_sources.py
+docker build --build-context lxml-static-inputs=data/packages/mcp-lxml-build-20261014 `
+  -f deploy/Dockerfile.mcp-stateless -t wenjin-mcp-stateless:2026-10-14-libxml-2.11.9 .
+docker compose -p wenjin-manual-mcp -f deploy/compose.stateless.native-identity.yaml up -d --no-deps mcp-stateless
+```
+
+管理服务需要加载身份桥路由后，新版才可鉴权。仅修改静态页面可刷新加载；Python后端需按原身份库、模型及控制配置重载18777。旧版18765继续读取同一个权威身份库，已有账号/个人凭据和授权不重新导入、不自动授予权限。
+
+新版发布目录也使用 `ReleaseCatalog(read_only=True)`：既有catalog必须存在，读取使用 `mode=ro` 与 `query_only`，不初始化表或创建目录。管理端发布写入路径与旧版行为保留。当前本机发布库journal为DELETE；此结果不能外推为任意跨系统WAL安全。
+
+解析器构建源码与SHA固定在 [lxml-sources.json](../deploy/lxml-sources.json)。预取脚本使用宿主网络，校验五个源码包并缓存于被Git忽略的构建输入目录；Docker通过单独named context读取这些公开源码，不扩大应用数据访问。构建下载器只跳过GNOME远端目录枚举，解析器C源码保留；最终镜像断言libxml2运行时与编译时为2.11.9，并替换独立venv中的lxml wheel。
+
+本机曾遇到GHCR与源站直连失败：实际构建使用已有镜像中经检查的uv0.11.3（`--build-arg UV_IMAGE=wenjin-mcp-stateless:2026-10-14 --build-arg UV_BIN=/usr/local/bin/uv --build-arg UVX_BIN=/usr/local/bin/uvx`）。编译器下载可通过可选BuildKit `build_proxy` secret临时代理，代理值不放入build-arg、Dockerfile或日志，不修改Docker全局代理；`--secret id=build_proxy,src=<忽略的本机文件>` 与必要的host-gateway映射仅用于构建步骤。当前真实构建与准入结果以当轮记录为准。
+
 本轮整合的源码适配和配置变更见[独立开发记录](../artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)，合同结果见[独立测试记录](../artifacts/iterations/2026-10-14-mcp-stateless-integration/test-development-log.md)。官方TS SDK新旧协议隔离、个人凭据/ACL/撤权、版本与下载校验、typed error、WAL只读合同16项及6 subtests通过；main旧环境受影响合同8项通过。合成Compose JSON预算核对通过。本轮未启动容器或HTTPS代理，也未测GPU、真实语料/身份数据或生产部署；来源分支历史镜像与TLS结果不继承为本轮验收。
+
+### 本机加载状态（2026-10-14）
+
+本轮新版镜像 `wenjin-mcp-stateless:2026-10-14-libxml-2.11.9` 已在loopback18768启动，管理18777与旧入口18765按原身份库和模型配置恢复，推荐默认仍旧版。Linux镜像固定libxml2 2.11.9、兼容libxslt1.1.39，完整启动索引准入通过；有效真实凭据客户端检索仍未验收。页面刷新并重新登录可进入管理员“MCP入口”。详细部署、解析器差异与验收边界见[本轮记录](../artifacts/iterations/2026-10-14-mcp-entry-control-ui-deploy/development-log.md)。

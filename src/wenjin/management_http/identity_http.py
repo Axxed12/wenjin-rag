@@ -27,6 +27,49 @@ def _store(request: Request):
     return store
 
 
+async def mcp_identity_snapshot(request: Request):
+    """给新版MCP桥接身份与最终可读资源；不返回grant表或其他账号信息。"""
+    snapshot = getattr(request.state, "access_snapshot", None)
+    if snapshot is None:
+        # 老测试替身/兼容store没有原子snapshot API时仍重新验证当前Bearer。
+        store = _store(request)
+        supplied = request.headers.get("authorization", "")
+        token = supplied.removeprefix("Bearer ") if supplied.startswith("Bearer ") else ""
+        principal = await run_in_threadpool(store.resolve_mcp_credential, token)
+        snapshot = await run_in_threadpool(store.load_access_snapshot, principal)
+    principal = snapshot.principal
+    resources = [
+        {"resource_kind": kind, "resource_id": resource_id}
+        for kind, resource_id in sorted(snapshot.active_resources)
+        if kind != "managed_file" and snapshot.allows(kind, resource_id)
+    ]
+    manager = getattr(request.app.state, "manager", None)
+    readable_managed_files = []
+    if manager is not None:
+        records = await run_in_threadpool(manager.list_files)
+        for record in records:
+            if (record.status == "active" and record.library_id and record.file_id
+                    and snapshot.allows_managed_file(record.library_id, record.file_id)):
+                readable_managed_files.append({
+                    "library_id": record.library_id,
+                    "file_id": record.file_id,
+                })
+    return JSONResponse({
+        "schema_version": 1,
+        "principal": {
+            "user_id": principal.user_id,
+            "username": principal.username,
+            "role": principal.role,
+            "revision": principal.revision,
+            "must_change_password": principal.must_change_password,
+        },
+        "access": {
+            "readable_resources": resources,
+            "readable_managed_files": readable_managed_files,
+        },
+    }, headers={"Cache-Control": "no-store"})
+
+
 def _require_same_origin(request: Request) -> None:
     origin = request.headers.get("origin", "")
     try:

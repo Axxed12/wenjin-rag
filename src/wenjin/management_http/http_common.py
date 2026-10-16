@@ -93,7 +93,9 @@ async def _authorize(request: Request, access: str = "admin") -> None:
         raise HTTPException(503, "MCP管理操作要求启用管理员身份会话")
     if access in {"public", "bootstrap"}:
         return
-    if access == "mcp":
+    if access in {"mcp", "mcp_snapshot"}:
+        if access == "mcp_snapshot" and identity is None:
+            raise HTTPException(404, "本机账户模式未启用")
         if identity is None:
             # 无账户模式保持既有 MCP 到管理服务桥接合同。
             expected = request.app.state.admin_token
@@ -105,12 +107,29 @@ async def _authorize(request: Request, access: str = "admin") -> None:
                 raise HTTPException(401, "需要有效的管理 Bearer token")
             request.state.principal = None
             return
-        supplied = request.headers.get("authorization", "")
-        candidate = supplied.removeprefix("Bearer ") if supplied.startswith("Bearer ") else ""
+        authorization_values = [
+            value for key, value in request.scope.get("headers", [])
+            if key.lower() == b"authorization"
+        ]
+        if len(authorization_values) != 1 or not authorization_values[0].startswith(b"Bearer "):
+            raise HTTPException(401, "需要有效的个人MCP凭据", headers={"WWW-Authenticate": "Bearer"})
         try:
-            request.state.principal = await run_in_threadpool(
-                identity.resolve_mcp_credential, candidate
-            )
+            supplied = authorization_values[0].decode("ascii")
+        except UnicodeDecodeError as exc:
+            raise HTTPException(401, "需要有效的个人MCP凭据", headers={"WWW-Authenticate": "Bearer"}) from exc
+        candidate = supplied[len("Bearer "):]
+        if not candidate or any(char.isspace() for char in candidate):
+            raise HTTPException(401, "需要有效的个人MCP凭据", headers={"WWW-Authenticate": "Bearer"})
+        try:
+            snapshot_loader = getattr(identity, "resolve_mcp_access_snapshot", None)
+            if access == "mcp_snapshot" and callable(snapshot_loader):
+                snapshot = await run_in_threadpool(snapshot_loader, candidate)
+                request.state.access_snapshot = snapshot
+                request.state.principal = snapshot.principal
+            else:
+                request.state.principal = await run_in_threadpool(
+                    identity.resolve_mcp_credential, candidate
+                )
         except Exception as exc:
             from wenjin.identity.policy import AuthenticationFailed
 

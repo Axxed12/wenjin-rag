@@ -135,7 +135,7 @@ function makeApp(fetchHandler, identity = null) {
   openJobDetail = async () => {};
   showApiError = (error) => { globalThis.__testError = error; };
   updatePolling = () => {};
-  globalThis.__admin = { state, api, clearSensitiveState, loadFiles, loadLibraries, loadJobs, refreshAll, setRefreshAll: (fn) => { refreshAll = fn; }, scheduleLibraryRefresh, chooseUpload, startUploadPicker, deleteFile, retryJob, downloadFile, renderFiles, renderJobs, renderSearchLibraries, renderSearchSources, renderSearchDocuments, runSearch, sourceKey, sourceSearchable, sourceDisplayName, sourcePublicationLabel, loadEvaluations, loadEvaluationResult, loadEvaluationCase, evaluationAction, renderEvaluationJobs, renderReleaseLibraryOptions, syncReleaseAccess, lastError: () => globalThis.__testError };
+  globalThis.__admin = { state, api, clearSensitiveState, loadFiles, loadLibraries, loadJobs, refreshAll, setRefreshAll: (fn) => { refreshAll = fn; }, scheduleLibraryRefresh, chooseUpload, startUploadPicker, deleteFile, retryJob, downloadFile, renderFiles, renderJobs, renderSearchLibraries, renderSearchSources, renderSearchDocuments, runSearch, sourceKey, sourceSearchable, sourceDisplayName, sourcePublicationLabel, loadEvaluations, loadEvaluationResult, loadEvaluationCase, evaluationAction, renderEvaluationJobs, renderEvaluationAudit, renderReleaseLibraryOptions, syncReleaseAccess, loadMcpEntries, loadMcpConnectionConfig, setMcpDefaultEntry, runMcpEntryAction, renderMcpEntries, mcpActionFor, lastError: () => globalThis.__testError };
 })();`;
   assert.match(appSource, marker, 'test hook must replace only app startup, leaving product functions intact');
   vm.runInNewContext(appSource.replace(marker, hook), context, { filename: appPath });
@@ -1065,4 +1065,257 @@ test('reader identity hides evaluation navigation and does not load evaluation d
 
   assert.equal(elements.get('[data-page="evaluations"]').classList.contains('hidden'), true);
   assert.equal(requests.some((request) => request.path.startsWith('/api/admin/evaluations')), false);
+});
+
+const adminMcpIdentity = () => ({ mode: 'accounts', user: { user_id: 'admin-mcp', username: '管理者', role: 'admin' }, csrf: 'csrf-admin' });
+const mcpEntries = (defaultEntry = 'legacy', revision = 4, legacyState = 'unmanaged', modernState = 'exited') => ({
+  default_entry: defaultEntry, revision,
+  entries: [
+    { entry_id: 'legacy', name: '旧版状态化 MCP', endpoint: 'http://127.0.0.1:18765/mcp', is_default: defaultEntry === 'legacy', runtime_state: legacyState, runtime_label: legacyState === 'unmanaged' ? '未受Docker管理' : legacyState, generation: legacyState === 'unmanaged' ? null : 'legacy-gen-1', control_error: legacyState === 'unmanaged' ? 'mcp_container_not_found' : null, control_error_detail: legacyState === 'unmanaged' ? '原生Python进程不能由此接口控制。' : null, control_configured: true },
+    { entry_id: 'stateless', name: '新版无状态 MCP', endpoint: 'http://127.0.0.1:18768/mcp-stateless', is_default: defaultEntry === 'stateless', runtime_state: modernState, runtime_label: modernState, generation: 'stateless-gen-2', control_error: null, control_error_detail: null, control_configured: true },
+  ],
+});
+function treeText(element) {
+  return [element?.textContent || '', ...(element?.children || []).map(treeText)].join(' ');
+}
+
+test('MCP entry page reads only allowlisted connection data and default switch uses revision CAS without Docker actions', async () => {
+  let snapshot = mcpEntries('legacy', 4);
+  let put = null; const actionCalls = [];
+  const { app, requests, elements, window } = makeApp(async ({ path, method, options }) => {
+    if (path === '/api/admin/mcp/entries' && method === 'GET') return response(snapshot);
+    if (path === '/api/admin/mcp/connection-config?entry_id=legacy') return response({
+      entry_id: 'legacy', name: '旧版状态化 MCP', protocol: '2025-11-25', transport: 'Streamable HTTP',
+      endpoint: 'http://127.0.0.1:18765/mcp', auth: { scheme: 'Bearer', credential_source: '另行配置MCP调用凭据' },
+      requirements: ['initialize', 'MCP-Session-Id'], token: 'must-never-render-or-copy',
+    });
+    if (path === '/api/admin/mcp/default-entry' && method === 'PUT') {
+      put = JSON.parse(options.body); snapshot = mcpEntries('stateless', 5);
+      return response({ default_entry: 'stateless', revision: 5, effect: 'future_connection_recommendation_only' });
+    }
+    if (path.includes('/actions')) actionCalls.push(path);
+    throw new Error(`unexpected MCP request ${method} ${path}`);
+  });
+  window.WenjinIdentity = adminMcpIdentity(); app.state.connected = true;
+  assert.equal(await app.loadMcpEntries(), true);
+  app.renderMcpEntries();
+  assert.equal(elements.get('#mcp-entry-cards').children.length, 2, 'exactly the two fixed entries render as cards');
+  const legacy = app.state.mcpEntries.find((entry) => entry.entry_id === 'legacy');
+  assert.equal(app.mcpActionFor(legacy).disabled, true, 'native Python entry cannot be controlled by Docker broker');
+  assert.match(app.mcpActionFor(legacy).reason, /原生进程/);
+  assert.equal(await app.loadMcpConnectionConfig('legacy'), true);
+  assert.equal(JSON.stringify(app.state.mcpConfigs.get('legacy')).includes('must-never-render-or-copy'), false);
+  assert.equal(JSON.stringify(app.state.mcpConfigs.get('legacy')).includes('token'), false);
+  const pageText = treeText(elements.get('#mcp-entry-cards'));
+  assert.match(pageText, /2025-11-25/); assert.match(pageText, /2026-07-28/);
+  assert.match(pageText, /原生进程/); assert.match(pageText, /MCP token/);
+  assert.equal(await app.setMcpDefaultEntry('stateless'), true);
+  assert.deepEqual(put, { entry_id: 'stateless', expected_revision: 4 });
+  assert.equal(app.state.mcpDefaultRevision, 5);
+  assert.equal(actionCalls.length, 0, 'changing future recommendation never starts or stops a service');
+  assert.match(elements.get('#mcp-entry-status').textContent, /不会重配已有 Agent，也不会启动或停止服务/);
+  assert.ok(requests.some((request) => request.path === '/api/admin/mcp/connection-config?entry_id=legacy'));
+});
+
+test('MCP default revision conflict reloads the selected state and does not claim a service action', async () => {
+  let reads = 0; let actions = 0;
+  const { app, elements, window } = makeApp(async ({ path, method }) => {
+    if (path === '/api/admin/mcp/entries' && method === 'GET') { reads += 1; return response(mcpEntries(reads > 1 ? 'stateless' : 'legacy', reads > 1 ? 8 : 7)); }
+    if (path === '/api/admin/mcp/default-entry') return response({ error: 'mcp_revision_conflict', detail: '默认入口已变化' }, 409);
+    if (path.includes('/actions')) actions += 1;
+    throw new Error(`unexpected request ${method} ${path}`);
+  });
+  window.WenjinIdentity = adminMcpIdentity(); app.state.connected = true;
+  await app.loadMcpEntries();
+  assert.equal(await app.setMcpDefaultEntry('stateless'), false);
+  assert.equal(app.state.mcpDefaultEntry, 'stateless'); assert.equal(app.state.mcpDefaultRevision, 8);
+  assert.equal(reads, 2); assert.equal(actions, 0);
+  assert.match(elements.get('#mcp-entry-status').textContent, /其他管理员修改/);
+});
+
+test('MCP Docker start and stop send the observed generation, poll completion, and never assert protocol health', async () => {
+  let snapshot = mcpEntries('legacy', 2, 'unmanaged', 'exited'); const actionBodies = []; let polls = 0;
+  const { app, elements, window } = makeApp(async ({ path, method, options }) => {
+    if (path === '/api/admin/mcp/entries' && method === 'GET') return response(snapshot);
+    if (path === '/api/admin/mcp/entries/stateless/actions' && method === 'POST') {
+      const body = JSON.parse(options.body); actionBodies.push(body);
+      const operationId = `op-action-${actionBodies.length}`;
+      return response({ operation_id: operationId, state: 'running', entry_id: 'stateless', action: body.action, impact: body.action === 'stop' ? '停止会中断连接。' : '仅启动目标容器。' }, 202);
+    }
+    if (path.startsWith('/api/admin/mcp/operations/op-action-')) {
+      polls += 1;
+      const actionNumber = Number(path.at(-1));
+      const action = actionBodies[actionNumber - 1].action;
+      snapshot = mcpEntries('legacy', 2, 'unmanaged', action === 'start' ? 'running' : 'exited');
+      const runtimeState = action === 'start' ? 'running' : 'exited';
+      return response({ operation_id: `op-action-${actionNumber}`, state: 'succeeded', runtime_state: runtimeState, runtime_label: runtimeState === 'running' ? '运行中；不代表MCP协议可用' : '已停止', generation: 'stateless-gen-2' });
+    }
+    throw new Error(`unexpected request ${method} ${path}`);
+  });
+  window.WenjinIdentity = adminMcpIdentity(); app.state.connected = true;
+  await app.loadMcpEntries();
+  const entry = app.state.mcpEntries.find((item) => item.entry_id === 'stateless');
+  assert.equal(app.mcpActionFor(entry).action, 'start');
+  assert.equal(await app.runMcpEntryAction(entry, 'start'), true);
+  assert.deepEqual(actionBodies[0], { action: 'start', expected_generation: 'stateless-gen-2' });
+  assert.equal(polls, 1);
+  assert.equal(app.state.mcpEntries.find((item) => item.entry_id === 'stateless').runtime_state, 'running');
+  assert.match(elements.get('#mcp-entry-status').textContent, /不代表 MCP 协议或业务请求健康/);
+  assert.doesNotMatch(elements.get('#mcp-entry-status').textContent, /协议健康.*正常|MCP健康/);
+  const runningEntry = app.state.mcpEntries.find((item) => item.entry_id === 'stateless');
+  assert.equal(app.mcpActionFor(runningEntry).action, 'stop');
+  assert.equal(await app.runMcpEntryAction(runningEntry, 'stop'), true);
+  assert.deepEqual(actionBodies[1], { action: 'stop', expected_generation: 'stateless-gen-2' });
+  assert.equal(polls, 2);
+  assert.match(elements.get('#mcp-entry-status').textContent, /停止操作已完成/);
+});
+
+test('MCP unknown outcome refreshes entries for reconciliation and stale account responses cannot repopulate cards', async () => {
+  let entryReads = 0; let operationReads = 0; let releaseEntries;
+  const pendingList = new Promise((resolve) => { releaseEntries = resolve; });
+  const { app, elements, window } = makeApp(async ({ path, method }) => {
+    if (path === '/api/admin/mcp/entries' && method === 'GET') {
+      entryReads += 1;
+      if (entryReads === 1) return response(mcpEntries('legacy', 3, 'unmanaged', 'exited'));
+      if (entryReads === 2) return response(mcpEntries('legacy', 3, 'unmanaged', 'running'));
+      return pendingList;
+    }
+    if (path === '/api/admin/mcp/entries/stateless/actions') return response({ operation_id: 'op-unknown', state: 'running', impact: '客户端可能中断。' }, 202);
+    if (path === '/api/admin/mcp/operations/op-unknown') { operationReads += 1; return response({ operation_id: 'op-unknown', state: 'outcome_unknown', runtime_state: null, error: 'mcp_action_state_unconfirmed' }); }
+    throw new Error(`unexpected request ${method} ${path}`);
+  });
+  window.WenjinIdentity = adminMcpIdentity(); app.state.connected = true;
+  await app.loadMcpEntries();
+  const entry = app.state.mcpEntries.find((item) => item.entry_id === 'stateless');
+  const action = app.runMcpEntryAction(entry, 'start');
+  await new Promise((resolve) => setTimeout(resolve, 900));
+  await action;
+  assert.equal(operationReads, 1); assert.equal(entryReads, 2);
+  assert.match(elements.get('#mcp-entry-status').textContent, /结果尚不确定/);
+  assert.match(elements.get('#mcp-entry-status').textContent, /已刷新入口状态：running/);
+  assert.match(elements.get('#mcp-entry-status').textContent, /不是 MCP 协议健康检查/);
+  assert.equal(app.mcpActionFor(app.state.mcpEntries.find((item) => item.entry_id === 'stateless')).action, 'stop', 'after a successful entries read the actual container state is shown for a new deliberate action');
+
+  const oldRequest = app.loadMcpEntries();
+  await new Promise((resolve) => setImmediate(resolve));
+  app.clearSensitiveState({ disconnected: true });
+  app.renderMcpEntries();
+  releaseEntries(response(mcpEntries('stateless', 99, 'unmanaged', 'running')));
+  await oldRequest;
+  assert.equal(app.state.mcpEntries.length, 0, 'a late entries response from the previous account does not refill state');
+  assert.equal(treeText(elements.get('#mcp-entry-cards')).includes('新版无状态 MCP'), false);
+});
+
+test('MCP action conflict with failed entries refresh remains blocked and never claims refreshed state', async () => {
+  let entryReads = 0;
+  const { app, elements, window } = makeApp(async ({ path, method }) => {
+    if (path === '/api/admin/mcp/entries' && method === 'GET') {
+      entryReads += 1;
+      return entryReads === 1 ? response(mcpEntries('legacy', 1, 'unmanaged', 'exited')) : response({ detail: 'entry status unavailable' }, 503);
+    }
+    if (path === '/api/admin/mcp/entries/stateless/actions') return response({ error: 'mcp_generation_conflict', detail: 'generation changed' }, 409);
+    throw new Error(`unexpected request ${method} ${path}`);
+  });
+  window.WenjinIdentity = adminMcpIdentity(); app.state.connected = true;
+  await app.loadMcpEntries();
+  const entry = app.state.mcpEntries.find((item) => item.entry_id === 'stateless');
+  assert.equal(await app.runMcpEntryAction(entry, 'start'), false);
+  assert.match(elements.get('#mcp-entry-status').textContent, /刷新失败，请手动刷新/);
+  assert.equal(app.mcpActionFor(app.state.mcpEntries.find((item) => item.entry_id === 'stateless')).disabled, true);
+});
+
+test('expired MCP operation is not success and failed runtime reconciliation keeps the entry disabled', async () => {
+  let entryReads = 0;
+  const { app, elements, window } = makeApp(async ({ path, method }) => {
+    if (path === '/api/admin/mcp/entries' && method === 'GET') {
+      entryReads += 1;
+      return entryReads === 1 ? response(mcpEntries('legacy', 2, 'unmanaged', 'exited')) : response({ error: 'mcp_control_unavailable', detail: '状态暂不可读' }, 503);
+    }
+    if (path === '/api/admin/mcp/entries/stateless/actions') return response({ operation_id: 'op-expired-1', state: 'running', impact: '操作已受理。' }, 202);
+    if (path === '/api/admin/mcp/operations/op-expired-1') return response({ error: 'mcp_operation_expired', detail: '操作记录已过期' }, 410);
+    throw new Error(`unexpected request ${method} ${path}`);
+  });
+  window.WenjinIdentity = adminMcpIdentity(); app.state.connected = true;
+  await app.loadMcpEntries();
+  const entry = app.state.mcpEntries.find((item) => item.entry_id === 'stateless');
+  assert.equal(await app.runMcpEntryAction(entry, 'start'), true);
+  assert.equal(entryReads, 2, 'expired operation triggers a fresh entries reconciliation');
+  assert.match(elements.get('#mcp-entry-status').textContent, /操作记录已过期/);
+  assert.match(elements.get('#mcp-entry-status').textContent, /刷新失败/);
+  assert.doesNotMatch(elements.get('#mcp-entry-status').textContent, /操作已完成/);
+  assert.equal(app.mcpActionFor(app.state.mcpEntries.find((item) => item.entry_id === 'stateless')).disabled, true);
+});
+
+test('MCP entry navigation and controls are admin-session only', async () => {
+  const { app, requests, elements, window } = makeApp(async ({ path }) => {
+    throw new Error(`reader must not call MCP admin API: ${path}`);
+  });
+  app.state.connected = true;
+  window.WenjinIdentity = { mode: 'accounts', user: { user_id: 'reader-only', username: 'reader', role: 'reader' }, csrf: 'reader-csrf' };
+  app.syncReleaseAccess();
+  assert.equal(elements.get('[data-page="mcp-entry"]').classList.contains('hidden'), true);
+  assert.equal(await app.loadMcpEntries(), false);
+  assert.equal(await app.runMcpEntryAction({ entry_id: 'stateless', generation: 'fake' }, 'start'), false);
+  assert.equal(requests.length, 0);
+  window.WenjinIdentity.user = { user_id: 'admin-only', username: 'admin', role: 'admin' };
+  app.syncReleaseAccess();
+  assert.equal(elements.get('[data-page="mcp-entry"]').classList.contains('hidden'), false);
+});
+
+
+test('evaluation empty rows contain real spanning cells instead of DOM object text', async () => {
+  const { app, elements } = makeApp(async () => response({ profiles: {}, case_count: 0 }));
+  app.clearSensitiveState();
+  for (const [selector, columns] of [['#evaluation-job-rows', 6], ['#evaluation-arm-rows', 5], ['#evaluation-audit-rows', 5]]) {
+    const row = elements.get(selector).children[0];
+    assert.equal(row.tagName, 'tr');
+    assert.equal(row.children[0].tagName, 'td');
+    assert.equal(row.children[0].colSpan, columns);
+    assert.equal(typeof row.textContent, 'undefined');
+  }
+  app.renderEvaluationJobs();
+  app.renderEvaluationAudit();
+  app.state.evaluationSelectedId = 'empty-job';
+  await app.loadEvaluationResult('empty-job');
+  assert.match(treeText(elements.get('#evaluation-arm-rows')), /没有可比较的检索方式/);
+  assert.equal(elements.get('#evaluation-arm-rows').children[0].children[0].colSpan, 5);
+});
+
+function evaluationVisibleText(element) {
+  if (element?.tagName === 'details') return treeText(element.children[0]);
+  return [element?.textContent || '', ...(element?.children || []).map(evaluationVisibleText)].join(' ');
+}
+
+test('evaluation lists hide internal identities in collapsed details and avoid duplicate status', () => {
+  const identity = { usernameFor: (id) => `已删除账号（${id}）` };
+  const { app, elements, window } = makeApp(async () => response({}));
+  window.WenjinIdentity = identity;
+  app.state.evaluationJobs = [{ job_id: 'a'.repeat(32), title: '四种策略对比', status: 'completed', stage: 'completed', completed_cases: 33, total_cases: 33, owner_user_id: 'b'.repeat(32), experiment_id: 'internal-template', input_snapshot: { dataset_id: 'developer-validation-2026-10-04', profiles: ['baseline', 'mmr'] }, created_at: '2026-10-15T00:00:00Z' }];
+  app.renderEvaluationJobs();
+  const row = elements.get('#evaluation-job-rows').children[0];
+  const visible = evaluationVisibleText(row);
+  assert.match(visible, /四种策略对比/);
+  assert.match(visible, /固定开发题集/);
+  assert.match(visible, /基础检索 · 结果去重/);
+  assert.match(visible, /已删除账号/);
+  assert.doesNotMatch(visible, /a{32}|b{32}|developer-validation|internal-template/);
+  assert.equal(row.children[1].children.length, 1);
+  const detail = row.children[0].children[1];
+  assert.equal(detail.tagName, 'details');
+  assert.equal(detail.open, undefined);
+  assert.match(treeText(detail), /a{32}/);
+  assert.equal(row.children[5].children[0].dataset.jobId, 'a'.repeat(32));
+  app.state.evaluationAudit = [{ actor_user_id: 'b'.repeat(32), job_id: 'a'.repeat(32), action: 'evaluation_result_read', occurred_at: '2026-10-15T00:00:00Z', metadata: { hash: 'c'.repeat(64) } }];
+  app.renderEvaluationAudit();
+  assert.doesNotMatch(evaluationVisibleText(elements.get('#evaluation-audit-rows')), /a{32}|b{32}|c{64}/);
+});
+
+test('evaluation result summary identifies the task by title rather than its internal id', async () => {
+  const { app, elements } = makeApp(async () => response({ profiles: { baseline: { cases: 1, candidate_count: 10, selected_evidence: 5, mean_total_seconds: 0.2 } }, case_count: 1, assets_unchanged: true }));
+  app.state.evaluationSelectedId = 'private-job-id';
+  app.state.evaluationJobs = [{ job_id: 'private-job-id', title: '单题诊断', status: 'completed' }];
+  await app.loadEvaluationResult('private-job-id');
+  assert.match(elements.get('#evaluation-result-meta').textContent, /单题诊断/);
+  assert.doesNotMatch(elements.get('#evaluation-result-meta').textContent, /private-job-id/);
+  assert.equal(elements.get('#evaluation-arm-rows').children[0].children.length, 5);
 });

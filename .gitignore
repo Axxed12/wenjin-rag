@@ -68,3 +68,7 @@ data/file-management/
 !docs/admin-frontend.md
 !docs/mcp-entry-control.md
 !artifacts/iterations/2026-10-14-mcp-entry-control/development-log.md
+!artifacts/iterations/2026-10-14-mcp-entry-control-ui-deploy/development-log.md
+!artifacts/iterations/2026-10-14-mcp-entry-control-ui-deploy/deployment-report.md
+# 本轮解析器源码构建缓存；版本与哈希记录在迭代日志，不提交源包。
+/data/packages/mcp-lxml-build-20261014/

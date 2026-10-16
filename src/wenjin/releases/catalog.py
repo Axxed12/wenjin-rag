@@ -32,8 +32,7 @@ class ReleaseConflictError(RuntimeError):
         active_detail = ""
         if expected_active_release_id != current_active_release_id:
             active_detail = (
-                f"；active由{expected_active_release_id!r}变为"
-                f"{current_active_release_id!r}"
+                f"；active由{expected_active_release_id!r}变为{current_active_release_id!r}"
             )
         super().__init__(
             f"release catalog revision冲突：期望{expected_revision}，当前{current_revision}"
@@ -54,12 +53,17 @@ class ReleaseCatalog:
     意外使另一个管理员的切换请求过期。BEGIN IMMEDIATE为本机多进程写者串行化。
     """
 
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, *, read_only: bool = False) -> None:
         self.path = Path(path)
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self._connect() as database:
-            database.executescript(
-                """
+        self.read_only = read_only
+        if read_only:
+            if not self.path.is_file():
+                raise FileNotFoundError(self.path)
+        else:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            with self._connect() as database:
+                database.executescript(
+                    """
                 CREATE TABLE IF NOT EXISTS catalog_meta (
                     singleton INTEGER PRIMARY KEY CHECK(singleton = 1),
                     revision INTEGER NOT NULL
@@ -97,15 +101,27 @@ class ReleaseCatalog:
                     reason TEXT NOT NULL
                 );
                 """
-            )
+                )
 
     @contextmanager
     def _connect(self):
-        database = sqlite3.connect(self.path, timeout=30, isolation_level=None)
+        if self.read_only:
+            # SQLite URI mode prevents a read path from creating the database or
+            # silently attempting schema/WAL writes on a read-only deployment mount.
+            database = sqlite3.connect(
+                f"{self.path.resolve().as_uri()}?mode=ro",
+                uri=True,
+                timeout=30,
+                isolation_level=None,
+            )
+        else:
+            database = sqlite3.connect(self.path, timeout=30, isolation_level=None)
         try:
             database.row_factory = sqlite3.Row
             database.execute("PRAGMA foreign_keys = ON")
             database.execute("PRAGMA busy_timeout = 30000")
+            if self.read_only:
+                database.execute("PRAGMA query_only = ON")
             yield database
         finally:
             database.close()
@@ -120,9 +136,11 @@ class ReleaseCatalog:
 
     def revision(self) -> int:
         with self._connect() as database:
-            return int(database.execute(
-                "SELECT revision FROM catalog_meta WHERE singleton=1"
-            ).fetchone()[0])
+            return int(
+                database.execute("SELECT revision FROM catalog_meta WHERE singleton=1").fetchone()[
+                    0
+                ]
+            )
 
     def register(self, record: dict[str, Any]) -> dict[str, Any]:
         """加入一个preparing release；不改变当前active revision。"""
@@ -142,7 +160,9 @@ class ReleaseCatalog:
                     "INSERT INTO releases(release_id, library_id, status, payload_json, created_at) "
                     "VALUES(?, ?, ?, ?, ?)",
                     (
-                        payload["release_id"], library_id, payload["status"],
+                        payload["release_id"],
+                        library_id,
+                        payload["status"],
                         json.dumps(payload, ensure_ascii=False, sort_keys=True),
                         payload["created_at"],
                     ),
@@ -220,21 +240,26 @@ class ReleaseCatalog:
 
     def snapshot(self, library_id: str) -> dict[str, Any]:
         all_state = self.snapshot_all()
-        return all_state["libraries"].get(library_id, {
-            "library_id": library_id,
-            "active_release_id": None,
-            "active": None,
-            "releases": [],
-            "history": [],
-        }) | {"revision": all_state["revision"]}
+        return all_state["libraries"].get(
+            library_id,
+            {
+                "library_id": library_id,
+                "active_release_id": None,
+                "active": None,
+                "releases": [],
+                "history": [],
+            },
+        ) | {"revision": all_state["revision"]}
 
     def snapshot_all(self) -> dict[str, Any]:
         """一次SQLite读事务读取所有库的active指针，供多库请求固定统一revision。"""
         with self._connect() as database:
             database.execute("BEGIN")
-            revision = int(database.execute(
-                "SELECT revision FROM catalog_meta WHERE singleton=1"
-            ).fetchone()[0])
+            revision = int(
+                database.execute("SELECT revision FROM catalog_meta WHERE singleton=1").fetchone()[
+                    0
+                ]
+            )
             library_rows = database.execute(
                 "SELECT library_id, active_release_id FROM libraries ORDER BY library_id"
             ).fetchall()
@@ -262,9 +287,7 @@ class ReleaseCatalog:
             library_id = row["library_id"]
             releases = releases_by_library.get(library_id, [])
             active_id = row["active_release_id"]
-            active = next(
-                (item for item in releases if item["release_id"] == active_id), None
-            )
+            active = next((item for item in releases if item["release_id"] == active_id), None)
             libraries[library_id] = {
                 "library_id": library_id,
                 "active_release_id": active_id,
@@ -364,9 +387,11 @@ class ReleaseCatalog:
         with self._connect() as database:
             database.execute("BEGIN IMMEDIATE")
             try:
-                revision = int(database.execute(
-                    "SELECT revision FROM catalog_meta WHERE singleton=1"
-                ).fetchone()[0])
+                revision = int(
+                    database.execute(
+                        "SELECT revision FROM catalog_meta WHERE singleton=1"
+                    ).fetchone()[0]
+                )
                 if revision != expected_revision:
                     raise ReleaseConflictError(expected_revision, revision)
                 row = database.execute(
@@ -428,8 +453,14 @@ class ReleaseCatalog:
                     "INSERT INTO release_events(timestamp_utc, action, library_id, release_id, "
                     "previous_release_id, revision, actor, reason) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
                     (
-                        datetime.now(timezone.utc).isoformat(), action, library_id, release_id,
-                        previous_release_id, next_revision, actor, reason,
+                        datetime.now(timezone.utc).isoformat(),
+                        action,
+                        library_id,
+                        release_id,
+                        previous_release_id,
+                        next_revision,
+                        actor,
+                        reason,
                     ),
                 )
                 release_rows = database.execute(
@@ -446,9 +477,7 @@ class ReleaseCatalog:
                     "revision": next_revision,
                     "library_id": library_id,
                     "active_release_id": release_id,
-                    "active": next(
-                        item for item in releases if item["release_id"] == release_id
-                    ),
+                    "active": next(item for item in releases if item["release_id"] == release_id),
                     "releases": releases,
                     "history": [item[0] for item in history_rows],
                 }

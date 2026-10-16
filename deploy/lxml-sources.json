@@ -1,0 +1,27 @@
+[
+  {
+    "file": "lxml-6.1.3.tar.gz",
+    "url": "https://pypi.tuna.tsinghua.edu.cn/packages/23/ad/28ecd7cb894d172f3c9c80a075eeeb2017ac62e3632cee05a5f9493547eb/lxml-6.1.3.tar.gz",
+    "sha256": "45222d94ddd511536f3b2f7d9deae3b2339b4ce0f075f1ca25703b07cad9dd21"
+  },
+  {
+    "file": "libxml2-2.11.9.tar.xz",
+    "url": "https://download.gnome.org/sources/libxml2/2.11/libxml2-2.11.9.tar.xz",
+    "sha256": "780157a1efdb57188ec474dca87acaee67a3a839c2525b2214d318228451809f"
+  },
+  {
+    "file": "libxslt-1.1.39.tar.xz",
+    "url": "https://download.gnome.org/sources/libxslt/1.1/libxslt-1.1.39.tar.xz",
+    "sha256": "2a20ad621148339b0759c4d4e96719362dee64c9a096dbba625ba053846349f0"
+  },
+  {
+    "file": "libiconv-1.18.tar.gz",
+    "url": "https://ftp.gnu.org/gnu/libiconv/libiconv-1.18.tar.gz",
+    "sha256": "3b08f5f4f9b4eb82f151a7040bfd6fe6c6fb922efe4b1659c66ea933276965e8"
+  },
+  {
+    "file": "zlib-1.3.2.tar.gz",
+    "url": "https://zlib.net/fossils/zlib-1.3.2.tar.gz",
+    "sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16"
+  }
+]

@@ -18,6 +18,7 @@ class RequestIdentity:
 
     principal: Principal
     bearer: str = field(repr=False)
+    access_snapshot: Any | None = field(default=None, repr=False)
 
 
 class McpIdentityMiddleware:
@@ -50,11 +51,23 @@ class McpIdentityMiddleware:
             return
         try:
             bearer = authorization[len(prefix):].decode("ascii")
-            principal = await asyncio.to_thread(
-                self.identity_store.resolve_mcp_credential, bearer
-            )
+            remote_authenticate = getattr(self.identity_store, "authenticate_request", None)
+            if callable(remote_authenticate):
+                principal, access_snapshot = await asyncio.to_thread(remote_authenticate, bearer)
+            else:
+                principal = await asyncio.to_thread(
+                    self.identity_store.resolve_mcp_credential, bearer
+                )
+                access_snapshot = None
         except (UnicodeDecodeError, IdentityError, ValueError):
             await self._unauthorized(send)
+            return
+        except Exception as exc:
+            from wenjin.mcp.remote_identity import RemoteIdentityUnavailable
+
+            if not isinstance(exc, RemoteIdentityUnavailable):
+                raise
+            await self._unavailable(send)
             return
         session_values = [
             value for key, value in scope.get("headers", [])
@@ -93,7 +106,9 @@ class McpIdentityMiddleware:
             if not key.lower().startswith(b"x-wenjin-") and key.lower() != b"authorization"
         ] + [(b"authorization", authorization)]
         state = scope.setdefault("state", {})
-        state["wenjin_identity"] = RequestIdentity(principal=principal, bearer=bearer)
+        state["wenjin_identity"] = RequestIdentity(
+            principal=principal, bearer=bearer, access_snapshot=access_snapshot
+        )
         state["principal"] = principal
 
         async def capture_session(response_message) -> None:
@@ -131,6 +146,20 @@ class McpIdentityMiddleware:
                 (b"content-type", b"application/json; charset=utf-8"),
                 (b"content-length", str(len(body)).encode("ascii")),
                 (b"www-authenticate", b"Bearer"),
+                (b"cache-control", b"no-store"),
+            ],
+        })
+        await send({"type": "http.response.body", "body": body})
+
+    @staticmethod
+    async def _unavailable(send) -> None:
+        body = json.dumps({"error": "identity_authority_unavailable"}, separators=(",", ":")).encode("utf-8")
+        await send({
+            "type": "http.response.start",
+            "status": 503,
+            "headers": [
+                (b"content-type", b"application/json; charset=utf-8"),
+                (b"content-length", str(len(body)).encode("ascii")),
                 (b"cache-control", b"no-store"),
             ],
         })

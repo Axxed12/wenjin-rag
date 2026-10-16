@@ -102,7 +102,7 @@
     $('#identity-admin-panel').classList.add('hidden');
     $('#identity-self-panel').classList.add('hidden');
     $('#identity-session-panel').classList.add('hidden');
-    document.querySelectorAll('[data-page="files"],[data-page="jobs"],[data-page="calls"],[data-page="overview"],[data-page="roadmap"],[data-page="releases"],[data-page="evaluations"]').forEach((item) => item.classList.add('hidden'));
+    document.querySelectorAll('[data-page="files"],[data-page="jobs"],[data-page="calls"],[data-page="overview"],[data-page="roadmap"],[data-page="releases"],[data-page="evaluations"],[data-page="mcp-entry"]').forEach((item) => item.classList.add('hidden'));
     $('#identity-current-user').textContent = '';
     $('#identity-users').replaceChildren();
     $('#identity-grants').replaceChildren();
@@ -148,7 +148,7 @@
     $('#identity-current-user').append(' ', roleBadge);
     $('#identity-admin-panel').classList.toggle('hidden', user.role !== 'admin');
     $('#identity-empty-grants').classList.add('hidden');
-    document.querySelectorAll('[data-page="files"],[data-page="jobs"],[data-page="calls"],[data-page="overview"],[data-page="roadmap"]').forEach((item) => {
+    document.querySelectorAll('[data-page="files"],[data-page="jobs"],[data-page="calls"],[data-page="overview"],[data-page="roadmap"],[data-page="mcp-entry"]').forEach((item) => {
       item.classList.toggle('hidden', user.role !== 'admin');
     });
     if (user.role === 'reader') {

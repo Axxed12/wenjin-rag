@@ -25,6 +25,7 @@ from wenjin.serving import CorpusSources
 ROOT = Path(__file__).resolve().parents[3]
 EXPECTED_PROTOCOL_VERSION = "2025-11-25"
 
+
 @dataclass(frozen=True)
 class RuntimeIdentity:
     """服务启动时确定的索引身份；请求期间不再读注册表。"""
@@ -38,7 +39,11 @@ class RuntimeIdentity:
 
 
 def create_runtime(
-    *, use_reranker: bool = True, root: Path | None = None, settings=None
+    *,
+    use_reranker: bool = True,
+    root: Path | None = None,
+    settings=None,
+    read_only_release_catalog: bool = False,
 ) -> tuple[RetrievalService, RuntimeIdentity]:
     """加载Qdrant客户端和两个本地0.6B模型，并返回绑定在一起的索引身份。
 
@@ -71,7 +76,11 @@ def create_runtime(
     # （prewarm 内部已加锁，这里在装配阶段单线程调一次更省事）。
     prewarm_zh()
     catalog_path = release_catalog_path(project_root)
-    catalog = ReleaseCatalog(catalog_path) if catalog_path.is_file() else None
+    catalog = (
+        ReleaseCatalog(catalog_path, read_only=read_only_release_catalog)
+        if catalog_path.is_file()
+        else None
+    )
     catalog_snapshot = catalog.snapshot_all() if catalog is not None else None
     active_release = None
     if catalog_snapshot is not None:
@@ -80,7 +89,8 @@ def create_runtime(
                 library["active"]
                 for library in catalog_snapshot["libraries"].values()
                 if library.get("active") is not None
-                and str(library["active"].get("target", {}).get("library", "")).strip().lower() == "osg"
+                and str(library["active"].get("target", {}).get("library", "")).strip().lower()
+                == "osg"
             ),
             None,
         )
@@ -98,8 +108,7 @@ def create_runtime(
     )
     if actual_embedding_model != target.embedding_model:
         raise RuntimeError(
-            f"当前Embedding模型{actual_embedding_model}与索引"
-            f"{target.embedding_model}不一致"
+            f"当前Embedding模型{actual_embedding_model}与索引{target.embedding_model}不一致"
         )
     client = create_qdrant_client(url=settings.qdrant_url, api_key=settings.qdrant_api_key)
     reranker = None
@@ -143,9 +152,7 @@ def create_runtime(
             embedder=embedder,
             reranker=reranker,
             bm25_path=resolve_project_path(project_root, target.bm25_path),
-            source_urls=load_source_urls(
-                resolve_project_path(project_root, target.manifest_path)
-            ),
+            source_urls=load_source_urls(resolve_project_path(project_root, target.manifest_path)),
             collection_name=target.dense_collection,
             supported_version=target.version,
             index_target_id=target.target_id,
@@ -181,6 +188,7 @@ def create_router(
     embedder: Any,
     reranker: Any | None = None,
     search_lock: Any | None = None,
+    read_only_release_catalog: bool = False,
 ) -> Any | None:
     """为多语料候选建路由；没配置候选清单时返回 None。
 
@@ -198,7 +206,7 @@ def create_router(
     catalog_path = release_catalog_path(root)
     migrated_libraries: set[str] = set()
     if catalog_path.is_file():
-        snapshot = ReleaseCatalog(catalog_path).snapshot_all()
+        snapshot = ReleaseCatalog(catalog_path, read_only=read_only_release_catalog).snapshot_all()
         from wenjin.retrieval.router import normalize_library
 
         migrated_libraries = {
@@ -207,6 +215,7 @@ def create_router(
             if library.get("active") is not None
         }
     from wenjin.retrieval.router import normalize_library
+
     targets: list[IndexTarget] = []
     route_path = root / DEFAULT_MULTI_CORPUS_ROUTE
     if route_path.is_file():
@@ -251,6 +260,7 @@ def create_release_resolver(
     legacy_router: Any | None,
     search_lock: Any,
     expected_embedding_model: str | None = None,
+    read_only_release_catalog: bool = False,
 ) -> LazyRequestReleaseResolver:
     """为MCP请求共享当前SQLite release目录，不创建第二套模型或Qdrant客户端。"""
     return LazyRequestReleaseResolver(
@@ -261,6 +271,7 @@ def create_release_resolver(
         legacy_router=legacy_router,
         search_lock=search_lock,
         expected_embedding_model=expected_embedding_model,
+        read_only_release_catalog=read_only_release_catalog,
     )
 
 

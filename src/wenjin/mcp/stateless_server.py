@@ -44,7 +44,12 @@ def _request_body_limit() -> int:
 
 
 def _send_error(
-    send, *, status: int, code: int, message: str, data: dict | None = None,
+    send,
+    *,
+    status: int,
+    code: int,
+    message: str,
+    data: dict | None = None,
     request_id: str | int | None = None,
 ) -> Any:
     error: dict[str, Any] = {"code": code, "message": message}
@@ -87,7 +92,9 @@ class StatelessEndpointMiddleware:
         method = scope.get("method", "").upper()
         if method != "POST":
             await _send_error(
-                send, status=405, code=-32600,
+                send,
+                status=405,
+                code=-32600,
                 message="The stateless MCP endpoint accepts POST requests only",
             )
             return
@@ -101,13 +108,17 @@ class StatelessEndpointMiddleware:
             try:
                 if len(content_lengths) != 1 or int(content_lengths[0]) > body_limit:
                     await _send_error(
-                        send, status=413, code=-32600,
+                        send,
+                        status=413,
+                        code=-32600,
                         message="MCP request body exceeds the 4 MiB limit",
                     )
                     return
             except ValueError:
                 await _send_error(
-                    send, status=400, code=-32600,
+                    send,
+                    status=400,
+                    code=-32600,
                     message="Invalid Content-Length header",
                 )
                 return
@@ -122,7 +133,9 @@ class StatelessEndpointMiddleware:
             body_size += len(body_part)
             if body_size > body_limit:
                 await _send_error(
-                    send, status=413, code=-32600,
+                    send,
+                    status=413,
+                    code=-32600,
                     message="MCP request body exceeds the 4 MiB limit",
                 )
                 return
@@ -144,21 +157,21 @@ class StatelessEndpointMiddleware:
             metadata = params.get("_meta")
             metadata = metadata if isinstance(metadata, dict) else {}
             body_version = metadata.get("io.modelcontextprotocol/protocolVersion")
-            if (
-                "io.modelcontextprotocol/protocolVersion" in metadata
-                and not isinstance(body_version, str)
+            if "io.modelcontextprotocol/protocolVersion" in metadata and not isinstance(
+                body_version, str
             ):
                 await _send_error(
-                    send, status=400, code=-32602,
+                    send,
+                    status=400,
+                    code=-32602,
                     message="Invalid protocolVersion request metadata",
                     request_id=request_id,
                 )
                 return
             if not isinstance(body_version, str):
                 body_version = None
-            legacy_initialize = (
-                request.get("method") == "initialize"
-                and isinstance(params.get("protocolVersion"), str)
+            legacy_initialize = request.get("method") == "initialize" and isinstance(
+                params.get("protocolVersion"), str
             )
             if legacy_initialize:
                 body_version = params["protocolVersion"]
@@ -167,12 +180,15 @@ class StatelessEndpointMiddleware:
             body_version = None
 
         headers = [
-            value for key, value in scope.get("headers", [])
+            value
+            for key, value in scope.get("headers", [])
             if key.lower() == b"mcp-protocol-version"
         ]
         if len(headers) != 1:
             await _send_error(
-                send, status=400, code=-32020,
+                send,
+                status=400,
+                code=-32020,
                 message="Missing or duplicate MCP-Protocol-Version header",
                 request_id=request_id,
             )
@@ -181,7 +197,9 @@ class StatelessEndpointMiddleware:
             header_version = headers[0].decode("ascii")
         except UnicodeDecodeError:
             await _send_error(
-                send, status=400, code=-32020,
+                send,
+                status=400,
+                code=-32020,
                 message="MCP-Protocol-Version header must contain ASCII",
                 request_id=request_id,
             )
@@ -189,14 +207,19 @@ class StatelessEndpointMiddleware:
 
         if isinstance(body_version, str) and body_version != header_version:
             await _send_error(
-                send, status=400, code=-32020,
+                send,
+                status=400,
+                code=-32020,
                 message="MCP-Protocol-Version header does not match request metadata",
                 request_id=request_id,
             )
             return
 
         requested_version = body_version or header_version
-        if header_version != STATELESS_PROTOCOL_VERSION or requested_version != STATELESS_PROTOCOL_VERSION:
+        if (
+            header_version != STATELESS_PROTOCOL_VERSION
+            or requested_version != STATELESS_PROTOCOL_VERSION
+        ):
             await _send_error(
                 send,
                 status=400,
@@ -224,7 +247,8 @@ class StatelessEndpointMiddleware:
                 and message.get("type") == "http.response.start"
             ):
                 message["headers"] = [
-                    (key, value) for key, value in message.get("headers", [])
+                    (key, value)
+                    for key, value in message.get("headers", [])
                     if key.lower() != b"cache-control"
                 ] + [(b"cache-control", b"no-store")]
             await send(message)
@@ -258,9 +282,13 @@ class PrivateDownloadResponseMiddleware:
         path = scope.get("path", "") if scope.get("type") == "http" else ""
 
         async def private_response(message: dict) -> None:
-            if path.startswith("/mcp-stateless/files/") and message.get("type") == "http.response.start":
+            if (
+                path.startswith("/mcp-stateless/files/")
+                and message.get("type") == "http.response.start"
+            ):
                 message["headers"] = [
-                    (key, value) for key, value in message.get("headers", [])
+                    (key, value)
+                    for key, value in message.get("headers", [])
                     if key.lower() != b"cache-control"
                 ] + [(b"cache-control", b"no-store")]
             await send(message)
@@ -273,9 +301,7 @@ def _validate_stateless_runtime() -> None:
     fastmcp_version = importlib.metadata.version("fastmcp")
     sdk_version = importlib.metadata.version("mcp")
     if fastmcp_version.split(".", 1)[0] != "4":
-        raise RuntimeError(
-            f"MCP stateless entry requires FastMCP 4.x; found {fastmcp_version}"
-        )
+        raise RuntimeError(f"MCP stateless entry requires FastMCP 4.x; found {fastmcp_version}")
     if sdk_version.split(".", 1)[0] != "2":
         raise RuntimeError(f"MCP stateless entry requires Python SDK 2.x; found {sdk_version}")
     if LATEST_PROTOCOL_VERSION != STATELESS_PROTOCOL_VERSION:
@@ -306,8 +332,11 @@ def build_stateless_mcp_server(
     """Build the isolated modern server while reusing the existing RAG handlers."""
     _validate_stateless_runtime()
     root = project_root or ROOT
-    if identity_store is not None and managed_bridge is not None \
-            and not getattr(managed_bridge, "account_mode", False):
+    if (
+        identity_store is not None
+        and managed_bridge is not None
+        and not getattr(managed_bridge, "account_mode", False)
+    ):
         raise ValueError("账户模式MCP必须使用逐请求个人凭据的受限managed bridge")
     audit = audit or SearchAudit.from_environment(root)
     raw_root_path = raw_root or (root / "raw_data")
@@ -338,7 +367,7 @@ def build_stateless_mcp_server(
 
             runtime_settings = settings or Settings(_env_file=None)
             retrieval_service, runtime_identity = runtime.create_runtime(
-                root=root, settings=runtime_settings
+                root=root, settings=runtime_settings, read_only_release_catalog=True
             )
             search_policy_holder["value"] = getattr(
                 retrieval_service, "search_policy", SearchPolicy()
@@ -358,6 +387,7 @@ def build_stateless_mcp_server(
                     embedder=retrieval_service.embedder,
                     reranker=retrieval_service.reranker,
                     search_lock=retrieval_service.search_lock,
+                    read_only_release_catalog=True,
                 )
                 resolver = runtime.create_release_resolver(
                     root=root,
@@ -367,6 +397,7 @@ def build_stateless_mcp_server(
                     legacy_router=router,
                     search_lock=retrieval_service.search_lock,
                     expected_embedding_model=runtime_identity.embedding_model,
+                    read_only_release_catalog=True,
                 )
                 release_holder["value"] = resolver
                 yield {
@@ -380,6 +411,9 @@ def build_stateless_mcp_server(
             finally:
                 if file_bridge is not None:
                     file_bridge.close()
+                close_identity = getattr(identity_store, "close", None)
+                if callable(close_identity):
+                    close_identity()
                 retrieval_service.close()
                 audit.close()
 
@@ -438,6 +472,7 @@ def build_stateless_mcp_server(
         root=root,
         release_resolver=lambda: release_holder["value"],
         managed_bridge=lambda: managed_bridge_holder["value"],
+        read_only_release_catalog=True,
     )
     return server
 
@@ -488,12 +523,16 @@ def create_stateless_app(
 def main_stateless() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default=os.getenv("WENJIN_MCP_STATELESS_HOST", "127.0.0.1"))
-    parser.add_argument("--port", type=int, default=int(os.getenv("WENJIN_MCP_STATELESS_PORT", "18768")))
+    parser.add_argument(
+        "--port", type=int, default=int(os.getenv("WENJIN_MCP_STATELESS_PORT", "18768"))
+    )
     parser.add_argument("--path", default=os.getenv("WENJIN_MCP_STATELESS_PATH", "/mcp-stateless"))
     parser.add_argument("--project-root", default=os.getenv("WENJIN_PROJECT_ROOT"))
-    parser.add_argument("--env-file", default=None,
-                        help="可选显式配置文件；默认只读取当前进程环境变量")
-    parser.add_argument("--identity-db", default=os.getenv("WENJIN_IDENTITY_DB"))
+    parser.add_argument(
+        "--env-file", default=None, help="可选显式配置文件；默认只读取当前进程环境变量"
+    )
+    parser.add_argument("--identity-mode", choices=("local", "remote"), default=None)
+    parser.add_argument("--identity-db", default=None)
     parser.add_argument("--allowed-host", action="append", default=[])
     args = parser.parse_args()
     if not 1 <= args.port <= 65535:
@@ -501,12 +540,25 @@ def main_stateless() -> None:
     if args.path != "/mcp-stateless":
         raise ValueError("新版MCP入口固定使用 /mcp-stateless")
 
+    configured_mode = os.getenv("WENJIN_MCP_IDENTITY_MODE")
+    if args.identity_mode and configured_mode and args.identity_mode != configured_mode:
+        raise ValueError("--identity-mode与WENJIN_MCP_IDENTITY_MODE冲突")
+    identity_mode = args.identity_mode or configured_mode or "local"
+    if identity_mode not in {"local", "remote"}:
+        raise ValueError("WENJIN_MCP_IDENTITY_MODE只能是local或remote")
+    configured_identity_db = args.identity_db or os.getenv("WENJIN_IDENTITY_DB")
     api_key = os.getenv("WENJIN_MCP_API_KEY")
-    if not args.identity_db and not api_key:
+    if identity_mode == "remote" and (args.identity_db or configured_identity_db or api_key):
+        raise ValueError("remote身份模式不能同时配置本地身份数据库或静态API key")
+    if identity_mode == "local" and not configured_identity_db and not api_key:
         raise ValueError("无状态MCP必须配置现有身份数据库或WENJIN_MCP_API_KEY")
     identity_store = None
-    if args.identity_db:
-        db_path = Path(args.identity_db).expanduser().resolve()
+    if identity_mode == "remote":
+        from wenjin.mcp.remote_identity import RemoteIdentityStore
+
+        identity_store = RemoteIdentityStore.from_environment()
+    elif configured_identity_db:
+        db_path = Path(configured_identity_db).expanduser().resolve()
         if not db_path.is_file():
             raise FileNotFoundError("指定的身份数据库不存在；服务不会创建或初始化账户库")
         identity_store = StatelessIdentityStore(db_path)
@@ -514,15 +566,24 @@ def main_stateless() -> None:
     project_root = Path(args.project_root).expanduser().resolve() if args.project_root else ROOT
     from wenjin.settings import Settings
 
-    settings = Settings(_env_file=Path(args.env_file).expanduser().resolve()) \
-        if args.env_file else Settings(_env_file=None)
+    settings = (
+        Settings(_env_file=Path(args.env_file).expanduser().resolve())
+        if args.env_file
+        else Settings(_env_file=None)
+    )
     configured_hosts = [
-        item.strip() for item in os.getenv("WENJIN_MCP_STATELESS_ALLOWED_HOSTS", "").split(",")
+        item.strip()
+        for item in os.getenv("WENJIN_MCP_STATELESS_ALLOWED_HOSTS", "").split(",")
         if item.strip()
     ]
-    allowed_hosts = args.allowed_host or configured_hosts or [
-        f"127.0.0.1:{args.port}", f"localhost:{args.port}",
-    ]
+    allowed_hosts = (
+        args.allowed_host
+        or configured_hosts
+        or [
+            f"127.0.0.1:{args.port}",
+            f"localhost:{args.port}",
+        ]
+    )
     app = create_stateless_app(
         path=args.path,
         identity_store=identity_store,
@@ -539,21 +600,28 @@ def main_stateless() -> None:
         raise ValueError("TLS证书和私钥必须同时配置")
     if identity_store is not None or api_key:
         try:
-            loopback_host = args.host.lower() == "localhost" or ipaddress.ip_address(
-                args.host.strip("[]")
-            ).is_loopback
+            loopback_host = (
+                args.host.lower() == "localhost"
+                or ipaddress.ip_address(args.host.strip("[]")).is_loopback
+            )
         except ValueError:
             loopback_host = False
         private_network_http = os.getenv("WENJIN_MCP_ALLOW_PRIVATE_HTTP", "").strip().lower() in {
-            "1", "true", "yes",
+            "1",
+            "true",
+            "yes",
         }
         if not loopback_host and not cert_file and not private_network_http:
-            raise ValueError("账户模式MCP非loopback监听必须配置TLS证书；也可由HTTPS代理转发到loopback")
+            raise ValueError(
+                "账户模式MCP非loopback监听必须配置TLS证书；也可由HTTPS代理转发到loopback"
+            )
 
     forwarded_allow_ips = os.getenv("FORWARDED_ALLOW_IPS", "127.0.0.1").strip()
     trusted_forwarders = [item.strip() for item in forwarded_allow_ips.split(",") if item.strip()]
     if not trusted_forwarders or "*" in trusted_forwarders:
-        raise ValueError("FORWARDED_ALLOW_IPS must list trusted proxy addresses; wildcard is forbidden")
+        raise ValueError(
+            "FORWARDED_ALLOW_IPS must list trusted proxy addresses; wildcard is forbidden"
+        )
 
     import uvicorn
 

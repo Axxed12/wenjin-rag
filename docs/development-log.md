@@ -1,5 +1,11 @@
 # 持续开发记录索引
 
+2026-10-15 [评测界面可读性修复](../artifacts/iterations/2026-10-15-evaluation-readable-ui/development-log.md)：修复空表格对象字符串、内部标识收进详情、状态去重及换行；51项前端行为检查与真实静态资源检查通过。
+
+2026-10-15 [路线页状态同步](../artifacts/iterations/2026-10-15-roadmap-status/development-log.md)：按当前实现区分已实现与待完善，更新账号说明；仅静态文案，未新增后台功能或重跑业务验收。
+
+2026-10-14 [MCP入口页面、本机控制服务与身份桥接](../artifacts/iterations/2026-10-14-mcp-entry-control-ui-deploy/development-log.md)：两版入口卡、连接配置、推荐默认及可轮询启停；本机broker与原生管理进程接线。跨Windows/Linux身份库WAL失败后，按用户追加授权采用逐请求HTTP身份桥接；实现、实际部署和客户端验收边界分别记录。
+
 2026-10-14 [MCP入口管理后端](../artifacts/iterations/2026-10-14-mcp-entry-control/development-log.md)：新增连接profile/default CAS、管理员session+CSRF路由、固定Docker broker与可轮询启停operation。仅broker启动时明确配置的Compose项目中两个MCP服务可控；管理容器无Docker socket。29项合成合同、8项相关回归及静态检查通过；未部署或操作真实容器。
 
 2026-10-14 [无状态MCP实际合入main](../artifacts/iterations/2026-10-14-mcp-stateless-integration/final-report.md)：从90a7e1f起选择性整合来源提交，兼容当前模型错误/超时/个人授权，独立验收后ff-only合入；保留新旧依赖和服务隔离，未推送部署，未执行本轮容器/HTTPS或真实模型验收。

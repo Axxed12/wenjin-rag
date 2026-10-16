@@ -65,6 +65,37 @@ def _prepare(world, label: str) -> dict:
     )
 
 
+def test_release_catalog_read_only_mode_never_initializes_or_writes(tmp_path: Path):
+    path = tmp_path / "release-catalog.sqlite"
+    writable = ReleaseCatalog(path)
+    writable.register(
+        {
+            "release_id": "release-a",
+            "library_id": _LIBRARY_ID,
+            "status": "preparing",
+            "created_at": "2026-10-14T00:00:00+00:00",
+        }
+    )
+
+    readonly = ReleaseCatalog(path, read_only=True)
+    assert readonly.get_release("release-a")["status"] == "preparing"
+    with pytest.raises(sqlite3.OperationalError, match="readonly"):
+        readonly.register(
+            {
+                "release_id": "release-b",
+                "library_id": _LIBRARY_ID,
+                "status": "preparing",
+                "created_at": "2026-10-14T00:00:00+00:00",
+            }
+        )
+
+    missing = tmp_path / "missing" / "catalog.sqlite"
+    with pytest.raises(FileNotFoundError):
+        ReleaseCatalog(missing, read_only=True)
+    assert not missing.exists()
+    assert not missing.parent.exists()
+
+
 def test_prepare_clones_admitted_assets_without_activating_or_owning_candidates(
     release_world,
 ):
@@ -74,14 +105,16 @@ def test_prepare_clones_admitted_assets_without_activating_or_owning_candidates(
     legacy_payload.pop("raw_snapshot_root")
     legacy_target = IndexTarget.from_dict(legacy_payload)
     assert legacy_target.raw_snapshot_root is None
-    assert target_raw_data_root(world["root"], legacy_target) == (
-        world["root"] / "raw_data"
-    ).resolve()
+    assert (
+        target_raw_data_root(world["root"], legacy_target) == (world["root"] / "raw_data").resolve()
+    )
 
-    unsafe_target = IndexTarget.from_dict({
-        **legacy_payload,
-        "raw_snapshot_root": "../../outside",
-    })
+    unsafe_target = IndexTarget.from_dict(
+        {
+            **legacy_payload,
+            "raw_snapshot_root": "../../outside",
+        }
+    )
     with pytest.raises(ValueError, match="超出项目目录"):
         target_raw_data_root(world["root"], unsafe_target)
 
@@ -164,9 +197,7 @@ def test_reviewed_profile_is_strict_on_source_and_inherited_only_by_matching_sea
         assert sealed_profile_for_target(tampered, OGC_3DTILES_PDF_PROFILE) is None
 
 
-def test_prepare_seals_profile_and_resolver_uses_only_intact_profile(
-    release_world, monkeypatch
-):
+def test_prepare_seals_profile_and_resolver_uses_only_intact_profile(release_world, monkeypatch):
     world = release_world
     assets = world["assets"]
     source_target = assets["targets"]["A"]
@@ -179,21 +210,16 @@ def test_prepare_seals_profile_and_resolver_uses_only_intact_profile(
     # Wiring-only fixture: simulate a prior approval for this synthetic candidate.
     # Strict production approval identity remains covered by the pure policy contract above.
     def approved_for_fixture(target):
-        return (
-            OGC_3DTILES_PDF_PROFILE
-            if target.target_id == source_target.target_id
-            else None
-        )
+        return OGC_3DTILES_PDF_PROFILE if target.target_id == source_target.target_id else None
 
     def inherited_for_fixture(_target, profile):
         return profile if profile == OGC_3DTILES_PDF_PROFILE else None
+
     monkeypatch.setattr(service_module, "reviewed_profile_for_target", approved_for_fixture)
     monkeypatch.setattr(service_module, "sealed_profile_for_target", inherited_for_fixture)
     monkeypatch.setattr(resolver_module, "sealed_profile_for_target", inherited_for_fixture)
 
-    record = service.prepare(
-        _LIBRARY_ID, source_target, reason="synthetic profile wiring"
-    )
+    record = service.prepare(_LIBRARY_ID, source_target, reason="synthetic profile wiring")
     assert record["serving_profile"] == OGC_3DTILES_PDF_PROFILE
     assert service.validate(record["release_id"])["valid"] is True
     active = service.activate(
@@ -221,10 +247,12 @@ def test_prepare_seals_profile_and_resolver_uses_only_intact_profile(
     assert materialized.source_context_cache.profile == OGC_3DTILES_PDF_PROFILE
 
     with closing(sqlite3.connect(catalog_path)) as database:
-        payload = json.loads(database.execute(
-            "SELECT payload_json FROM releases WHERE release_id=?",
-            (record["release_id"],),
-        ).fetchone()[0])
+        payload = json.loads(
+            database.execute(
+                "SELECT payload_json FROM releases WHERE release_id=?",
+                (record["release_id"],),
+            ).fetchone()[0]
+        )
         payload["serving_profile"] = "unregistered-profile"
         database.execute(
             "UPDATE releases SET payload_json=? WHERE release_id=?",
@@ -233,9 +261,7 @@ def test_prepare_seals_profile_and_resolver_uses_only_intact_profile(
         database.commit()
     with pytest.raises(ReleaseValidationError):
         service.validate(record["release_id"])
-    assert catalog.snapshot(_LIBRARY_ID)["active_release_id"] == (
-        record["release_id"]
-    )
+    assert catalog.snapshot(_LIBRARY_ID)["active_release_id"] == (record["release_id"])
 
 
 def test_activate_persists_snapshot_and_rollback_restores_previous_release(release_world):

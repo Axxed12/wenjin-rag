@@ -148,3 +148,48 @@
 @media(max-width:650px){.toolbar-files .select-field:has(#file-classification-filter){flex-basis:100%;min-width:0}.toolbar-files .select-field select{min-width:0;flex:1}}
 @media(max-width:560px){.library-classification-control{margin-inline:7px;padding:10px}.library-classification-actions{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.library-classification-select{grid-column:1/-1}.library-classification-refresh,.library-classification-save{min-height:36px}.library-summary{gap:7px}.library-summary-main{flex:1 1 90px;order:2}.library-chevron{order:1}.library-classification-badge{order:3}.library-summary-count{order:4;margin-left:auto}}
 @media(max-width:560px){.account-menu-trigger{gap:6px;max-width:46vw;padding-right:6px}.account-menu-identity strong{max-width:90px}.account-menu-identity small{font-size:8px}.account-menu-popover{right:-4px}}
+
+/* 管理员MCP入口：默认推荐与Docker控制分区展示，状态标签不等同协议健康。 */
+.mcp-entry-notice{display:grid;gap:5px;margin-bottom:12px;padding:13px 16px;border:1px solid #dfe9df;border-radius:9px;background:#f8fbf6;color:#63766a}
+.mcp-entry-notice strong{color:#476655;font-size:10px}
+.mcp-entry-notice span{font-size:9px;line-height:1.6}
+.mcp-entry-status{min-height:20px;margin:0 1px 12px;color:#77867c;font-size:10px;line-height:1.6}
+.mcp-entry-status.is-error{color:#a94f45}.mcp-entry-status.is-success{color:#428064}
+.mcp-entry-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.mcp-entry-card{min-width:0;overflow:hidden;padding:17px}
+.mcp-entry-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+.mcp-entry-title{min-width:0}.mcp-entry-title h2{margin:5px 0 0;color:#293c36;font-size:16px;letter-spacing:-.02em}
+.mcp-entry-badges{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:5px}
+.mcp-entry-badge{border:1px solid #e6ebe5;border-radius:20px;padding:5px 8px;background:#fafbf9;color:#718077;font-size:8px;white-space:nowrap}
+.mcp-entry-badge.is-default{border-color:#d3e8d9;background:#edf7ef;color:#43805b;font-weight:700}
+.mcp-entry-facts{display:grid;gap:8px}
+.mcp-entry-fact{display:grid;gap:6px;min-width:0;padding:11px 12px;border:1px solid #edf0eb;border-radius:8px;background:#fbfcfa}
+.mcp-entry-fact small{color:#98a39b;font-size:8px}
+.mcp-entry-fact code{color:#466158;font-size:10px;overflow-wrap:anywhere;white-space:normal}
+.mcp-runtime strong{color:#587a65;font-size:10px;font-weight:650}.mcp-runtime.is-running strong{color:#3d805e}
+.mcp-runtime span{color:#8c9990;font-size:9px;line-height:1.5;overflow-wrap:anywhere}
+.mcp-entry-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+.mcp-entry-actions .button{min-height:34px;height:auto;padding:7px 10px;font-size:9px}
+.mcp-entry-actions .button:disabled{cursor:not-allowed}
+.mcp-config-panel{margin-top:13px;padding-top:12px;border-top:1px solid #edf0ec}
+.mcp-config-heading{display:grid;gap:4px;margin-bottom:8px}.mcp-config-heading strong{font-size:9px;color:#55685c}.mcp-config-heading span{font-size:8px;color:#99a39c}
+.mcp-config-output{display:block;width:100%;min-height:190px;resize:vertical;border:1px solid #e7ece6;border-radius:7px;padding:10px;background:#f8faf7;color:#455a4f;font:9px/1.6 ui-monospace,Consolas,monospace;white-space:pre;overflow:auto}
+.mcp-config-actions{display:flex;align-items:center;gap:9px;margin-top:8px}.mcp-config-actions .button{height:31px;font-size:9px}.mcp-copy-status{color:#8a978e;font-size:8px;line-height:1.5}
+.mcp-entry-placeholder{grid-column:1/-1;padding:44px 20px;text-align:center;color:#909b93;font-size:10px}
+@media(max-width:900px){.mcp-entry-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:580px){.mcp-entry-card{padding:13px}.mcp-entry-card-head{display:grid}.mcp-entry-badges{justify-content:flex-start}.mcp-entry-actions{display:grid;grid-template-columns:1fr}.mcp-entry-actions .button{width:100%;white-space:normal;text-align:center}.mcp-config-output{min-height:165px}.mcp-config-actions{align-items:flex-start;flex-direction:column}}
+/* 窄屏保留当前页与账号，省去重复的工作区前缀。 */
+@media(max-width:560px){.breadcrumb>span,.breadcrumb>b{display:none}.breadcrumb{min-width:0}.breadcrumb strong{white-space:nowrap}.topbar-actions{flex-shrink:0;gap:6px}.connection-pill{white-space:nowrap;flex-shrink:0}.account-menu-identity small{white-space:nowrap}.account-menu-trigger{flex-shrink:0}}
+
+/* 评测列表优先显示名称；内部编号收在详情中，长文本不撑宽整表。 */
+#page-evaluations .data-table { width: 100%; min-width: 680px; }
+#page-evaluations .data-table td { white-space: normal; overflow-wrap: anywhere; max-width: 320px; }
+#page-evaluations .data-table td > strong,
+#page-evaluations .data-table td > span,
+#page-evaluations .data-table td > small { display: block; }
+#page-evaluations .data-table td > small { margin-top: 5px; line-height: 1.6; }
+.evaluation-technical-detail { margin-top: 6px; color: var(--muted); font-size: 11px; }
+.evaluation-technical-detail summary { cursor: pointer; }
+.evaluation-technical-detail small { display: block; margin-top: 6px; overflow-wrap: anywhere; white-space: pre-wrap; }
+#page-evaluations td.evaluation-actions { display: table-cell; min-width: 92px; }
+#page-evaluations .evaluation-actions button { white-space: nowrap; margin: 3px 0; }

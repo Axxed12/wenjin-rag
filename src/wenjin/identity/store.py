@@ -711,6 +711,40 @@ class IdentityStore:
                 raise AuthenticationFailed("MCP凭据不可用")
             return self._principal(row)
 
+    def resolve_mcp_access_snapshot(self, token: str) -> "AccessSnapshot":
+        """在同一只读事务内验证Bearer并读取当前权限快照。"""
+        try:
+            digest = require_token_kind(token, "mcp")
+        except ValueError as exc:
+            raise AuthenticationFailed("MCP凭据不可用") from exc
+        now_dt = self._now()
+        with self._transaction() as connection:
+            row = connection.execute(
+                "SELECT u.user_id,u.username,u.role,u.revision,u.active,u.must_change_password,"
+                "c.expires_at,c.revoked_at "
+                "FROM mcp_credentials c JOIN users u ON u.user_id=c.user_id WHERE c.token_hash=?",
+                (digest,),
+            ).fetchone()
+            if (row is None or row["revoked_at"] is not None or not row["active"]
+                    or row["must_change_password"]
+                    or (row["expires_at"] and now_dt >= datetime.fromisoformat(row["expires_at"]))):
+                raise AuthenticationFailed("MCP凭据不可用")
+            principal = self._principal(row)
+            resources = frozenset(
+                (item["resource_kind"], item["resource_id"])
+                for item in connection.execute(
+                    "SELECT resource_kind,resource_id FROM resources WHERE active=1"
+                )
+            )
+            grants = {
+                (item["resource_kind"], item["resource_id"], item["principal_kind"]): bool(item["allowed"])
+                for item in connection.execute(
+                    "SELECT resource_kind,resource_id,principal_kind,allowed FROM resource_grants "
+                    "WHERE principal_id IN (?, '*')", (principal.user_id,),
+                )
+            }
+            return AccessSnapshot(principal, resources, grants)
+
     def revoke_mcp_credential(self, actor: Principal, credential_id: str) -> None:
         now = self._stamp(self._now())
         with self._transaction(write=True) as connection:

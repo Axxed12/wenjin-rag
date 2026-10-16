@@ -44,8 +44,10 @@ def release_corpus_entry(
     uses_retrieval = any(RETRIEVAL_SCOPE_FIELD in item for item in files)
     source_manifest = str(record.get("source_manifest_path", ""))
     visibility = (
-        existing.visibility if existing is not None
-        else "private" if source_manifest.startswith("corpora-private/")
+        existing.visibility
+        if existing is not None
+        else "private"
+        if source_manifest.startswith("corpora-private/")
         else "public"
     )
     return CorpusEntry(
@@ -95,7 +97,9 @@ class PinnedEvaluationRouter(MultiCorpusRouter):
 
 
 def _identity_digest(value: Any) -> str:
-    encoded = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
+    encoded = json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str
+    )
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
@@ -114,8 +118,12 @@ def evaluation_asset_fingerprints(
         source_entries = []
         if index.sources is not None:
             source_entries = [
-                {"path": record.relative, "raw_sha256": record.raw_sha256,
-                 "canonical_sha256": record.canonical_sha256, "size": record.size}
+                {
+                    "path": record.relative,
+                    "raw_sha256": record.raw_sha256,
+                    "canonical_sha256": record.canonical_sha256,
+                    "size": record.size,
+                }
                 for record in sorted(index.sources.records.values(), key=lambda item: item.relative)
             ]
         assets[target.target_id] = {
@@ -153,15 +161,19 @@ def build_pinned_evaluation_router(
         if not library or not version:
             raise ValueError("评测题缺少library/version")
         matches = [
-            index for index in request_snapshot.router.indices
+            index
+            for index in request_snapshot.router.indices
             if index.library == library and index.version == version
         ]
         target_id = row.get("target_id")
         if target_id:
             matches = [index for index in matches if index.target_id == target_id]
         elif len(matches) > 1 and row.get("source_manifest_sha256"):
-            matches = [index for index in matches
-                       if index.target.manifest_sha256 == row["source_manifest_sha256"]]
+            matches = [
+                index
+                for index in matches
+                if index.target.manifest_sha256 == row["source_manifest_sha256"]
+            ]
         if len(matches) != 1:
             raise ValueError(f"评测题未唯一匹配索引目标：{library}/{version}")
         selected[matches[0].target_id] = matches[0]
@@ -187,15 +199,17 @@ def build_pinned_evaluation_router(
                 expected_corpus_id=target.corpus_identity(),
             )
             profile = reviewed_profile_for_target(target)
-            validated.append(replace(
-                index,
-                bm25_path=resolve_project_path(resolver.root, target.bm25_path),
-                source_urls=load_source_urls(manifest_path),
-                sources=sources,
-                source_context_cache=(
-                    VerifiedSourceContextCache(sources, profile=profile) if profile else None
-                ),
-            ))
+            validated.append(
+                replace(
+                    index,
+                    bm25_path=resolve_project_path(resolver.root, target.bm25_path),
+                    source_urls=load_source_urls(manifest_path),
+                    sources=sources,
+                    source_context_cache=(
+                        VerifiedSourceContextCache(sources, profile=profile) if profile else None
+                    ),
+                )
+            )
         by_target = {index.target_id: index for index in validated}
         indices = [by_target.get(index.target_id, index) for index in indices]
     materialize = getattr(resolver, "materialize_indices", None)
@@ -208,11 +222,13 @@ def build_pinned_evaluation_router(
         raise ValueError("评测target声明的Embedding模型与manager不一致")
     assets = evaluation_asset_fingerprints(indices, root=resolver.root, qdrant_client=qdrant_client)
     retrieval_dir = Path(__file__).resolve().parents[1] / "retrieval"
-    code_sha = _identity_digest({
-        "resolver_sha256": file_sha256(Path(__file__).resolve()),
-        "router_sha256": file_sha256(retrieval_dir / "router.py"),
-        "strategy_sha256": file_sha256(retrieval_dir / "strategy_experiment.py"),
-    })
+    code_sha = _identity_digest(
+        {
+            "resolver_sha256": file_sha256(Path(__file__).resolve()),
+            "router_sha256": file_sha256(retrieval_dir / "router.py"),
+            "strategy_sha256": file_sha256(retrieval_dir / "strategy_experiment.py"),
+        }
+    )
     from wenjin.retrieval.strategy_experiment import case_identity_bindings, run_identity_sha256
 
     identity = {
@@ -226,16 +242,25 @@ def build_pinned_evaluation_router(
     }
     identity["run_identity_sha256"] = run_identity_sha256(identity)
     router = PinnedEvaluationRouter(
-        root=resolver.root, run_identity=identity,
-        qdrant_client=qdrant_client, embedder=embedder,
-        indices=indices, reranker=reranker, search_lock=search_lock,
+        root=resolver.root,
+        run_identity=identity,
+        qdrant_client=qdrant_client,
+        embedder=embedder,
+        indices=indices,
+        reranker=reranker,
+        search_lock=search_lock,
     )
     return router, identity
 
 
 def create_evaluation_release_resolver(
-    *, root: Path, qdrant_client: Any, embedder: Any, reranker: Any | None,
-    search_lock: Any, expected_embedding_model: str | None,
+    *,
+    root: Path,
+    qdrant_client: Any,
+    embedder: Any,
+    reranker: Any | None,
+    search_lock: Any,
+    expected_embedding_model: str | None,
 ) -> LazyRequestReleaseResolver:
     """建立不预准入全route的lazy provider；仅题集选中的legacy target会完整校验。"""
     from wenjin.index_registry import IndexRegistryStore
@@ -257,16 +282,25 @@ def create_evaluation_release_resolver(
     # 仅构建不读取manifest、BM25和Qdrant的轻量target目录。
     legacy_indices = [
         RoutedIndex(
-            target=target, collection=target.dense_collection,
+            target=target,
+            collection=target.dense_collection,
             bm25_path=resolve_project_path(root, target.bm25_path),
-            source_urls={}, sources=None,
+            source_urls={},
+            sources=None,
         )
         for target in targets
     ]
-    legacy_router = MultiCorpusRouter(
-        qdrant_client=qdrant_client, embedder=embedder, indices=legacy_indices,
-        reranker=reranker, search_lock=search_lock,
-    ) if legacy_indices else None
+    legacy_router = (
+        MultiCorpusRouter(
+            qdrant_client=qdrant_client,
+            embedder=embedder,
+            indices=legacy_indices,
+            reranker=reranker,
+            search_lock=search_lock,
+        )
+        if legacy_indices
+        else None
+    )
     return LazyRequestReleaseResolver(
         root=root,
         qdrant_client=qdrant_client,
@@ -353,16 +387,15 @@ class RequestReleaseResolver:
                             raw_root=target_raw_data_root(self.root, target),
                             expected_corpus_id=target.corpus_identity(),
                         )
-                        profile = sealed_profile_for_target(
-                            target, record.get("serving_profile")
-                        )
+                        profile = sealed_profile_for_target(target, record.get("serving_profile"))
                         cached = replace(
                             index,
                             source_urls=load_source_urls(manifest_path),
                             sources=sources,
                             source_context_cache=(
                                 VerifiedSourceContextCache(sources, profile=profile)
-                                if profile else None
+                                if profile
+                                else None
                             ),
                         )
                     except Exception as error:
@@ -404,7 +437,8 @@ class RequestReleaseResolver:
         indices = [self._release_stub(record) for record in active]
         if self.legacy_router is not None:
             indices.extend(
-                index for index in self.legacy_router.indices
+                index
+                for index in self.legacy_router.indices
                 if index.library not in migrated_libraries
             )
 
@@ -457,9 +491,7 @@ class RequestReleaseResolver:
             raise ValueError("该请求没有唯一的active索引目标")
         return matches[0]
 
-    def sources_for(
-        self, corpus_id: str, *, release_id: str | None = None
-    ) -> CorpusSources:
+    def sources_for(self, corpus_id: str, *, release_id: str | None = None) -> CorpusSources:
         """release下载链接固定到对应sealed manifest/raw snapshot。"""
         if release_id:
             record = self.catalog.get_release(release_id)
@@ -490,9 +522,16 @@ class RequestReleaseResolver:
 class LazyRequestReleaseResolver:
     """服务先于首个发布启动时，下一次请求无需重启即可发现新catalog。"""
 
-    def __init__(self, *, root: Path, **runtime: Any) -> None:
+    def __init__(
+        self,
+        *,
+        root: Path,
+        read_only_release_catalog: bool = False,
+        **runtime: Any,
+    ) -> None:
         self.root = Path(root).resolve()
         self.catalog_path = release_catalog_path(self.root)
+        self.read_only_release_catalog = read_only_release_catalog
         self.runtime = runtime
         self._delegate: RequestReleaseResolver | None = None
         self._lock = RLock()
@@ -505,7 +544,9 @@ class LazyRequestReleaseResolver:
             return None
         with self._lock:
             if self._delegate is None:
-                catalog = ReleaseCatalog(self.catalog_path)
+                catalog = ReleaseCatalog(
+                    self.catalog_path, read_only=self.read_only_release_catalog
+                )
                 self._delegate = RequestReleaseResolver(
                     root=self.root,
                     catalog=catalog,
@@ -522,10 +563,14 @@ class LazyRequestReleaseResolver:
         if delegate is not None:
             return delegate.begin_request()
         legacy_router = self.runtime["legacy_router"]
-        osg = next(
-            (item for item in legacy_router.indices if item.library == "osg"),
-            None,
-        ) if legacy_router is not None else None
+        osg = (
+            next(
+                (item for item in legacy_router.indices if item.library == "osg"),
+                None,
+            )
+            if legacy_router is not None
+            else None
+        )
         return RequestReleaseSnapshot(
             revision=0,
             catalog_snapshot={"revision": 0, "libraries": {}},
@@ -538,9 +583,7 @@ class LazyRequestReleaseResolver:
         delegate = self._current()
         return delegate.materialize_indices(indices) if delegate is not None else indices
 
-    def sources_for(
-        self, corpus_id: str, *, release_id: str | None = None
-    ) -> CorpusSources:
+    def sources_for(self, corpus_id: str, *, release_id: str | None = None) -> CorpusSources:
         delegate = self._current()
         if delegate is None:
             if release_id:
