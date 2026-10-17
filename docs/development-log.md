@@ -1,5 +1,7 @@
 # 持续开发记录索引
 
+2026-10-17 [团队交付开发保存并合入main](../artifacts/iterations/2026-10-17-main-integration/development-log.md)：原修改与已存基线一致，两次ff-only合入，无业务源码冲突；复用交付分支验收，未推送/部署。
+
 2026-10-17 [内网团队交付补齐](../artifacts/iterations/2026-10-17-team-delivery/development-log.md)：私域MCP、受管重排、协作取消/锁计时、三镜像与Docker业务恢复、GPT取证回答；[交付报告](../artifacts/iterations/2026-10-17-team-delivery/final-report.md)区分独立合同、CLI连接与待人工项目。
 
 2026-10-15 [评测界面可读性修复](../artifacts/iterations/2026-10-15-evaluation-readable-ui/development-log.md)：修复空表格对象字符串、内部标识收进详情、状态去重及换行；51项前端行为检查与真实静态资源检查通过。

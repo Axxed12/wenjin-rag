@@ -1,0 +1,17 @@
+{
+  "main_head_after_fast_forward": "d5b321d86d8508de105c03eadf23c4702bdc66b2",
+  "source_branch": "codex/team-delivery-20261017",
+  "fast_forwarded_commits": [
+    "a19a2d5",
+    "1f97620",
+    "d5b321d"
+  ],
+  "business_diff_from_verified_source": false,
+  "checked_doc_links": 205,
+  "missing_links": [],
+  "tests_rerun": false,
+  "reason": "Fast-forward preserved verified Git source content; this round changes status docs only.",
+  "pushed": false,
+  "services_restarted": false,
+  "runtime_data_staged": false
+}
