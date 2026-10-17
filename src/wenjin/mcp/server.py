@@ -184,14 +184,23 @@ def build_mcp_server(
     return mcp
 
 
-def main() -> None:
+def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--project-root",
+        default=os.getenv("WENJIN_PROJECT_ROOT", str(ROOT)),
+        help="项目目录；默认采用WENJIN_PROJECT_ROOT或当前运行时根目录",
+    )
     parser.add_argument("--host", default=os.getenv("WENJIN_MCP_HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.getenv("WENJIN_MCP_PORT", "8765")))
     parser.add_argument("--path", default=os.getenv("WENJIN_MCP_PATH", "/mcp"))
     parser.add_argument("--allowed-host", action="append", default=[])
     parser.add_argument("--identity-db", default=os.getenv("WENJIN_IDENTITY_DB"))
-    args = parser.parse_args()
+    return parser.parse_args(argv)
+
+
+def main() -> None:
+    args = _parse_args()
     if not 1 <= args.port <= 65535:
         raise ValueError("port必须在1到65535之间")
     if not args.path.startswith("/"):
@@ -212,6 +221,7 @@ def main() -> None:
         identity_store = IdentityStore(Path(args.identity_db).expanduser().resolve())
         identity_store.initialize()
     server = build_mcp_server(
+        project_root=Path(args.project_root).expanduser().resolve(),
         bearer_enabled=bool(api_key) and identity_store is None,
         identity_store=identity_store,
     )

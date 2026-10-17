@@ -118,7 +118,7 @@ from wenjin.management_http.identity_http import (
 from wenjin.management_http.identity_http import (
     users as _identity_users,
 )
-from wenjin.management_http.jobs import _job_list, _job_retry, _job_status, _schedule_job
+from wenjin.management_http.jobs import _job_cancel, _job_list, _job_retry, _job_status, _schedule_job
 from wenjin.management_http.logs import _call_logs
 from wenjin.management_http.releases import (
     initialize_release_jobs,
@@ -190,6 +190,7 @@ _ENDPOINTS = {
     "admin_search": _admin_search,
     "call_logs": _call_logs,
     "retry": _job_retry,
+    "cancel": _job_cancel,
     "delete": _file_delete,
     "search": _search,
     "download": _file_download,
@@ -251,6 +252,7 @@ def _routes():
         Route("/api/jobs", _route(_ENDPOINTS["job_list"]), methods=["GET"]),
         Route("/api/jobs/{job_id:str}", _route(_ENDPOINTS["job_status"]), methods=["GET"]),
         Route("/api/jobs/{job_id:str}/retry", _route(_ENDPOINTS["retry"]), methods=["POST"]),
+        Route("/api/jobs/{job_id:str}/cancel", _route(_ENDPOINTS["cancel"]), methods=["POST"]),
         Route("/api/search", _route(_authorized_managed_search, access="reader"), methods=["POST"]),
     ]
     from wenjin.management_http.evaluations import evaluation_routes

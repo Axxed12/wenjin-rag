@@ -51,6 +51,11 @@ class JobRecord:
     library_id: str | None = None
     library_display_name: str | None = None
     original_filename: str | None = None
+    cancel_requested: bool = False
+
+
+class ImportCancelled(RuntimeError):
+    """导入worker在安全阶段边界观察到协作式取消请求。"""
 
 
 @dataclass(frozen=True)

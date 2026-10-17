@@ -214,6 +214,11 @@ def create_router(
             for library in snapshot["libraries"].values()
             if library.get("active") is not None
         }
+        migrated_libraries.update(
+            normalize_library(str(library_id))
+            for library_id, library in snapshot["libraries"].items()
+            if library.get("active") is None and library.get("ever_activated")
+        )
     from wenjin.retrieval.router import normalize_library
 
     targets: list[IndexTarget] = []
@@ -239,6 +244,28 @@ def create_router(
             default_target = IndexRegistryStore(registry_path).active()
             if normalize_library(default_target.library) not in migrated_libraries:
                 targets.append(default_target)
+
+    # 私域配置中的裸 target 只是管理员可检查候选；只有唯一、显式 route 选中的
+    # target 才进入 MCP 路由。release 接管过的资料库仍由 release active 指针裁决。
+    from wenjin.retrieval.legacy_catalog import LegacySearchService
+
+    private_routes, ambiguous_private, _private_candidates = (
+        LegacySearchService._private_config_view_for_root(root)
+    )
+    target_by_id = {target.target_id: target for target in targets}
+    for library_id, library_targets in private_routes.items():
+        if library_id in ambiguous_private or len(library_targets) != 1:
+            continue
+        if library_id in migrated_libraries:
+            continue
+        private_target = next(iter(library_targets.values()))
+        existing = target_by_id.get(private_target.target_id)
+        if existing is not None:
+            if existing != private_target:
+                raise ValueError(f"当前私域索引目标配置冲突：{private_target.target_id}")
+            continue
+        targets.append(private_target)
+        target_by_id[private_target.target_id] = private_target
     if not targets:
         return None
     return MultiCorpusRouter.from_targets(

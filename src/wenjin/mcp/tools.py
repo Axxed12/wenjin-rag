@@ -21,7 +21,7 @@ from wenjin.catalog import corpus_catalog_report, find_corpus, index_target_conf
 from wenjin.corpus_identity import CorpusIdentityError
 from wenjin.identity.mcp_auth import identity_from_context, managed_bridge_headers
 from wenjin.index_audit import preflight_target
-from wenjin.index_registry import IndexTarget, resolve_project_path
+from wenjin.index_registry import IndexTarget, resolve_project_path, target_raw_data_root
 from wenjin.mcp.managed_client import (
     ManagedBridgeReadTimeout,
     ManagedFileConflict,
@@ -161,9 +161,41 @@ def register_tools(
         resolver = current_release_resolver(ctx)
         return resolver.begin_request() if resolver is not None else None
 
-    def sources_for(corpus_id: str, *, release_id: str | None = None) -> CorpusSources:
+    def sources_for(
+        corpus_id: str,
+        *,
+        target: IndexTarget | None = None,
+        release_id: str | None = None,
+    ) -> CorpusSources:
         """按语料身份找manifest，建立登记记录视图。"""
         resolver = current_release_resolver()
+        if target is None:
+            request_snapshot = current_release_request()
+            router = (
+                request_snapshot.router
+                if request_snapshot is not None
+                else current_router()
+            )
+            if router is not None:
+                matching_targets = [
+                    index.target
+                    for index in router.indices
+                    if index.corpus_identity == corpus_id
+                ]
+                if len(matching_targets) == 1:
+                    target = matching_targets[0]
+                elif release_id is None:
+                    entry = find_corpus(root, corpus_id)
+                    if entry is not None and entry.manifest_path.startswith("corpora-private/"):
+                        raise SourceNotFound("私域语料当前没有唯一的active索引目标")
+        if target is not None and release_id is None:
+            if target.corpus_identity() != corpus_id:
+                raise SourceNotFound("索引目标与语料身份不匹配")
+            return CorpusSources.from_manifest(
+                resolve_project_path(root, target.manifest_path),
+                raw_root=target_raw_data_root(root, target),
+                expected_corpus_id=corpus_id,
+            )
         if resolver is not None:
             return resolver.sources_for(corpus_id, release_id=release_id)
         entry = find_corpus(root, corpus_id)
@@ -184,7 +216,7 @@ def register_tools(
             runtime = ctx.lifespan_context["retrieval_service"]
         return runtime
 
-    def current_router(ctx: Context | None):
+    def current_router(ctx: Context | None = None):
         """本次请求的多语料路由；未配置时返回 None。"""
         if corpus_router is not None:
             return corpus_router
@@ -473,7 +505,7 @@ def register_tools(
                 elapsed_seconds=time.perf_counter() - started,
                 error=error or AccessDenied(detail),
             )
-            return forbidden(detail, corpus_id=None, query=query)
+            return forbidden(detail, corpus_id=None)
 
         router = router_override or current_router(ctx)
         if router is None:
@@ -612,6 +644,25 @@ def register_tools(
         except ValueError as exc:
             # 目标解析失败（库/版本不存在、版本有歧义、target 不存在）：这是调用方
             # 用法问题，如实回报。因为已按权限过滤过，这里不会泄露无权语料的存在。
+            if library is not None:
+                private_libraries = {
+                    normalize_library(entry.library)
+                    for entry in corpus_catalog_report(root).entries
+                    if entry.manifest_path.startswith("corpora-private/")
+                }
+                if normalize_library(library) in private_libraries:
+                    # 私域历史版本可能仍有目录和ACL，但已不在本请求的route快照；
+                    # 与无权访问统一成拒绝，避免确认旧target/version仍然存在。
+                    return denied("没有可检索的语料")
+            elif target_id is not None:
+                private_targets = {
+                    target
+                    for entry in corpus_catalog_report(root).entries
+                    if entry.manifest_path.startswith("corpora-private/")
+                    for target in entry.index_targets
+                }
+                if target_id in private_targets:
+                    return denied("没有可检索的语料")
             return {
                 "error": "invalid_target",
                 "detail": str(exc),
@@ -726,6 +777,7 @@ def register_tools(
             }
 
         current = request_identity(ctx)
+        configured_router = current_router(ctx)
         active_version = getattr(runtime, "supported_version", None)
         active_target_id = (
             current.target_id if current is not None else getattr(runtime, "index_target_id", None)
@@ -772,6 +824,61 @@ def register_tools(
                 router_override=request_release.router,
                 release_resolver_override=current_release_resolver(ctx),
             )
+
+        # 没有release resolver时，私域active也不走单库service快捷路径；这样ACL和target
+        # 解析始终经router。生产动态route由上面的request snapshot分支提供。
+        active_is_private = bool(
+            current is not None
+            and active_entry is not None
+            and active_entry.manifest_path.startswith("corpora-private/")
+        )
+        if active_is_private:
+            return _search_routed(
+                query=query,
+                library=library or active_library,
+                version=version or active_version,
+                target_id=target_id,
+                top_k=top_k,
+                context_char_budget=context_char_budget,
+                ctx=ctx,
+                client_id=client_id,
+                session_id=session_id,
+                started=started,
+                router_override=configured_router,
+            )
+
+        # 私域目标即使碰巧也是启动时的单库 identity，也必须走路由 ACL。
+        # 否则 active 单库快捷路径会绕过按 corpus policy 的过滤，并把私有 corpus_id
+        # 放进 forbidden 响应。路由索引已按 IndexTarget 绑定 manifest/raw snapshot，
+        # 同一路径也保证下载原文对应本次选择的版本。
+        if configured_router is not None and (library is not None or target_id is not None):
+            from wenjin.retrieval.router import normalize_library
+
+            selected_private = []
+            for index in configured_router.indices:
+                if target_id is not None:
+                    matches_request = index.target_id == target_id
+                else:
+                    matches_request = normalize_library(index.library) == normalize_library(
+                        library or ""
+                    ) and (version is None or index.version == version)
+                if not matches_request:
+                    continue
+                if index.target.manifest_path.startswith("corpora-private/"):
+                    selected_private.append(index)
+            if len(selected_private) == 1:
+                return _search_routed(
+                    query=query,
+                    library=library,
+                    version=version,
+                    target_id=target_id,
+                    top_k=top_k,
+                    context_char_budget=context_char_budget,
+                    ctx=ctx,
+                    client_id=client_id,
+                    session_id=session_id,
+                    started=started,
+                )
 
         # active target 随服务启动时的 registry identity 确定，不能写死某个 target_id。
         active_target_requested = target_id is not None and target_id == active_target_id
@@ -843,14 +950,14 @@ def register_tools(
                 elapsed_seconds=time.perf_counter() - started,
                 error=exc,
             )
-            # AccessDenied 说的是**本服务绑定**的那个语料，调用方本来就在跟它打交道，
-            # 原样回；策略快照的异常带着别的语料身份，只能给通用说明。
+            # 授权拒绝不回传语料身份：服务当前绑定私域目标时，corpus_id 本身也会泄露
+            # 私域资源存在。策略快照异常同样使用通用说明。
             detail = (
                 policy_unavailable(exc, tool="search_docs")
                 if isinstance(exc, AccessSnapshotError)
                 else str(exc)
             )
-            return forbidden(detail, corpus_id=corpus_id, query=query)
+            return forbidden(detail, corpus_id=None, query=query)
 
         try:
             if active_policy.reranker_enabled != (runtime.reranker is not None):
@@ -886,7 +993,19 @@ def register_tools(
             raise
 
         # 补取件链接；映射不到本语料的证据会被丢弃并单独报告，绝不重标成当前语料。
-        attachment = attach_download_paths(result["evidence"], sources_for(corpus_id))
+        source_target = None
+        if configured_router is not None and active_target_id is not None:
+            source_target = next(
+                (
+                    index.target
+                    for index in configured_router.indices
+                    if index.target_id == active_target_id
+                ),
+                None,
+            )
+        attachment = attach_download_paths(
+            result["evidence"], sources_for(corpus_id, target=source_target)
+        )
         result["evidence"] = attachment.evidence
         # 只给客户端数量和原因码：完整明细含语料名、路径和chunk ID，
         # "某个私有语料里有个叫X的文件"本身就是机密。明细进服务端审计。
@@ -962,6 +1081,12 @@ def register_tools(
         request_release = current_release_request(ctx)
         entry_by_corpus = {entry.corpus_id: entry for entry in report.entries}
         release_by_corpus = {}
+        routed_by_corpus = {}
+        if request_release is not None and request_release.router is not None:
+            routed_by_corpus = {
+                index.corpus_identity: index
+                for index in request_release.router.indices
+            }
         if identity_store is not None and request_release is not None:
             # MCP readers see only targets present in this request's active router;
             # old manifests for a migrated library are not historical browse access.
@@ -1001,7 +1126,46 @@ def register_tools(
             payload = entry.to_dict(include_files=include_files)
             release_record = release_by_corpus.get(entry.corpus_id)
             if release_record is None:
-                payload.update(_index_state(entry, ctx=ctx))
+                routed_index = routed_by_corpus.get(entry.corpus_id)
+                if routed_index is None:
+                    if (
+                        request_release is not None
+                        and entry.manifest_path.startswith("corpora-private/")
+                    ):
+                        payload.update(
+                            {
+                                "index_state": "unusable",
+                                "index_usable_targets": [],
+                                "index_failures": [
+                                    {"target_id": None, "reason": "no_active_private_route"}
+                                ],
+                            }
+                        )
+                    else:
+                        payload.update(_index_state(entry, ctx=ctx))
+                else:
+                    try:
+                        current_release_resolver(ctx).materialize_indices([routed_index])
+                        payload.update(
+                            {
+                                "index_state": "usable",
+                                "index_usable_targets": [routed_index.target_id],
+                                "index_failures": [],
+                            }
+                        )
+                    except Exception:
+                        payload.update(
+                            {
+                                "index_state": "unusable",
+                                "index_usable_targets": [],
+                                "index_failures": [
+                                    {
+                                        "target_id": routed_index.target_id,
+                                        "reason": "legacy_validation_failed",
+                                    }
+                                ],
+                            }
+                        )
             else:
                 try:
                     index = request_release.router.resolve_target(

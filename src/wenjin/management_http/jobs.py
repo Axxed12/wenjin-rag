@@ -52,3 +52,9 @@ async def _job_retry(request: Request):
     job = await run_in_threadpool(manager.submit_retry, request.path_params["job_id"])
     await _schedule_job(request.app, job.job_id)
     return JSONResponse(_jsonable(job), status_code=202)
+
+
+async def _job_cancel(request: Request):
+    manager = await _manager(request)
+    job = await run_in_threadpool(manager.request_cancel, request.path_params["job_id"])
+    return JSONResponse(_jsonable(job), status_code=202 if job.status == "running" else 200)

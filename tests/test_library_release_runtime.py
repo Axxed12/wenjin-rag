@@ -424,11 +424,17 @@ def test_explicit_embedding_model_id_matches_management_and_mcp_runtime(tmp_path
     assert settings.resolved_embedding_model_id == expected_model_id
 
     monkeypatch.setattr(
-        settings_module.Settings, "embedding", lambda _self: assets["embedder"]
+        settings_module.Settings,
+        "embedding",
+        lambda _self, *, root=None: assets["embedder"],
     )
-    # create_runtime imports Settings inside the function; replace the constructor so
-    # it cannot read project environment/configuration during this synthetic contract.
-    monkeypatch.setattr(settings_module, "Settings", lambda: settings)
+    # create_runtime resolves settings through the project-root API; return this
+    # synthetic object without reading ambient project configuration.
+    monkeypatch.setattr(
+        settings_module.Settings,
+        "for_project_root",
+        classmethod(lambda _cls, _root: settings),
+    )
     monkeypatch.setattr(runtime_module, "prewarm_zh", lambda: None)
     management_qdrant = QdrantClient(":memory:")
 

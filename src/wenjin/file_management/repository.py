@@ -53,6 +53,7 @@ class FileManagementRepository:
                 kind TEXT NOT NULL, status TEXT NOT NULL, phase TEXT NOT NULL,
                 progress INTEGER NOT NULL, retryable INTEGER NOT NULL,
                 reason TEXT, retry_count INTEGER NOT NULL DEFAULT 0,
+                cancel_requested INTEGER NOT NULL DEFAULT 0,
                 payload TEXT NOT NULL DEFAULT '{}', resources TEXT NOT NULL DEFAULT '{}',
                 created_at TEXT NOT NULL, updated_at TEXT NOT NULL
             );
@@ -80,6 +81,11 @@ class FileManagementRepository:
             db.execute("ALTER TABLE files ADD COLUMN library_name TEXT NOT NULL DEFAULT '未分组'")
         if "original_filename" not in file_columns:
             db.execute("ALTER TABLE files ADD COLUMN original_filename TEXT")
+        job_columns = {row[1] for row in db.execute("PRAGMA table_info(jobs)")}
+        if "cancel_requested" not in job_columns:
+            db.execute(
+                "ALTER TABLE jobs ADD COLUMN cancel_requested INTEGER NOT NULL DEFAULT 0"
+            )
         version_columns = {row[1] for row in db.execute("PRAGMA table_info(versions)")}
         for column in ("library_id", "library_name", "display_name", "original_filename"):
             if column not in version_columns:
@@ -87,7 +93,9 @@ class FileManagementRepository:
         FileManagementRepository._migrate_version_metadata(db)
         # 进程中断的任务标记为可重试失败，不能继续显示为运行中。
         db.execute(
-            "UPDATE jobs SET status='failed',phase='interrupted',retryable=1,reason='服务进程中断，可重试',updated_at=? WHERE status='running'",
+            "UPDATE jobs SET status='failed',phase=CASE WHEN cancel_requested=1 THEN 'cancel_cleanup_pending' ELSE 'interrupted' END,"
+            "retryable=1,reason=CASE WHEN cancel_requested=1 THEN '服务进程中断，恢复后清理已取消候选' ELSE '服务进程中断，可重试' END,"
+            "updated_at=? WHERE status='running'",
             (utc_now_iso(),),
         )
 
@@ -213,6 +221,7 @@ class FileManagementRepository:
             original_filename=(payload.get("original_filename")
                                or (row["version_original_filename"] if "version_original_filename" in row.keys() else None)
                                or (row["original_filename"] if not row["version_id"] and "original_filename" in row.keys() else None)),
+            cancel_requested=bool(row["cancel_requested"]) if "cancel_requested" in row.keys() else False,
         )
 
     @staticmethod

@@ -31,15 +31,19 @@ class IndexAdapter(Protocol):
 class QdrantBm25Adapter:
     """生产适配器：复用现有真实Embedding、Qdrant和SQLite FTS5构建路径。"""
 
+    supports_embedding_batch_lock = True
+
     def __init__(
         self, *, root: Path, qdrant_client, embedder, embedding_model: str,
         managed_raw_data_root: Path | None = None,
+        embedding_lock=None,
     ) -> None:
         self.root = Path(root)
         self.managed_raw_data_root = Path(managed_raw_data_root or (self.root / "raw_data")).resolve()
         self.qdrant_client = qdrant_client
         self.embedder = embedder
         self.embedding_model = embedding_model
+        self.embedding_lock = embedding_lock
 
     def build(
         self,
@@ -63,6 +67,7 @@ class QdrantBm25Adapter:
             embedding_model=self.embedding_model,
             project_root=self.root,
             raw_data_root=self.managed_raw_data_root,
+            embedding_lock=self.embedding_lock,
         )
 
     def verify(self, target) -> dict:

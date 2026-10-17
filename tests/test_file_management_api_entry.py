@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import shutil
 import threading
 import time
@@ -46,7 +47,9 @@ class FakeManager:
     def get_file(self, file_id):
         return {"file_id": file_id}
 
-    def submit_import(self, source, *, display_name=None, replace_file_id=None):
+    def submit_import(
+        self, source, *, display_name=None, replace_file_id=None, original_filename=None
+    ):
         job_id = f"job-{len(self.jobs) + 1}"
         owned = self.base / "staging" / job_id / source.name
         owned.parent.mkdir(parents=True, exist_ok=True)
@@ -143,6 +146,64 @@ def test_upload_temp_cleanup_and_serial_worker_does_not_block_status(tmp_path):
         incoming = manager.base / ".incoming"
         assert not incoming.exists() or list(incoming.iterdir()) == []
         manager.release.set()
+    assert manager.max_running == 1
+
+
+def test_http_scheduler_records_queued_job_wait_behind_single_worker(tmp_path):
+    """Observe accepted-upload and actual run_job-entry times around a worker barrier."""
+    from wenjin.management_http.app import create_app as create_management_app
+
+    class TimelineManager(FakeManager):
+        def __init__(self, root):
+            super().__init__(root, block=True)
+            self.entry_times = []
+            self.entry_events = [threading.Event(), threading.Event()]
+
+        def run_job(self, job_id):
+            with self.lock:
+                self.entry_times.append((job_id, time.monotonic()))
+                index = len(self.entry_times) - 1
+                if index < len(self.entry_events):
+                    self.entry_events[index].set()
+            return super().run_job(job_id)
+
+    manager = TimelineManager(tmp_path)
+    token = "SyntheticManagementBearer_QueueWait_20261017"
+    app = create_management_app(tmp_path, manager=manager, admin_token=token)
+    headers = {"Authorization": f"Bearer {token}"}
+    with TestClient(app) as client:
+        a_post_started = time.monotonic()
+        first = client.post("/api/files", content=b"synthetic A", headers=headers | {"X-File-Name": "a.txt"})
+        a_accepted = time.monotonic()
+        assert first.status_code == 202
+        assert manager.entry_events[0].wait(2), "job A never entered the single worker"
+        a_entered = manager.entry_times[0][1]
+
+        b_post_started = time.monotonic()
+        second = client.post("/api/files", content=b"synthetic B", headers=headers | {"X-File-Name": "b.txt"})
+        b_accepted = time.monotonic()
+        assert second.status_code == 202
+        assert manager.entry_events[1].wait(0.1) is False, "job B entered while job A held the only worker"
+        assert len(manager.entry_times) == 1
+
+        release_a = time.monotonic()
+        manager.release.set()
+        assert manager.entry_events[1].wait(3), "job B did not enter after the worker became free"
+        b_entered = manager.entry_times[1][1]
+        assert manager.entry_times[0][0] == first.json()["job_id"]
+        assert manager.entry_times[1][0] == second.json()["job_id"]
+        # Job A may enter the background worker before its upload response is flushed.
+        assert a_post_started <= a_entered
+        assert b_post_started <= b_accepted < release_a <= b_entered
+        timeline = {
+            "job_a": {"post_started_monotonic": a_post_started, "accepted_monotonic": a_accepted, "run_job_entered_monotonic": a_entered},
+            "job_b": {"post_started_monotonic": b_post_started, "accepted_monotonic": b_accepted, "run_job_entered_monotonic": b_entered},
+            "worker_a_release_monotonic": release_a,
+            "http_queue_wait_from_accept_seconds": b_entered - b_accepted,
+            "worker_capacity": 1,
+            "measurement": "synthetic HTTP scheduling only; not model/GPU latency",
+        }
+        print("HTTP_QUEUE_WAIT_TIMELINE=" + json.dumps(timeline, sort_keys=True))
     assert manager.max_running == 1
 
 

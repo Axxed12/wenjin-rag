@@ -30,6 +30,99 @@ def release_catalog_path(root: Path) -> Path:
     return Path(root) / "data" / "releases" / "release-catalog.sqlite"
 
 
+def _private_config_signature(root: Path) -> str:
+    """按文件名与完整内容指纹私域配置；mtime不足以识别内容回写。"""
+    directory = Path(root) / "configs" / "indexes-private"
+    digest = hashlib.sha256()
+    if not directory.exists():
+        return digest.hexdigest()
+    for path in sorted(directory.glob("*.json")):
+        digest.update(path.name.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(path.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def _refresh_private_router_snapshot(
+    *,
+    root: Path,
+    legacy_router: MultiCorpusRouter | None,
+    qdrant_client: Any,
+    embedder: Any,
+    reranker: Any | None,
+    search_lock: Any,
+    migrated_libraries: set[str],
+    previous_signature: str | None,
+    cache_lock: RLock,
+) -> tuple[MultiCorpusRouter | None, str]:
+    """按当前release边界刷新私域目标，返回一次原子路由快照。"""
+    signature = _private_config_signature(root)
+    if signature == previous_signature:
+        return legacy_router, previous_signature
+    with cache_lock:
+        signature = _private_config_signature(root)
+        if signature == previous_signature:
+            return legacy_router, previous_signature
+        from wenjin.retrieval.legacy_catalog import LegacySearchService
+
+        private_routes, ambiguous, _ = LegacySearchService._private_config_view_for_root(root)
+        selected_targets = [
+            next(iter(targets.values()))
+            for library, targets in private_routes.items()
+            if library not in ambiguous
+            and len(targets) == 1
+            and library not in migrated_libraries
+        ]
+        if signature != _private_config_signature(root):
+            raise RuntimeError("私域索引配置在读取期间发生变化，本次请求已拒绝")
+
+        base_indices = [
+            index
+            for index in (legacy_router.indices if legacy_router else [])
+            if not index.target.manifest_path.startswith("corpora-private/")
+            and index.library not in migrated_libraries
+        ]
+        private_indices = []
+        if selected_targets:
+            private_router = MultiCorpusRouter.from_targets(
+                selected_targets,
+                root=root,
+                qdrant_client=qdrant_client,
+                embedder=embedder,
+                reranker=reranker,
+                search_lock=search_lock,
+            )
+            private_indices = private_router.indices
+
+        by_id: dict[str, RoutedIndex] = {}
+        for index in [*base_indices, *private_indices]:
+            existing = by_id.get(index.target_id)
+            if existing is not None and existing.target != index.target:
+                raise ValueError(f"当前索引目标配置冲突：{index.target_id}")
+            by_id[index.target_id] = index
+
+        if signature != _private_config_signature(root):
+            raise RuntimeError("私域索引配置在准入期间发生变化，本次请求已拒绝")
+        refreshed = None
+        if by_id:
+            router_options = {}
+            if legacy_router is not None:
+                router_options = {
+                    "dense_search": legacy_router.dense_search,
+                    "keyword_search": legacy_router.keyword_search,
+                }
+            refreshed = MultiCorpusRouter(
+                qdrant_client=qdrant_client,
+                embedder=embedder,
+                indices=list(by_id.values()),
+                reranker=reranker,
+                search_lock=search_lock,
+                **router_options,
+            )
+        return refreshed, signature
+
+
 def release_corpus_entry(
     root: Path, record: dict[str, Any], *, existing: CorpusEntry | None = None
 ) -> CorpusEntry:
@@ -340,6 +433,27 @@ class RequestReleaseResolver:
         self._release_indices: dict[str, RoutedIndex] = {}
         self._validated_releases: set[str] = set()
         self._cache_lock = RLock()
+        # 首个请求必须比对并构造私域路由，避免启动构造router与本指纹之间的配置竞态。
+        self._private_config_signature: str | None = None
+
+    def _refresh_private_legacy_indices(self, migrated_libraries: set[str]) -> None:
+        """在配置内容变化时重建私域路由子集，并原子替换旧快照。
+
+        非私域索引继续复用启动时已准入的对象。私域切换只重新准入新选目标，
+        仍复用同一个Qdrant客户端、Embedding/Reranker和搜索锁。
+        """
+        with self._cache_lock:
+            self.legacy_router, self._private_config_signature = _refresh_private_router_snapshot(
+                root=self.root,
+                legacy_router=self.legacy_router,
+                qdrant_client=self.qdrant_client,
+                embedder=self.embedder,
+                reranker=self.reranker,
+                search_lock=self.search_lock,
+                migrated_libraries=migrated_libraries,
+                previous_signature=self._private_config_signature,
+                cache_lock=self._cache_lock,
+            )
 
     @staticmethod
     def _active_records(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
@@ -434,6 +548,7 @@ class RequestReleaseResolver:
             for library_id, library in snapshot["libraries"].items()
             if library.get("active") is None and library.get("ever_activated")
         )
+        self._refresh_private_legacy_indices(migrated_libraries)
         indices = [self._release_stub(record) for record in active]
         if self.legacy_router is not None:
             indices.extend(
@@ -536,6 +651,8 @@ class LazyRequestReleaseResolver:
         self._delegate: RequestReleaseResolver | None = None
         self._lock = RLock()
         self._catalog_seen = False
+        # 首个请求强制用当前完整配置校验启动router所依据的选择。
+        self._private_config_signature: str | None = None
 
     def _current(self) -> RequestReleaseResolver | None:
         if not self.catalog_path.is_file():
@@ -562,7 +679,20 @@ class LazyRequestReleaseResolver:
         delegate = self._current()
         if delegate is not None:
             return delegate.begin_request()
-        legacy_router = self.runtime["legacy_router"]
+        with self._lock:
+            legacy_router, signature = _refresh_private_router_snapshot(
+                root=self.root,
+                legacy_router=self.runtime["legacy_router"],
+                qdrant_client=self.runtime["qdrant_client"],
+                embedder=self.runtime["embedder"],
+                reranker=self.runtime.get("reranker"),
+                search_lock=self.runtime["search_lock"],
+                migrated_libraries=set(),
+                previous_signature=self._private_config_signature,
+                cache_lock=self._lock,
+            )
+            self.runtime["legacy_router"] = legacy_router
+            self._private_config_signature = signature
         osg = (
             next(
                 (item for item in legacy_router.indices if item.library == "osg"),

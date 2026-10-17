@@ -18,6 +18,7 @@ class JobLifecycle:
         get_job: Callable,
         submit_delete: Callable,
         cleanup_failed_import: Callable,
+        cleanup_cancelled_import: Callable,
         run_import: Callable,
         run_delete: Callable,
         rw_lock,
@@ -29,6 +30,7 @@ class JobLifecycle:
         self.get_job = get_job
         self.submit_delete = submit_delete
         self._cleanup_failed_import = cleanup_failed_import
+        self._cleanup_cancelled_import = cleanup_cancelled_import
         self._run_import = run_import
         self._run_delete = run_delete
         self._rw_lock = rw_lock
@@ -72,7 +74,7 @@ class JobLifecycle:
                         raise ValueError("删除任务或文件状态已改变，不能重试")
                     # 沿用原任务和cleanup_items账本，崩溃/部分清理后幂等续跑。
                     db.execute(
-                        "UPDATE jobs SET status='queued',phase='queued',progress=0,retryable=1,reason=NULL,retry_count=retry_count+1,updated_at=? WHERE job_id=?",
+                        "UPDATE jobs SET status='queued',phase='queued',progress=0,retryable=1,reason=NULL,cancel_requested=0,retry_count=retry_count+1,updated_at=? WHERE job_id=?",
                         (utc_now_iso(), job_id),
                     )
                 return self.get_job(job_id)
@@ -84,7 +86,7 @@ class JobLifecycle:
                 with self._connect() as db:
                     self._begin_immediate(db)
                     current = db.execute(
-                        "SELECT j.status,j.retryable,j.version_id,v.version AS candidate_version,"
+                    "SELECT j.status,j.retryable,j.cancel_requested,j.version_id,v.version AS candidate_version,"
                         "f.status AS file_status,f.active_version_id,av.version AS active_version "
                         "FROM jobs j JOIN files f ON f.file_id=j.file_id "
                         "LEFT JOIN versions v ON v.version_id=j.version_id "
@@ -94,6 +96,8 @@ class JobLifecycle:
                     ).fetchone()
                     if current is None or current["status"] != "failed" or not current["retryable"]:
                         raise ValueError("文件或导入任务状态已改变，不能重试")
+                    if current["cancel_requested"]:
+                        raise ValueError("已请求取消的任务不能作为新导入重试")
                     if current["file_status"] in {"deleting", "deleted"}:
                         raise ValueError("文件正在删除或已经删除，不能重试导入")
                     version_id = current["version_id"]
@@ -142,7 +146,7 @@ class JobLifecycle:
                             (utc_now_iso(), old.file_id),
                         )
                     db.execute(
-                        "UPDATE jobs SET status='queued',phase='queued',progress=0,retryable=1,reason=NULL,retry_count=retry_count+1,updated_at=? WHERE job_id=?",
+                        "UPDATE jobs SET status='queued',phase='queued',progress=0,retryable=1,reason=NULL,cancel_requested=0,retry_count=retry_count+1,updated_at=? WHERE job_id=?",
                         (utc_now_iso(), job_id),
                     )
             return self.get_job(job_id)
@@ -151,8 +155,9 @@ class JobLifecycle:
 
         with self._connect() as db:
             rows = db.execute(
-                "SELECT job_id,status,phase FROM jobs "
+                "SELECT job_id,status,phase,cancel_requested FROM jobs "
                 "WHERE status='queued' OR (status='failed' AND phase='interrupted' AND retryable=1) "
+                "OR (status='failed' AND cancel_requested=1) "
                 "ORDER BY created_at"
             ).fetchall()
 
@@ -160,12 +165,77 @@ class JobLifecycle:
 
         for row in rows:
             if row["status"] == "failed":
-                resumed.append(self.submit_retry(row["job_id"]))
+                if row["cancel_requested"]:
+                    resumed.append(self._finish_requested_cancel(row["job_id"]))
+                else:
+                    resumed.append(self.submit_retry(row["job_id"]))
 
             else:
                 resumed.append(self.get_job(row["job_id"]))
 
         return resumed
+
+    def request_cancel(self, job_id: str) -> JobRecord:
+        """Queued jobs clean immediately; running jobs only receive a cooperative flag."""
+        cleanup_now = False
+        with self._job_lock:
+            with self._connect() as db:
+                self._begin_immediate(db)
+                row = db.execute(
+                    "SELECT kind,status,cancel_requested FROM jobs WHERE job_id=?", (job_id,)
+                ).fetchone()
+                if row is None:
+                    raise KeyError(job_id)
+                if row["kind"] != "import":
+                    raise ValueError("只有导入任务支持取消")
+                if row["status"] == "cancelled":
+                    return self.get_job(job_id)
+                if row["status"] == "queued":
+                    db.execute(
+                        "UPDATE jobs SET status='running',phase='cancel_cleanup',cancel_requested=1,"
+                        "retryable=0,reason='正在清理取消的导入候选',updated_at=? WHERE job_id=? AND status='queued'",
+                        (utc_now_iso(), job_id),
+                    )
+                    cleanup_now = True
+                elif row["status"] == "running":
+                    db.execute(
+                        "UPDATE jobs SET cancel_requested=1,reason='已请求取消；等待当前处理阶段结束',updated_at=? "
+                        "WHERE job_id=? AND status='running'",
+                        (utc_now_iso(), job_id),
+                    )
+                elif row["status"] == "failed" and row["cancel_requested"]:
+                    db.execute(
+                        "UPDATE jobs SET status='running',phase='cancel_cleanup',retryable=0,"
+                        "reason='正在重试取消候选清理',updated_at=? WHERE job_id=? AND status='failed'",
+                        (utc_now_iso(), job_id),
+                    )
+                    cleanup_now = True
+                else:
+                    raise ValueError("该任务当前不能取消")
+        if cleanup_now:
+            return self._finish_requested_cancel(job_id)
+        return self.get_job(job_id)
+
+    def _finish_requested_cancel(self, job_id: str) -> JobRecord:
+        with self._connect() as db:
+            row = db.execute(
+                "SELECT version_id FROM jobs WHERE job_id=? AND kind='import' AND cancel_requested=1",
+                (job_id,),
+            ).fetchone()
+        if row is None:
+            raise ValueError("取消请求或候选登记已改变")
+        try:
+            self._cleanup_cancelled_import(job_id, row["version_id"])
+        except Exception as error:
+            self._update_job(
+                job_id,
+                status="failed",
+                phase="cancel_cleanup_pending",
+                progress=None,
+                retryable=True,
+                reason=f"取消候选清理未完成：{type(error).__name__}",
+            )
+        return self.get_job(job_id)
 
     def run_job(self, job_id: str) -> JobRecord:
         with self._job_lock:
@@ -173,7 +243,7 @@ class JobLifecycle:
             with self._connect() as db:
                 self._begin_immediate(db)
                 row = db.execute(
-                    "SELECT job_id,file_id,kind,status FROM jobs WHERE job_id=?", (job_id,)
+                    "SELECT job_id,file_id,kind,status,cancel_requested FROM jobs WHERE job_id=?", (job_id,)
                 ).fetchone()
                 if row is None:
                     raise KeyError(job_id)
@@ -187,69 +257,71 @@ class JobLifecycle:
                 if changed != 1:
                     return self.get_job(job_id)
                 job_file_id, job_kind = row["file_id"], row["kind"]
-            try:
-                if job_kind == "import":
-                    with self._connect() as db:
-                        file_state = db.execute(
-                            "SELECT status FROM files WHERE file_id=?", (job_file_id,)
-                        ).fetchone()
-
-                    if file_state is None or file_state["status"] in {"deleting", "deleted"}:
-                        self._update_job(
-                            job_id,
-                            status="cancelled",
-                            phase="cancelled",
-                            progress=100,
-                            retryable=False,
-                            reason="文件正在删除",
-                        )
-
-                        return self.get_job(job_id)
-
-                    self._run_import(job_id)
-
-                elif job_kind == "delete":
-                    self._run_delete(job_id)
-
-                else:
-                    raise ValueError(f"未知job类型：{job_kind}")
-
-            except Exception as error:
+        try:
+            if job_kind == "import":
                 with self._connect() as db:
-                    latest = db.execute(
-                        "SELECT status,version_id FROM jobs WHERE job_id=?", (job_id,)
+                    file_state = db.execute(
+                        "SELECT status FROM files WHERE file_id=?", (job_file_id,)
                     ).fetchone()
-                if latest is None or latest["status"] in {"completed", "deleted", "cancelled"}:
+
+                if file_state is None or file_state["status"] in {"deleting", "deleted"}:
+                    self._update_job(
+                        job_id,
+                        status="cancelled",
+                        phase="cancelled",
+                        progress=100,
+                        retryable=False,
+                        reason="文件正在删除",
+                    )
+
                     return self.get_job(job_id)
-                if job_kind == "import":
-                    with self._connect() as db:
+
+                self._run_import(job_id)
+
+            elif job_kind == "delete":
+                self._run_delete(job_id)
+
+            else:
+                raise ValueError(f"未知job类型：{job_kind}")
+
+        except Exception as error:
+            with self._connect() as db:
+                latest = db.execute(
+                    "SELECT status,version_id,cancel_requested FROM jobs WHERE job_id=?", (job_id,)
+                ).fetchone()
+            if latest is None or latest["status"] in {"completed", "deleted", "cancelled"}:
+                return self.get_job(job_id)
+            if job_kind == "import" and latest["cancel_requested"]:
+                return self._finish_requested_cancel(job_id)
+            if job_kind == "import":
+                with self._connect() as db:
+                    db.execute(
+                        "UPDATE versions SET status='failed' WHERE version_id=? AND status!='active'",
+                        (latest["version_id"],),
+                    )
+
+                    file_row = db.execute(
+                        "SELECT active_version_id,status FROM files WHERE file_id=?",
+                        (job_file_id,),
+                    ).fetchone()
+
+                    if (
+                        file_row
+                        and not file_row["active_version_id"]
+                        and file_row["status"] != "deleting"
+                    ):
                         db.execute(
-                            "UPDATE versions SET status='failed' WHERE version_id=? AND status!='active'",
-                            (latest["version_id"],),
+                            "UPDATE files SET status='failed',updated_at=? WHERE file_id=?",
+                            (utc_now_iso(), job_file_id),
                         )
 
-                        file_row = db.execute(
-                            "SELECT active_version_id,status FROM files WHERE file_id=?",
-                            (job_file_id,),
-                        ).fetchone()
-
-                        if (
-                            file_row
-                            and not file_row["active_version_id"]
-                            and file_row["status"] != "deleting"
-                        ):
-                            db.execute(
-                                "UPDATE files SET status='failed',updated_at=? WHERE file_id=?",
-                                (utc_now_iso(), job_file_id),
-                            )
-
-                self._update_job(
-                    job_id,
-                    status="failed",
-                    phase="failed",
-                    retryable=True,
-                    reason=f"{type(error).__name__}: {error}",
-                )
+            self._update_job(
+                job_id,
+                status="failed",
+                phase="failed",
+                retryable=True,
+                reason=f"{type(error).__name__}: {error}",
+            )
 
         return self.get_job(job_id)
 
@@ -263,6 +335,7 @@ class JobLifecycle:
         retryable: bool | None = None,
         reason: str | None = None,
         resources: dict | None = None,
+        cancel_requested: bool | None = None,
     ) -> None:
 
         assignments, values = ["phase=?", "updated_at=?"], [phase, utc_now_iso()]
@@ -290,6 +363,10 @@ class JobLifecycle:
             assignments.append("resources=?")
 
             values.append(json.dumps(resources, ensure_ascii=False))
+
+        if cancel_requested is not None:
+            assignments.append("cancel_requested=?")
+            values.append(int(cancel_requested))
 
         values.append(job_id)
 

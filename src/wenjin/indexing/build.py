@@ -25,6 +25,7 @@ def build_candidate_index(
     embedding_model: str,
     project_root: Path,
     raw_data_root: Path | None = None,
+    embedding_lock=None,
 ) -> IndexTarget:
     """拒绝覆盖现有资产；任一步失败则删除本次新建的候选。"""
     if strategy not in {"blocks", "blocks-split", "fixed"}:
@@ -65,7 +66,7 @@ def build_candidate_index(
     if not chunks:
         raise ValueError("候选语料没有生成chunk")
     try:
-        vectors = embed_chunks(embedder, chunks)
+        vectors = embed_chunks(embedder, chunks, embedding_lock=embedding_lock)
         create_dense_collection(qdrant_client, dense_collection, chunks, vectors)
         build_bm25_index(bm25_path, chunks)
     except Exception:

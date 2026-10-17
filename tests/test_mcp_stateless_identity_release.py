@@ -11,8 +11,8 @@ import subprocess
 import threading
 import time
 from importlib.metadata import PackageNotFoundError, version
-from threading import RLock
 from pathlib import Path
+from threading import RLock
 from types import SimpleNamespace
 from urllib.parse import parse_qs, urlencode, urlsplit, urlunsplit
 
@@ -29,20 +29,18 @@ import uvicorn
 from qdrant_client import QdrantClient
 from starlette.testclient import TestClient
 
+from tests.support.library_release_fixture import build_two_version_release_fixture
 from wenjin.access import AccessRegistry
 from wenjin.audit import SearchAudit
 from wenjin.file_management import FileManagementService
 from wenjin.identity import IdentityStore
 from wenjin.management_http.app import create_app as create_management_app
 from wenjin.mcp.managed_client import ManagedFileHTTPClient
-from wenjin.mcp.runtime import RuntimeIdentity
+from wenjin.mcp.runtime import RuntimeIdentity, create_release_resolver
 from wenjin.mcp.stateless_server import build_stateless_mcp_server, create_stateless_app
-from wenjin.mcp.runtime import create_release_resolver
 from wenjin.releases.catalog import ReleaseCatalog
 from wenjin.releases.resolver import release_catalog_path
 from wenjin.releases.service import ReleaseService
-from tests.support.library_release_fixture import build_two_version_release_fixture
-
 
 pytestmark = pytest.mark.integration
 PROTOCOL = "2026-07-28"
@@ -50,7 +48,11 @@ ADMIN_PASSWORD = "StatelessSyntheticAdmin_2026!"
 TEMP_PASSWORD = "StatelessSyntheticTemp_2026!"
 READER_PASSWORD = "StatelessSyntheticReader_2026!"
 SESSION_HEADER = "old-user-a-session-value"
-CLIENT_SCRIPT = Path(__file__).parent / "acceptance" / "mcp-stateless-client" / "client.mjs"
+_CLIENT_DIR = Path(os.environ.get(
+    "MCP_MODERN_NODE_CLIENT_DIR",
+    str(Path(__file__).parent / "acceptance" / "mcp-stateless-client"),
+)).resolve()
+CLIENT_SCRIPT = _CLIENT_DIR / "client.mjs"
 CLIENT_CWD = CLIENT_SCRIPT.parent
 
 

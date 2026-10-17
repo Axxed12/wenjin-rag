@@ -130,6 +130,8 @@ class FileManagementService:
         self._job_lock = threading.Lock()
         self._retry_lock = threading.Lock()
         self._model_lock = threading.RLock()
+        if isinstance(self.index_adapter, QdrantBm25Adapter):
+            self.index_adapter.embedding_lock = self._model_lock
         self._process_lock = _ProcessLock(self.base / "manager.lock")
         self.repository = FileManagementRepository()
         self.base.mkdir(parents=True, exist_ok=True)
@@ -159,12 +161,16 @@ class FileManagementService:
                 activate=self._activate_version,
                 repository=self.repository,
                 managed_raw_data_root=self.managed_raw_data_root,
+                cancel_requested=self._cancel_requested,
             )
             self.jobs = JobLifecycle(
                 connect=self._connect,
                 get_job=self.get_job,
                 submit_delete=self.submit_delete,
                 cleanup_failed_import=lambda job_id, version_id: self._cleanup_failed_import(
+                    job_id, version_id
+                ),
+                cleanup_cancelled_import=lambda job_id, version_id: self._cleanup_cancelled_import(
                     job_id, version_id
                 ),
                 run_import=lambda job_id: self._run_import(job_id),
@@ -399,7 +405,7 @@ class FileManagementService:
         with self._connect() as db:
             rows = db.execute(
                 "SELECT j.job_id,j.file_id,j.kind,j.status,j.phase,j.progress,j.retryable,"
-                "j.reason,j.retry_count,j.created_at,j.updated_at,j.version_id,j.payload,"
+                "j.reason,j.retry_count,j.created_at,j.updated_at,j.version_id,j.payload,j.cancel_requested,"
                 "v.version AS version,v.display_name AS version_display_name,"
                 "v.library_id AS version_library_id,v.library_name AS version_library_name,"
                 "v.original_filename AS version_original_filename,"
@@ -439,6 +445,7 @@ class FileManagementService:
                                       or (row["library_name"] if row["version_id"] is None else None)),
                 original_filename=(payload.get("original_filename") or row["version_original_filename"]
                                    or (row["original_filename"] if row["version_id"] is None else None)),
+                cancel_requested=bool(row["cancel_requested"]),
             ))
         return result
 
@@ -735,8 +742,57 @@ class FileManagementService:
     def _cleanup_failed_import(self, job_id: str, version_id: str) -> None:
         self.cleanup._cleanup_failed_import(job_id, version_id)
 
+    def _cancel_requested(self, job_id: str) -> bool:
+        with self._connect() as db:
+            row = db.execute(
+                "SELECT cancel_requested FROM jobs WHERE job_id=?", (job_id,)
+            ).fetchone()
+        return bool(row and row["cancel_requested"])
+
+    def _cleanup_cancelled_import(self, job_id: str, version_id: str) -> None:
+        """清理取消候选的owned资源，并将终态写在资源释放之后。"""
+        with self._connect() as db:
+            row = db.execute(
+                "SELECT j.file_id,v.version FROM jobs j JOIN versions v ON v.version_id=j.version_id "
+                "WHERE j.job_id=? AND j.version_id=? AND j.kind='import'",
+                (job_id, version_id),
+            ).fetchone()
+            if row is None:
+                raise KeyError(job_id)
+            file_id, version = row["file_id"], row["version"]
+            active = db.execute(
+                "SELECT active_version_id FROM files WHERE file_id=?", (file_id,)
+            ).fetchone()
+            if active is None or active["active_version_id"] == version_id:
+                raise ValueError("拒绝清理缺失文件或当前活动版本")
+
+        self._cleanup_failed_import(job_id, version_id)
+        stage = self.base / "staging" / job_id
+        self.cleanup._remove_owned_path(
+            stage, file_id, {version_id}, {job_id}, {version}
+        )
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            db.execute(
+                "UPDATE versions SET status='cancelled' WHERE version_id=? AND file_id=? AND status!='active'",
+                (version_id, file_id),
+            )
+            db.execute(
+                "UPDATE files SET status='failed',updated_at=? WHERE file_id=? "
+                "AND active_version_id IS NULL AND status='importing'",
+                (_now(), file_id),
+            )
+        self._update_job(
+            job_id, status="cancelled", phase="cancelled", progress=100,
+            retryable=False, reason="任务已取消，候选资源已清理",
+            resources={"cancel_cleanup": "complete"},
+        )
+
     def resume_pending_jobs(self) -> list[JobRecord]:
         return self.jobs.resume_pending_jobs()
+
+    def request_cancel(self, job_id: str) -> JobRecord:
+        return self.jobs.request_cancel(job_id)
 
     def run_job(self, job_id: str) -> JobRecord:
         return self.jobs.run_job(job_id)
@@ -755,6 +811,7 @@ class FileManagementService:
         retryable: bool | None = None,
         reason: str | None = None,
         resources: dict | None = None,
+        cancel_requested: bool | None = None,
     ) -> None:
         self.jobs._update_job(
             job_id,
@@ -764,6 +821,7 @@ class FileManagementService:
             retryable=retryable,
             reason=reason,
             resources=resources,
+            cancel_requested=cancel_requested,
         )
 
     @staticmethod
@@ -802,6 +860,12 @@ class FileManagementService:
         # active 指针切换的读写锁和原子事务仍由 service 协调器持有。
         with self._rw_lock, self._connect() as db:
             self._begin_immediate(db)
+            cancel = db.execute(
+                "SELECT cancel_requested FROM jobs WHERE job_id=? AND version_id=?",
+                (job_id, version_id),
+            ).fetchone()
+            if cancel is None or cancel["cancel_requested"]:
+                raise RuntimeError("导入任务已请求取消，阻止候选版本激活")
             current = db.execute("SELECT status FROM files WHERE file_id=?", (file_id,)).fetchone()
             if current is None or current["status"] in {"deleting", "deleted"}:
                 raise RuntimeError("文件已进入删除流程，阻止新版激活")
@@ -930,6 +994,8 @@ class FileManagementService:
         query: str,
         *,
         config=None,
+        reranker=None,
+        search_policy=None,
         version: str | None = None,
         version_id: str | None = None,
         expected_library_id: str | None = None,
@@ -947,20 +1013,35 @@ class FileManagementService:
             service = RetrievalService(
                 qdrant_client=self.qdrant_client,
                 embedder=self.embedder,
+                reranker=reranker,
                 bm25_path=snapshot.bm25_path,
                 source_urls=load_source_urls(snapshot.manifest_path),
                 collection_name=snapshot.dense_collection,
                 supported_version=snapshot.version,
                 index_target_id=snapshot.version_id,
+                search_lock=self._model_lock,
             )
             # version和active snapshot在同一把读锁内绑定；replace无法在两者之间切换active。
-            chosen = config or SearchConfig(
-                version=snapshot.version if version is None else version,
-                top_k=top_k,
-                context_char_budget=context_char_budget,
-            )
+            if search_policy is not None:
+                if search_policy.reranker_enabled != (reranker is not None):
+                    raise RuntimeError("managed检索策略与共享reranker实例状态不一致")
+                chosen = config or search_policy.single_config(
+                    snapshot.version if version is None else version,
+                    top_k,
+                    context_char_budget=context_char_budget,
+                )
+            else:
+                chosen = config or SearchConfig(
+                    version=snapshot.version if version is None else version,
+                    top_k=top_k,
+                    context_char_budget=context_char_budget,
+                )
             with self._model_lock:
                 result = service.search(query, config=chosen)
+            if search_policy is not None:
+                result["retrieval_config"] = search_policy.public_config(
+                    top_k, context_char_budget=context_char_budget
+                )
             # 共享文件系统写入者不受manager读写锁控制；在返回证据前再核对原文身份。
             try:
                 current = self.snapshot(file_id)

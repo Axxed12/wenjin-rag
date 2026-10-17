@@ -83,6 +83,15 @@ def _validate_admin_search(payload: dict) -> tuple[int, int]:
     return top_k, context_char_budget
 
 
+def _managed_search_options(request: Request) -> dict:
+    """Managed查询使用同一请求服务已有的重排器和检索策略。"""
+    policy = getattr(request.app.state, "search_policy", None)
+    reranker = getattr(request.app.state, "shared_reranker", None)
+    if policy is not None and not policy.reranker_enabled:
+        reranker = None
+    return {"reranker": reranker, "search_policy": policy}
+
+
 async def _admin_search(request: Request):
     manager = await _manager(request)
     payload = await _request_json_object(request)
@@ -119,6 +128,7 @@ async def _admin_search(request: Request):
             expected_library_id=library_id,
             top_k=top_k,
             context_char_budget=context_char_budget,
+            **_managed_search_options(request),
         )
         result["catalog_identity"] = {
             "library_id": library_id,
@@ -197,5 +207,6 @@ async def _search(request: Request):
         expected_library_id=getattr(request.state, "managed_authorized_library_id", None),
         top_k=top_k,
         context_char_budget=context_char_budget,
+        **_managed_search_options(request),
     )
     return JSONResponse(_jsonable(result))

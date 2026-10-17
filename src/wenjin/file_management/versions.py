@@ -12,6 +12,8 @@ import shutil
 from pathlib import Path
 from typing import Callable
 
+from wenjin.file_management.models import ImportCancelled
+
 
 class VersionLifecycle:
     """单文件版本的解析、建索引、验证与激活准备。最终切换事务由协调器开启。"""
@@ -30,9 +32,11 @@ class VersionLifecycle:
         activate: Callable,
         repository,
         managed_raw_data_root: Path,
+        cancel_requested: Callable[[str], bool],
     ):
         self.root = root
         self.managed_raw_data_root = Path(managed_raw_data_root)
+        self._cancel_requested = cancel_requested
         self.base = base
         self.parser = parser
         self.index_adapter = index_adapter
@@ -108,6 +112,7 @@ class VersionLifecycle:
         )
 
         self._hook("staging", {"job_id": job_id, "file_id": file_id})
+        self._raise_if_cancel_requested(job_id)
 
         if not source.is_file() or self._sha256(source) != version_row["raw_sha256"]:
             raise ValueError("暂存原文不存在或SHA256与任务登记不一致")
@@ -117,6 +122,7 @@ class VersionLifecycle:
         self._update_job(job_id, phase="parsing", progress=20)
 
         self._hook("parsing", {"job_id": job_id, "file_id": file_id})
+        self._raise_if_cancel_requested(job_id)
 
         plan = intake.plan_corpus(
             source=source,
@@ -126,6 +132,7 @@ class VersionLifecycle:
             pdf_plans=pdf_plans,
             excluded=excluded,
         )
+        self._raise_if_cancel_requested(job_id)
 
         manifest = intake.build_manifest(plan, scope="文件管理器登记的独立单文件版本。")
 
@@ -134,8 +141,10 @@ class VersionLifecycle:
         self._atomic_json(manifest_path, manifest)
 
         intake.materialize(plan, raw_root)
+        self._raise_if_cancel_requested(job_id)
 
         counts = intake.retrieve_chunk_counts(manifest_path, self.managed_raw_data_root)
+        self._raise_if_cancel_requested(job_id)
 
         empty = intake.empty_retrieval_entries(manifest, counts)
 
@@ -150,17 +159,24 @@ class VersionLifecycle:
         self._update_job(job_id, phase="building", progress=40)
 
         self._hook("building", {"job_id": job_id, "file_id": file_id})
+        self._raise_if_cancel_requested(job_id)
 
         target_id = f"fm-{file_id}-{version_id}"
 
-        with self._model_lock:
-            target = self.index_adapter.build(
-                manifest_path=manifest_path,
-                target_id=target_id,
-                strategy="blocks-split",
-                collection=collection,
-                bm25_path=bm25_path,
-            )
+        build_kwargs = {
+            "manifest_path": manifest_path,
+            "target_id": target_id,
+            "strategy": "blocks-split",
+            "collection": collection,
+            "bm25_path": bm25_path,
+        }
+        if getattr(self.index_adapter, "supports_embedding_batch_lock", False):
+            target = self.index_adapter.build(**build_kwargs)
+        else:
+            # 未声明只锁embedding批次能力的自定义adapter保留原建库整体互斥合同。
+            with self._model_lock:
+                target = self.index_adapter.build(**build_kwargs)
+        self._raise_if_cancel_requested(job_id)
 
         if target.chunk_count != chunk_count:
             raise RuntimeError("建库片段数与入库预解析计数不一致")
@@ -168,6 +184,7 @@ class VersionLifecycle:
         self._update_job(job_id, phase="verifying", progress=75)
 
         self._hook("verifying", {"job_id": job_id, "collection": collection})
+        self._raise_if_cancel_requested(job_id)
 
         self.index_adapter.verify(target)
 
@@ -193,6 +210,7 @@ class VersionLifecycle:
         self._update_job(job_id, phase="activating", progress=90)
 
         self._hook("activating", {"job_id": job_id, "version_id": version_id})
+        self._raise_if_cancel_requested(job_id)
 
         self._activate(
             job_id=job_id,
@@ -211,6 +229,10 @@ class VersionLifecycle:
         staging_dir = self.base / "staging" / job_id
 
         shutil.rmtree(staging_dir, ignore_errors=True)
+
+    def _raise_if_cancel_requested(self, job_id: str) -> None:
+        if self._cancel_requested(job_id):
+            raise ImportCancelled("导入任务已请求取消")
 
     def _pdf_plans(self, source: Path):
 

@@ -143,8 +143,14 @@ class LegacySearchService:
         return list(entries.values())
 
     def _private_config_view(self) -> tuple[dict[str, dict[str, IndexTarget]], set[str], dict[str, tuple[IndexTarget, str]]]:
+        return self._private_config_view_for_root(self.root)
+
+    @staticmethod
+    def _private_config_view_for_root(
+        root: Path,
+    ) -> tuple[dict[str, dict[str, IndexTarget]], set[str], dict[str, tuple[IndexTarget, str]]]:
         """读取私域候选及显式route选择；裸target只作候选，绝不隐式发布。"""
-        private_dir = self.root / "configs" / "indexes-private"
+        private_dir = Path(root) / "configs" / "indexes-private"
         route_targets: dict[str, dict[str, IndexTarget]] = {}
         ambiguous: set[str] = set()
         candidates: dict[str, tuple[IndexTarget, str]] = {}

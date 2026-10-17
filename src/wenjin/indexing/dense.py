@@ -10,13 +10,20 @@ if TYPE_CHECKING:
 
 
 def embed_chunks(
-    embedder: "HuggingFaceEmbedding | Any", chunks: list, *, batch_size: int = 16
+    embedder: "HuggingFaceEmbedding | Any", chunks: list, *, batch_size: int = 16,
+    embedding_lock=None,
 ) -> list[list[float]]:
     """按批次计算文档向量；返回顺序与 chunks 完全一致。"""
     vectors = []
     for start in range(0, len(chunks), batch_size):
         texts = [chunk.text for chunk in chunks[start : start + batch_size]]
-        vectors.extend(embedder.get_text_embedding_batch(texts, show_progress=False))
+        if embedding_lock is None:
+            batch_vectors = embedder.get_text_embedding_batch(texts, show_progress=False)
+        else:
+            # 只串行化共享模型的真实推理批次；候选索引写入可并行准备。
+            with embedding_lock:
+                batch_vectors = embedder.get_text_embedding_batch(texts, show_progress=False)
+        vectors.extend(batch_vectors)
     if len(vectors) != len(chunks):
         raise RuntimeError("Embedding 数量与 chunk 数量不一致")
     return vectors
