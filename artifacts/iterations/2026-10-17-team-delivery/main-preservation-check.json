@@ -1,0 +1,7 @@
+{
+  "checked_at_utc": "2026-10-17T02:25:17.5695850Z",
+  "main_head": "159a4a42a7169bab87ab149b8e39aa6464ed987e",
+  "snapshot_file_count": 136,
+  "main_source_drift": [],
+  "note": "Read-only recheck after quota interruption; main source/index/runtime not written."
+}

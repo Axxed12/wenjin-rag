@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-17",
+  "run_id": "495afbb07c3849c4b2a00fffb7a08bc0",
+  "classification": "synthetic isolated Docker delivery drill; no company corpus or real credentials",
+  "source_bound_images": {
+    "source_sha256": "639794c5b660851559d2fc0894d80356f9528f381e90cfe027e58c33463a2ab6",
+    "source_file_count": 207,
+    "images": [
+      {"tag": "wenjin-backend:delivery-639794c5b660", "image_id": "sha256:4b512b9089f7aaf2fec408299d126131b6992e0ba79d5110cc9678853b461782", "smoke": "runtime ROOT=/app; frozen module path/hash; CLI --help"},
+      {"tag": "wenjin-model-node:delivery-639794c5b660", "image_id": "sha256:a30f3508fb90117fdb99748e101f3f94c4f50c3d2e0522a4684eaff676f09373", "smoke": "import smoke only; no model inference or GPU load"},
+      {"tag": "wenjin-mcp-stateless:delivery-639794c5b660", "image_id": "sha256:3e684d3b0ba20a3745a4ac0dfeb5c31ea51c338580572f416da05f016dbf9ff6", "smoke": "runtime ROOT=/app; frozen module path/hash; CLI --help"}
+    ],
+    "runtime_module_sha256": "654ccedd2040b94791c02ea682655db87588dfc73df4fbfbc51d3e9b13af7963"
+  },
+  "isolated_drill_image": {
+    "tag": "wenjin-backend:team-delivery-495afbb07c38",
+    "image_id": "sha256:f013828afdd39186104fcc70fcb5f9dc209d63be84930026bb0dcbfad6519e33",
+    "source_sha256": "8a762c8e0a398d2466c8542da1cd756a9c5a9af50464678eb190680c0a3ab65d"
+  },
+  "docker": {"desktop": "Docker Desktop", "client": "29.5.2", "engine": "29.5.2", "qdrant_image": "qdrant/qdrant:v1.19.1", "network": "internal-only Compose network; no host reachability claim"},
+  "backup_restore": {
+    "bundle_sha256": "1fcad69eef302da2072890549cfc7253611b04b2588f8eb692aca6c133a82d77",
+    "files": 42,
+    "verified_bytes": 1313320,
+    "restored_files": 42,
+    "managed_raw_versions_rebased": 2,
+    "source_and_restored_identity_password_hash_equal_by_user": {"delivery-admin": true, "delivery-reader": true, "delivery-denied": true},
+    "password_or_token_values_recorded": false
+  },
+  "qdrant_server_snapshot": {
+    "source_manifest_sha256": "8ff95c1f92c5358e5106b8bb095bfe198356df04bb01fe4555d92e8b44c3b839",
+    "snapshot_count": 5,
+    "restore_target_empty_before_import": true,
+    "restored_collection_count": 5,
+    "restored_collection_point_counts": [1, 1, 1, 1, 1],
+    "scope": "imported into a new empty Qdrant server; not overwrite recovery"
+  },
+  "restored_business_io": {
+    "management_health": 200,
+    "admin_reader_and_denied_reader_login": "passed through HTTP /api/auth/login with same-origin Origin; reader/denied final test passwords derived in-memory from original synthetic seed values",
+    "authorized_reader_active_managed_search": 200,
+    "stale_managed_version_search": 409,
+    "reader_without_library_grant_search": 403,
+    "mcp_transport": "Streamable HTTP through internal Docker DNS",
+    "mcp_list_tools": ["list_corpora", "list_managed_files", "search_docs"],
+    "mcp_managed_search": "reader token returned active version two marker only; no version one marker",
+    "mcp_shared_release_search": "admin token returned active OSG release marker A only; no release marker B",
+    "osg_reader_grant": "not present; no grant was added for this drill",
+    "synthetic_model_api": true,
+    "real_model_inference_or_gpu_load": false
+  },
+  "initial_failures_and_repairs": [
+    {"failure": "first MCP runtime start raised FileNotFoundError for restored data/indexes/index-registry.json", "repair": "created synthetic OSG registry plus real ReleaseService prepare/activate assets with aligned embedding model ID/dimension, then regenerated snapshot and backup"},
+    {"failure": "first restored HTTP login returned 403 request_rejected / same-origin required", "repair": "test harness added Origin=http://127.0.0.1:8778; product behavior was correct and no account state was reset"},
+    {"failure": "first release search check used the ungranted reader identity", "repair": "kept reader ACL unchanged; used the recovered admin identity for the shared OSG release call and reader identity for managed ACL call"}
+  ],
+  "not_verified": ["clean Windows 10/11 target offline import/start", "host-published port or cross-machine access", "real model inference/GPU operation"],
+  "cleanup": {
+    "owned_containers_network_and_volumes": "removed and verified absent for exact Compose project 495afbb07c3849c4b2a00fffb7a08bc0",
+    "cleanup_sequence": "default-profile down first left restore-profile resources in use; second down with --profile restore -v removed all owned resources",
+    "temporary_fixture_image": "removed exact wenjin-backend:team-delivery-495afbb07c38 tag and image ID",
+    "temporary_credential_files": {
+      "removal_attempt": "blocked by automatic approval policy; no alternate deletion method used",
+      "directory": "C:\\Users\\Onebiter\\AppData\\Local\\Temp\\team-delivery-e2e-8a762c8e",
+      "paths": [".env", "secrets/file_admin_token", "secrets/model_api_token", "secrets/fixture-credentials.json"],
+      "values_recorded": false
+    },
+    "source_bound_delivery_images": "retained for later export; not running deployments",
+    "existing_project_services_and_base_images": "untouched"
+  }
+}

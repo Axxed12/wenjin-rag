@@ -1,0 +1,16 @@
+{
+  "measurement": "synthetic HTTP scheduling only; not model/GPU latency",
+  "worker_capacity": 1,
+  "job_a": {
+    "post_started_monotonic": 251210.0,
+    "accepted_monotonic": 251210.031,
+    "run_job_entered_monotonic": 251210.015
+  },
+  "job_b": {
+    "post_started_monotonic": 251210.031,
+    "accepted_monotonic": 251210.031,
+    "run_job_entered_monotonic": 251210.187
+  },
+  "worker_a_release_monotonic": 251210.156,
+  "http_queue_wait_from_accept_seconds": 0.15600000001722947
+}

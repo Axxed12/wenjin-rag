@@ -1,0 +1,18 @@
+{
+  "restored_management_health_status": 200,
+  "admin_login": "passed",
+  "reader_login": "passed",
+  "denied_reader_login": "passed",
+  "authorized_active_version_search": "passed",
+  "stale_version_status": 409,
+  "ungranted_search_status": 403,
+  "mcp_endpoint": "internal Docker network; Streamable HTTP",
+  "mcp_list_tools": [
+    "list_corpora",
+    "list_managed_files",
+    "search_docs"
+  ],
+  "mcp_managed_search": "reader: active version two only",
+  "mcp_shared_release_search": "admin: release A only; reader was not granted osg",
+  "credential_values_recorded": false
+}

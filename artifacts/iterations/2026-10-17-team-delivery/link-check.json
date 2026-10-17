@@ -1,0 +1,380 @@
+{
+  "checked_links": 234,
+  "missing": [],
+  "historical_only_in_main": [
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-12-library-visibility-consistency/runtime-reload.json"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-12-concurrency-baseline/runs/20261012T070604Z-2f798c/summary.json"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-entry-parity/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-entry-parity/test-development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-entry-parity/candidate-20-vs-25/selected-body-fact-review.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-entry-parity/candidate-10-vs-20/comparison.json"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-entry-parity/candidate-20-vs-25/comparison.json"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-evaluation-http-real-runtime/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-admin-auth-eval-ux/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-admin-auth-eval-ux/test-development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-admin-readable-upload-ux/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-admin-readable-upload-ux/test-development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-admin-readable-upload-ux/review-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-strategy-experiment/full-developer-four-arm/selected-body-review.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-strategy-experiment/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-evaluation-tasks/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-07-structure-refactor/ui/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-06-osg-managed-mcp/acceptance.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-06-file-management/acceptance-results.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-06-osg-managed-mcp/acceptance.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-07-upload-catalog-refresh/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-07-structure-refactor/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-07-upload-catalog-refresh/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-07-admin-improvements/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-07-admin-improvements/final-checks.json"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-backend-consistency-recovery/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-backend-consistency-recovery/test-development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-backend-consistency-recovery/review-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-dual-deployment/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/phase1-source-replay-validation/independent-report.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-strategy-experiment/full-developer-four-arm/selected-body-review.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-04-retrieval-validation/report.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-strategy-experiment/full-developer-four-arm/selected-body-review.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-07-library-release-management/test-development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-07-library-release-management/test-development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-strategy-design/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-strategy-experiment/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-retrieval-entry-parity/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-evaluation-http-real-runtime/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-08-evaluation-http-real-runtime/test-development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-07-handoff-received/development-log.md"
+    },
+    {
+      "file": "code.md",
+      "target": "artifacts/iterations/2026-10-07-document-cleanup/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-dual-deployment/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-dual-deployment/test-development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-iteration-review/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-library-release-management/test-development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-library-release-management/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-library-release-management/test-development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-retrieval-strategy-design/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-retrieval-strategy-experiment/full-developer-four-arm/selected-body-review.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-evaluation-tasks/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-retrieval-strategy-experiment/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-evaluation-tasks/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-evaluation-tasks/test-development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-library-release-management/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-upload-catalog-refresh/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-structure-refactor/scope.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-structure-refactor/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-structure-refactor/entry-development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-structure-refactor/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-structure-refactor/ui/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-structure-refactor/ui/acceptance.json"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-admin-improvements/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-admin-improvements/real-corpus-acceptance.json"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-admin-improvements/http-acceptance.json"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-admin-improvements/http-upload-and-snapshot.json"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-admin-improvements/deployed-acceptance.json"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-07-admin-improvements/final-checks.json"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-06-admin-frontend/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-06-admin-frontend/http-acceptance.jsonl"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-06-admin-frontend/final-checks.json"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-06-osg-managed-mcp/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-06-osg-managed-mcp/acceptance.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-06-osg-managed-mcp/independent-review.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-06-file-management/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-06-file-management/acceptance-results.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-06-file-management/core-development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-06-ai-agents-pdf-import/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-04-retrieval-validation/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-retrieval-entry-parity/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-retrieval-entry-parity/candidate-20-vs-25/selected-body-fact-review.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-retrieval-entry-parity/test-development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-admin-auth-eval-ux/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-admin-auth-eval-ux/test-development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-admin-readable-upload-ux/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-backend-consistency-recovery/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-backend-consistency-recovery/test-development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-backend-consistency-recovery/review-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-evaluation-http-real-runtime/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-evaluation-http-real-runtime/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-evaluation-http-real-runtime/development-log.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-evaluation-http-real-runtime/independent-review.md"
+    },
+    {
+      "file": "docs\\development-log.md",
+      "target": "../artifacts/iterations/2026-10-08-evaluation-http-real-runtime/development-log.md"
+    }
+  ],
+  "code_md_lines": 86,
+  "note": "Historical artifacts were not copied or promoted to current evidence."
+}

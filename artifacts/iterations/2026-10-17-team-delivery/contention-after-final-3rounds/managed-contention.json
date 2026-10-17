@@ -1,0 +1,2890 @@
+{
+  "schema_version": 1,
+  "run_id": "5030a293dac14f3c9bb54c64174da395",
+  "started_at_utc": "2026-10-16T18:08:01.062011+00:00",
+  "environment": "temporary-directory + in-memory Qdrant + deterministic delayed model + real ModelAdmission",
+  "fixture": {
+    "library_id": "synthetic-managed-contention",
+    "active_file_id": "a082dceec2c945a882b8f03a83eae7ea",
+    "initial_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+    "initial_source_sha256": "e5db06c1e3e81e6f04d533fb40504c37390ac4b8a77dde510cd3dfc8350f56d4",
+    "fixture_text_only": true
+  },
+  "source_hashes": {
+    "harness_sha256": "1088235d615e23bcd8aed9164c12f11615c6b88597d4fd661895ef714bcf3155",
+    "implementation": {
+      "wenjin.file_management.backends": {
+        "path": "C:\\Users\\Onebiter\\.codex\\worktrees\\team-delivery-20261017\\rag-project\\src\\wenjin\\file_management\\backends.py",
+        "sha256": "8230bedbaf29fdce712594b58bd48d0b74c73af80fdd4f21071c7c89c2296658"
+      },
+      "wenjin.file_management.jobs": {
+        "path": "C:\\Users\\Onebiter\\.codex\\worktrees\\team-delivery-20261017\\rag-project\\src\\wenjin\\file_management\\jobs.py",
+        "sha256": "c4411f9040d02455c6920ff0332d2e01a6cfb23a8285dc59c593d9048f27816a"
+      },
+      "wenjin.file_management.service": {
+        "path": "C:\\Users\\Onebiter\\.codex\\worktrees\\team-delivery-20261017\\rag-project\\src\\wenjin\\file_management\\service.py",
+        "sha256": "6f14e08cdba4f57718bbceb2b3e65c2231bf60a6f575e960f2aae9bc89b26f73"
+      },
+      "wenjin.file_management.versions": {
+        "path": "C:\\Users\\Onebiter\\.codex\\worktrees\\team-delivery-20261017\\rag-project\\src\\wenjin\\file_management\\versions.py",
+        "sha256": "9f99349a8bf2f944341fd9dbed5ea4efac247e5419b3a955ff5ee65329980c51"
+      },
+      "wenjin.indexing.build": {
+        "path": "C:\\Users\\Onebiter\\.codex\\worktrees\\team-delivery-20261017\\rag-project\\src\\wenjin\\indexing\\build.py",
+        "sha256": "5bcf1fb08e16ca5c06dee9ab4cc97be9ea7ea83c60c34bfc6ea241d14b982a79"
+      },
+      "wenjin.indexing.dense": {
+        "path": "C:\\Users\\Onebiter\\.codex\\worktrees\\team-delivery-20261017\\rag-project\\src\\wenjin\\indexing\\dense.py",
+        "sha256": "273e81cbcd77e302e10fe417474ed90696176df0d2ba9a1387595efccc4dd851"
+      }
+    }
+  },
+  "configuration": {
+    "model_delay_seconds_per_operation": 0.03,
+    "max_concurrency": 4,
+    "mixed_queries": 2,
+    "rounds": 3,
+    "candidate_k": 10,
+    "rerank_pool": 30,
+    "top_k": 3,
+    "model_admission": {
+      "max_waiting": 8,
+      "max_wait_seconds": 30.0,
+      "matches_production_defaults": true
+    }
+  },
+  "stage_measurements": {
+    "job_queue_wait_seconds": null,
+    "job_queue_wait_reason": "This direct manager.run_job harness does not start the HTTP background scheduler.",
+    "request_model_queue_wait": "Measured from provider submit timestamp to ModelAdmission operation start.",
+    "inference": "Measured inside the deterministic provider operation.",
+    "retrieval": "Copied from RetrievalService timing_seconds for each query.",
+    "locks": "Instrumented manager_rw_lock and model_lock acquire waits per operation.",
+    "overlap_rule": "Use per-operation timeline intervals; stage totals overlap and must not be added to request wall time."
+  },
+  "scenarios": [
+    {
+      "name": "query-c1-r1",
+      "kind": "queries",
+      "concurrency": 1,
+      "round": 1,
+      "elapsed_seconds": 0.075042,
+      "results": [
+        {
+          "operation_id": "query-c1-r1-q00",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.074548,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031352,
+            "bm25": 0.001196,
+            "fusion": 2.2e-05,
+            "rerank": 0.031029
+          },
+          "model_queue_wait_seconds": 0.000606,
+          "model_inference_seconds": 0.060601,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 1e-06,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250460.164354,
+            "end": 250460.238902
+          }
+        }
+      ]
+    },
+    {
+      "name": "query-c1-r2",
+      "kind": "queries",
+      "concurrency": 1,
+      "round": 2,
+      "elapsed_seconds": 0.075056,
+      "results": [
+        {
+          "operation_id": "query-c1-r2-q00",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.074837,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031306,
+            "bm25": 0.001208,
+            "fusion": 2.1e-05,
+            "rerank": 0.030857
+          },
+          "model_queue_wait_seconds": 0.00053,
+          "model_inference_seconds": 0.060785,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 2e-06,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250460.239161,
+            "end": 250460.313998
+          }
+        }
+      ]
+    },
+    {
+      "name": "query-c1-r3",
+      "kind": "queries",
+      "concurrency": 1,
+      "round": 3,
+      "elapsed_seconds": 0.074576,
+      "results": [
+        {
+          "operation_id": "query-c1-r3-q00",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.074346,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031214,
+            "bm25": 0.001004,
+            "fusion": 1.7e-05,
+            "rerank": 0.030968
+          },
+          "model_queue_wait_seconds": 0.000462,
+          "model_inference_seconds": 0.060976,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 1e-06,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250460.314233,
+            "end": 250460.388579
+          }
+        }
+      ]
+    },
+    {
+      "name": "query-c2-r1",
+      "kind": "queries",
+      "concurrency": 2,
+      "round": 1,
+      "elapsed_seconds": 0.148713,
+      "results": [
+        {
+          "operation_id": "query-c2-r1-q00",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.074848,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031163,
+            "bm25": 0.001415,
+            "fusion": 2e-05,
+            "rerank": 0.03096
+          },
+          "model_queue_wait_seconds": 0.000527,
+          "model_inference_seconds": 0.060517,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 2e-06,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250460.388918,
+            "end": 250460.463767
+          }
+        },
+        {
+          "operation_id": "query-c2-r1-q01",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.148158,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.03121,
+            "bm25": 0.001084,
+            "fusion": 1.8e-05,
+            "rerank": 0.03091
+          },
+          "model_queue_wait_seconds": 0.000519,
+          "model_inference_seconds": 0.060726,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.074649,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250460.389149,
+            "end": 250460.537307
+          }
+        }
+      ]
+    },
+    {
+      "name": "query-c2-r2",
+      "kind": "queries",
+      "concurrency": 2,
+      "round": 2,
+      "elapsed_seconds": 0.149849,
+      "results": [
+        {
+          "operation_id": "query-c2-r2-q00",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.075339,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.030943,
+            "bm25": 0.001075,
+            "fusion": 1.8e-05,
+            "rerank": 0.031182
+          },
+          "model_queue_wait_seconds": 0.000539,
+          "model_inference_seconds": 0.060837,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 2e-06,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250460.537581,
+            "end": 250460.61292
+          }
+        },
+        {
+          "operation_id": "query-c2-r2-q01",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.149514,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031183,
+            "bm25": 0.001247,
+            "fusion": 1.8e-05,
+            "rerank": 0.030639
+          },
+          "model_queue_wait_seconds": 0.000588,
+          "model_inference_seconds": 0.060337,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.075351,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250460.537621,
+            "end": 250460.687135
+          }
+        }
+      ]
+    },
+    {
+      "name": "query-c2-r3",
+      "kind": "queries",
+      "concurrency": 2,
+      "round": 3,
+      "elapsed_seconds": 0.149422,
+      "results": [
+        {
+          "operation_id": "query-c2-r3-q00",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.074712,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031182,
+            "bm25": 0.001045,
+            "fusion": 1.8e-05,
+            "rerank": 0.030536
+          },
+          "model_queue_wait_seconds": 0.000472,
+          "model_inference_seconds": 0.060545,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 2e-06,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250460.687566,
+            "end": 250460.762278
+          }
+        },
+        {
+          "operation_id": "query-c2-r3-q01",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.149032,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031309,
+            "bm25": 0.001109,
+            "fusion": 1.8e-05,
+            "rerank": 0.030994
+          },
+          "model_queue_wait_seconds": 0.000495,
+          "model_inference_seconds": 0.060846,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.074703,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250460.687602,
+            "end": 250460.836634
+          }
+        }
+      ]
+    },
+    {
+      "name": "query-c4-r1",
+      "kind": "queries",
+      "concurrency": 4,
+      "round": 1,
+      "elapsed_seconds": 0.300942,
+      "results": [
+        {
+          "operation_id": "query-c4-r1-q00",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.074779,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031175,
+            "bm25": 0.001123,
+            "fusion": 1.8e-05,
+            "rerank": 0.030753
+          },
+          "model_queue_wait_seconds": 0.000663,
+          "model_inference_seconds": 0.060543,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 2e-06,
+            "model_lock": 2e-06
+          },
+          "timeline_seconds": {
+            "start": 250460.837249,
+            "end": 250460.912028
+          }
+        },
+        {
+          "operation_id": "query-c4-r1-q01",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.149403,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.03117,
+            "bm25": 0.001123,
+            "fusion": 1.8e-05,
+            "rerank": 0.031061
+          },
+          "model_queue_wait_seconds": 0.000507,
+          "model_inference_seconds": 0.060911,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.074798,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250460.837282,
+            "end": 250460.986685
+          }
+        },
+        {
+          "operation_id": "query-c4-r1-q02",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.224234,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031395,
+            "bm25": 0.001233,
+            "fusion": 2.3e-05,
+            "rerank": 0.030861
+          },
+          "model_queue_wait_seconds": 0.000564,
+          "model_inference_seconds": 0.060721,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.149315,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250460.837429,
+            "end": 250461.061663
+          }
+        },
+        {
+          "operation_id": "query-c4-r1-q03",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.299947,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031629,
+            "bm25": 0.001308,
+            "fusion": 2e-05,
+            "rerank": 0.031119
+          },
+          "model_queue_wait_seconds": 0.000554,
+          "model_inference_seconds": 0.060888,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.224046,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250460.837669,
+            "end": 250461.137616
+          }
+        }
+      ]
+    },
+    {
+      "name": "query-c4-r2",
+      "kind": "queries",
+      "concurrency": 4,
+      "round": 2,
+      "elapsed_seconds": 0.297402,
+      "results": [
+        {
+          "operation_id": "query-c4-r2-q00",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.074855,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031183,
+            "bm25": 0.001125,
+            "fusion": 1.9e-05,
+            "rerank": 0.03119
+          },
+          "model_queue_wait_seconds": 0.000517,
+          "model_inference_seconds": 0.061019,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 2e-06,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250461.137922,
+            "end": 250461.212777
+          }
+        },
+        {
+          "operation_id": "query-c4-r2-q01",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.148612,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031167,
+            "bm25": 0.001131,
+            "fusion": 1.9e-05,
+            "rerank": 0.030768
+          },
+          "model_queue_wait_seconds": 0.000576,
+          "model_inference_seconds": 0.060435,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.074873,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250461.137951,
+            "end": 250461.286563
+          }
+        },
+        {
+          "operation_id": "query-c4-r2-q02",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.222623,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031357,
+            "bm25": 0.001097,
+            "fusion": 1.9e-05,
+            "rerank": 0.030953
+          },
+          "model_queue_wait_seconds": 0.000577,
+          "model_inference_seconds": 0.060758,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.148651,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250461.137976,
+            "end": 250461.3606
+          }
+        },
+        {
+          "operation_id": "query-c4-r2-q03",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.297037,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031366,
+            "bm25": 0.001196,
+            "fusion": 0.000116,
+            "rerank": 0.030696
+          },
+          "model_queue_wait_seconds": 0.000563,
+          "model_inference_seconds": 0.060725,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.222649,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250461.137989,
+            "end": 250461.435027
+          }
+        }
+      ]
+    },
+    {
+      "name": "query-c4-r3",
+      "kind": "queries",
+      "concurrency": 4,
+      "round": 3,
+      "elapsed_seconds": 0.303548,
+      "results": [
+        {
+          "operation_id": "query-c4-r3-q00",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.074112,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031088,
+            "bm25": 0.001151,
+            "fusion": 1.8e-05,
+            "rerank": 0.030898
+          },
+          "model_queue_wait_seconds": 0.000625,
+          "model_inference_seconds": 0.060566,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 2e-06,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250461.435316,
+            "end": 250461.509428
+          }
+        },
+        {
+          "operation_id": "query-c4-r3-q01",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.148556,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.03124,
+            "bm25": 0.001098,
+            "fusion": 1.8e-05,
+            "rerank": 0.030897
+          },
+          "model_queue_wait_seconds": 0.000561,
+          "model_inference_seconds": 0.06084,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.074111,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250461.435349,
+            "end": 250461.583905
+          }
+        },
+        {
+          "operation_id": "query-c4-r3-q02",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.223993,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031171,
+            "bm25": 0.00122,
+            "fusion": 1.9e-05,
+            "rerank": 0.030803
+          },
+          "model_queue_wait_seconds": 0.000522,
+          "model_inference_seconds": 0.06048,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.148587,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250461.435367,
+            "end": 250461.65936
+          }
+        },
+        {
+          "operation_id": "query-c4-r3-q03",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.303012,
+          "managed_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031103,
+            "bm25": 0.00117,
+            "fusion": 1.8e-05,
+            "rerank": 0.030976
+          },
+          "model_queue_wait_seconds": 0.000586,
+          "model_inference_seconds": 0.060644,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.224016,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250461.43538,
+            "end": 250461.738392
+          }
+        }
+      ]
+    },
+    {
+      "name": "build-only-r01",
+      "kind": "build",
+      "round": 1,
+      "concurrency": 1,
+      "elapsed_seconds": 0.254963,
+      "results": [
+        {
+          "operation_id": "build-only-r01",
+          "kind": "build",
+          "status": "ok",
+          "elapsed_seconds": 0.249675,
+          "job_queue_wait_seconds": null,
+          "model_queue_wait_seconds": 0.00039,
+          "model_inference_seconds": 0.030338,
+          "old_active_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "new_active_version_id": "654d7f2e7f2749ad8108c97e39ba4e3c",
+          "source_sha256": "0b432ca9afb99042269aad50cc43015b725a7364769958083c017ac6012f0f17",
+          "dispatch_delay_seconds": 0.019419,
+          "queue_measurement_note": "direct manager.run_job call; application scheduler queue is not instantiated",
+          "lock_wait_seconds": {
+            "model_lock": 2e-06,
+            "manager_rw_lock": 4e-06
+          },
+          "timeline_seconds": {
+            "start": 250461.738872,
+            "queued": 250461.758291,
+            "end": 250461.988547
+          }
+        }
+      ]
+    },
+    {
+      "name": "build-only-r02",
+      "kind": "build",
+      "round": 2,
+      "concurrency": 1,
+      "elapsed_seconds": 0.236447,
+      "results": [
+        {
+          "operation_id": "build-only-r02",
+          "kind": "build",
+          "status": "ok",
+          "elapsed_seconds": 0.231448,
+          "job_queue_wait_seconds": null,
+          "model_queue_wait_seconds": 0.000362,
+          "model_inference_seconds": 0.030195,
+          "old_active_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "new_active_version_id": "d634f753a23040dcadfff7b6ccb97efa",
+          "source_sha256": "fe8069ede23434f208698f3500a5bfbba86f7e30a57b61850ebfa3f288a8a512",
+          "dispatch_delay_seconds": 0.017198,
+          "queue_measurement_note": "direct manager.run_job call; application scheduler queue is not instantiated",
+          "lock_wait_seconds": {
+            "model_lock": 2e-06,
+            "manager_rw_lock": 4e-06
+          },
+          "timeline_seconds": {
+            "start": 250461.993896,
+            "queued": 250462.011094,
+            "end": 250462.225344
+          }
+        }
+      ]
+    },
+    {
+      "name": "build-only-r03",
+      "kind": "build",
+      "round": 3,
+      "concurrency": 1,
+      "elapsed_seconds": 0.240012,
+      "results": [
+        {
+          "operation_id": "build-only-r03",
+          "kind": "build",
+          "status": "ok",
+          "elapsed_seconds": 0.234661,
+          "job_queue_wait_seconds": null,
+          "model_queue_wait_seconds": 0.000346,
+          "model_inference_seconds": 0.030518,
+          "old_active_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "new_active_version_id": "86387523ea0c46fd8cd82c26ca81ebe0",
+          "source_sha256": "7c902373eb6bdd5cf5733e641720b16a55f96fde087a1b3ca275f9a6b3e68d81",
+          "dispatch_delay_seconds": 0.017967,
+          "queue_measurement_note": "direct manager.run_job call; application scheduler queue is not instantiated",
+          "lock_wait_seconds": {
+            "model_lock": 2e-06,
+            "manager_rw_lock": 6e-06
+          },
+          "timeline_seconds": {
+            "start": 250462.230357,
+            "queued": 250462.248324,
+            "end": 250462.465018
+          }
+        }
+      ]
+    },
+    {
+      "name": "mixed-build-r01",
+      "kind": "mixed",
+      "round": 1,
+      "concurrency": 3,
+      "elapsed_seconds": 0.317391,
+      "build_inference_barrier_observed": true,
+      "query_barrier_elapsed_seconds": 0.184771,
+      "old_version_id_before_build": "86387523ea0c46fd8cd82c26ca81ebe0",
+      "results": [
+        {
+          "operation_id": "mixed-build-r01",
+          "kind": "build",
+          "status": "ok",
+          "elapsed_seconds": 0.311943,
+          "job_queue_wait_seconds": null,
+          "model_queue_wait_seconds": 0.000363,
+          "model_inference_seconds": 0.030339,
+          "old_active_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "new_active_version_id": "aae6563bc9de4d849bbada85d150052c",
+          "source_sha256": "65ec734e52febd6fbba9b78011b23eee91e2e6add1304fb8cec9f6931a55b7b6",
+          "dispatch_delay_seconds": 0.0198,
+          "queue_measurement_note": "direct manager.run_job call; application scheduler queue is not instantiated",
+          "lock_wait_seconds": {
+            "model_lock": 2e-06,
+            "manager_rw_lock": 0.080265
+          },
+          "timeline_seconds": {
+            "start": 250462.476641,
+            "queued": 250462.496441,
+            "end": 250462.788584
+          }
+        },
+        {
+          "operation_id": "mixed-r1-q00",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.107444,
+          "managed_version_id": "86387523ea0c46fd8cd82c26ca81ebe0",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031398,
+            "bm25": 0.001003,
+            "fusion": 1.8e-05,
+            "rerank": 0.030939
+          },
+          "model_queue_wait_seconds": 0.000588,
+          "model_inference_seconds": 0.060866,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 3e-06,
+            "model_lock": 0.025154
+          },
+          "timeline_seconds": {
+            "start": 250462.587682,
+            "end": 250462.695126
+          }
+        },
+        {
+          "operation_id": "mixed-r1-q01",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.184168,
+          "managed_version_id": "86387523ea0c46fd8cd82c26ca81ebe0",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031484,
+            "bm25": 0.001285,
+            "fusion": 2.3e-05,
+            "rerank": 0.03106
+          },
+          "model_queue_wait_seconds": 0.000563,
+          "model_inference_seconds": 0.060964,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.107443,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250462.587727,
+            "end": 250462.771895
+          }
+        }
+      ]
+    },
+    {
+      "name": "mixed-build-r02",
+      "kind": "mixed",
+      "round": 2,
+      "concurrency": 3,
+      "elapsed_seconds": 0.315209,
+      "build_inference_barrier_observed": true,
+      "query_barrier_elapsed_seconds": 0.181779,
+      "old_version_id_before_build": "aae6563bc9de4d849bbada85d150052c",
+      "results": [
+        {
+          "operation_id": "mixed-build-r02",
+          "kind": "build",
+          "status": "ok",
+          "elapsed_seconds": 0.308209,
+          "job_queue_wait_seconds": null,
+          "model_queue_wait_seconds": 0.000321,
+          "model_inference_seconds": 0.030565,
+          "old_active_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "new_active_version_id": "5fa4f480d32d4de7a33eb2dfe5a13e69",
+          "source_sha256": "3688072a2a03562d1580ab4ddfddbe1be60d2ea8199e92bc89bacf6988c7114f",
+          "dispatch_delay_seconds": 0.01765,
+          "queue_measurement_note": "direct manager.run_job call; application scheduler queue is not instantiated",
+          "lock_wait_seconds": {
+            "model_lock": 2e-06,
+            "manager_rw_lock": 0.073914
+          },
+          "timeline_seconds": {
+            "start": 250462.799123,
+            "queued": 250462.816774,
+            "end": 250463.107332
+          }
+        },
+        {
+          "operation_id": "mixed-r2-q00",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.104432,
+          "managed_version_id": "aae6563bc9de4d849bbada85d150052c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031486,
+            "bm25": 0.001433,
+            "fusion": 2.6e-05,
+            "rerank": 0.03134
+          },
+          "model_queue_wait_seconds": 0.000724,
+          "model_inference_seconds": 0.060892,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 2e-06,
+            "model_lock": 0.02466
+          },
+          "timeline_seconds": {
+            "start": 250462.908588,
+            "end": 250463.01302
+          }
+        },
+        {
+          "operation_id": "mixed-r2-q01",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.181321,
+          "managed_version_id": "aae6563bc9de4d849bbada85d150052c",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031475,
+            "bm25": 0.001231,
+            "fusion": 2e-05,
+            "rerank": 0.030896
+          },
+          "model_queue_wait_seconds": 0.000652,
+          "model_inference_seconds": 0.060743,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.104444,
+            "model_lock": 1e-06
+          },
+          "timeline_seconds": {
+            "start": 250462.908623,
+            "end": 250463.089943
+          }
+        }
+      ]
+    },
+    {
+      "name": "mixed-build-r03",
+      "kind": "mixed",
+      "round": 3,
+      "concurrency": 3,
+      "elapsed_seconds": 0.331957,
+      "build_inference_barrier_observed": true,
+      "query_barrier_elapsed_seconds": 0.194033,
+      "old_version_id_before_build": "5fa4f480d32d4de7a33eb2dfe5a13e69",
+      "results": [
+        {
+          "operation_id": "mixed-build-r03",
+          "kind": "build",
+          "status": "ok",
+          "elapsed_seconds": 0.325616,
+          "job_queue_wait_seconds": null,
+          "model_queue_wait_seconds": 0.000318,
+          "model_inference_seconds": 0.030214,
+          "old_active_version_id": "902ea43b123645fab6a3dbf1cac2bc7c",
+          "new_active_version_id": "acb91b7541b745fda208a0dba49483cf",
+          "source_sha256": "fdd48dcef9cd45eb3d3c8452045990cbc10218e73593625e4e82391db8e38176",
+          "dispatch_delay_seconds": 0.018687,
+          "queue_measurement_note": "direct manager.run_job call; application scheduler queue is not instantiated",
+          "lock_wait_seconds": {
+            "model_lock": 2e-06,
+            "manager_rw_lock": 0.08601
+          },
+          "timeline_seconds": {
+            "start": 250463.120512,
+            "queued": 250463.139199,
+            "end": 250463.446128
+          }
+        },
+        {
+          "operation_id": "mixed-r3-q00",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.115753,
+          "managed_version_id": "5fa4f480d32d4de7a33eb2dfe5a13e69",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031376,
+            "bm25": 0.001014,
+            "fusion": 1.7e-05,
+            "rerank": 0.030933
+          },
+          "model_queue_wait_seconds": 0.00071,
+          "model_inference_seconds": 0.060658,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 2e-06,
+            "model_lock": 0.024624
+          },
+          "timeline_seconds": {
+            "start": 250463.236073,
+            "end": 250463.351826
+          }
+        },
+        {
+          "operation_id": "mixed-r3-q01",
+          "kind": "query",
+          "status": "ok",
+          "elapsed_seconds": 0.193632,
+          "managed_version_id": "5fa4f480d32d4de7a33eb2dfe5a13e69",
+          "evidence_count": 2,
+          "retrieval_timing_seconds": {
+            "dense": 0.031626,
+            "bm25": 0.001744,
+            "fusion": 2.5e-05,
+            "rerank": 0.030991
+          },
+          "model_queue_wait_seconds": 0.0006,
+          "model_inference_seconds": 0.060932,
+          "job_queue_wait_seconds": null,
+          "queue_measurement_note": "model queue and inference are filled from ModelAdmission timestamps; application job queue is outside direct manager.run_job harness",
+          "lock_wait_seconds": {
+            "manager_rw_lock": 0.115757,
+            "model_lock": 2e-06
+          },
+          "timeline_seconds": {
+            "start": 250463.236109,
+            "end": 250463.429741
+          }
+        }
+      ]
+    }
+  ],
+  "operation_timeline": [
+    {
+      "operation_id": "query-c1-r1-q00",
+      "start_seconds": 250460.164354,
+      "end_seconds": 250460.238902
+    },
+    {
+      "operation_id": "query-c1-r2-q00",
+      "start_seconds": 250460.239161,
+      "end_seconds": 250460.313998
+    },
+    {
+      "operation_id": "query-c1-r3-q00",
+      "start_seconds": 250460.314233,
+      "end_seconds": 250460.388579
+    },
+    {
+      "operation_id": "query-c2-r1-q00",
+      "start_seconds": 250460.388918,
+      "end_seconds": 250460.463767
+    },
+    {
+      "operation_id": "query-c2-r1-q01",
+      "start_seconds": 250460.389149,
+      "end_seconds": 250460.537307
+    },
+    {
+      "operation_id": "query-c2-r2-q00",
+      "start_seconds": 250460.537581,
+      "end_seconds": 250460.61292
+    },
+    {
+      "operation_id": "query-c2-r2-q01",
+      "start_seconds": 250460.537621,
+      "end_seconds": 250460.687135
+    },
+    {
+      "operation_id": "query-c2-r3-q00",
+      "start_seconds": 250460.687566,
+      "end_seconds": 250460.762278
+    },
+    {
+      "operation_id": "query-c2-r3-q01",
+      "start_seconds": 250460.687602,
+      "end_seconds": 250460.836634
+    },
+    {
+      "operation_id": "query-c4-r1-q00",
+      "start_seconds": 250460.837249,
+      "end_seconds": 250460.912028
+    },
+    {
+      "operation_id": "query-c4-r1-q01",
+      "start_seconds": 250460.837282,
+      "end_seconds": 250460.986685
+    },
+    {
+      "operation_id": "query-c4-r1-q02",
+      "start_seconds": 250460.837429,
+      "end_seconds": 250461.061663
+    },
+    {
+      "operation_id": "query-c4-r1-q03",
+      "start_seconds": 250460.837669,
+      "end_seconds": 250461.137616
+    },
+    {
+      "operation_id": "query-c4-r2-q00",
+      "start_seconds": 250461.137922,
+      "end_seconds": 250461.212777
+    },
+    {
+      "operation_id": "query-c4-r2-q01",
+      "start_seconds": 250461.137951,
+      "end_seconds": 250461.286563
+    },
+    {
+      "operation_id": "query-c4-r2-q02",
+      "start_seconds": 250461.137976,
+      "end_seconds": 250461.3606
+    },
+    {
+      "operation_id": "query-c4-r2-q03",
+      "start_seconds": 250461.137989,
+      "end_seconds": 250461.435027
+    },
+    {
+      "operation_id": "query-c4-r3-q00",
+      "start_seconds": 250461.435316,
+      "end_seconds": 250461.509428
+    },
+    {
+      "operation_id": "query-c4-r3-q01",
+      "start_seconds": 250461.435349,
+      "end_seconds": 250461.583905
+    },
+    {
+      "operation_id": "query-c4-r3-q02",
+      "start_seconds": 250461.435367,
+      "end_seconds": 250461.65936
+    },
+    {
+      "operation_id": "query-c4-r3-q03",
+      "start_seconds": 250461.43538,
+      "end_seconds": 250461.738392
+    },
+    {
+      "operation_id": "build-only-r01",
+      "start_seconds": 250461.738872,
+      "end_seconds": 250461.988547
+    },
+    {
+      "operation_id": "build-only-r02",
+      "start_seconds": 250461.993896,
+      "end_seconds": 250462.225344
+    },
+    {
+      "operation_id": "build-only-r03",
+      "start_seconds": 250462.230357,
+      "end_seconds": 250462.465018
+    },
+    {
+      "operation_id": "mixed-build-r01",
+      "start_seconds": 250462.476641,
+      "end_seconds": 250462.788584
+    },
+    {
+      "operation_id": "mixed-r1-q00",
+      "start_seconds": 250462.587682,
+      "end_seconds": 250462.695126
+    },
+    {
+      "operation_id": "mixed-r1-q01",
+      "start_seconds": 250462.587727,
+      "end_seconds": 250462.771895
+    },
+    {
+      "operation_id": "mixed-build-r02",
+      "start_seconds": 250462.799123,
+      "end_seconds": 250463.107332
+    },
+    {
+      "operation_id": "mixed-r2-q00",
+      "start_seconds": 250462.908588,
+      "end_seconds": 250463.01302
+    },
+    {
+      "operation_id": "mixed-r2-q01",
+      "start_seconds": 250462.908623,
+      "end_seconds": 250463.089943
+    },
+    {
+      "operation_id": "mixed-build-r03",
+      "start_seconds": 250463.120512,
+      "end_seconds": 250463.446128
+    },
+    {
+      "operation_id": "mixed-r3-q00",
+      "start_seconds": 250463.236073,
+      "end_seconds": 250463.351826
+    },
+    {
+      "operation_id": "mixed-r3-q01",
+      "start_seconds": 250463.236109,
+      "end_seconds": 250463.429741
+    }
+  ],
+  "model_calls": [
+    {
+      "call_id": "model-00002",
+      "operation_id": "query-c1-r1-q00",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000345,
+      "inference_seconds": 0.030159
+    },
+    {
+      "call_id": "model-00003",
+      "operation_id": "query-c1-r1-q00",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.00026,
+      "inference_seconds": 0.030442
+    },
+    {
+      "call_id": "model-00004",
+      "operation_id": "query-c1-r2-q00",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.00027,
+      "inference_seconds": 0.030415
+    },
+    {
+      "call_id": "model-00005",
+      "operation_id": "query-c1-r2-q00",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.00026,
+      "inference_seconds": 0.03037
+    },
+    {
+      "call_id": "model-00006",
+      "operation_id": "query-c1-r3-q00",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000246,
+      "inference_seconds": 0.030481
+    },
+    {
+      "call_id": "model-00007",
+      "operation_id": "query-c1-r3-q00",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000216,
+      "inference_seconds": 0.030494
+    },
+    {
+      "call_id": "model-00008",
+      "operation_id": "query-c2-r1-q00",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000258,
+      "inference_seconds": 0.0302
+    },
+    {
+      "call_id": "model-00009",
+      "operation_id": "query-c2-r1-q00",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000269,
+      "inference_seconds": 0.030317
+    },
+    {
+      "call_id": "model-00010",
+      "operation_id": "query-c2-r1-q01",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000294,
+      "inference_seconds": 0.030401
+    },
+    {
+      "call_id": "model-00011",
+      "operation_id": "query-c2-r1-q01",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000225,
+      "inference_seconds": 0.030326
+    },
+    {
+      "call_id": "model-00012",
+      "operation_id": "query-c2-r2-q00",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000307,
+      "inference_seconds": 0.030166
+    },
+    {
+      "call_id": "model-00013",
+      "operation_id": "query-c2-r2-q00",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000232,
+      "inference_seconds": 0.030671
+    },
+    {
+      "call_id": "model-00014",
+      "operation_id": "query-c2-r2-q01",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.00033,
+      "inference_seconds": 0.030181
+    },
+    {
+      "call_id": "model-00015",
+      "operation_id": "query-c2-r2-q01",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000258,
+      "inference_seconds": 0.030156
+    },
+    {
+      "call_id": "model-00016",
+      "operation_id": "query-c2-r3-q00",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000259,
+      "inference_seconds": 0.030441
+    },
+    {
+      "call_id": "model-00017",
+      "operation_id": "query-c2-r3-q00",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000213,
+      "inference_seconds": 0.030104
+    },
+    {
+      "call_id": "model-00018",
+      "operation_id": "query-c2-r3-q01",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000261,
+      "inference_seconds": 0.03037
+    },
+    {
+      "call_id": "model-00019",
+      "operation_id": "query-c2-r3-q01",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000234,
+      "inference_seconds": 0.030476
+    },
+    {
+      "call_id": "model-00020",
+      "operation_id": "query-c4-r1-q00",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000413,
+      "inference_seconds": 0.030276
+    },
+    {
+      "call_id": "model-00021",
+      "operation_id": "query-c4-r1-q00",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.00025,
+      "inference_seconds": 0.030267
+    },
+    {
+      "call_id": "model-00022",
+      "operation_id": "query-c4-r1-q01",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000281,
+      "inference_seconds": 0.030388
+    },
+    {
+      "call_id": "model-00023",
+      "operation_id": "query-c4-r1-q01",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000226,
+      "inference_seconds": 0.030523
+    },
+    {
+      "call_id": "model-00024",
+      "operation_id": "query-c4-r1-q02",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000301,
+      "inference_seconds": 0.03044
+    },
+    {
+      "call_id": "model-00025",
+      "operation_id": "query-c4-r1-q02",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000263,
+      "inference_seconds": 0.030281
+    },
+    {
+      "call_id": "model-00026",
+      "operation_id": "query-c4-r1-q03",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000274,
+      "inference_seconds": 0.030336
+    },
+    {
+      "call_id": "model-00027",
+      "operation_id": "query-c4-r1-q03",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.00028,
+      "inference_seconds": 0.030552
+    },
+    {
+      "call_id": "model-00028",
+      "operation_id": "query-c4-r2-q00",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000254,
+      "inference_seconds": 0.030388
+    },
+    {
+      "call_id": "model-00029",
+      "operation_id": "query-c4-r2-q00",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000263,
+      "inference_seconds": 0.030631
+    },
+    {
+      "call_id": "model-00030",
+      "operation_id": "query-c4-r2-q01",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000312,
+      "inference_seconds": 0.030304
+    },
+    {
+      "call_id": "model-00031",
+      "operation_id": "query-c4-r2-q01",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000264,
+      "inference_seconds": 0.03013
+    },
+    {
+      "call_id": "model-00032",
+      "operation_id": "query-c4-r2-q02",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000301,
+      "inference_seconds": 0.030386
+    },
+    {
+      "call_id": "model-00033",
+      "operation_id": "query-c4-r2-q02",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000276,
+      "inference_seconds": 0.030371
+    },
+    {
+      "call_id": "model-00034",
+      "operation_id": "query-c4-r2-q03",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000259,
+      "inference_seconds": 0.03056
+    },
+    {
+      "call_id": "model-00035",
+      "operation_id": "query-c4-r2-q03",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000304,
+      "inference_seconds": 0.030165
+    },
+    {
+      "call_id": "model-00036",
+      "operation_id": "query-c4-r3-q00",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000236,
+      "inference_seconds": 0.030291
+    },
+    {
+      "call_id": "model-00037",
+      "operation_id": "query-c4-r3-q00",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000389,
+      "inference_seconds": 0.030275
+    },
+    {
+      "call_id": "model-00038",
+      "operation_id": "query-c4-r3-q01",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000324,
+      "inference_seconds": 0.030393
+    },
+    {
+      "call_id": "model-00039",
+      "operation_id": "query-c4-r3-q01",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000238,
+      "inference_seconds": 0.030447
+    },
+    {
+      "call_id": "model-00040",
+      "operation_id": "query-c4-r3-q02",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000258,
+      "inference_seconds": 0.030237
+    },
+    {
+      "call_id": "model-00041",
+      "operation_id": "query-c4-r3-q02",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000263,
+      "inference_seconds": 0.030242
+    },
+    {
+      "call_id": "model-00042",
+      "operation_id": "query-c4-r3-q03",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000339,
+      "inference_seconds": 0.030208
+    },
+    {
+      "call_id": "model-00043",
+      "operation_id": "query-c4-r3-q03",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000248,
+      "inference_seconds": 0.030435
+    },
+    {
+      "call_id": "model-00044",
+      "operation_id": "build-only-r01",
+      "model_operation": "document_embedding",
+      "queue_wait_seconds": 0.00039,
+      "inference_seconds": 0.030338
+    },
+    {
+      "call_id": "model-00045",
+      "operation_id": "build-only-r02",
+      "model_operation": "document_embedding",
+      "queue_wait_seconds": 0.000362,
+      "inference_seconds": 0.030195
+    },
+    {
+      "call_id": "model-00046",
+      "operation_id": "build-only-r03",
+      "model_operation": "document_embedding",
+      "queue_wait_seconds": 0.000346,
+      "inference_seconds": 0.030518
+    },
+    {
+      "call_id": "model-00047",
+      "operation_id": "mixed-build-r01",
+      "model_operation": "document_embedding",
+      "queue_wait_seconds": 0.000363,
+      "inference_seconds": 0.030339
+    },
+    {
+      "call_id": "model-00048",
+      "operation_id": "mixed-r1-q00",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000329,
+      "inference_seconds": 0.030478
+    },
+    {
+      "call_id": "model-00049",
+      "operation_id": "mixed-r1-q00",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000258,
+      "inference_seconds": 0.030388
+    },
+    {
+      "call_id": "model-00050",
+      "operation_id": "mixed-r1-q01",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000294,
+      "inference_seconds": 0.030605
+    },
+    {
+      "call_id": "model-00051",
+      "operation_id": "mixed-r1-q01",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000268,
+      "inference_seconds": 0.030359
+    },
+    {
+      "call_id": "model-00052",
+      "operation_id": "mixed-build-r02",
+      "model_operation": "document_embedding",
+      "queue_wait_seconds": 0.000321,
+      "inference_seconds": 0.030565
+    },
+    {
+      "call_id": "model-00053",
+      "operation_id": "mixed-r2-q00",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000292,
+      "inference_seconds": 0.030354
+    },
+    {
+      "call_id": "model-00054",
+      "operation_id": "mixed-r2-q00",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000432,
+      "inference_seconds": 0.030537
+    },
+    {
+      "call_id": "model-00055",
+      "operation_id": "mixed-r2-q01",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000308,
+      "inference_seconds": 0.030547
+    },
+    {
+      "call_id": "model-00056",
+      "operation_id": "mixed-r2-q01",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000344,
+      "inference_seconds": 0.030196
+    },
+    {
+      "call_id": "model-00057",
+      "operation_id": "mixed-build-r03",
+      "model_operation": "document_embedding",
+      "queue_wait_seconds": 0.000318,
+      "inference_seconds": 0.030214
+    },
+    {
+      "call_id": "model-00058",
+      "operation_id": "mixed-r3-q00",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000387,
+      "inference_seconds": 0.030332
+    },
+    {
+      "call_id": "model-00059",
+      "operation_id": "mixed-r3-q00",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000323,
+      "inference_seconds": 0.030326
+    },
+    {
+      "call_id": "model-00060",
+      "operation_id": "mixed-r3-q01",
+      "model_operation": "query_embedding",
+      "queue_wait_seconds": 0.000323,
+      "inference_seconds": 0.030497
+    },
+    {
+      "call_id": "model-00061",
+      "operation_id": "mixed-r3-q01",
+      "model_operation": "reranker",
+      "queue_wait_seconds": 0.000276,
+      "inference_seconds": 0.030435
+    }
+  ],
+  "lock_events": [
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c1-r1-q00",
+      "wait_seconds": 5.00003807246685e-07,
+      "timestamp": 250460.1643615,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c1-r1-q00",
+      "wait_seconds": 3.00002284348011e-07,
+      "timestamp": 250460.1643636,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c1-r1-q00",
+      "wait_seconds": 8.00006091594696e-07,
+      "timestamp": 250460.1693667,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c1-r1-q00",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250460.1693689,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c1-r1-q00",
+      "wait_seconds": 6.999762263149023e-07,
+      "timestamp": 250460.2330257,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c1-r2-q00",
+      "wait_seconds": 5.00003807246685e-07,
+      "timestamp": 250460.2391699,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c1-r2-q00",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250460.2391722,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c1-r2-q00",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250460.244903,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c1-r2-q00",
+      "wait_seconds": 3.00002284348011e-07,
+      "timestamp": 250460.2449056,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c1-r2-q00",
+      "wait_seconds": 8.00006091594696e-07,
+      "timestamp": 250460.3083515,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c1-r3-q00",
+      "wait_seconds": 5.00003807246685e-07,
+      "timestamp": 250460.314239,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c1-r3-q00",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250460.3142408,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c1-r3-q00",
+      "wait_seconds": 1.100008375942707e-06,
+      "timestamp": 250460.3197394,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c1-r3-q00",
+      "wait_seconds": 1.9997241906821728e-07,
+      "timestamp": 250460.3197414,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c1-r3-q00",
+      "wait_seconds": 6.999762263149023e-07,
+      "timestamp": 250460.3829919,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r1-q00",
+      "wait_seconds": 4.00003045797348e-07,
+      "timestamp": 250460.3889251,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r1-q00",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250460.3889265,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c2-r1-q00",
+      "wait_seconds": 1.0999792721122503e-06,
+      "timestamp": 250460.3940991,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c2-r1-q00",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250460.3941011,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r1-q00",
+      "wait_seconds": 1.5999830793589354e-06,
+      "timestamp": 250460.4577447,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r1-q01",
+      "wait_seconds": 0.07464720000280067,
+      "timestamp": 250460.4638044,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r1-q01",
+      "wait_seconds": 6.00004568696022e-07,
+      "timestamp": 250460.4638094,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c2-r1-q01",
+      "wait_seconds": 1.00000761449337e-06,
+      "timestamp": 250460.4686166,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c2-r1-q01",
+      "wait_seconds": 3.00002284348011e-07,
+      "timestamp": 250460.468619,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r1-q01",
+      "wait_seconds": 7.00005330145359e-07,
+      "timestamp": 250460.5318917,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r2-q00",
+      "wait_seconds": 5.00003807246685e-07,
+      "timestamp": 250460.5375886,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r2-q00",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250460.5375907,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c2-r2-q00",
+      "wait_seconds": 8.00006091594696e-07,
+      "timestamp": 250460.5427555,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c2-r2-q00",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250460.5427576,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r2-q00",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250460.6060301,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r2-q01",
+      "wait_seconds": 0.07534939999459311,
+      "timestamp": 250460.6129788,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r2-q01",
+      "wait_seconds": 5.00003807246685e-07,
+      "timestamp": 250460.6129835,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c2-r2-q01",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250460.6180136,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c2-r2-q01",
+      "wait_seconds": 3.00002284348011e-07,
+      "timestamp": 250460.618016,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r2-q01",
+      "wait_seconds": 6.00004568696022e-07,
+      "timestamp": 250460.6811504,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r3-q00",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250460.6875748,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r3-q00",
+      "wait_seconds": 3.00002284348011e-07,
+      "timestamp": 250460.6875776,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c2-r3-q00",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250460.693626,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c2-r3-q00",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250460.6936282,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r3-q00",
+      "wait_seconds": 6.00004568696022e-07,
+      "timestamp": 250460.7564499,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r3-q01",
+      "wait_seconds": 0.07470160000957549,
+      "timestamp": 250460.7623097,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r3-q01",
+      "wait_seconds": 6.00004568696022e-07,
+      "timestamp": 250460.7623153,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c2-r3-q01",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250460.7675942,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c2-r3-q01",
+      "wait_seconds": 3.00002284348011e-07,
+      "timestamp": 250460.7675963,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c2-r3-q01",
+      "wait_seconds": 6.00004568696022e-07,
+      "timestamp": 250460.8310698,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r1-q00",
+      "wait_seconds": 5.00003807246685e-07,
+      "timestamp": 250460.8372558,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r1-q00",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250460.8372572,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r1-q00",
+      "wait_seconds": 1.300009898841381e-06,
+      "timestamp": 250460.8424898,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r1-q00",
+      "wait_seconds": 1.100008375942707e-06,
+      "timestamp": 250460.8425208,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r1-q00",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250460.9056476,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r1-q01",
+      "wait_seconds": 0.07479590000002645,
+      "timestamp": 250460.9120867,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r1-q01",
+      "wait_seconds": 5.00003807246685e-07,
+      "timestamp": 250460.9120903,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r1-q01",
+      "wait_seconds": 9.999785106629133e-07,
+      "timestamp": 250460.9174488,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r1-q01",
+      "wait_seconds": 1.9997241906821728e-07,
+      "timestamp": 250460.9174513,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r1-q01",
+      "wait_seconds": 1.500011421740055e-06,
+      "timestamp": 250460.9808898,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r1-q02",
+      "wait_seconds": 0.14931340000475757,
+      "timestamp": 250460.9867495,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r1-q02",
+      "wait_seconds": 5.00003807246685e-07,
+      "timestamp": 250460.9867528,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r1-q02",
+      "wait_seconds": 1.00000761449337e-06,
+      "timestamp": 250460.9920848,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r1-q02",
+      "wait_seconds": 1.9997241906821728e-07,
+      "timestamp": 250460.9920866,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r1-q02",
+      "wait_seconds": 8.999777492135763e-07,
+      "timestamp": 250461.0556548,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r1-q03",
+      "wait_seconds": 0.22404430000460707,
+      "timestamp": 250461.0617183,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r1-q03",
+      "wait_seconds": 4.00003045797348e-07,
+      "timestamp": 250461.0617216,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r1-q03",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250461.0672518,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r1-q03",
+      "wait_seconds": 1.00000761449337e-07,
+      "timestamp": 250461.0672538,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r1-q03",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250461.1313852,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r2-q00",
+      "wait_seconds": 5.00003807246685e-07,
+      "timestamp": 250461.137929,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r2-q00",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250461.137931,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r2-q00",
+      "wait_seconds": 8.00006091594696e-07,
+      "timestamp": 250461.1435956,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r2-q00",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250461.1435977,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r2-q00",
+      "wait_seconds": 8.00006091594696e-07,
+      "timestamp": 250461.2071668,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r2-q01",
+      "wait_seconds": 0.07487169999512844,
+      "timestamp": 250461.2128281,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r2-q01",
+      "wait_seconds": 7.00005330145359e-07,
+      "timestamp": 250461.2128336,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r2-q01",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250461.21798,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r2-q01",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250461.2179827,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r2-q01",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250461.2811194,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r2-q02",
+      "wait_seconds": 0.14864960001432337,
+      "timestamp": 250461.2866308,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r2-q02",
+      "wait_seconds": 4.999747034162283e-07,
+      "timestamp": 250461.2866342,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r2-q02",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250461.2915668,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r2-q02",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250461.2915688,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r2-q02",
+      "wait_seconds": 8.00006091594696e-07,
+      "timestamp": 250461.3550474,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r2-q03",
+      "wait_seconds": 0.22264749999158084,
+      "timestamp": 250461.3606407,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r2-q03",
+      "wait_seconds": 6.00004568696022e-07,
+      "timestamp": 250461.3606452,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r2-q03",
+      "wait_seconds": 7.00005330145359e-07,
+      "timestamp": 250461.3656614,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r2-q03",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250461.3656635,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r2-q03",
+      "wait_seconds": 7.999769877642393e-07,
+      "timestamp": 250461.4290833,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r3-q00",
+      "wait_seconds": 5.00003807246685e-07,
+      "timestamp": 250461.4353229,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r3-q00",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250461.4353248,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r3-q00",
+      "wait_seconds": 1.00000761449337e-06,
+      "timestamp": 250461.4401164,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r3-q00",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250461.4401186,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r3-q00",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250461.5033205,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r3-q01",
+      "wait_seconds": 0.07410950001212768,
+      "timestamp": 250461.5094638,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r3-q01",
+      "wait_seconds": 7.00005330145359e-07,
+      "timestamp": 250461.5094686,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r3-q01",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250461.5148265,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r3-q01",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250461.5148293,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r3-q01",
+      "wait_seconds": 8.00006091594696e-07,
+      "timestamp": 250461.5781255,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r3-q02",
+      "wait_seconds": 0.14858599999570288,
+      "timestamp": 250461.5839576,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r3-q02",
+      "wait_seconds": 6.00004568696022e-07,
+      "timestamp": 250461.5839609,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r3-q02",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250461.5897268,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r3-q02",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250461.5897289,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r3-q02",
+      "wait_seconds": 8.00006091594696e-07,
+      "timestamp": 250461.6529893,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r3-q03",
+      "wait_seconds": 0.22401410000748,
+      "timestamp": 250461.659398,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r3-q03",
+      "wait_seconds": 6.00004568696022e-07,
+      "timestamp": 250461.6594027,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r3-q03",
+      "wait_seconds": 1.100008375942707e-06,
+      "timestamp": 250461.6646632,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "query-c4-r3-q03",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250461.6646654,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "query-c4-r3-q03",
+      "wait_seconds": 1.0999792721122503e-06,
+      "timestamp": 250461.7279918,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "build-only-r01",
+      "wait_seconds": 1.8999853637069464e-06,
+      "timestamp": 250461.8660454,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "build-only-r01",
+      "wait_seconds": 2.200016751885414e-06,
+      "timestamp": 250461.9731262,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "build-only-r01",
+      "wait_seconds": 1.500011421740055e-06,
+      "timestamp": 250461.9885553,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "build-only-r02",
+      "wait_seconds": 1.9000144675374031e-06,
+      "timestamp": 250462.1017121,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "build-only-r02",
+      "wait_seconds": 2.400018274784088e-06,
+      "timestamp": 250462.2105062,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "build-only-r02",
+      "wait_seconds": 1.300009898841381e-06,
+      "timestamp": 250462.2253527,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "build-only-r03",
+      "wait_seconds": 2.1999876480549574e-06,
+      "timestamp": 250462.3372501,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "build-only-r03",
+      "wait_seconds": 3.100023604929447e-06,
+      "timestamp": 250462.4487153,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "build-only-r03",
+      "wait_seconds": 2.4999899324029684e-06,
+      "timestamp": 250462.4650307,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": null,
+      "wait_seconds": 9.999785106629133e-07,
+      "timestamp": 250462.4703539,
+      "thread_id": 25940
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-build-r01",
+      "wait_seconds": 1.700012944638729e-06,
+      "timestamp": 250462.58684,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r1-q00",
+      "wait_seconds": 1.00000761449337e-06,
+      "timestamp": 250462.5876898,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r1-q00",
+      "wait_seconds": 4.00003045797348e-07,
+      "timestamp": 250462.5877016,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-r1-q00",
+      "wait_seconds": 0.025153499998850748,
+      "timestamp": 250462.618212,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-r1-q00",
+      "wait_seconds": 7.00005330145359e-07,
+      "timestamp": 250462.6182165,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r1-q00",
+      "wait_seconds": 1.2999807950109243e-06,
+      "timestamp": 250462.6816262,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r1-q01",
+      "wait_seconds": 0.10744150000391528,
+      "timestamp": 250462.6951737,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r1-q01",
+      "wait_seconds": 6.00004568696022e-07,
+      "timestamp": 250462.6951786,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-r1-q01",
+      "wait_seconds": 1.00000761449337e-06,
+      "timestamp": 250462.7017181,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-r1-q01",
+      "wait_seconds": 1.9997241906821728e-07,
+      "timestamp": 250462.7017207,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r1-q01",
+      "wait_seconds": 1.0999792721122503e-06,
+      "timestamp": 250462.7656259,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-build-r01",
+      "wait_seconds": 0.0802636000153143,
+      "timestamp": 250462.7719346,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-build-r01",
+      "wait_seconds": 1.300009898841381e-06,
+      "timestamp": 250462.7885924,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": null,
+      "wait_seconds": 1.1999800335615873e-06,
+      "timestamp": 250462.7939571,
+      "thread_id": 25940
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-build-r02",
+      "wait_seconds": 1.8999853637069464e-06,
+      "timestamp": 250462.9080105,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r2-q00",
+      "wait_seconds": 8.999777492135763e-07,
+      "timestamp": 250462.9085963,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r2-q00",
+      "wait_seconds": 4.00003045797348e-07,
+      "timestamp": 250462.9085988,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-r2-q00",
+      "wait_seconds": 0.024658700014697388,
+      "timestamp": 250462.939701,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-r2-q00",
+      "wait_seconds": 8.00006091594696e-07,
+      "timestamp": 250462.9397064,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r2-q00",
+      "wait_seconds": 1.00000761449337e-06,
+      "timestamp": 250463.0040608,
+      "thread_id": 45008
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r2-q01",
+      "wait_seconds": 0.1044417999801226,
+      "timestamp": 250463.0130696,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r2-q01",
+      "wait_seconds": 8.00006091594696e-07,
+      "timestamp": 250463.0130753,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-r2-q01",
+      "wait_seconds": 9.999785106629133e-07,
+      "timestamp": 250463.0197805,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-r2-q01",
+      "wait_seconds": 2.00001522898674e-07,
+      "timestamp": 250463.019784,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r2-q01",
+      "wait_seconds": 1.00000761449337e-06,
+      "timestamp": 250463.0834665,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-build-r02",
+      "wait_seconds": 0.07391249999636784,
+      "timestamp": 250463.0900471,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-build-r02",
+      "wait_seconds": 1.9999861251562834e-06,
+      "timestamp": 250463.1073448,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": null,
+      "wait_seconds": 1.300009898841381e-06,
+      "timestamp": 250463.1142803,
+      "thread_id": 25940
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-build-r03",
+      "wait_seconds": 1.8999853637069464e-06,
+      "timestamp": 250463.2354853,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r3-q00",
+      "wait_seconds": 8.00006091594696e-07,
+      "timestamp": 250463.2360811,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r3-q00",
+      "wait_seconds": 3.00002284348011e-07,
+      "timestamp": 250463.2360835,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-r3-q00",
+      "wait_seconds": 0.02462300000479445,
+      "timestamp": 250463.2668469,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-r3-q00",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250463.2668521,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r3-q00",
+      "wait_seconds": 9.00006853044033e-07,
+      "timestamp": 250463.3302417,
+      "thread_id": 37156
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r3-q01",
+      "wait_seconds": 0.11575520000769757,
+      "timestamp": 250463.3518699,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r3-q01",
+      "wait_seconds": 4.00003045797348e-07,
+      "timestamp": 250463.3518738,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-r3-q01",
+      "wait_seconds": 1.200009137392044e-06,
+      "timestamp": 250463.3580811,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "model_lock",
+      "operation_id": "mixed-r3-q01",
+      "wait_seconds": 3.00002284348011e-07,
+      "timestamp": 250463.3580839,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-r3-q01",
+      "wait_seconds": 1.300009898841381e-06,
+      "timestamp": 250463.4225553,
+      "thread_id": 57584
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-build-r03",
+      "wait_seconds": 0.08600850001676008,
+      "timestamp": 250463.4297859,
+      "thread_id": 33712
+    },
+    {
+      "kind": "lock_wait",
+      "lock": "manager_rw_lock",
+      "operation_id": "mixed-build-r03",
+      "wait_seconds": 1.500011421740055e-06,
+      "timestamp": 250463.4461375,
+      "thread_id": 33712
+    }
+  ]
+}

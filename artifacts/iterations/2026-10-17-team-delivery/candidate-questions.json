@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "title": "Delivery and retrieval candidate questions",
+  "status": "candidate_only_not_run_not_frozen_not_golden",
+  "created_date": "2026-10-17",
+  "corpus": "none; synthetic fixture proposals only",
+  "human_review": {
+    "answer_review": "pending",
+    "source_review": "pending",
+    "semantic_acceptance": "pending"
+  },
+  "items": [
+    {
+      "id": "candidate-api-001",
+      "category": "exact_api",
+      "question": "在提供的管理 API 契约中，检索一个受管文件的指定版本时，请指出请求方法、路径、必需字段，并说明提交非当前 version_id 时预期的 HTTP 状态。",
+      "fixture_proposal": "只使用经过人工核对的 API 契约快照和临时合成文件；至少对照成功请求与过期 version_id 请求。",
+      "answer": null,
+      "source": [],
+      "answer_review_status": "pending_human_review",
+      "source_review_status": "pending_human_review"
+    },
+    {
+      "id": "candidate-version-001",
+      "category": "version_difference",
+      "question": "合成操作手册 v1 与 v2 对同一操作的步骤或限制有哪些变化？请分别指出旧版和新版依据，并说明哪一条只适用于当前版本。",
+      "fixture_proposal": "人工编写两个有明确版本标识、内容差异和可引用段落的短文档；版本身份须出现在问题上下文。",
+      "answer": null,
+      "source": [],
+      "answer_review_status": "pending_human_review",
+      "source_review_status": "pending_human_review"
+    },
+    {
+      "id": "candidate-parameter-001",
+      "category": "parameter_boundary",
+      "question": "根据已审核的 API 参数说明，top_k 和 context_char_budget 的有效范围分别是什么？边界值之外的输入由接口如何处理？",
+      "fixture_proposal": "使用正式 API 契约来源，并以合成 HTTP 请求检查下界、上界及越界值；答复须区分参数校验与检索效果。",
+      "answer": null,
+      "source": [],
+      "answer_review_status": "pending_human_review",
+      "source_review_status": "pending_human_review"
+    },
+    {
+      "id": "candidate-table-001",
+      "category": "table_scanning",
+      "question": "合成维护表中，组件 X 在条件 Y 下对应的检查项和阈值是什么？请保留表头条件，并说明是否存在脚注限制。",
+      "fixture_proposal": "制作包含多行、多列、跨页或拆分段落的合成表格；答案必须能回到正确行列与脚注。",
+      "answer": null,
+      "source": [],
+      "answer_review_status": "pending_human_review",
+      "source_review_status": "pending_human_review"
+    },
+    {
+      "id": "candidate-cross-fragment-001",
+      "category": "cross_fragment_reasoning",
+      "question": "合成部署说明的一处定义运行前置条件，另一处描述失败后的恢复步骤。满足该前置条件后出现失败时，应依次执行什么，并引用两处各自支持的结论？",
+      "fixture_proposal": "答案需要关联两个独立段落；若任一片段无法定位或不支持该关联，应明确报告缺口。",
+      "answer": null,
+      "source": [],
+      "answer_review_status": "pending_human_review",
+      "source_review_status": "pending_human_review"
+    },
+    {
+      "id": "candidate-no-answer-001",
+      "category": "unanswerable",
+      "question": "仅凭给定的合成运维记录，导致服务异常退出的确定根因是什么？",
+      "fixture_proposal": "提供只有状态变化与退出码、没有异常堆栈或决定性日志的记录；正确行为应指出证据不足并列出可确认事实。",
+      "answer": null,
+      "source": [],
+      "answer_review_status": "pending_human_review",
+      "source_review_status": "pending_human_review"
+    }
+  ]
+}

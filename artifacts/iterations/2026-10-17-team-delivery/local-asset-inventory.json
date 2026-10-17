@@ -1,0 +1,209 @@
+{
+  "created_utc": "2026-10-16T17:41:25.138976+00:00",
+  "scope": "Read-only local inventory; no images exported, no model reload, not a portable bundle or offline boot pass.",
+  "model_assets": {
+    "Qwen3-Embedding-0.6B": {
+      "file_count": 15,
+      "files": [
+        {
+          "relative_path": ".gitattributes",
+          "size": 2127,
+          "sha256": "f33c26d5a2361ddd22d41239e071765bb571b615526a27c245616a1363ce2e87"
+        },
+        {
+          "relative_path": ".msc",
+          "size": 876,
+          "sha256": "2aa99a9f12693cae3b9696c7ed6a2255e4fafa5b6f0d7b1073b4ed96810efdd4"
+        },
+        {
+          "relative_path": ".mv",
+          "size": 36,
+          "sha256": "4c4050ce8e6f049da4ea7ce0cba840f9aef2c92c960481f6b7ad1a45adccda58"
+        },
+        {
+          "relative_path": "1_Pooling/config.json",
+          "size": 313,
+          "sha256": "37bf193fa101f19101bfad9c31d3eb0f786e247b7b1e5cb7f007d730eed1ddbd"
+        },
+        {
+          "relative_path": "config.json",
+          "size": 727,
+          "sha256": "b5bf1f51fc45be473a54718cef92448d90a1be001bf9b9a44b8c7f10a19feaa9"
+        },
+        {
+          "relative_path": "config_sentence_transformers.json",
+          "size": 215,
+          "sha256": "10667c72ddb772627bf1780cb7f86af8e2ae0032b8c243c731172064105c6961"
+        },
+        {
+          "relative_path": "configuration.json",
+          "size": 73,
+          "sha256": "f888421726665e8a84b738eed42a64875aed79de8be7daade851ac8bf4c0cef9"
+        },
+        {
+          "relative_path": "generation_config.json",
+          "size": 117,
+          "sha256": "28396d421a2108acce96383f6a7de78008f7f1b17f807958f3c14c51dbfb65fb"
+        },
+        {
+          "relative_path": "merges.txt",
+          "size": 1671853,
+          "sha256": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5"
+        },
+        {
+          "relative_path": "model.safetensors",
+          "size": 1191586416,
+          "sha256": "0437e45c94563b09e13cb7a64478fc406947a93cb34a7e05870fc8dcd48e23fd"
+        },
+        {
+          "relative_path": "modules.json",
+          "size": 349,
+          "sha256": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf"
+        },
+        {
+          "relative_path": "README.md",
+          "size": 17237,
+          "sha256": "c34d9b7e5a267ad3fdd13227a253686bc90844ff4744a2a6a86c7c905e3d06f3"
+        },
+        {
+          "relative_path": "tokenizer.json",
+          "size": 11423705,
+          "sha256": "def76fb086971c7867b829c23a26261e38d9d74e02139253b38aeb9df8b4b50a"
+        },
+        {
+          "relative_path": "tokenizer_config.json",
+          "size": 9706,
+          "sha256": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0"
+        },
+        {
+          "relative_path": "vocab.json",
+          "size": 2776833,
+          "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+        }
+      ],
+      "sha256": "912c95dacdfc34e7aeb081cacdeb939b2c958d2f1aa7ade1dc9aa331f023cdeb"
+    },
+    "Qwen3-Reranker-0.6B": {
+      "file_count": 15,
+      "files": [
+        {
+          "relative_path": ".gitattributes",
+          "size": 2127,
+          "sha256": "088e25d6bceaa8943f4f292006210358292349cc36e7578f80c62fce75535f46"
+        },
+        {
+          "relative_path": "1_LogitScore/config.json",
+          "size": 57,
+          "sha256": "73e3156450564d8a98b7e47bcf5aace0f29600828b51937da545571e84db3ff3"
+        },
+        {
+          "relative_path": "chat_template.jinja",
+          "size": 741,
+          "sha256": "6f682162495ec5b39fd9005c01b6aa2a74669379fe967039f1e2cbbe8752369d"
+        },
+        {
+          "relative_path": "config.json",
+          "size": 727,
+          "sha256": "d479c427a9ca5295218063d4f9aca4f297ab4ac27487cca7af42c84643d51ef0"
+        },
+        {
+          "relative_path": "config_sentence_transformers.json",
+          "size": 325,
+          "sha256": "6a153d6696f78fd588c1c728967f0b773ea869d3c6028f151ce71ebe49140762"
+        },
+        {
+          "relative_path": "configuration.json",
+          "size": 73,
+          "sha256": "f888421726665e8a84b738eed42a64875aed79de8be7daade851ac8bf4c0cef9"
+        },
+        {
+          "relative_path": "generation_config.json",
+          "size": 214,
+          "sha256": "81051cd3f6e77013827148d0b8a6ead93f8ac390d5ab805f849199f0af6a08db"
+        },
+        {
+          "relative_path": "merges.txt",
+          "size": 1671853,
+          "sha256": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5"
+        },
+        {
+          "relative_path": "model.safetensors",
+          "size": 1191588280,
+          "sha256": "27cd75a405b9c1b46b59abfd88aaa209e6fed2a1972cde9b70e7659537c5e65b"
+        },
+        {
+          "relative_path": "modules.json",
+          "size": 280,
+          "sha256": "6f13b6b4a89e577b591b2077bca40c67c26541a6740a8809267cb474f90806a9"
+        },
+        {
+          "relative_path": "README.md",
+          "size": 14742,
+          "sha256": "5bba8c734f6dd3ae48317b4139317e45a7fce48fc55e15670b23a0dd15492ab6"
+        },
+        {
+          "relative_path": "sentence_bert_config.json",
+          "size": 362,
+          "sha256": "3234ebd224d492cbe8d55d5ec80a3f408451c4db3005bafb64fe1c51c763e01e"
+        },
+        {
+          "relative_path": "tokenizer.json",
+          "size": 11422654,
+          "sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4"
+        },
+        {
+          "relative_path": "tokenizer_config.json",
+          "size": 9706,
+          "sha256": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0"
+        },
+        {
+          "relative_path": "vocab.json",
+          "size": 2776833,
+          "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+        }
+      ],
+      "sha256": "38a2fec90dc8e386ffb3b8fbe27cf3083e86e82360c5e7360f6081ef3f47af24"
+    }
+  },
+  "cached_images": {
+    "wenjin-backend:2026-10-14": {
+      "id": "sha256:6941765e2224efa160aa01e5a2518563d6c2bd9f3b93a2940ce33a90215d37cd",
+      "repo_digests": [],
+      "status": "cached_only_not_current_round_runtime_acceptance"
+    },
+    "wenjin-mcp-stateless:2026-10-14-libxml-2.11.9": {
+      "id": "sha256:74ca2f90a09b0aa492d0971d72ef6659792d372121f08dda0edeea6968ff7a03",
+      "repo_digests": [],
+      "status": "cached_only_not_current_round_runtime_acceptance"
+    },
+    "wenjin-model-node:dual-smoke-20261008": {
+      "id": "sha256:c9d4e5172eca901fcec1d3389c8c119183eacd8b8788e4a3fbb8838dc2fdca3e",
+      "repo_digests": [],
+      "status": "cached_only_not_current_round_runtime_acceptance"
+    },
+    "qdrant/qdrant:v1.19.1": {
+      "id": "sha256:dd57172b0bbebb29b0a96a37c1f378a317449730c36cdfe68feabe36e740a92b",
+      "repo_digests": [
+        "qdrant/qdrant@sha256:12364fe851b9f17356fc88189fc06d1b521262e04659ec7345975b00c9246a10"
+      ],
+      "status": "cached_only_not_current_round_runtime_acceptance"
+    }
+  },
+  "dependency_lock_sha256": {
+    "pyproject.toml": "80e05122838fd8f94ea4474009a235c40e1b982c14af430ca391e24726b1dc40",
+    "uv.lock": "1f32c3cea80ea944795e760c4029bc6bc3232717766c4f7dce3bd4c3bf15a3c9",
+    "mcp-stateless/pyproject.toml": "fc1337e57462b20cbf06acb9de50867de8b1cae903a17d4b75b7cfaae945c449",
+    "mcp-stateless/uv.lock": "060bc27c009db9c889431156e532c5972d3bb4dde0924fd67e759ef83725cc23"
+  },
+  "cli_versions_observed": {
+    "claude": "2.1.296",
+    "opencode": "1.19.3 (isolated temp installation)"
+  },
+  "pending": [
+    "Rebuild final backend/modern images from frozen source and bind resulting image IDs",
+    "Export required images and model directories into transfer package; validate with offline manifest tool",
+    "Windows Docker Desktop/WSL2/NVIDIA offline installers matching target machine",
+    "Target Windows clean install without public network, real model startup, first business call",
+    "Actual company generation LLM endpoint and protocol compatibility (MCP model API is embedding/rerank only)"
+  ]
+}

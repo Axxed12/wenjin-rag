@@ -1,0 +1,71 @@
+/app/.venv/lib/python3.12/site-packages/jieba/__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+  re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+/app/.venv/lib/python3.12/site-packages/jieba/__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+  re_skip_default = re.compile("(\r\n|\s)", re.U)
+/app/.venv/lib/python3.12/site-packages/jieba/finalseg/__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+  re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+/app/.venv/lib/python3.12/site-packages/jieba/_compat.py:18: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+Building prefix dict from the default dictionary ...
+Dumping model to file cache /tmp/jieba.cache
+Loading model cost 0.435 seconds.
+Prefix dict has been built successfully.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/app/src/wenjin/mcp_server.py", line 41, in <module>
+    main()
+  File "/app/src/wenjin/mcp/server.py", line 265, in main
+    server.run(
+  File "/app/.venv/lib/python3.12/site-packages/fastmcp/server/mixins/transport.py", line 123, in run
+    anyio.run(
+  File "/app/.venv/lib/python3.12/site-packages/anyio/_core/_eventloop.py", line 83, in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2548, in run
+    return runner.run(wrapper())
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2531, in wrapper
+    return await func(*args)
+           ^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/fastmcp/server/mixins/transport.py", line 101, in run_async
+    await self.run_http_async(
+  File "/app/.venv/lib/python3.12/site-packages/fastmcp/server/mixins/transport.py", line 355, in run_http_async
+    async with self._lifespan_manager():
+  File "/usr/local/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/fastmcp/server/mixins/lifespan.py", line 214, in _lifespan_manager
+    user_lifespan_result = await stack.enter_async_context(self._lifespan(self))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/contextlib.py", line 659, in enter_async_context
+    result = await _enter(cm)
+             ^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/wenjin/mcp/server.py", line 79, in lifespan
+    retrieval_service, runtime_identity = runtime.create_runtime(root=root)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/wenjin/mcp/runtime.py", line 100, in create_runtime
+    else IndexRegistryStore(project_root / "data/indexes/index-registry.json").active()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/wenjin/index_registry.py", line 243, in active
+    return IndexTarget.from_dict(self.load()["active"])
+                                 ^^^^^^^^^^^
+  File "/app/src/wenjin/index_registry.py", line 234, in load
+    data = json.loads(self.path.read_text(encoding="utf-8-sig"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/delivery-snapshots/restored-project/data/indexes/index-registry.json'

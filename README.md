@@ -65,7 +65,9 @@ manifest（已实测自动下载 30/30）。其余 5 个语料需要按 manifest
 
 2026-10-14在独立worktree整合新版MCP2026-07-28个人迭代，旧状态化入口及主依赖保留；新版启动、客户端切换/回退见[新版MCP说明](docs/mcp-stateless.md)。此能力不归入2026-07-15前项目叙述；本轮兼容状态见[整合记录](artifacts/iterations/2026-10-14-mcp-stateless-integration/development-log.md)，原始SDK/容器验收为2026-10-09历史证据。
 
-2026-10-14在隔离worktree新增MCP连接入口管理后端；接口、认证及受限Docker broker边界见[MCP入口控制API](docs/mcp-entry-control.md)，尚未部署或操作真实容器。
+2026-10-14新增MCP连接入口管理后端；接口、认证及受限Docker broker边界见[MCP入口控制API](docs/mcp-entry-control.md)。实现与后续本机部署分别记录，当前状态见[开发状态](code.md)，不把早期“未部署”结论当作实时状态。
+
+2026-10-17个人迭代的[Windows Docker交付、备份恢复与诊断](docs/team-delivery-windows.md)提供统一操作入口；[本轮报告](artifacts/iterations/2026-10-17-team-delivery/final-report.md)区分合成隔离验收、真实Agent取证与待目标机/跨机验收。源码保存在独立分支，未合入或部署到现有服务。
 
 要求：Python 3.12、uv、Docker、NVIDIA GPU，以及本地 Qwen3-Embedding-0.6B 与
 Qwen3-Reranker-0.6B 模型目录。

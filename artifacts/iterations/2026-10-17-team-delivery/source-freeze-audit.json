@@ -1,0 +1,1064 @@
+{
+  "source_sha256": "639794c5b660851559d2fc0894d80356f9528f381e90cfe027e58c33463a2ab6",
+  "source_file_count": 207,
+  "source_files": [
+    {
+      "path": "src/wenjin/__init__.py",
+      "size_bytes": 64,
+      "sha256": "f7c3e1e6fca9963196980477859aa2409c12d7a29b676c1f071e770018e439e5"
+    },
+    {
+      "path": "src/wenjin/access.py",
+      "size_bytes": 7906,
+      "sha256": "ce78f7280ca94ad41c3d0609ad7bd044cc57ba011caaa01ba157a60a56d4e2b7"
+    },
+    {
+      "path": "src/wenjin/audit.py",
+      "size_bytes": 8096,
+      "sha256": "9fc27c08500379fbaa6a9e9c2916a220edc519c53e7c64eb7a4e0c342b2e39c2"
+    },
+    {
+      "path": "src/wenjin/auth.py",
+      "size_bytes": 3263,
+      "sha256": "c77f9cf53d223a74db8400b4af9c8229962600186cb397f507396dc9ab2cbc59"
+    },
+    {
+      "path": "src/wenjin/catalog.py",
+      "size_bytes": 19717,
+      "sha256": "8d528208ca8a111000500da543d047f820858400834d6c4b8bf56836fb1d5cf9"
+    },
+    {
+      "path": "src/wenjin/content_hashing.py",
+      "size_bytes": 3200,
+      "sha256": "27366448cdfed9764b896341573ca7b3ede55fe89156a8e8894796092a4b00cc"
+    },
+    {
+      "path": "src/wenjin/corpus_identity.py",
+      "size_bytes": 3294,
+      "sha256": "e7b5a8ff4b0f95c829fbd9ea281e0b6e5e5cb7d9b458ee970637c1f06768556e"
+    },
+    {
+      "path": "src/wenjin/coverage.py",
+      "size_bytes": 6561,
+      "sha256": "aafd6a89107aff5895f305e97b75e2258f0bac1519419c4586ff4c48bbb4fe2e"
+    },
+    {
+      "path": "src/wenjin/evaluation_tasks/__init__.py",
+      "size_bytes": 366,
+      "sha256": "1726b185cc74695b3880b03f0514028d473e59d7938ada1cac7d879956a33a02"
+    },
+    {
+      "path": "src/wenjin/evaluation_tasks/runtime.py",
+      "size_bytes": 21614,
+      "sha256": "08e753cc20a4377c7ff2491f01356a9aae8b6c62f576426fd7fd6049a42ee602"
+    },
+    {
+      "path": "src/wenjin/evaluation_tasks/service.py",
+      "size_bytes": 41800,
+      "sha256": "894594e5c04feed792b7b8ccbdbeb6a4b09a40825fc0836e1cfe3d97968329f7"
+    },
+    {
+      "path": "src/wenjin/evidence.py",
+      "size_bytes": 5192,
+      "sha256": "c926e46957d67e9c49899947564062681d623a6089e7fb5650d9efaba63dbbdb"
+    },
+    {
+      "path": "src/wenjin/file_management/__init__.py",
+      "size_bytes": 398,
+      "sha256": "b9fae7f76f0415007c6d882d223df440fb80cb3f7c608582e8a04d6c3ac26c64"
+    },
+    {
+      "path": "src/wenjin/file_management/__main__.py",
+      "size_bytes": 7861,
+      "sha256": "dedc17b41e054455e7810ba55dccde13c7aa49e78a61535033ca7234e7e0d447"
+    },
+    {
+      "path": "src/wenjin/file_management/admin/app.js",
+      "size_bytes": 170975,
+      "sha256": "911f3c6744e0724a79870e3c47a757855529a45b085406496beeb0f62112d690"
+    },
+    {
+      "path": "src/wenjin/file_management/admin/file-icon.svg",
+      "size_bytes": 412,
+      "sha256": "5fb59ce5c7b792fe3e65d10afd707df503e6dd042184b718ff743ea759ff463f"
+    },
+    {
+      "path": "src/wenjin/file_management/admin/identity.js",
+      "size_bytes": 45594,
+      "sha256": "fe1a3815ff132ea7249f1072c451bcc899cc9df0f1b50f856cc5bd4bb07e194a"
+    },
+    {
+      "path": "src/wenjin/file_management/admin/index.html",
+      "size_bytes": 45692,
+      "sha256": "af06be7297b58f7cf4fc0b6981aef62746e3c0ab1a3473bb65628dd8f2c3dd13"
+    },
+    {
+      "path": "src/wenjin/file_management/admin/styles.css",
+      "size_bytes": 52509,
+      "sha256": "a42fea1c7313a91d23faf3b57a5ed1ed825700bfdd98602e2773d8090ad213c9"
+    },
+    {
+      "path": "src/wenjin/file_management/api.py",
+      "size_bytes": 196,
+      "sha256": "1cac7cf15df3e2d6df1053a167e1166414ce2e1295ad23047de248f679fba929"
+    },
+    {
+      "path": "src/wenjin/file_management/backends.py",
+      "size_bytes": 2660,
+      "sha256": "8230bedbaf29fdce712594b58bd48d0b74c73af80fdd4f21071c7c89c2296658"
+    },
+    {
+      "path": "src/wenjin/file_management/call_logs.py",
+      "size_bytes": 253,
+      "sha256": "e7b082f23da67a43346969e81f8d8f1d54ea48d560024bf1cd20f682e2e58319"
+    },
+    {
+      "path": "src/wenjin/file_management/cleanup.py",
+      "size_bytes": 9153,
+      "sha256": "3aa5485e19586364185dbac8d91d16c56c831460625d6755be4c50fdcba7f57a"
+    },
+    {
+      "path": "src/wenjin/file_management/clock.py",
+      "size_bytes": 183,
+      "sha256": "edee5d29fc997c0e5ab9daeb1889af62f6f8de37b12a8b6b21cd2e701cdd9b98"
+    },
+    {
+      "path": "src/wenjin/file_management/jobs.py",
+      "size_bytes": 16861,
+      "sha256": "c4411f9040d02455c6920ff0332d2e01a6cfb23a8285dc59c593d9048f27816a"
+    },
+    {
+      "path": "src/wenjin/file_management/legacy_search.py",
+      "size_bytes": 231,
+      "sha256": "7089069903e6a9cdf08bc69cbbedb738d3ea5dbbd2cc864c891e51aaaa1a571c"
+    },
+    {
+      "path": "src/wenjin/file_management/models.py",
+      "size_bytes": 1950,
+      "sha256": "81c9529d10a54120fde889b60caa0ad2ace6aceffb3181f9e9701a22e1b8c918"
+    },
+    {
+      "path": "src/wenjin/file_management/repository.py",
+      "size_bytes": 20111,
+      "sha256": "ead99fb3bb30d9280e8e43e3457b601933754e2066c043a2c73cdcd1a21bc9bb"
+    },
+    {
+      "path": "src/wenjin/file_management/service.py",
+      "size_bytes": 59327,
+      "sha256": "6f14e08cdba4f57718bbceb2b3e65c2231bf60a6f575e960f2aae9bc89b26f73"
+    },
+    {
+      "path": "src/wenjin/file_management/versions.py",
+      "size_bytes": 10107,
+      "sha256": "9f99349a8bf2f944341fd9dbed5ea4efac247e5419b3a955ff5ee65329980c51"
+    },
+    {
+      "path": "src/wenjin/identity/__init__.py",
+      "size_bytes": 566,
+      "sha256": "b7621d9a3af70082f48b345ebace1b1965c2edb115aaaddf2b89367726afccd9"
+    },
+    {
+      "path": "src/wenjin/identity/audit.py",
+      "size_bytes": 1560,
+      "sha256": "b200015673f470a998bc30a1ddbbee442eff8876a08da3e1ca4fbb60ce500c30"
+    },
+    {
+      "path": "src/wenjin/identity/mcp_auth.py",
+      "size_bytes": 8337,
+      "sha256": "8a9be185dad997f290e6b8641b44db8a81582aa90860f3c3aac312d80d07f998"
+    },
+    {
+      "path": "src/wenjin/identity/passwords.py",
+      "size_bytes": 2109,
+      "sha256": "be0b9473e231c64281c0f4c460db4061a6bbb831d6cf8ed2daac21bd3d382076"
+    },
+    {
+      "path": "src/wenjin/identity/policy.py",
+      "size_bytes": 1866,
+      "sha256": "06cb01a7b93f1df0bccbe2044555472962a8680aa59221a5c1d61c2cbad58d98"
+    },
+    {
+      "path": "src/wenjin/identity/store.py",
+      "size_bytes": 58050,
+      "sha256": "c31fae76ed49b3e7e5075ea71954639460233305408f2c15c4bf266c7f9ea245"
+    },
+    {
+      "path": "src/wenjin/identity/tokens.py",
+      "size_bytes": 1113,
+      "sha256": "86dd8f4bb7cc276a2825869691e987b3a6e97968b40cc5e31982e8257bdc1bc3"
+    },
+    {
+      "path": "src/wenjin/index_audit.py",
+      "size_bytes": 54166,
+      "sha256": "8cf5c563b598c000c48f7146df5937160502d9fd8984eef751a04d6a3222aa7b"
+    },
+    {
+      "path": "src/wenjin/index_fingerprint.py",
+      "size_bytes": 3000,
+      "sha256": "6e6b9f73c532dd7f65e296f40505c7a53b3625fdd7c8a730f9e7958c319e383e"
+    },
+    {
+      "path": "src/wenjin/index_registry.py",
+      "size_bytes": 13709,
+      "sha256": "b39467cbc3ace8102a30d5fd3c4e0e4383a2ff7765bee1546e7ef470e5febf70"
+    },
+    {
+      "path": "src/wenjin/indexing/__init__.py",
+      "size_bytes": 31,
+      "sha256": "a86cc8fad3b349b52020dde4061c5d8662fbfdc3c94e325e4bd5dfe1cbe46c6d"
+    },
+    {
+      "path": "src/wenjin/indexing/bm25.py",
+      "size_bytes": 8401,
+      "sha256": "0289c629cdaec6a49832e0138efe3ef2ae6dda657a74c803f2a625ee4162ae57"
+    },
+    {
+      "path": "src/wenjin/indexing/build.py",
+      "size_bytes": 4361,
+      "sha256": "5bcf1fb08e16ca5c06dee9ab4cc97be9ea7ea83c60c34bfc6ea241d14b982a79"
+    },
+    {
+      "path": "src/wenjin/indexing/dense.py",
+      "size_bytes": 4039,
+      "sha256": "273e81cbcd77e302e10fe417474ed90696176df0d2ba9a1387595efccc4dd851"
+    },
+    {
+      "path": "src/wenjin/indexing/zh.py",
+      "size_bytes": 2865,
+      "sha256": "b0efefa8fe90f3d424101f3699265b7e76b750873f99d25bef36c6e8f0a0ce9a"
+    },
+    {
+      "path": "src/wenjin/ingestion/__init__.py",
+      "size_bytes": 75,
+      "sha256": "83ea9655b7efc217ac8ac7d870bd18cd805f0cb7e9fc2d201e53d40a51f7b3ff"
+    },
+    {
+      "path": "src/wenjin/ingestion/chunking.py",
+      "size_bytes": 9957,
+      "sha256": "be718340c62048fe189df1bb30c7f6ff5da7e7157924075895fbde1f12721e48"
+    },
+    {
+      "path": "src/wenjin/ingestion/intake.py",
+      "size_bytes": 13111,
+      "sha256": "44590af36c745f4799ccb9945d47f3bb5f1302a913e12749d3c3efec6dff8301"
+    },
+    {
+      "path": "src/wenjin/ingestion/manifest_documents.py",
+      "size_bytes": 5154,
+      "sha256": "64e87e1cd1ef878195a7cb67a2b8e57590a9ffa0716d974da3242001f78decc3"
+    },
+    {
+      "path": "src/wenjin/ingestion/multiformat.py",
+      "size_bytes": 11736,
+      "sha256": "e2e174f7df041e63578b18080a658dd2452166094430c12175514acd46eda593"
+    },
+    {
+      "path": "src/wenjin/ingestion/ocr.py",
+      "size_bytes": 17716,
+      "sha256": "34b986e428af9dd11172429aa4367ab67b187550b41317333be0cdca0f14e88b"
+    },
+    {
+      "path": "src/wenjin/ingestion/parsers.py",
+      "size_bytes": 2347,
+      "sha256": "d8335389584c28d9cb56166dfc9366ed8368b784f082401ecf84881038baa1b3"
+    },
+    {
+      "path": "src/wenjin/ingestion/table_text.py",
+      "size_bytes": 1573,
+      "sha256": "c51cf3530ce00267421001be5ce02f653cd20c1de5e30d863ed3ebfe96268e96"
+    },
+    {
+      "path": "src/wenjin/ingestion/verification.py",
+      "size_bytes": 2789,
+      "sha256": "ca2747c22ed7a065d617b3351a5f38314b485219c0f4cf7da55fc05910d3172e"
+    },
+    {
+      "path": "src/wenjin/managed_mcp.py",
+      "size_bytes": 589,
+      "sha256": "1ef447231fe54313c8f8c9942d6cce75173e17a56d448fa7cef960b25dace4cf"
+    },
+    {
+      "path": "src/wenjin/management_http/__init__.py",
+      "size_bytes": 192,
+      "sha256": "a5bcaf752c91e12442dfb9ba79573bacd3f6407b7441668e5d418b757c432a0b"
+    },
+    {
+      "path": "src/wenjin/management_http/app.py",
+      "size_bytes": 20925,
+      "sha256": "fe3504747fb8410ba7e703d49c7e568182f62b5d4403a9aeee61c3c23a010322"
+    },
+    {
+      "path": "src/wenjin/management_http/assets.py",
+      "size_bytes": 1526,
+      "sha256": "632e7ac08cf583b3a23a51730c298b883ee0066a41a39b5eabfe4940e3418f4e"
+    },
+    {
+      "path": "src/wenjin/management_http/call_logs.py",
+      "size_bytes": 24425,
+      "sha256": "04894533d49e5ddf0c587079b58bb555ca2199d8db88e5c4abba892492ab920a"
+    },
+    {
+      "path": "src/wenjin/management_http/evaluations.py",
+      "size_bytes": 10706,
+      "sha256": "7272755f1a7a7baf023f54fd3f83b05e45a00a510d18e25889808793918b7de2"
+    },
+    {
+      "path": "src/wenjin/management_http/files.py",
+      "size_bytes": 10793,
+      "sha256": "171742e2644e3e8c17503700b48057db7f0c3a97fd28d117ec712b8401404dd1"
+    },
+    {
+      "path": "src/wenjin/management_http/http_common.py",
+      "size_bytes": 10116,
+      "sha256": "17418179c75f55c6d536afb33a9d0a408efc95ecf47bdffe5d4a614f62cf4fc8"
+    },
+    {
+      "path": "src/wenjin/management_http/identity_http.py",
+      "size_bytes": 35335,
+      "sha256": "bf2e6351fc3622ed3f37b4ce3bdc947ecf8a0f44a19f2be580ea00b743e39c68"
+    },
+    {
+      "path": "src/wenjin/management_http/jobs.py",
+      "size_bytes": 2442,
+      "sha256": "ebdc7b7ac4b61cbc9bc635c8e0bfd094e4cc3c12fb94d40aaba964b611e835db"
+    },
+    {
+      "path": "src/wenjin/management_http/logs.py",
+      "size_bytes": 1154,
+      "sha256": "48a33b00279ac7dc6d623f071ce5d2ce005efcf156d4529c2bc5cb3af064085d"
+    },
+    {
+      "path": "src/wenjin/management_http/mcp_control.py",
+      "size_bytes": 3508,
+      "sha256": "9c8ddaf412016b1da28f11399245cc82b0a27872ec895a04cb28dfd5b7a665a0"
+    },
+    {
+      "path": "src/wenjin/management_http/releases.py",
+      "size_bytes": 19286,
+      "sha256": "a6fcd123116bddc80bccfe4d84e94072a08bb9bd3b1bd4109a3da9c38dc3a280"
+    },
+    {
+      "path": "src/wenjin/management_http/search.py",
+      "size_bytes": 9335,
+      "sha256": "3e406a5ede3cee4387e73f52fa9e9290a1b6222548c0d66f46478ba4fc059014"
+    },
+    {
+      "path": "src/wenjin/manifest.py",
+      "size_bytes": 8337,
+      "sha256": "e95844430bb8b4f53f6c20fb1ef8cb16bad90d3f4bd411f71e2ab5a14b3a6f9c"
+    },
+    {
+      "path": "src/wenjin/mcp/__init__.py",
+      "size_bytes": 57,
+      "sha256": "219a66433a70e7d553447891cda553bd8dfd6a5caef074309803b84da714c691"
+    },
+    {
+      "path": "src/wenjin/mcp/download.py",
+      "size_bytes": 16682,
+      "sha256": "d4c1bdb0c6480a672217d284bf7ac7585a791203939653b252e769ab538f13fc"
+    },
+    {
+      "path": "src/wenjin/mcp/managed_client.py",
+      "size_bytes": 17662,
+      "sha256": "4f3b03ffb92dbd54c60676c35b0d99517b706b0979adb34c8a4ea36f11d9d98f"
+    },
+    {
+      "path": "src/wenjin/mcp/remote_identity.py",
+      "size_bytes": 7178,
+      "sha256": "66a78286e64ae085b1d6359a3f112df51fcda9552abecb039f0bce42b4ec9a1c"
+    },
+    {
+      "path": "src/wenjin/mcp/runtime.py",
+      "size_bytes": 13569,
+      "sha256": "654ccedd2040b94791c02ea682655db87588dfc73df4fbfbc51d3e9b13af7963"
+    },
+    {
+      "path": "src/wenjin/mcp/server.py",
+      "size_bytes": 11556,
+      "sha256": "5f7d8a2d30174109a9e484e7f3f3e2e916df882b5a1985152f625cdd5337bb0f"
+    },
+    {
+      "path": "src/wenjin/mcp/stateless_identity.py",
+      "size_bytes": 1360,
+      "sha256": "3e180710dd15c8682c43af5b9350bab5ad106139b6ab7423346243481d0945ed"
+    },
+    {
+      "path": "src/wenjin/mcp/stateless_server.py",
+      "size_bytes": 24736,
+      "sha256": "89dcdee2c1ca38c726a7ed05c59900228043c8532a3f91c0fcd695e57a4c7797"
+    },
+    {
+      "path": "src/wenjin/mcp/stateless_tools.py",
+      "size_bytes": 5215,
+      "sha256": "db8b6b6f276133f494a0e5df5a2ef06cdcf6774e63f56a6e9e1e77dfef1fb5a2"
+    },
+    {
+      "path": "src/wenjin/mcp/tools.py",
+      "size_bytes": 57599,
+      "sha256": "78a6cd057f26ed6c284b420ba79adf36a7b25516163309ba040d16422225fccb"
+    },
+    {
+      "path": "src/wenjin/mcp_control/__init__.py",
+      "size_bytes": 58,
+      "sha256": "51e6c070fd8667a9577d080242fcbe243e9eaf73ebacccd138b024476a9bf2ff"
+    },
+    {
+      "path": "src/wenjin/mcp_control/broker.py",
+      "size_bytes": 23527,
+      "sha256": "ba46a0e56e579a1f071d2c10a44d2164e585f3da7eff3f4b8dc9ab039c22d7b2"
+    },
+    {
+      "path": "src/wenjin/mcp_control/management.py",
+      "size_bytes": 14320,
+      "sha256": "2dd4076bcef6be277eb8675556eed8b347e570b4fbaffb9387a77f89b60a8112"
+    },
+    {
+      "path": "src/wenjin/mcp_server.py",
+      "size_bytes": 958,
+      "sha256": "aca57ae21e0dd94357b3264b34c8f3c3c4e1aa8e7d1ff3f285c8161d066014b6"
+    },
+    {
+      "path": "src/wenjin/model_api/__init__.py",
+      "size_bytes": 54,
+      "sha256": "18a1b213b778e916268eda4c0df6905c3213fd19e26e55b98afbadad26e48af3"
+    },
+    {
+      "path": "src/wenjin/model_api/__main__.py",
+      "size_bytes": 1611,
+      "sha256": "a108f1869799a9ef5bcc362737b5a7ea1733f44adcdf971c15780f61085a8ce9"
+    },
+    {
+      "path": "src/wenjin/model_api/admission.py",
+      "size_bytes": 6576,
+      "sha256": "b222e237315af85c890d2b23c6ca846ca37655a024dd80df76b0433d63f81506"
+    },
+    {
+      "path": "src/wenjin/model_api/server.py",
+      "size_bytes": 18838,
+      "sha256": "6d061fa2c3aa6c215d4cda99cdba133f8d0140959fb5034a711928b11bc3db4e"
+    },
+    {
+      "path": "src/wenjin/models/__init__.py",
+      "size_bytes": 79,
+      "sha256": "bc90787de85e904436ff37935c73a590959eb217e8326cca333bda3bf565b697"
+    },
+    {
+      "path": "src/wenjin/models/providers.py",
+      "size_bytes": 20410,
+      "sha256": "f61e6a3e04ce010c63ad7bbaee2286729b482c481d2676c0355092e256c6d92b"
+    },
+    {
+      "path": "src/wenjin/parser_names.py",
+      "size_bytes": 2874,
+      "sha256": "9b286eaac38b34bed2bbdfd68a08bedadbff422847bddfe06618c58a54643810"
+    },
+    {
+      "path": "src/wenjin/paths.py",
+      "size_bytes": 3945,
+      "sha256": "1711832571917dfd5b1c8e5d5669383d78861351f892e3256caa75d7d0130d49"
+    },
+    {
+      "path": "src/wenjin/qdrant_connection.py",
+      "size_bytes": 933,
+      "sha256": "1acd055ee8f534b6a4cf07ae652ee61136378c166b0d1a3982886515e299f3dd"
+    },
+    {
+      "path": "src/wenjin/releases/__init__.py",
+      "size_bytes": 374,
+      "sha256": "d7118d8cc391d38044ebfa0c97e819b6c0e6dc49b9a21b752e8fd4b06f24d73b"
+    },
+    {
+      "path": "src/wenjin/releases/catalog.py",
+      "size_bytes": 20712,
+      "sha256": "676d2221ab43da223c83488da6278662994601cae255c7d59e3c46ef2d33cb0c"
+    },
+    {
+      "path": "src/wenjin/releases/resolver.py",
+      "size_bytes": 30518,
+      "sha256": "996bf3fd7c3bf09f0e15b9648f8af8c46a7324aed2cef4153272e674f983cb75"
+    },
+    {
+      "path": "src/wenjin/releases/service.py",
+      "size_bytes": 19287,
+      "sha256": "e9132dd563aecc6f06b6eaec2733fe5900ba457a0f58ca352be34bfc61c8262a"
+    },
+    {
+      "path": "src/wenjin/retrieval/__init__.py",
+      "size_bytes": 58,
+      "sha256": "0a324a4708d1f54a4ac3305fda45a92f60eebef23ef9403170434e0097c97edf"
+    },
+    {
+      "path": "src/wenjin/retrieval/errors.py",
+      "size_bytes": 174,
+      "sha256": "ad595026335dba2b476d5c5403177a6a35ee483ea94f75486763c5a2f45e6e47"
+    },
+    {
+      "path": "src/wenjin/retrieval/fusion.py",
+      "size_bytes": 3053,
+      "sha256": "764437fbb8d4df0dd4a6bfb4857660c4b47c3ff1e29b519b08ddb38815eb87ce"
+    },
+    {
+      "path": "src/wenjin/retrieval/lazy_reranker.py",
+      "size_bytes": 6717,
+      "sha256": "7cfafb777d15befbc57c6b5585dddd12ef5e8d96520cb55cc121fde2dc84fcfe"
+    },
+    {
+      "path": "src/wenjin/retrieval/legacy_catalog.py",
+      "size_bytes": 38383,
+      "sha256": "729fda5e888e1b40909232f3acc82a92bcc727c5c1b0d4e4b0f28002c158395a"
+    },
+    {
+      "path": "src/wenjin/retrieval/query_expansion.py",
+      "size_bytes": 1766,
+      "sha256": "d707de958f9da71cae8e6b968a8472d93cac83d4f5873721c0dce9c00cfbe294"
+    },
+    {
+      "path": "src/wenjin/retrieval/query_rewrite.py",
+      "size_bytes": 6688,
+      "sha256": "9d94181603d7df38ecdfd7d2f78b2a5cedc199e9c7fb1ca58b29be83413fb523"
+    },
+    {
+      "path": "src/wenjin/retrieval/rerank.py",
+      "size_bytes": 6005,
+      "sha256": "675f667f1488d04243d8a157e4c1439bb132c1da511fa0f39503bffeabfff68f"
+    },
+    {
+      "path": "src/wenjin/retrieval/router.py",
+      "size_bytes": 24321,
+      "sha256": "3f3e235f2ee3ce63561d9a8df1ecc4c03e9af240ddf5d2c339044d7335415cc2"
+    },
+    {
+      "path": "src/wenjin/retrieval/search_policy.py",
+      "size_bytes": 5149,
+      "sha256": "90eb289ff1b62137dfeee342de3457534865f0042b5518c397686d22d3db65ae"
+    },
+    {
+      "path": "src/wenjin/retrieval/service.py",
+      "size_bytes": 10898,
+      "sha256": "aae54d05a359680abbcb378d1a4d2473e3a380b059d6e9ff7e99f6da78be7202"
+    },
+    {
+      "path": "src/wenjin/retrieval/source_context.py",
+      "size_bytes": 19067,
+      "sha256": "2428197fa830ec232f3c2448d27f90f6c8828e37eb527aa5dcb2a51cede69223"
+    },
+    {
+      "path": "src/wenjin/retrieval/strategy_experiment.py",
+      "size_bytes": 32945,
+      "sha256": "19806f6741e584faa7bb66ef148cad6da4a20bdd794fd4053e2976422ef58939"
+    },
+    {
+      "path": "src/wenjin/schemas.py",
+      "size_bytes": 1643,
+      "sha256": "af34616b4a044fd8003d1a2088b62319d4a9d8237b12d02874b9ef549b3c6fdd"
+    },
+    {
+      "path": "src/wenjin/serving.py",
+      "size_bytes": 16668,
+      "sha256": "54bb17ee82c8d2aa67a2948b9437555caaa413a673cdcf23e1b4712c1adf1f72"
+    },
+    {
+      "path": "src/wenjin/settings.py",
+      "size_bytes": 6878,
+      "sha256": "c262417d39719880d38b7ca0e4e3b0598d496956072d11a17e48d6b6a0662c90"
+    },
+    {
+      "path": "scripts/__init__.py",
+      "size_bytes": 76,
+      "sha256": "a49041162ecacce2875c2073a4edf686f34902f0fb9e858340f4ce94137c40bb"
+    },
+    {
+      "path": "scripts/add_corpus.py",
+      "size_bytes": 857,
+      "sha256": "922aca5ac642d9a49dc5fdb9ba15fbe3b62c958bf508d8d1df6899d869cf07b5"
+    },
+    {
+      "path": "scripts/assess_evidence.py",
+      "size_bytes": 501,
+      "sha256": "a7f7998ebcb023cb976ea673aa5aa63b0cc3cd25bdf303d0e1ff7126436c28ca"
+    },
+    {
+      "path": "scripts/audit_external_corpus.py",
+      "size_bytes": 847,
+      "sha256": "c74a506e2fd08ba5681a1bc7c9f3ba8e012b6d599019699c9dfe4dd58bcddd66"
+    },
+    {
+      "path": "scripts/build_bm25_index.py",
+      "size_bytes": 603,
+      "sha256": "c4d7bc4cb19728fb5fe1c00d8851ad48d4c9df5a3685269e7d8c232ea0892f1c"
+    },
+    {
+      "path": "scripts/build_dense_index.py",
+      "size_bytes": 605,
+      "sha256": "dcbbf5407062cd08d6a9e9401fa5cc9ff4213dbecebf0e11ca5d1004b38813c1"
+    },
+    {
+      "path": "scripts/build_index_candidate.py",
+      "size_bytes": 553,
+      "sha256": "81d951406772c49657e2df21810e4f233b03c0e33c4adb51733cde1c004bc390"
+    },
+    {
+      "path": "scripts/build_multicorpus_candidates.py",
+      "size_bytes": 839,
+      "sha256": "bda4f03b550db29efacfe9c16b0780172d8a0bd207b151a7d547f172c4554c53"
+    },
+    {
+      "path": "scripts/check_environment.py",
+      "size_bytes": 847,
+      "sha256": "eebe58f55460d6e6bb5b26b3e7ce0fce34e151e506e47eb871cd3ed1dbc10213"
+    },
+    {
+      "path": "scripts/demo_content_update.py",
+      "size_bytes": 795,
+      "sha256": "c661a402b3e8d582559fd71cbcfaa93d928a5e30c3f31b5e9b18e5f43fbd046b"
+    },
+    {
+      "path": "scripts/demo_index_switch.py",
+      "size_bytes": 659,
+      "sha256": "e66a5180fe41183ca465e1b2816b8f5eb6bff1b7637f497f2bc9128b651beab5"
+    },
+    {
+      "path": "scripts/demo_modify_delete.py",
+      "size_bytes": 933,
+      "sha256": "f1f3ff3ad436de5bae1302f8af12dcad3de75e8e450e04906e8b56dbf785743e"
+    },
+    {
+      "path": "scripts/demos/__init__.py",
+      "size_bytes": 31,
+      "sha256": "cdacd124d1e195227163d37539ad49be4b066193b4abd28c1075a9ba59aa3a9f"
+    },
+    {
+      "path": "scripts/demos/demo_content_update.py",
+      "size_bytes": 7460,
+      "sha256": "cf453ce005e6fedb34c53539f143e77f090df10201df8a458926047248d12cca"
+    },
+    {
+      "path": "scripts/demos/demo_index_switch.py",
+      "size_bytes": 4838,
+      "sha256": "5ab5914ddef91a0bb17f91411ef8eeb1be9cebc954b2edea8bdf58edee5c8205"
+    },
+    {
+      "path": "scripts/demos/demo_modify_delete.py",
+      "size_bytes": 10060,
+      "sha256": "893575d505afae226d3e0104086fe5ce1d95d632ca6088ad02985abe79418aad"
+    },
+    {
+      "path": "scripts/demos/query_bm25_index.py",
+      "size_bytes": 1035,
+      "sha256": "4cb909cc1ce7b935785462f44f5f20a011497bd5ddddc07b191ecdb1218e43e4"
+    },
+    {
+      "path": "scripts/demos/query_dense_index.py",
+      "size_bytes": 1461,
+      "sha256": "5223e0b87393e1a83080fcdba5a03a3998140fdddeb0b9a3688205fae1129db0"
+    },
+    {
+      "path": "scripts/demos/query_hybrid.py",
+      "size_bytes": 2619,
+      "sha256": "2093f2f2126e13ddbd3c48b178b420649825af2547af1e639576cf7251db0f39"
+    },
+    {
+      "path": "scripts/evaluate_chunk_coverage.py",
+      "size_bytes": 763,
+      "sha256": "4020570a3b7eb89503125b7f4c776ee013f0dd4d2d4086f840800eabdc126f18"
+    },
+    {
+      "path": "scripts/evaluate_multiformat_chunking.py",
+      "size_bytes": 1103,
+      "sha256": "a1ab0030430368e733d5db18b8eb6a74868e41f57f6cfeb6186ee8cbf22b5b87"
+    },
+    {
+      "path": "scripts/evaluate_multiformat_parsing.py",
+      "size_bytes": 615,
+      "sha256": "f3e8c7b027f04d1652e5b6401cbbd000e49932b9cb351c98a92afc1f32f5bc6e"
+    },
+    {
+      "path": "scripts/experiments/measure_managed_contention.py",
+      "size_bytes": 28019,
+      "sha256": "1088235d615e23bcd8aed9164c12f11615c6b88597d4fd661895ef714bcf3155"
+    },
+    {
+      "path": "scripts/fetch_corpus.py",
+      "size_bytes": 811,
+      "sha256": "292f56d904dd597f38afce4e468079aa4eca51f24ee6433c17cd141a9b7ddcdc"
+    },
+    {
+      "path": "scripts/format_table_chunks.py",
+      "size_bytes": 559,
+      "sha256": "cf9e04251de046c888e0def29d85bcaf4245392700fd9aa343606b30f23e8256"
+    },
+    {
+      "path": "scripts/generate_dev_certificate.py",
+      "size_bytes": 733,
+      "sha256": "ec2b49a0118c96a1b76c600224fa10ecf564f4e007cd0ccea63a71cce616c527"
+    },
+    {
+      "path": "scripts/import_verified_corpus.py",
+      "size_bytes": 711,
+      "sha256": "994df33c6e6da72ade531a81ca565a815d25bb9286a7ae058a786598741ce32d"
+    },
+    {
+      "path": "scripts/inspect_table_geometry.py",
+      "size_bytes": 547,
+      "sha256": "30185dabd0713b4d813cd112e11f3731952223ad2fcca7037126a64d820ccf9b"
+    },
+    {
+      "path": "scripts/labs/__init__.py",
+      "size_bytes": 31,
+      "sha256": "cdacd124d1e195227163d37539ad49be4b066193b4abd28c1075a9ba59aa3a9f"
+    },
+    {
+      "path": "scripts/labs/assess_evidence.py",
+      "size_bytes": 1950,
+      "sha256": "abf8a27763949bf6c3d43dd6d0ccecb682c9c67641f7483a10d093ca011e24bb"
+    },
+    {
+      "path": "scripts/labs/evaluate_chunk_coverage.py",
+      "size_bytes": 7428,
+      "sha256": "0937ef98d117e1cfae31cd2ac27f4d65ee46eaf10d2fed4a3c8d6bad36014d41"
+    },
+    {
+      "path": "scripts/labs/evaluate_multiformat_chunking.py",
+      "size_bytes": 10372,
+      "sha256": "ffd45ea2753c6ddec96f6d35f1facd809df4a52b56730e79bad8e2a81be6bcf1"
+    },
+    {
+      "path": "scripts/labs/evaluate_multiformat_parsing.py",
+      "size_bytes": 3850,
+      "sha256": "e3fb326c0b1594c94be845f9a2d48905126ce7c13e671614e63838abb7fde28b"
+    },
+    {
+      "path": "scripts/labs/format_table_chunks.py",
+      "size_bytes": 863,
+      "sha256": "9a92aca959995afa308f6bf945b6efbcb684f0f77624e719678171ceca94d0e9"
+    },
+    {
+      "path": "scripts/labs/inspect_table_geometry.py",
+      "size_bytes": 1649,
+      "sha256": "6f994a5b87906ffef23c3cd9cb76e0a4a8589d89efdf45b326c9d8cb28ca53c5"
+    },
+    {
+      "path": "scripts/labs/mark_parser_baselines.py",
+      "size_bytes": 1617,
+      "sha256": "1bc8e807d89f766fd4449dbdcf5c436c7d207e5cf5d32e07e4d2817ccffe9347"
+    },
+    {
+      "path": "scripts/labs/measure_long_line_evidence.py",
+      "size_bytes": 15862,
+      "sha256": "5ded68fe8ae053a5c8af51ab6b4619a32132350b1f85524faf0c98ca523464c6"
+    },
+    {
+      "path": "scripts/labs/recover_table_demo.py",
+      "size_bytes": 3588,
+      "sha256": "23e918d3d1a9a01921df8765b9b9c5ffd7fb686352609d7ae8fe47e8fb2e9e7a"
+    },
+    {
+      "path": "scripts/labs/rewrite_query.py",
+      "size_bytes": 1569,
+      "sha256": "83205aea2b8adea70ce25cc953df3f310b31ed1a8261145650d79ed0aa98b400"
+    },
+    {
+      "path": "scripts/labs/run_chunk_lab.py",
+      "size_bytes": 1818,
+      "sha256": "4dfc36deafe6149e4f97f3f8a42a8bc32da771e0e1d04e7ff0c811cd40237c30"
+    },
+    {
+      "path": "scripts/labs/run_mineru_lab.py",
+      "size_bytes": 3160,
+      "sha256": "b1477935b8fc4b55530c6389d7d2228475b185c6fa164dcb01a4dda35ffc2dec"
+    },
+    {
+      "path": "scripts/labs/run_parse_lab.py",
+      "size_bytes": 4438,
+      "sha256": "ea14c41bcd9d68628f248610326e033f147d4b9884a58e2fa981cafc4ecdefa7"
+    },
+    {
+      "path": "scripts/manage_access.py",
+      "size_bytes": 1047,
+      "sha256": "b2124c7c4f55c810fee6262f37059f7c570cb5333b28c4ab7226ee33dc96b41b"
+    },
+    {
+      "path": "scripts/manage_indexes.py",
+      "size_bytes": 609,
+      "sha256": "0816215aa49b356994434fdc66a722f41e0737fd56393707c8334478bd3026fe"
+    },
+    {
+      "path": "scripts/mark_parser_baselines.py",
+      "size_bytes": 541,
+      "sha256": "8169f31f855323da8143f17fcee8a67a732bb09b5cd10d887c66e063ead457d5"
+    },
+    {
+      "path": "scripts/measure_long_line_evidence.py",
+      "size_bytes": 735,
+      "sha256": "9c41650486bc0145a539ed4d613f8d82d1b7808f2eff2e170fc870c737defac6"
+    },
+    {
+      "path": "scripts/normalize_manifest_newlines.py",
+      "size_bytes": 925,
+      "sha256": "3375cae7b8ec99c6a12f0bd489f12135fd8711fa94062bf6592f1d8a6eb5a2b5"
+    },
+    {
+      "path": "scripts/operations/__init__.py",
+      "size_bytes": 31,
+      "sha256": "cdacd124d1e195227163d37539ad49be4b066193b4abd28c1075a9ba59aa3a9f"
+    },
+    {
+      "path": "scripts/operations/add_corpus.py",
+      "size_bytes": 10821,
+      "sha256": "4bcb6ac59084dce641f7e6480ea8007a4e149cff2a73e662feeb72f9dfcdf4d3"
+    },
+    {
+      "path": "scripts/operations/audit_external_corpus.py",
+      "size_bytes": 10326,
+      "sha256": "2097929edbefd25ae03c56e32500b6eaac6a4960056ccea434f9e682936a8516"
+    },
+    {
+      "path": "scripts/operations/build_bm25_index.py",
+      "size_bytes": 3739,
+      "sha256": "9462467994d085f23c5c716305c7c02aaffe111b42031a3d0869aa806778ca0b"
+    },
+    {
+      "path": "scripts/operations/build_delivery_images.py",
+      "size_bytes": 8006,
+      "sha256": "bbdd139c99d2bfd86e47d6110c64ef45e5f5854f35ba3d6a510ce56e8b9cc663"
+    },
+    {
+      "path": "scripts/operations/build_dense_index.py",
+      "size_bytes": 4483,
+      "sha256": "5b71ef7aa65048d6ba92505270b57c2ca71e18d0c1ba18bab0833296c73b719b"
+    },
+    {
+      "path": "scripts/operations/build_index_candidate.py",
+      "size_bytes": 2295,
+      "sha256": "d357d7f3caa14c443fa6bd52fc7d0b7e75c977b06539dd700cba4d4c50ca5f96"
+    },
+    {
+      "path": "scripts/operations/build_multicorpus_candidates.py",
+      "size_bytes": 4869,
+      "sha256": "3919c6ca866a29cb851433c6a9ed0b56a16c2e9ef5b0db443299b7233d7af431"
+    },
+    {
+      "path": "scripts/operations/check_environment.py",
+      "size_bytes": 8653,
+      "sha256": "d36d0aaabdd427856e40328512425160f72cb6cf1e804bcd689025762d44187c"
+    },
+    {
+      "path": "scripts/operations/fetch_corpus.py",
+      "size_bytes": 4326,
+      "sha256": "39de55bfa61a03e3aa099d4a3500a573f58fae91352fa9f1b07a5e64f204bd13"
+    },
+    {
+      "path": "scripts/operations/import_verified_corpus.py",
+      "size_bytes": 3159,
+      "sha256": "18094639d98bc3059a12be58cd845f47057f037f413ade83920e2b326d9f783b"
+    },
+    {
+      "path": "scripts/operations/manage_access.py",
+      "size_bytes": 5146,
+      "sha256": "1434b762c4a25665f8de6f51d7ce800ca8fd558d2a6eae64766ab50a649e6ac7"
+    },
+    {
+      "path": "scripts/operations/manage_indexes.py",
+      "size_bytes": 3634,
+      "sha256": "60b3e62dcfb2a1a8ba7755e1d32a8c1d72b298b6e0edb7740d8b78464188ce6e"
+    },
+    {
+      "path": "scripts/operations/normalize_manifest_newlines.py",
+      "size_bytes": 7665,
+      "sha256": "c383c2024a0136a66a8dd50f3cd1b5247036084e933a15058089b96d12365946"
+    },
+    {
+      "path": "scripts/operations/prepare_corpus_import.py",
+      "size_bytes": 16016,
+      "sha256": "bc4d26d7a074a3e605c37866b7d5eb26b6ac7a724be8f4a640113a1e38467c73"
+    },
+    {
+      "path": "scripts/operations/prepare_docker_delivery_fixture.py",
+      "size_bytes": 12547,
+      "sha256": "16ecc655fd2936ecf6ca6103cd0d66cf5bc50587b9d1ba0c3ce18d80c3039a57"
+    },
+    {
+      "path": "scripts/operations/qdrant_server_snapshot.py",
+      "size_bytes": 6789,
+      "sha256": "1d666e532b2cc2b43c31f148fd2ecd51c698308bd1839cf44dcd836640f2f1ad"
+    },
+    {
+      "path": "scripts/operations/search_docs.py",
+      "size_bytes": 2359,
+      "sha256": "f7c0ddb3d9a33be18a3933e5d77d6585ee60de6cea2b901b1150cc6679291d1b"
+    },
+    {
+      "path": "scripts/operations/search_routed.py",
+      "size_bytes": 4924,
+      "sha256": "62b80db3623ddccbf5480baa007e1f49d84ee9cfdb8e3fd2f91b34739b44955b"
+    },
+    {
+      "path": "scripts/operations/team_delivery.py",
+      "size_bytes": 44005,
+      "sha256": "fcd747289beec17452103e9e231f8a36ce95b3f4cb8c6793247ba481dfddccd4"
+    },
+    {
+      "path": "scripts/operations/test_mcp_client.py",
+      "size_bytes": 1978,
+      "sha256": "e278ce1672efb043ac42fb2b5e48471ddddfe48b24dec6f36569b983761e2f00"
+    },
+    {
+      "path": "scripts/operations/verify_batch1_2.py",
+      "size_bytes": 10066,
+      "sha256": "f341cf8d8958f7873ecfb836fe7da8fc86073ba4e8b61b67706bb42d2f6feb2e"
+    },
+    {
+      "path": "scripts/operations/verify_candidate_indexes.py",
+      "size_bytes": 4892,
+      "sha256": "5798252e4886899bf071b02993e9b4c2fb667b41d59a49f133e70bb50f3a95d7"
+    },
+    {
+      "path": "scripts/operations/verify_corpus_hashes.py",
+      "size_bytes": 728,
+      "sha256": "87e408ab2a36eab73b515b49b9782bd706bd97d52493702cb7bd8c33f1967659"
+    },
+    {
+      "path": "scripts/operations/verify_imported_datasets.py",
+      "size_bytes": 302,
+      "sha256": "d5e5d9f11bdbdc85f26218fff0cba93a20d7cb88253502f8850c703ca52b3657"
+    },
+    {
+      "path": "scripts/prepare_corpus_import.py",
+      "size_bytes": 859,
+      "sha256": "c0146f415eb7b52aef2d08a3c35ad9a776674865882b619b935290ce7e7b7783"
+    },
+    {
+      "path": "scripts/query_bm25_index.py",
+      "size_bytes": 573,
+      "sha256": "1197b5cde711d1183ea69b1f8891b507701125ff144e752ba83c3489abbfcd57"
+    },
+    {
+      "path": "scripts/query_dense_index.py",
+      "size_bytes": 561,
+      "sha256": "38726ce47f840de4d502a7a736cd91f9915b842a61a18e6eef42a298b5ab24cd"
+    },
+    {
+      "path": "scripts/query_hybrid.py",
+      "size_bytes": 601,
+      "sha256": "51899078d593dc52101e421eaa54b17ddaec1a763a6457277b4b86daee6a48c3"
+    },
+    {
+      "path": "scripts/recover_table_demo.py",
+      "size_bytes": 745,
+      "sha256": "8b60079c652f8085ca3afa753f1e995ab124e4350280cb2eff72b115c0ea0b0b"
+    },
+    {
+      "path": "scripts/rewrite_query.py",
+      "size_bytes": 497,
+      "sha256": "8091ce8b5963a875ca856738e90c8cca230d36df8f0aefb54ebde6f6cee413ab"
+    },
+    {
+      "path": "scripts/run_chunk_lab.py",
+      "size_bytes": 525,
+      "sha256": "1192480d9a1d9b523177b336430dff653b1b16c724e3048b437129784197ea13"
+    },
+    {
+      "path": "scripts/run_mcp_stateless.ps1",
+      "size_bytes": 358,
+      "sha256": "a34439249504228fdf5fac078c7c5e7a772cc343de4f440815f6422f44fdf6e2"
+    },
+    {
+      "path": "scripts/run_mineru_lab.py",
+      "size_bytes": 557,
+      "sha256": "b49d1073f1f13ad1e3153cb621f21891693c1084b7c368ba5d42644d7f8e6106"
+    },
+    {
+      "path": "scripts/run_parse_lab.py",
+      "size_bytes": 777,
+      "sha256": "2e95c1a325f2bfbf35fe5f4e2d188a01887c8171d34f289219710b6ed901e142"
+    },
+    {
+      "path": "scripts/search_docs.py",
+      "size_bytes": 581,
+      "sha256": "dfbfd32d734c3395b660a29c7dc274c2c20cb63bcde3c4ce1ffac3fc6879d73a"
+    },
+    {
+      "path": "scripts/search_routed.py",
+      "size_bytes": 637,
+      "sha256": "888a536963c7feaa674775493be59f83c5e359fe81d77665cfa6179add58b456"
+    },
+    {
+      "path": "scripts/support/__init__.py",
+      "size_bytes": 31,
+      "sha256": "cdacd124d1e195227163d37539ad49be4b066193b4abd28c1075a9ba59aa3a9f"
+    },
+    {
+      "path": "scripts/support/corpus_validation.py",
+      "size_bytes": 1141,
+      "sha256": "b545f3790b7083fc825479936bb6ecb96d83e9a9e06ae1b5de97cd7309f09ad6"
+    },
+    {
+      "path": "scripts/support/generate_dev_certificate.py",
+      "size_bytes": 2400,
+      "sha256": "45d807b7d5b11dd0ee23708d4446cf95dc771f015877340b5020b6931f96b99a"
+    },
+    {
+      "path": "scripts/support/search_display.py",
+      "size_bytes": 1123,
+      "sha256": "9ca4b03ab4e9c87b7fde3fc60449db72d223f817167c45690f414e1c5e750755"
+    },
+    {
+      "path": "scripts/support/verified_dataset.py",
+      "size_bytes": 7476,
+      "sha256": "f06247db428df8171f2e4a4986e9f10ad02f857990b2508f0154df1d3136b400"
+    },
+    {
+      "path": "scripts/team_delivery.py",
+      "size_bytes": 330,
+      "sha256": "6d385e8135184288eab93b169303acbf1c635d6d3d9211fb24a75ebe9717d918"
+    },
+    {
+      "path": "scripts/test_mcp_client.py",
+      "size_bytes": 609,
+      "sha256": "2bdb36097b05c67c2a9f125fa22ca120b56a550ddd52cb3712c8d974918e5db2"
+    },
+    {
+      "path": "scripts/verify_batch1_2.py",
+      "size_bytes": 1363,
+      "sha256": "2af87b078d2b61be898e2ced41a90b05770f89592c995285dea17786797899df"
+    },
+    {
+      "path": "scripts/verify_candidate_indexes.py",
+      "size_bytes": 729,
+      "sha256": "b9e92817c9f5fdeafa4b562fc32b4df6fab0085ae1ba53a4138239f378661204"
+    },
+    {
+      "path": "scripts/verify_corpus_hashes.py",
+      "size_bytes": 585,
+      "sha256": "7570279ac7f5a571f266af42a1ff1c2d92f7b2ca3d650ac8ce63aa33cc533ec0"
+    },
+    {
+      "path": "scripts/verify_imported_datasets.py",
+      "size_bytes": 551,
+      "sha256": "b16302e374ee51859faf0af7f2de3483aa8eba792eebe9d7b0fb36f1903b3fd2"
+    }
+  ],
+  "image_identity_checks": [
+    {
+      "tag": "wenjin-backend:delivery-639794c5b660",
+      "id_matches": true,
+      "source_label_matches": true
+    },
+    {
+      "tag": "wenjin-model-node:delivery-639794c5b660",
+      "id_matches": true,
+      "source_label_matches": true
+    },
+    {
+      "tag": "wenjin-mcp-stateless:delivery-639794c5b660",
+      "id_matches": true,
+      "source_label_matches": true
+    }
+  ],
+  "owned_docker_resources_remaining": {
+    "containers": [],
+    "networks": [],
+    "volumes": []
+  },
+  "note": "Root read-only audit; model-node image import-only; no inference/GPU acceptance."
+}

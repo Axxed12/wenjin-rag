@@ -1,0 +1,115 @@
+--- a/src/wenjin/file_management/backends.py
++++ b/src/wenjin/file_management/backends.py
+@@ -31,16 +31,19 @@
+ class QdrantBm25Adapter:
+     """生产适配器：复用现有真实Embedding、Qdrant和SQLite FTS5构建路径。"""
+ 
++    supports_embedding_batch_lock = True
+ 
+     def __init__(
+         self, *, root: Path, qdrant_client, embedder, embedding_model: str,
+         managed_raw_data_root: Path | None = None,
++        embedding_lock=None,
+     ) -> None:
+         self.root = Path(root)
+         self.managed_raw_data_root = Path(managed_raw_data_root or (self.root / "raw_data")).resolve()
+         self.qdrant_client = qdrant_client
+         self.embedder = embedder
+         self.embedding_model = embedding_model
++        self.embedding_lock = embedding_lock
+ 
+     def build(
+         self,
+@@ -64,6 +67,7 @@
+             embedding_model=self.embedding_model,
+             project_root=self.root,
+             raw_data_root=self.managed_raw_data_root,
++            embedding_lock=self.embedding_lock,
+         )
+ 
+     def verify(self, target) -> dict:
+--- a/src/wenjin/file_management/service.py
++++ b/src/wenjin/file_management/service.py
+@@ -130,6 +130,8 @@
+         self._job_lock = threading.Lock()
+         self._retry_lock = threading.Lock()
+         self._model_lock = threading.RLock()
++        if isinstance(self.index_adapter, QdrantBm25Adapter):
++            self.index_adapter.embedding_lock = self._model_lock
+         self._process_lock = _ProcessLock(self.base / "manager.lock")
+         self.repository = FileManagementRepository()
+         self.base.mkdir(parents=True, exist_ok=True)
+--- a/src/wenjin/file_management/versions.py
++++ b/src/wenjin/file_management/versions.py
+@@ -163,14 +163,19 @@
+ 
+         target_id = f"fm-{file_id}-{version_id}"
+ 
+-        with self._model_lock:
+-            target = self.index_adapter.build(
+-                manifest_path=manifest_path,
+-                target_id=target_id,
+-                strategy="blocks-split",
+-                collection=collection,
+-                bm25_path=bm25_path,
+-            )
++        build_kwargs = {
++            "manifest_path": manifest_path,
++            "target_id": target_id,
++            "strategy": "blocks-split",
++            "collection": collection,
++            "bm25_path": bm25_path,
++        }
++        if getattr(self.index_adapter, "supports_embedding_batch_lock", False):
++            target = self.index_adapter.build(**build_kwargs)
++        else:
++            # 未声明只锁embedding批次能力的自定义adapter保留原建库整体互斥合同。
++            with self._model_lock:
++                target = self.index_adapter.build(**build_kwargs)
+         self._raise_if_cancel_requested(job_id)
+ 
+         if target.chunk_count != chunk_count:
+--- a/src/wenjin/indexing/build.py
++++ b/src/wenjin/indexing/build.py
+@@ -25,6 +25,7 @@
+     embedding_model: str,
+     project_root: Path,
+     raw_data_root: Path | None = None,
++    embedding_lock=None,
+ ) -> IndexTarget:
+     """拒绝覆盖现有资产；任一步失败则删除本次新建的候选。"""
+     if strategy not in {"blocks", "blocks-split", "fixed"}:
+@@ -65,7 +66,7 @@
+     if not chunks:
+         raise ValueError("候选语料没有生成chunk")
+     try:
+-        vectors = embed_chunks(embedder, chunks)
++        vectors = embed_chunks(embedder, chunks, embedding_lock=embedding_lock)
+         create_dense_collection(qdrant_client, dense_collection, chunks, vectors)
+         build_bm25_index(bm25_path, chunks)
+     except Exception:
+--- a/src/wenjin/indexing/dense.py
++++ b/src/wenjin/indexing/dense.py
+@@ -10,13 +10,20 @@
+ 
+ 
+ def embed_chunks(
+-    embedder: "HuggingFaceEmbedding | Any", chunks: list, *, batch_size: int = 16
++    embedder: "HuggingFaceEmbedding | Any", chunks: list, *, batch_size: int = 16,
++    embedding_lock=None,
+ ) -> list[list[float]]:
+     """按批次计算文档向量；返回顺序与 chunks 完全一致。"""
+     vectors = []
+     for start in range(0, len(chunks), batch_size):
+         texts = [chunk.text for chunk in chunks[start : start + batch_size]]
+-        vectors.extend(embedder.get_text_embedding_batch(texts, show_progress=False))
++        if embedding_lock is None:
++            batch_vectors = embedder.get_text_embedding_batch(texts, show_progress=False)
++        else:
++            # 只串行化共享模型的真实推理批次；候选索引写入可并行准备。
++            with embedding_lock:
++                batch_vectors = embedder.get_text_embedding_batch(texts, show_progress=False)
++        vectors.extend(batch_vectors)
+     if len(vectors) != len(chunks):
+         raise RuntimeError("Embedding 数量与 chunk 数量不一致")
+     return vectors

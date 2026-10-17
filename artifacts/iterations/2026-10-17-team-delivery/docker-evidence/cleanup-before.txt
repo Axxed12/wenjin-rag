@@ -1,0 +1,7 @@
+NAME                                               IMAGE                                       COMMAND                  SERVICE               CREATED       STATUS                   PORTS
+team-delivery-495afbb07c38-management-1            wenjin-backend:team-delivery-495afbb07c38   "/usr/local/bin/with…"   management            8 hours ago   Exited (0) 8 hours ago   
+team-delivery-495afbb07c38-management-restored-1   wenjin-backend:team-delivery-495afbb07c38   "/usr/local/bin/with…"   management-restored   8 hours ago   Up 8 hours               8778/tcp
+team-delivery-495afbb07c38-mcp-restored-1          wenjin-backend:team-delivery-495afbb07c38   "/usr/local/bin/with…"   mcp-restored          8 hours ago   Up 8 hours               
+team-delivery-495afbb07c38-qdrant-1                qdrant/qdrant:v1.19.1                       "./entrypoint.sh"        qdrant                8 hours ago   Up 8 hours               6333-6334/tcp
+team-delivery-495afbb07c38-qdrant-restored-1       qdrant/qdrant:v1.19.1                       "./entrypoint.sh"        qdrant-restored       8 hours ago   Up 8 hours               6333-6334/tcp
+team-delivery-495afbb07c38-synthetic-model-1       wenjin-backend:team-delivery-495afbb07c38   "python /app/deliver…"   synthetic-model       8 hours ago   Up 8 hours               

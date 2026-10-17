@@ -1,5 +1,7 @@
 # 持续开发记录索引
 
+2026-10-17 [内网团队交付补齐](../artifacts/iterations/2026-10-17-team-delivery/development-log.md)：私域MCP、受管重排、协作取消/锁计时、三镜像与Docker业务恢复、GPT取证回答；[交付报告](../artifacts/iterations/2026-10-17-team-delivery/final-report.md)区分独立合同、CLI连接与待人工项目。
+
 2026-10-15 [评测界面可读性修复](../artifacts/iterations/2026-10-15-evaluation-readable-ui/development-log.md)：修复空表格对象字符串、内部标识收进详情、状态去重及换行；51项前端行为检查与真实静态资源检查通过。
 
 2026-10-15 [路线页状态同步](../artifacts/iterations/2026-10-15-roadmap-status/development-log.md)：按当前实现区分已实现与待完善，更新账号说明；仅静态文案，未新增后台功能或重跑业务验收。
