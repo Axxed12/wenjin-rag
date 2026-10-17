@@ -1,5 +1,7 @@
 # 持续开发记录索引
 
+2026-10-17 [轻量GitHub Actions](../artifacts/iterations/2026-10-17-github-actions/development-log.md)：显式12模块、锁定轻量依赖、固定Action SHA；静态及本地临时环境验证，待首次远端验证。
+
 2026-10-17 [团队交付开发保存并合入main](../artifacts/iterations/2026-10-17-main-integration/development-log.md)：原修改与已存基线一致，两次ff-only合入，无业务源码冲突；复用交付分支验收，未推送/部署。
 
 2026-10-17 [内网团队交付补齐](../artifacts/iterations/2026-10-17-team-delivery/development-log.md)：私域MCP、受管重排、协作取消/锁计时、三镜像与Docker业务恢复、GPT取证回答；[交付报告](../artifacts/iterations/2026-10-17-team-delivery/final-report.md)区分独立合同、CLI连接与待人工项目。

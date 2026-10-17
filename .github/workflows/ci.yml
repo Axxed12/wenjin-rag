@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  targeted-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+      PYTHONNOUSERSITE: "1"
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      UV_NO_ENV_FILE: "1"
+    steps:
+      - name: Check out source
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c # v7.0.0
+        with:
+          version: "0.11.3"
+          python-version: "3.12"
+          enable-cache: false
+
+      - name: Install locked test environment
+        run: uv sync --locked --no-default-groups --group dev
+
+      - name: Run targeted synthetic tests
+        run: >-
+          uv run --no-sync python -m pytest -q --strict-markers
+          tests/test_audit.py
+          tests/test_bm25.py
+          tests/test_chunking.py
+          tests/test_content_hashing.py
+          tests/test_evidence.py
+          tests/test_fusion.py
+          tests/test_query_expansion.py
+          tests/test_query_format.py
+          tests/test_evidence_threshold.py
+          tests/test_index_registry.py
+          tests/test_context_selection_contract.py
+          tests/test_long_line_evidence_contract.py

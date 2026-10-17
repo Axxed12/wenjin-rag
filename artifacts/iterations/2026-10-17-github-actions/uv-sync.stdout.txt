@@ -1,0 +1,8 @@
+Resolved 177 packages in 1ms
+   Building wenjin-rag @ file:///C:/Users/Onebiter/AppData/Local/Temp/rag-project-github-actions-20261017-v2/source
+      Built wenjin-rag @ file:///C:/Users/Onebiter/AppData/Local/Temp/rag-project-github-actions-20261017-v2/source
+Prepared 1 package in 5.65s
+Uninstalled 1 package in 4ms
+Installed 1 package in 11ms
+ - wenjin-rag==0.1.0 (from file:///E:/%E6%97%A5%E5%B8%B8%E4%BB%BB%E5%8A%A1/rag-project)
+ + wenjin-rag==0.1.0 (from file:///C:/Users/Onebiter/AppData/Local/Temp/rag-project-github-actions-20261017-v2/source)

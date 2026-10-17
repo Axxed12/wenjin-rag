@@ -1,0 +1,20 @@
+............................................................             [100%]
+============================== warnings summary ===============================
+tests/test_bm25.py::test_query_terms_extract_identifiers_and_chinese_words
+  C:\Users\Onebiter\AppData\Local\Temp\rag-project-github-actions-20261017-v2\venv\Lib\site-packages\jieba\__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+    re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+
+tests/test_bm25.py::test_query_terms_extract_identifiers_and_chinese_words
+  C:\Users\Onebiter\AppData\Local\Temp\rag-project-github-actions-20261017-v2\venv\Lib\site-packages\jieba\__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+    re_skip_default = re.compile("(\r\n|\s)", re.U)
+
+tests/test_bm25.py::test_query_terms_extract_identifiers_and_chinese_words
+  C:\Users\Onebiter\AppData\Local\Temp\rag-project-github-actions-20261017-v2\venv\Lib\site-packages\jieba\finalseg\__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+    re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+
+tests/test_bm25.py::test_query_terms_extract_identifiers_and_chinese_words
+  C:\Users\Onebiter\AppData\Local\Temp\rag-project-github-actions-20261017-v2\venv\Lib\site-packages\jieba\_compat.py:18: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    import pkg_resources
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+60 passed, 4 warnings in 12.84s

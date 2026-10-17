@@ -1,0 +1,26 @@
+{
+  "verified_date": "2026-10-17",
+  "actions": [
+    {
+      "repository": "actions/checkout",
+      "version": "v5.0.0",
+      "sha": "08c6903cd8c0fde910a37f88322edcfb5dd907a8",
+      "source_url": "https://api.github.com/repos/actions/checkout/git/ref/tags/v5.0.0",
+      "action_yml_url": "https://github.com/actions/checkout/blob/08c6903cd8c0fde910a37f88322edcfb5dd907a8/action.yml",
+      "runtime": "node24"
+    },
+    {
+      "repository": "astral-sh/setup-uv",
+      "version": "v7.0.0",
+      "sha": "eb1897b8dc4b5d5bfe39a428a8f2304605e0983c",
+      "source_url": "https://api.github.com/repos/astral-sh/setup-uv/git/ref/tags/v7.0.0",
+      "action_yml_url": "https://github.com/astral-sh/setup-uv/blob/eb1897b8dc4b5d5bfe39a428a8f2304605e0983c/action.yml",
+      "runtime": "node24"
+    }
+  ],
+  "uv_version": "0.11.3",
+  "uv_release_url": "https://github.com/astral-sh/uv/releases/tag/0.11.3",
+  "uv_linux_x86_64_archive_sha256": "c0f3236f146e55472663cfbcc9be3042a9f1092275bbe3fe2a56a6cbfd3da5ce",
+  "method": "Public unauthenticated official GitHub refs API plus exact-commit action.yml; no account credentials used.",
+  "remote_workflow_result": "pending first remote validation"
+}

@@ -4,6 +4,8 @@
 
 ## 当前能力与证据
 
+- **轻量GitHub Actions（2026-10-17，待首次远端验证）**：新增PR、main push和手动触发的单Ubuntu24.04工作流，Python3.12/uv0.11.3，按锁仅安装运行依赖+dev、排除ml；两个Action固定已核实完整SHA，只读权限/15分钟超时。实际审查后显式选择12个合成测试模块，未按quick标签全选。actionlint静态通过；Windows全新临时环境同命令60 passed、4条jieba既有警告，锁文件未改。未运行冻结集/真实资料或服务，不能替代Windows Docker、GPU、浏览器及生产验收；托管Actions没有运行，详见[选择依据与验证记录](artifacts/iterations/2026-10-17-github-actions/development-log.md)。新增目录仅`.github/workflows/`和本轮artifact。
+
 - **内网团队交付补齐（2026-10-17，限定范围完成）**：独立分支补私域MCP动态路由/原文绑定、受管重排及错误传递、embedding批次锁、导入协作取消和离线/备份/诊断工具。两SDK定向合同通过；三镜像重新构建，隔离Docker恢复42文件/5个Qdrant collection后登录/授权/旧版409及MCP取证通过，未加载GPU。GPT子Agent实际取证回答；OpenCode连接通过，Claude待项目批准，完整CLI生成/目标机离线GPU/跨机/公司模型未验收。合成混合查询模型锁等待中位49.6→24.7ms，不代表GPU吞吐；取消须等build安全点，非逐批即时取消。业务提交`1f97620`；现已按用户授权快进合入main，未推送/部署，原服务未重启。详见[交付报告](artifacts/iterations/2026-10-17-team-delivery/final-report.md)、[原始记录](artifacts/iterations/2026-10-17-team-delivery/development-log.md)、[合入记录](artifacts/iterations/2026-10-17-main-integration/development-log.md)和[人工清单](artifacts/iterations/2026-10-17-team-delivery/manual-checklist.md)；临时凭据/目录删除被自动审批拒绝，已列人工清理。
 
 - **评测界面可读性（2026-10-15）**：修复空表格DOM对象字符串，主列表隐藏内部编号/题集ID并收进详情，状态去重与换行；保留操作所需稳定ID。前端51项与静态资源200/摘要检查通过；真实桌面空状态、列表和读取已有对照结果已检查，未复验390px，不重跑模型评测；见[本轮记录](artifacts/iterations/2026-10-15-evaluation-readable-ui/development-log.md)。

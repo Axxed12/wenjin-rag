@@ -1,0 +1,2 @@
+forbidden_distributions=[]
+forbidden_module_specs={'torch': False, 'transformers': False, 'sentence_transformers': False, 'huggingface_hub': False}

@@ -1,0 +1,14 @@
+{
+  "tool": "actionlint",
+  "version": "1.7.7",
+  "command": "actionlint -no-color .github/workflows/ci.yml",
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "",
+  "os": "Windows local static validation",
+  "workflow_sha256": "9444eca65c6be00c870cf4c1fa0131f10220ec5cee4e7fb27e550cd6abd89b87",
+  "remote_actions_status": "pending first remote validation",
+  "pyproject_toml_unchanged": true,
+  "uv_lock_unchanged": true,
+  "tests_conftest_unchanged": true
+}

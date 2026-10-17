@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-17",
+  "checked_local_links": 165,
+  "missing_links": [],
+  "code_md_lines": 88,
+  "workflow_sha256": "9444eca65c6be00c870cf4c1fa0131f10220ec5cee4e7fb27e550cd6abd89b87",
+  "uv_lock_sha256": "1f32c3cea80ea944795e760c4029bc6bc3232717766c4f7dce3bd4c3bf15a3c9",
+  "main_baseline": "b976a623cb1de6f24f5fdd375907d340ed2991fe",
+  "tracked_modified_files": [
+    "code.md",
+    "docs/development-log.md"
+  ],
+  "hosted_status": "待首次远端验证"
+}
